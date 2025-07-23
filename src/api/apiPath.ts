@@ -1,0 +1,36 @@
+// API端点路径
+export const API_ENDPOINTS = {
+    // 认证相关
+    AUTH: {
+      SEND_VERIFICATION_CODE: '/auth/send_verification_code',
+      VERIFY_CODE: '/auth/verify_verification_code',
+      LOGIN: '/auth/login',
+      REGISTER: '/auth/register',
+      LOGOUT: '/auth/logout',
+      REFRESH_TOKEN: '/auth/refresh_token',
+      SET_PASSWORD: '/accounts/set_password',
+      MODIFY_PASSWORD: '/accounts/modify_password',
+      FORGOT_PASSWORD_RESET: '/accounts/forgot_password_reset',
+    },
+    MUSIC: {
+      GET_MUSIC_WORKS: '/music/works',
+      GENERATE_MUSIC: '/music/generate',
+      RECOMMEND_GENRES: '/music/genres',
+      GET_MUSIC_WORK_INFO: '/music/work_info',
+      MODIFY_MUSIC_TITLE: '/music/modify_title',
+      REGENERATE_MUSIC_WORK: '/music/regenerate',
+      DELETE_MUSIC_WORK: '/music/delete',
+      GET_MUSIC_TASK_STATUS: '/music/task_status',
+      SING_TO_MUSIC: '/music/sing',
+      SAVE_MUSIC_WORK: '/music/save',
+      POLISH_LYRICS: '/music/lyrics',
+    },
+    TRANSLATE: {
+      TRANLATE_DOCUMENT: '/translations/translate/docs',
+      TRANLATE_IMAGE: '/translations/translate/imgs',
+      GET_TRANSLATION_TASK: '/translations/translate/docs',
+      GET_TRANSLATION_TASK_IMAGE: '/translations/translate/imgs',
+      TRANLATE_TEXT: '/translations/translate/text',
+      CREATE_CONVERSATION: '/conversations/new',
+    },
+  };

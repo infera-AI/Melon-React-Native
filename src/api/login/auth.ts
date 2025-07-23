@@ -21,16 +21,36 @@
     // })
     // console.log('rsp11----', rsp);
  */
-
-import type { GetLoginCodeParams, LoginParams, LoginResult } from './types'
+import type { GetLoginCodeParams, LoginRequest, LoginRes, ForgotPasswordResetRequest, ModifyPasswordReq, RegisterRequest, VerifyCodeRequest } from './types'
 import http from '../../utils/http'
+import { API_ENDPOINTS } from '../apiPath';
 
-// 获取验证码接口
+// 获取验证码
 export function getLoginCodeApi(data: GetLoginCodeParams) {
-  return http.post<any>('/auth/send_verification_code', data)
+  return http.post<any>(API_ENDPOINTS.AUTH.SEND_VERIFICATION_CODE, data)
 }
 
-// 用户登录接口
-export function loginApi(data: LoginParams) {
-  return http.post<LoginResult>('/auth/send_verification_code', data)
+// 验证验证码
+export async function verifyCode(data: VerifyCodeRequest) {
+  return http.post(API_ENDPOINTS.AUTH.VERIFY_CODE, data);
+}
+
+// 设备登录
+export function loginWithDevice(params: LoginRequest) {
+  return http.post<LoginRes>(API_ENDPOINTS.AUTH.LOGIN, params);    
+}
+
+// 修改密码
+export function modifyPassword(params: ModifyPasswordReq) {
+  return http.post<any>(API_ENDPOINTS.AUTH.MODIFY_PASSWORD, params);
+}
+
+// 注册
+export function registerWithToken(params: RegisterRequest) {
+  return http.post<any>(API_ENDPOINTS.AUTH.REGISTER, params);
+}
+
+// 忘记密码重设
+export function forgotPasswordReset(params: ForgotPasswordResetRequest) {
+  return http.post<any>(API_ENDPOINTS.AUTH.FORGOT_PASSWORD_RESET, params);
 }
