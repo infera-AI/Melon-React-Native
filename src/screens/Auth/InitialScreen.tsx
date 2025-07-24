@@ -5,7 +5,9 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { AuthStackParamList } from './AuthNavigator';
 
 const InitialScreen = () => {
-  const navigation = useNavigation<NativeStackNavigationProp<AuthStackParamList>>();
+  // const navigation = useNavigation<NativeStackNavigationProp<AuthStackParamList>>();
+  // 测试用
+  const navigation = useNavigation<NativeStackNavigationProp<any>>();
 
   return (
     <View style={styles.container}>
@@ -36,7 +38,9 @@ const InitialScreen = () => {
       </View>
       <TouchableOpacity
         style={styles.registerButton}
-        onPress={() => navigation.navigate('RegisterPhone')}
+        // onPress={() => navigation.navigate('RegisterPhone')}
+        // 测试用
+        onPress={() => navigation.reset({index: 0, routes: [{name: 'MainApp'}]})}
       >
         <Text style={styles.registerButtonText}>Register a lingo account</Text>
       </TouchableOpacity>
