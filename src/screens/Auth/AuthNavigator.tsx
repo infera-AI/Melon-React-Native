@@ -1,5 +1,5 @@
 import React from 'react';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { createStackNavigator } from '@react-navigation/stack';
 
 import LoginEmailScreen from './LoginEmailScreen';
 import LoginPhoneScreen from './LoginPhoneScreen';
@@ -9,7 +9,7 @@ import ForgotPasswordScreen from './ForgotPasswordScreen';
 import VerifyCodeScreen from './VerifyCodeScreen';
 import ResetPasswordScreen from './ResetPasswordScreen';
 
-import InitialScreen from './InitialScreen';
+import WelcomeScreen from './WelcomeScreen';
 
 export type AuthStackParamList = {
   Initial: undefined;
@@ -22,11 +22,11 @@ export type AuthStackParamList = {
   ResetPassword: undefined;
 };
 
-const Stack = createNativeStackNavigator<AuthStackParamList>();
+const Stack = createStackNavigator<AuthStackParamList>();
 
 const AuthNavigator: React.FC = () => (
   <Stack.Navigator initialRouteName="Initial" screenOptions={{ headerShown: false }}>
-    <Stack.Screen name="Initial" component={InitialScreen} />
+    <Stack.Screen name="Initial" component={WelcomeScreen} />
     <Stack.Screen name="LoginEmail" component={LoginEmailScreen} />
     <Stack.Screen name="LoginPhone" component={LoginPhoneScreen} />
     <Stack.Screen name="RegisterEmail" component={RegisterEmailScreen} />

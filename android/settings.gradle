@@ -4,3 +4,9 @@ extensions.configure(com.facebook.react.ReactSettingsExtension){ ex -> ex.autoli
 rootProject.name = 'Melon'
 include ':app'
 includeBuild('../node_modules/@react-native/gradle-plugin')
+
+// 为所有项目禁用新架构以避免兼容性问题
+gradle.beforeProject { project ->
+    project.ext.set('newArchEnabled', false)
+    project.ext.set('hermesEnabled', false)
+}
