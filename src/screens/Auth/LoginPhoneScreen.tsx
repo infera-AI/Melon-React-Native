@@ -1,7 +1,14 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import { useNavigationState } from '@react-navigation/native';
 
 const LoginPhoneScreen: React.FC = () => {
+  const navState = useNavigationState(state => state);
+
+  useEffect(() => {
+    console.log('当前导航状态:', JSON.stringify(navState, null, 2));
+  }, [navState])
+
   return (
     <View style={styles.container}>
       <Text style={styles.text}>Login with Phone</Text>

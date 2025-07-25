@@ -1,6 +1,7 @@
 import React from 'react';
 import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
+// import { createStackNavigator } from '@react-navigation/stack';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import SplashScreen from '../screens/SplashScreen';
 import LanguageScreen from '../screens/LanguageScreen';
 import AuthNavigator from '../screens/Auth/AuthNavigator';
@@ -17,7 +18,8 @@ export type RootStackParamList = {
   MainApp: NavigatorScreenParams<MainAppStackParamList>;
 };
 
-const Stack = createStackNavigator<RootStackParamList>();
+// const Stack = createStackNavigator<RootStackParamList>();
+const Stack = createNativeStackNavigator<RootStackParamList>();
 
 const MyTheme = {
   ...DefaultTheme,
@@ -34,7 +36,6 @@ const AppNavigator = () => {
         initialRouteName="Splash"
         screenOptions={{
           headerShown: false, // 由页面自定义 header
-          cardStyle: { backgroundColor: '#000' }, // 统一页面切换背景色
         }}
       >
         <Stack.Screen name="Splash" component={SplashScreen} />
