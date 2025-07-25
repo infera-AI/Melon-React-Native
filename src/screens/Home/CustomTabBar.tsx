@@ -1,4 +1,5 @@
-import { View, TouchableOpacity, Image, StyleSheet } from 'react-native';
+import { useEffect, useState } from 'react'
+import { View, TouchableOpacity, Image, StyleSheet, Keyboard } from 'react-native';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import EStyleSheet from 'react-native-extended-stylesheet';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -23,7 +24,23 @@ const CustomTabBar = ({
     descriptors,
     navigation
 }: BottomTabBarProps) => {
+  const [isKeyboardVisible, setKeyboardVisible] = useState(false)
   const insets = useSafeAreaInsets(); // 获取安全区域距离
+  useEffect(() => {
+    const showSub = Keyboard.addListener('keyboardDidShow', () => {
+      setKeyboardVisible(true)
+    })
+    const hideSub = Keyboard.addListener('keyboardDidHide', () => {
+      setKeyboardVisible(false)
+    })
+
+    return () => {
+      showSub.remove()
+      hideSub.remove()
+    }
+  }, [])
+
+  if (isKeyboardVisible) return null // 👈 键盘弹出时不显示 tabBar
   return (
     <View style={styles.outContainer}>
       <View
