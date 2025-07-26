@@ -11,11 +11,14 @@ import { NavigatorScreenParams } from '@react-navigation/native';
 import { AuthStackParamList } from '../screens/Auth/AuthNavigator';
 import { MainAppStackParamList } from './MainAppNavigator';
 
+import ChatScreen from '../screens/ChatScreen'
+
 export type RootStackParamList = {
   Splash: undefined;
   Language: undefined;
   Auth: NavigatorScreenParams<AuthStackParamList>;
   MainApp: NavigatorScreenParams<MainAppStackParamList>;
+  Chat: undefined;
 };
 
 // const Stack = createStackNavigator<RootStackParamList>();
@@ -48,6 +51,7 @@ const AppNavigator = () => {
           options={{ gestureEnabled: false }} // 禁用返回手势
         />
         {/* 这里可继续添加其他页面 */}
+        <Stack.Screen name="Chat" component={ChatScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

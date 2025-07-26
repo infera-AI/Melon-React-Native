@@ -1,3 +1,13 @@
+/**
+ * 使用示例：
+ * import FullScreenLoader from '@/components/FullScreenLoader';
+ * <FullScreenLoader
+      visible={loading}
+      text="请稍后..."
+      timeout={5000}
+      onTimeout={() => setLoading(false)}
+    />
+ */
 import React, { useEffect } from 'react';
 import {
   Modal,

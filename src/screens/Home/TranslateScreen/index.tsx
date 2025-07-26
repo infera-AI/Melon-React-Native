@@ -10,16 +10,26 @@ import {
   Dimensions,
   Image
 } from 'react-native';
-import { useLanguage } from '../../../contexts/LanguageContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import LinearGradient from 'react-native-linear-gradient'; // 渐变色
 import { useSafeAreaInsets } from 'react-native-safe-area-context'; // 安全区
-import EStyleSheet from 'react-native-extended-stylesheet';
+// import EStyleSheet from 'react-native-extended-stylesheet';
 import Modal from 'react-native-modal';
-import FullScreenLoader from '../../../components/FullScreenLoader';
+import FullScreenLoader from '@/components/FullScreenLoader';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { RootStackParamList } from '@/navigation/AppNavigator'
+import { useMessageModal } from '@/contexts/MessageModalContext';
 
 const { width } = Dimensions.get('window');
+const pageLRPadding = 16 // 页面左右间距
+const numColumns = 2;
+const gutter = 12; // 每行item 的间距
+const itemWidth = (width - pageLRPadding * 2 - gutter) / numColumns;
 
 const TranslateScreen: React.FC = () => {
+  const { show } = useMessageModal();
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { t } = useLanguage();
   const [langModalVisible, setLangModalVisible] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -30,7 +40,14 @@ const TranslateScreen: React.FC = () => {
   const handlePress = (name: string) => () => {
     // TODO: 实现具体功能
     // console.log(`${name} pressed`);
-    setLoading(true)
+    if (name === 'SpeakerMode') {
+      navigation.navigate('Chat')
+    }
+    // setLoading(true)
+
+    // show({
+    //   message: '211212'
+    // })
   };
 
   return (
@@ -193,12 +210,11 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
   },
   contentContainer: {
-    paddingHorizontal: 16,
+    paddingHorizontal: pageLRPadding,
     paddingBottom: 32,
   },
   headerCard: {
     borderRadius: 12,
-    marginBottom: 20,
     position: 'relative',
     overflow: 'hidden',
     alignItems: 'center',
@@ -253,7 +269,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '500',
     color: '#fff',
-    marginTop: 4,
+    marginTop: 24,
   },
   // 主菜单左对齐
   modeRow: {
@@ -375,19 +391,22 @@ const styles = StyleSheet.create({
     padding: 0,
     margin: 0,
     backgroundColor: 'transparent',
+    textAlignVertical: 'top',
   },
   modeGridBox: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
-    marginTop: 12,
+    marginTop: 18,
+    gap: 12,
   },
   modeCard: {
-    width: '48%',
+    width: itemWidth,
+    position: 'relative',
+    overflow: 'hidden',
     // aspectRatio: 1.65,
     backgroundColor: '#262626',
     borderRadius: 12,
-    marginBottom: 16,
     // alignItems: 'center',
     // justifyContent: 'center',
     padding: 12,
