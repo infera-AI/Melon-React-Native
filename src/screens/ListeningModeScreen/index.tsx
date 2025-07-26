@@ -167,7 +167,7 @@ const ListeningModeScreen: React.FC = () => {
           isSlice &&
           <Animated.View style={[styles.animatedContainer]}>
             <ScrollView style={[styles.scroll]} contentContainerStyle={styles.contentContainer} keyboardShouldPersistTaps="handled">
-              <Text style={{fontSize: 16, color: '#B0B0B0', lineHeight: 24, marginTop: 16}}>
+              <Text style={{fontSize: textSize, color: '#B0B0B0', lineHeight: textSize + 8, marginTop: 16}}>
                 17 years later, the author went to college, but chose an expensive one, spending, parents' savings. After 6 months, seeing, no value, not knowing life goals or college's help, decided to drop out. It was scary but a great decision. After dropping out, could stop uninteresting required classes and take interesting ones.
               </Text>
             </ScrollView>
@@ -185,9 +185,13 @@ const ListeningModeScreen: React.FC = () => {
               </Text>
             </View>
           }
-          <Text style={{fontSize: 16, color: '#B0B0B0', lineHeight: 24}}>
-            十七岁上大学，选了昂贵学校，花光蓝领父母积蓄。六个月后看不到价值，不知人生目标和大学作用，决定退学。当时害怕，后觉是正确决定。退学后可放弃不感兴趣必修课，选有趣课程。
-          </Text>
+          {
+            isSlice &&
+            <Text style={{fontSize: textSize, color: '#B0B0B0', lineHeight: textSize + 8}}>
+              十七岁上大学，选了昂贵学校，花光蓝领父母积蓄。六个月后看不到价值，不知人生目标和大学作用，决定退学。当时害怕，后觉是正确决定。退学后可放弃不感兴趣必修课，选有趣课程。
+            </Text>
+          }
+          
           
         </ScrollView>
 
@@ -213,14 +217,9 @@ const ListeningModeScreen: React.FC = () => {
               <Image source={require('../../../assets/images/ChatScreen_TextSize_Small.png')} style={styles.playAudioImg}/>
             </TouchableOpacity>
           </View>
-          {/* 分屏按钮 */}
+          {/* 复制按钮 */}
           <TouchableOpacity onPress={sliceBtnClick()}>
-            {
-              isSlice ?
-              <Image source={require('../../../assets/images/ChatScreen_Slice_open.png')} style={styles.playAudioImg}/>
-              :
-              <Image source={require('../../../assets/images/ChatScreen_Slice_close.png')} style={styles.playAudioImg}/>
-            }
+            <Image source={require('../../../assets/images/ListeningScreen_Copy.png')} style={styles.copyImg}/>
           </TouchableOpacity>
         </View>
       </View>
@@ -349,6 +348,10 @@ const styles = StyleSheet.create({
   playAudioImg: {
     width: 22,
     height: 22,
+  },
+  copyImg: {
+    width: 20,
+    height: 20,
   },
   langSelectRow: {
     width: contentWidth,
