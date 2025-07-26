@@ -1,4 +1,4 @@
-// Speaker Mode Page
+// 耳机模式页面
 import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
@@ -40,7 +40,7 @@ if (
 
 
 
-const ChatScreen: React.FC = () => {
+const HeadphoneModeScreen: React.FC = () => {
 
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { t } = useLanguage();
@@ -158,7 +158,7 @@ const ChatScreen: React.FC = () => {
       }
     ]}>
       <CustomNavigation
-        text="Speaker Mode"
+        text="Headphone Mode"
         backgroundColor="#181819"
         onBack={() => navigation.goBack()}
       />
@@ -167,9 +167,11 @@ const ChatScreen: React.FC = () => {
           isSlice &&
           <Animated.View style={[styles.animatedContainer, { opacity: sliceOpacity }]}>
             <ScrollView style={[styles.scroll, {transform: [{ scaleY: -1 }]}]} contentContainerStyle={styles.contentContainer} keyboardShouldPersistTaps="handled">
-              {/* <Text style={styles.noDataTipText}>
-                Press and hold the voice button to speak, release to send.
-              </Text> */}
+              {/* <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
+                <Text style={[styles.noDataTipText, {textAlign: 'center'}]}>
+                  {`Press and hold the voice button to speak, and send loosely\n\nThe translation will be broadcast in the headphones, and you can wear one of the headphones with the other person`}
+                </Text>
+              </View> */}
               <View style={styles.msgItems}>
                 {/* 我的消息 */}
                 <View style={[styles.msgItem, styles.msgItemMy]}>
@@ -224,9 +226,11 @@ const ChatScreen: React.FC = () => {
 
         {/* 对话滚动区域 */}
         <ScrollView style={styles.scroll} contentContainerStyle={styles.contentContainer} keyboardShouldPersistTaps="handled">
-          {/* <Text style={styles.noDataTipText}>
-            Press and hold the voice button to speak, release to send.
-          </Text> */}
+          {/* <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
+            <Text style={[styles.noDataTipText, {textAlign: 'center'}]}>
+              {`Press and hold the voice button to speak, and send loosely\n\nThe translation will be broadcast in the headphones, and you can wear one of the headphones with the other person`}
+            </Text>
+          </View> */}
           <View style={styles.msgItems}>
             {/* 我的消息 */}
             <View style={[styles.msgItem, styles.msgItemMy]}>
@@ -287,6 +291,7 @@ const ChatScreen: React.FC = () => {
               </View>
             </View>
           </View>
+          
         </ScrollView>
 
 
@@ -489,7 +494,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#3E3E3E',
   },
   msgTextMy: {
-    color: '#85F380',
+    color: '#fff',
+    // color: '#85F380',
   },
   lineViewOther: {
     backgroundColor: '#3E3E3E6a',
@@ -508,7 +514,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#878787',
   },
   msgTextOther: {
-    color: '#303437',
+    color: '#fff',
+    // color: '#303437',
   },
 
 
@@ -601,4 +608,4 @@ const styles = StyleSheet.create({
   }
 });
 
-export default ChatScreen;
+export default HeadphoneModeScreen;

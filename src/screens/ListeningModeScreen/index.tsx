@@ -1,4 +1,4 @@
-// Speaker Mode Page
+// 聆听模式页面
 import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
@@ -40,7 +40,7 @@ if (
 
 
 
-const ChatScreen: React.FC = () => {
+const ListeningModeScreen: React.FC = () => {
 
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { t } = useLanguage();
@@ -158,135 +158,37 @@ const ChatScreen: React.FC = () => {
       }
     ]}>
       <CustomNavigation
-        text="Speaker Mode"
+        text="Listening Mode"
         backgroundColor="#181819"
         onBack={() => navigation.goBack()}
       />
       <View style={styles.content}>
         {
           isSlice &&
-          <Animated.View style={[styles.animatedContainer, { opacity: sliceOpacity }]}>
-            <ScrollView style={[styles.scroll, {transform: [{ scaleY: -1 }]}]} contentContainerStyle={styles.contentContainer} keyboardShouldPersistTaps="handled">
-              {/* <Text style={styles.noDataTipText}>
-                Press and hold the voice button to speak, release to send.
-              </Text> */}
-              <View style={styles.msgItems}>
-                {/* 我的消息 */}
-                <View style={[styles.msgItem, styles.msgItemMy]}>
-                  <View style={[styles.msgTextView, styles.msgTextViewMy]}>
-                    <View style={[styles.msgTextViewPop, styles.msgTextViewPopMy]}>
-                      {/* <Text style={[styles.msgText, styles.msgTextMy, {transform: [{ scaleX: -1 }]}]}>
-                        你什么时候回国？
-                      </Text>
-                      <View style={[styles.lineView, styles.lineViewMy]}/> */}
-                      <Text style={[styles.msgText, styles.msgTextMy, {transform: [{ scaleX: -1 }], fontSize: textSize}]}>
-                        いつ帰国しますか？
-                      </Text>
-                    </View>
-                  </View>
-                  <View style={styles.headContent}>
-                    <Image
-                      source={{ uri: 'https://img0.baidu.com/it/u=1972874754,2380280904&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500' }}
-                      style={styles.headImg}
-                      resizeMode='cover'
-                    />
-                  </View>
-                </View>
-                
-                {/* 对方的消息 */}
-                <View style={[styles.msgItem, styles.msgItemOther]}>
-                  <View style={styles.headContent}>
-                    <Image
-                      source={{ uri: 'https://img0.baidu.com/it/u=1972874754,2380280904&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500' }}
-                      style={styles.headImg}
-                      resizeMode='cover'
-                    />
-                  </View>
-                  <View style={[styles.msgTextView, styles.msgTextViewOther]}>
-                    <View style={[styles.msgTextViewPop, styles.msgTextViewPopOther]}>
-                      {/* <Text style={[styles.msgText, styles.msgTextOther, {transform: [{ scaleX: -1 }]}]}>
-                        我下周三回去
-                      </Text>
-                      <View style={[styles.lineView, styles.lineViewOther]}/> */}
-                      <Text style={[styles.msgText, styles.msgTextOther, {transform: [{ scaleX: -1 }], fontSize: textSize}]}>
-                        来週の水曜日に帰ります。
-                      </Text>
-                    </View>
-                  </View>
-                </View>
-              </View>
+          <Animated.View style={[styles.animatedContainer]}>
+            <ScrollView style={[styles.scroll]} contentContainerStyle={styles.contentContainer} keyboardShouldPersistTaps="handled">
+              <Text style={{fontSize: 16, color: '#B0B0B0', lineHeight: 24, marginTop: 16}}>
+                17 years later, the author went to college, but chose an expensive one, spending, parents' savings. After 6 months, seeing, no value, not knowing life goals or college's help, decided to drop out. It was scary but a great decision. After dropping out, could stop uninteresting required classes and take interesting ones.
+              </Text>
             </ScrollView>
             <View style={{height: 1, backgroundColor: '#B0B0B080', marginHorizontal: pageLR, marginVertical: 16,}}></View>
           </Animated.View>
         }
 
-
-
         {/* 对话滚动区域 */}
         <ScrollView style={styles.scroll} contentContainerStyle={styles.contentContainer} keyboardShouldPersistTaps="handled">
-          {/* <Text style={styles.noDataTipText}>
-            Press and hold the voice button to speak, release to send.
-          </Text> */}
-          <View style={styles.msgItems}>
-            {/* 我的消息 */}
-            <View style={[styles.msgItem, styles.msgItemMy]}>
-              <View style={[styles.msgTextView, styles.msgTextViewMy]}>
-                <View style={[styles.msgTextViewPop, styles.msgTextViewPopMy]}>
-                  <Text style={[styles.msgText, styles.msgTextMy, {fontSize: textSize}]}>
-                    你什么时候回国？
-                  </Text>
-                  {
-                    isSlice ?
-                    null
-                    :
-                    <>
-                      <View style={[styles.lineView, styles.lineViewMy]}/>
-                      <Text style={[styles.msgText, styles.msgTextMy, {fontSize: textSize}]}>
-                        いつ帰国しますか？
-                      </Text>
-                    </>
-                  }
-                  
-                </View>
-              </View>
-              <View style={styles.headContent}>
-                <Image
-                  source={{ uri: 'https://img0.baidu.com/it/u=1972874754,2380280904&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500' }}
-                  style={styles.headImg}
-                  resizeMode='cover'
-                />
-              </View>
+          {
+            !isSlice &&
+            <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
+              <Text style={[styles.noDataTipText, {textAlign: 'center'}]}>
+                {`Click the voice button to start listening\nClick Pause again`}
+              </Text>
             </View>
-            
-            {/* 对方的消息 */}
-            <View style={[styles.msgItem, styles.msgItemOther]}>
-              <View style={styles.headContent}>
-                <Image
-                  source={{ uri: 'https://img0.baidu.com/it/u=1972874754,2380280904&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500' }}
-                  style={styles.headImg}
-                  resizeMode='cover'
-                />
-              </View>
-              <View style={[styles.msgTextView, styles.msgTextViewOther]}>
-                <View style={[styles.msgTextViewPop, styles.msgTextViewPopOther]}>
-                  <Text style={[styles.msgText, styles.msgTextOther, {fontSize: textSize}]}>
-                    我下周三回去
-                  </Text>
-                  {
-                    isSlice ?
-                    null
-                    :
-                    <>
-                      <View style={[styles.lineView, styles.lineViewOther]}/>
-                      <Text style={[styles.msgText, styles.msgTextOther, {fontSize: textSize}]}>
-                        来週の水曜日に帰ります。
-                      </Text>
-                    </>
-                  }
-                </View>
-              </View>
-            </View>
-          </View>
+          }
+          <Text style={{fontSize: 16, color: '#B0B0B0', lineHeight: 24}}>
+            十七岁上大学，选了昂贵学校，花光蓝领父母积蓄。六个月后看不到价值，不知人生目标和大学作用，决定退学。当时害怕，后觉是正确决定。退学后可放弃不感兴趣必修课，选有趣课程。
+          </Text>
+          
         </ScrollView>
 
 
@@ -421,7 +323,7 @@ const styles = StyleSheet.create({
   scroll: {
     flex: 1,
     backgroundColor: 'transparent',
-    paddingVertical: pageLR,
+    // paddingVertical: pageLR,
   },
   contentContainer: {
     paddingHorizontal: pageLR,
@@ -437,82 +339,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#B0B0B080',
   },
-
-
-  msgItems: {
-    gap: 20,
-  },
-  msgItem: {
-    width: '100%',
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-  },
-  msgTextView: {
-    flex: 1,
-  },
-  msgText: {
-    maxWidth: '100%',
-  },
-  msgTextViewPop: {
-    paddingVertical: 10,
-    paddingHorizontal: 16,
-  },
-  headContent: {
-    width: 36,
-    height: 36,
-    borderRadius: '50%',
-    overflow: 'hidden',
-  },
-  headImg: {
-    width: '100%',
-    height: '100%',
-  },
-  lineView: {
-    alignSelf: 'stretch',
-    height: 1,
-    marginVertical: 14,
-  },
-  lineViewMy: {
-    backgroundColor: '#b0b0b06a',
-  },
-  msgItemMy: {
-    justifyContent: 'flex-end',
-  },
-  msgTextViewMy: {
-    alignItems: 'flex-end',
-    marginRight: 10,
-  },
-  msgTextViewPopMy: {
-    borderTopLeftRadius: 14,
-    borderBottomLeftRadius: 14,
-    borderBottomRightRadius: 14,
-    backgroundColor: '#3E3E3E',
-  },
-  msgTextMy: {
-    color: '#85F380',
-  },
-  lineViewOther: {
-    backgroundColor: '#3E3E3E6a',
-  },
-  msgItemOther: {
-    justifyContent: 'flex-start',
-  },
-  msgTextViewOther: {
-    alignItems: 'flex-start',
-    marginLeft: 10,
-  },
-  msgTextViewPopOther: {
-    borderTopRightRadius: 14,
-    borderBottomLeftRadius: 14,
-    borderBottomRightRadius: 14,
-    backgroundColor: '#878787',
-  },
-  msgTextOther: {
-    color: '#303437',
-  },
-
-
-
 
   leftBtns: {
     flex: 1,
@@ -601,4 +427,4 @@ const styles = StyleSheet.create({
   }
 });
 
-export default ChatScreen;
+export default ListeningModeScreen;

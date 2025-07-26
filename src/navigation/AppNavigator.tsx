@@ -11,7 +11,9 @@ import { NavigatorScreenParams } from '@react-navigation/native';
 import { AuthStackParamList } from '../screens/Auth/AuthNavigator';
 import { MainAppStackParamList } from './MainAppNavigator';
 
-import ChatScreen from '../screens/ChatScreen'
+import ChatScreen from '@/screens/ChatScreen'
+import HeadphoneModeScreen from '@/screens/HeadphoneModeScreen'
+import ListeningModeScreen from '@/screens/ListeningModeScreen'
 
 export type RootStackParamList = {
   Splash: undefined;
@@ -19,6 +21,8 @@ export type RootStackParamList = {
   Auth: NavigatorScreenParams<AuthStackParamList>;
   MainApp: NavigatorScreenParams<MainAppStackParamList>;
   Chat: undefined;
+  HeadphoneMode: undefined;
+  ListeningMode: undefined;
 };
 
 // const Stack = createStackNavigator<RootStackParamList>();
@@ -52,6 +56,8 @@ const AppNavigator = () => {
         />
         {/* 这里可继续添加其他页面 */}
         <Stack.Screen name="Chat" component={ChatScreen} />
+        <Stack.Screen name="HeadphoneMode" component={HeadphoneModeScreen} />
+        <Stack.Screen name="ListeningMode" component={ListeningModeScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

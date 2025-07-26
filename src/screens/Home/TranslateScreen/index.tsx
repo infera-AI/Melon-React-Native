@@ -42,6 +42,10 @@ const TranslateScreen: React.FC = () => {
     // console.log(`${name} pressed`);
     if (name === 'SpeakerMode') {
       navigation.navigate('Chat')
+    } else if (name === 'HeadphoneMode') {
+      navigation.navigate('HeadphoneMode')
+    } else if (name === 'ListeningMode') {
+      navigation.navigate('ListeningMode')
     }
     // setLoading(true)
 
