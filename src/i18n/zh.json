@@ -5,5 +5,50 @@
   "profile_screen": "个人资料页面",
   "select_language": "选择语言",
   "next": "下一步",
-  "subtitle2_translation": "很高兴可以用你的声音和你交流"
+  "subtitle2_translation": "很高兴可以用你的声音和你交流",
+  "register": {
+    "agreement_text": "注册或登录即表示您已阅读并同意",
+    "user_service_agreement": "用户服务协议",
+    "and": "和",
+    "privacy_policy": "隐私政策",
+    "please_agree": "请先同意条款和条件",
+    "send_verification_code": "发送验证码",
+    "email_placeholder": "邮箱",
+    "phone_placeholder": "手机号",
+    "password_placeholder": "密码",
+    "register_melon_account": "注册Melon账户",
+    "phone_number": "手机号",
+    "e_mail": "邮箱",
+    "select_country": "选择国家"
+  },
+  "verify_code": {
+    "title": "验证码验证",
+    "subtitle": "验证码已发送至",
+    "input_placeholder": "请输入验证码",
+    "resend": "重新发送",
+    "countdown": "秒",
+    "confirm": "确认",
+    "not_received": "未收到验证码？",
+    "change_account": "更换账号"
+  },
+  "reset_password": {
+    "title": "恢复您的密码",
+    "subtitle": "请为您的Melon账户设置一个安全的登录密码。",
+    "new_password_placeholder": "请输入您的密码",
+    "confirm_password_placeholder": "重新输入新密码",
+    "password_requirements": "6-20个字符，包含字母和数字",
+    "confirm": "完成修改",
+    "password_mismatch": "密码不匹配"
+  },
+  "login_phone": {
+    "title": "登录Melon账户",
+    "phone_number": "手机号",
+    "e_mail": "邮箱",
+    "phone_placeholder": "手机号",
+    "email_placeholder": "邮箱",
+    "password_placeholder": "密码",
+    "log_in": "登录",
+    "forgot_password": "忘记密码？使用验证码登录",
+    "select_country": "选择国家"
+  }
 }

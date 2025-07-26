@@ -32,7 +32,7 @@ export function getLoginCodeApi(data: GetLoginCodeParams) {
 
 // 验证验证码
 export async function verifyCode(data: VerifyCodeRequest) {
-  return http.post(API_ENDPOINTS.AUTH.VERIFY_CODE, data);
+  return http.post<any>(API_ENDPOINTS.AUTH.VERIFY_CODE, data);
 }
 
 // 设备登录

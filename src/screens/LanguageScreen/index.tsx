@@ -164,7 +164,7 @@ onPress={() => {
           style={styles.nextBtn}
           onPress={() => {
             setLanguage(selected as 'en' | 'zh');
-            navigation.navigate('Auth', { screen: 'Initial' });
+            navigation.navigate('Auth', { screen: 'Welcome' });
           }}
         >
           <Text style={styles.nextBtnText}>{t('next') || 'Next'}</Text>

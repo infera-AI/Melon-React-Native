@@ -48,8 +48,19 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const t = (key: string): string => {
-    const dict = i18nData[language] as Record<string, string>;
-    return dict && dict[key] ? dict[key] : key;
+    const dict = i18nData[language] as Record<string, any>;
+    const keys = key.split('.');
+    let value = dict;
+    
+    for (const k of keys) {
+      if (value && typeof value === 'object' && k in value) {
+        value = value[k];
+      } else {
+        return key;
+      }
+    }
+    
+    return typeof value === 'string' ? value : key;
   };
 
   return (
