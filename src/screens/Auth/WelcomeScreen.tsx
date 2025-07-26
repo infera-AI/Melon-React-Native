@@ -14,6 +14,7 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import { AuthStackParamList } from './AuthNavigator';
 import theme from '../../utils/theme';
 import { useLanguage } from '../../contexts/LanguageContext';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 const normalize = (size: number, based: 'width' | 'height' = 'width') => {
@@ -72,7 +73,7 @@ const WelcomeScreen: React.FC = () => {
   };
 
   return (
-    <>
+    <SafeAreaView style={{flex: 1}} edges={['top','bottom','left','right']}>
       <View style={styles.container}>
         <StatusBar barStyle="light-content" backgroundColor={theme.background} />
         
@@ -108,7 +109,7 @@ const WelcomeScreen: React.FC = () => {
             
                        {/* Melon 标题 - 渐变色文字 */}
              <View style={styles.titleContainer}>
-               <Text style={styles.titleText}>Melon</Text>
+               <Image source={require('../../../src/assets/login/login_title_icon.png')} resizeMode="contain" style={styles.titleIcon} />
              </View>
             
             {/* 标语 - 渐变色文字 */}
@@ -213,7 +214,7 @@ const WelcomeScreen: React.FC = () => {
           </View>
         </View>
       )}
-     </>
+     </SafeAreaView>
    );
  };
 
@@ -287,6 +288,10 @@ const styles = StyleSheet.create({
       fontWeight: '700',
       textAlign: 'center',
       color: theme.textPrimary,
+    },
+    titleIcon: {
+      width: normalize(132),
+      height: normalize(32),
     },
     title: {
       fontSize: normalizeFontSize(48),

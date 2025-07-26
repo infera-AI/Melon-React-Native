@@ -17,6 +17,11 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import { AuthStackParamList } from './AuthNavigator';
 import theme from '../../utils/theme';
 import { useLanguage } from '../../contexts/LanguageContext';
+import { getDeviceInfo } from '../../utils';
+import { loginWithDevice } from '../../api/login';
+import { useUserStore } from '../../store';
+import { useMessageModal } from '../../contexts/MessageModalContext';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 const normalize = (size: number, based: 'width' | 'height' = 'width') => {
@@ -28,7 +33,7 @@ const normalizeFontSize = (size: number) => {
   return Math.min(Math.round(newSize), size);
 };
 
-type LoginPhoneScreenNavigationProp = StackNavigationProp<AuthStackParamList, 'LoginPhone'>;
+// type LoginPhoneScreenNavigationProp = StackNavigationProp<any, 'MainApp'>;
 
 // 国家数据
 const countries = [
@@ -41,7 +46,7 @@ const countries = [
 ];
 
 const LoginPhoneScreen: React.FC = () => {
-  const navigation = useNavigation<LoginPhoneScreenNavigationProp>();
+  const navigation = useNavigation<any>();
   const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState<'phone' | 'email'>('phone');
   const [selectedCountry, setSelectedCountry] = useState(countries[0]);
@@ -50,7 +55,7 @@ const LoginPhoneScreen: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-
+  const { show } = useMessageModal();
   useEffect(() => {
     console.log('showCountryModal changed:', showCountryModal);
   }, [showCountryModal]);
@@ -72,16 +77,50 @@ const LoginPhoneScreen: React.FC = () => {
     setPassword('');
   };
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
+    let account = '';
     if (activeTab === 'phone' && !phoneNumber) {
+      account = phoneNumber;
       return;
     }
     if (activeTab === 'email' && !email) {
+      account = email;   
       return;
     }
     if (!password) {
       return;
     }
+
+     // 获取当前设备的真实信息
+     const deviceInfo = getDeviceInfo();
+     console.log('deviceInfo', deviceInfo);
+     try{
+       // 调用登录接口并传入当前设备的真实信息
+       const loginResult = await loginWithDevice({
+        auth_type: activeTab,
+        identifier: account,
+        password: "melon_password", // 默认临时密码
+        device_info: deviceInfo
+      });
+      if (loginResult) {
+        // 保存登录返回的token到
+        console.log('注册并登录成功:', loginResult);
+       // 保存token到zustand
+       useUserStore.getState().setToken(loginResult.token);
+        // 跳转到密码设置页面
+        navigation.navigate('MainApp', {
+          screen: 'Translate',
+        });
+      } else {
+        show({
+         message: "login failed",
+       });
+      }
+          } catch (error:any) {
+       show({
+         message: `登录失败: ${error.message || '未知错误'}`,
+       });
+      }
     setIsSubmitting(true);
     // TODO: 登录API
     setTimeout(() => {
@@ -95,6 +134,7 @@ const LoginPhoneScreen: React.FC = () => {
   };
 
   return (
+    <SafeAreaView style={{flex: 1}} edges={['top','bottom','left','right']}>
     <View style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor={theme.background} />
       {/* 国家选择模态框 - 使用 View 模拟 Modal */}
@@ -249,6 +289,7 @@ const LoginPhoneScreen: React.FC = () => {
         </View>
       </KeyboardAvoidingView>
     </View>
+    </SafeAreaView>
   );
 };
 
@@ -263,7 +304,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     marginTop: Platform.OS === 'ios' ? normalize(44, 'height') : normalize(24, 'height'),
-    marginBottom: normalize(32, 'height'),
   },
   backButton: {
     width: normalize(40),
@@ -290,6 +330,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'flex-start',
     marginBottom: normalize(32, 'height'),
+    marginTop: normalize(109, 'height'),
   },
   tabButton: {
     alignItems: 'center',
