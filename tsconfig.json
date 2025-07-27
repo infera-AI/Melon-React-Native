@@ -8,5 +8,9 @@
       ]
     }
   },
+  "include": [
+    "src/**/*",
+    "node_modules/@types"
+  ],
   "extends": "@react-native/typescript-config"
 }

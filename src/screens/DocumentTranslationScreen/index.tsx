@@ -1,17 +1,18 @@
 // 文档翻译页面
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   View,
   Text,
   Dimensions,
   StyleSheet,
   TouchableOpacity,
+  TouchableWithoutFeedback,
   Image,
   ScrollView,
+  Animated
 } from 'react-native';
 import { useLanguage } from '@/contexts/LanguageContext';
 import EStyleSheet from 'react-native-extended-stylesheet';
-import Modal from 'react-native-modal';
 import FullScreenLoader from '@/components/FullScreenLoader';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -19,6 +20,10 @@ import type { RootStackParamList } from '@/navigation/AppNavigator'
 import CustomNavigation from '@/components/CustomNavigation';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Octicons';
+import MaterialDesignIcon from 'react-native-vector-icons/MaterialCommunityIcons';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+
+import PublicModal from '@/components/PublicModal'
 
 const { width, height } = Dimensions.get('window');
 const pageLR = 16;
@@ -26,11 +31,18 @@ const contentWidth = width - pageLR * 2
 
 const contentMaxHeight = height * 0.6
 
+const downloadModalHeight = height * 0.4
+
 const UploadStatusEnum = {
   TYPE_NORMAL: 1, // 未上传
   TYPE_SUCCESS: 2, // 上传成功
   TYPE_TRANSLATING: 3, // 翻译中
   TYPE_TRANSLATION_SUCCESS: 4, // 翻译成功
+}
+
+const OriginalSwitchEnum = {
+  TYPE_ORIGINAL: 'original', // 原文
+  TYPE_TRANSLATION: 'translation', // 译文
 }
 
 const DocumentTranslationScreen: React.FC = () => {
@@ -40,6 +52,10 @@ const DocumentTranslationScreen: React.FC = () => {
   const [langModalVisible, setLangModalVisible] = useState(false);
   const [loading, setLoading] = useState(false);
   const [uploadStatus, setUploadStatus] = useState(UploadStatusEnum.TYPE_NORMAL);
+
+  const [originalSwitch, setOriginalSwitch] = useState(OriginalSwitchEnum.TYPE_ORIGINAL);
+
+  const [downloadModalShow, setDownloadModalShow] = useState(false)
 
   const insets = useSafeAreaInsets(); // 获取安全区域距离
 
@@ -59,6 +75,42 @@ const DocumentTranslationScreen: React.FC = () => {
   const cancelTranslationBtnClick = () => {
     // setUploadStatus(UploadStatusEnum.TYPE_NORMAL)
     setUploadStatus(UploadStatusEnum.TYPE_TRANSLATION_SUCCESS)
+  }
+
+  const originalSwitchChange = (type: string) => () => {
+    setOriginalSwitch(type)
+  }
+
+  const wordDownloadBtnAnim = useRef(new Animated.Value(0)).current; // 初始为 0
+  const pdfDownloadBtnAnim = useRef(new Animated.Value(0)).current; // 初始为 0
+
+  const wordBorderColor = wordDownloadBtnAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['transparent', '#85F380'], // 未按下 → 按下，改成你要的颜色
+  });
+
+  const pdfBorderColor = pdfDownloadBtnAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['transparent', '#85F380'], // 未按下 → 按下，改成你要的颜色
+  });
+
+  const wordBtnPressIn = (type: string) => {
+    Animated.timing(type === 'word' ? wordDownloadBtnAnim : pdfDownloadBtnAnim, {
+      toValue: 1, // 缩小一点
+      duration: 100,
+      useNativeDriver: false,
+    }).start(() => {
+     
+    });
+  }
+  const wordBtnPressOut = (type: string) => {
+    setTimeout(() => {
+      Animated.timing(type === 'word' ? wordDownloadBtnAnim : pdfDownloadBtnAnim, {
+        toValue: 0, // 缩小一点
+        useNativeDriver: false,
+      }).start();
+    }, 100)
+    
   }
 
   return (
@@ -148,7 +200,16 @@ const DocumentTranslationScreen: React.FC = () => {
           {
             uploadStatus === UploadStatusEnum.TYPE_TRANSLATION_SUCCESS &&
             <View style={[styles.uploadContent, {justifyContent: 'flex-start'}]}>
-
+              <View style={styles.titleView}>
+                <Text style={styles.titleViewText}>
+                  {`Cloud Virtual Machine Rental Contract\n(Template).docx`}
+                </Text>
+              </View>
+              <View style={styles.wordContent}>
+                <Text style={styles.wordContentText}>
+                  liability, and Party B agrees that Party A will directly seek compensation from Microsoft. Contract Changes and Termination Any changes or supplements to this contract must be agreed upon in writing by both parties and signed in a written agreement. 2 During the performance of the contract, if one party proposes to terminate the contract, it shall notify the other party in writing 30 days in advance: If the contract cannot be continued due to force majeure or other reasons stipulated by laws and regulations, this contract may be terminated in advance, and both parties shall not bear liability for breach of contract. Force majeure Force majeure refers to events that cannot be foreseen, avoided, or overcome. Due to force majeure
+                </Text>
+              </View>
             </View>
           }
 
@@ -171,6 +232,7 @@ const DocumentTranslationScreen: React.FC = () => {
           }
 
           {/* 上传成功显示重新上传按钮、开始翻译按钮 */}
+          {/* 重新上传按钮 */}
           {
             (uploadStatus === UploadStatusEnum.TYPE_SUCCESS || uploadStatus === UploadStatusEnum.TYPE_TRANSLATING) &&
             <TouchableOpacity
@@ -190,6 +252,7 @@ const DocumentTranslationScreen: React.FC = () => {
               </View>
             </TouchableOpacity>
           }
+          {/* 开始翻译按钮 */}
           {
             uploadStatus === UploadStatusEnum.TYPE_SUCCESS &&
             <TouchableOpacity onPress={startTranslationBtnClick}>
@@ -221,7 +284,48 @@ const DocumentTranslationScreen: React.FC = () => {
             </TouchableOpacity>
           }
         </ScrollView>
+
+        {/* 翻译成功状态--按钮操作区域 */}
+        {
+          uploadStatus === UploadStatusEnum.TYPE_TRANSLATION_SUCCESS &&
+          <View style={styles.optionsView}>
+            <View style={styles.switchView}>
+              <TouchableOpacity
+                style={[
+                  styles.switchBtn,
+                  originalSwitch === OriginalSwitchEnum.TYPE_ORIGINAL ? styles.switchBtnActive : {}
+                ]}
+                onPress={originalSwitchChange(OriginalSwitchEnum.TYPE_ORIGINAL)}
+              >
+                <Text style={styles.switchBtnText}>
+                  Original text
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[
+                  styles.switchBtn,
+                  originalSwitch === OriginalSwitchEnum.TYPE_TRANSLATION ? styles.switchBtnActive : {}
+                ]}
+                onPress={originalSwitchChange(OriginalSwitchEnum.TYPE_TRANSLATION)}
+              >
+                <Text style={styles.switchBtnText}>
+                  Translation
+                </Text>
+              </TouchableOpacity>
+            </View>
+            <Text style={styles.pageNumText}>
+              3/4
+            </Text>
+            <TouchableOpacity style={styles.downloadBtn} onPress={() => setDownloadModalShow(true)}>
+              <Text>
+                <MaterialDesignIcon name="arrow-collapse-down" size={23} color={'#ffffff'}/>
+              </Text>
+            </TouchableOpacity>
+          </View>
+        }
       </View>
+
+
       {/* 语言选择栏 */}
       {
         uploadStatus !== UploadStatusEnum.TYPE_TRANSLATION_SUCCESS &&
@@ -243,22 +347,108 @@ const DocumentTranslationScreen: React.FC = () => {
       }
       
       {/* 语言选择弹窗：底部弹出，高度400，方便后续自定义 */}
-      <Modal
-        isVisible={langModalVisible}
-        onBackdropPress={() => setLangModalVisible(false)}  // 点击背景关闭
-        animationIn="slideInUp"
-        animationOut="slideOutDown"
-        backdropOpacity={0.4}
-        backdropTransitionOutTiming={0} // 避免关闭时mask闪
-        style={{
-          justifyContent: 'flex-end', // 让 modal 停在底部
-          margin: 0, // 取消默认 margin，不然内容会上浮
+      <PublicModal
+        visible={langModalVisible}
+        onBackdropPress={() => setLangModalVisible(false)}
+        renderContent={() => {
+          return (
+            <View style={styles.modalContent}>
+              <Text>jshjhj</Text>
+            </View>
+          )
         }}
-      >
-        <View style={styles.modalContent}>
-          <Text>jshjhj</Text>
-        </View>
-      </Modal>
+      />
+
+      {/* 下载弹窗 */}
+      <PublicModal
+        visible={downloadModalShow}
+        onBackdropPress={() => setDownloadModalShow(false)}
+        renderContent={() => {
+          return (
+            <View style={[
+              styles.downloadModalContent,
+              {paddingBottom: insets.bottom ? insets.bottom : 16}
+            ]}>
+              <View style={styles.modalTitle}>
+                <View style={styles.textView}>
+                  <Text
+                    style={styles.titleText}
+                    numberOfLines={1}
+                    ellipsizeMode="tail"
+                  >
+                    Choose Download Format
+                  </Text>
+                </View>
+                <TouchableOpacity onPress={() => setDownloadModalShow(false)}>
+                  <Text>
+                    <Ionicons name='close-outline' size={28} color={'#ffffff'}/>
+                  </Text>
+                </TouchableOpacity>
+              </View>
+              <View style={styles.modalCenterView}>
+                <TouchableWithoutFeedback
+                  onPressIn={() => wordBtnPressIn('word')}
+                  onPressOut={() => wordBtnPressOut('word')}
+                >
+                  <Animated.View
+                    style={[
+                      styles.fileTypeBtn,
+                      {
+                        borderColor: wordBorderColor
+                      }
+                    ]}
+                  >
+                    <Image
+                      source={require('../../../assets/images/File_Type_Word.png')}
+                      resizeMode='contain'
+                      style={styles.fileTypeImg}
+                    />
+                  </Animated.View>
+                </TouchableWithoutFeedback>
+
+                <TouchableWithoutFeedback
+                  onPressIn={() => wordBtnPressIn('pdf')}
+                  onPressOut={() => wordBtnPressOut('pdf')}
+                >
+                  <Animated.View
+                    style={[
+                      styles.fileTypeBtn,
+                      {
+                        borderColor: pdfBorderColor
+                      }
+                    ]}
+                  >
+                    <Image
+                      source={require('../../../assets/images/File_Type_Pdf.png')}
+                      resizeMode='contain'
+                      style={styles.fileTypeImg}
+                    />
+                  </Animated.View>
+                </TouchableWithoutFeedback>
+              </View>
+              <View style={styles.btnsView}>
+                <TouchableOpacity
+                  style={[styles.modalBottomBtn]}
+                  onPress={() => setDownloadModalShow(false)}
+                >
+                  <Text style={styles.modalBottomBtnText}>
+                    Cancel
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.modalBottomBtn, styles.modalBottomBtnGreen]}
+                >
+                  <Text style={[styles.modalBottomBtnText, styles.modalBottomBtnText2]}>
+                    Download
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          )
+        }}
+      />
+
+      {/* loading */}
       <FullScreenLoader
         visible={loading}
         text="请稍后..."
@@ -336,6 +526,59 @@ const styles = StyleSheet.create({
     borderColor: '#85F380',
     borderWidth: 1,
   },
+  titleView: {
+    marginTop: 20,
+  },
+  titleViewText: {
+    fontSize: 18,
+    color: '#fff',
+    textAlign: 'center',
+    lineHeight: 24,
+  },
+  wordContent: {
+    marginTop: 20,
+  },
+  wordContentText: {
+    color: '#B0B0B0',
+    fontSize: 16,
+    lineHeight: 24,
+  },
+  optionsView: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+    paddingHorizontal: 16,
+  },
+  switchView: {
+    backgroundColor: '#181819',
+    borderRadius: 10,
+    padding: 6,
+    flex: 1,
+    gap: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  switchBtn: {
+    flex: 1,
+    paddingVertical: 8,
+    borderRadius: 6,
+    alignItems: 'center'
+  },
+  switchBtnActive: {
+    backgroundColor: '#ffffff37',
+  },
+  switchBtnText: {
+    color: '#fff',
+    fontSize: 18,
+  },
+  pageNumText: {
+    color: '#fff',
+    fontSize: 16,
+    marginLeft: 14,
+  },
+  downloadBtn: {
+    marginLeft: 16,
+  },
   langSelectRow: {
     width: contentWidth,
     marginLeft: pageLR,
@@ -382,7 +625,71 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 10,
     borderTopRightRadius: 10,
     height: 300,
-  }
+  },
+  downloadModalContent: {
+    backgroundColor: '#262626',
+    borderTopLeftRadius: 10,
+    borderTopRightRadius: 10,
+    height: downloadModalHeight,
+  },
+  modalTitle: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+  },
+  textView: {
+    flex: 1,
+    marginRight: 10,
+  },
+  titleText: {
+    fontSize: 18,
+    color: '#ffffff',
+  },
+  modalCenterView: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 40,
+  },
+  fileTypeBtn: {
+    backgroundColor: '#3E3E3E',
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 100,
+    height: 100,
+    borderWidth: 1,
+  },
+  fileTypeImg: {
+    width: '60%',
+  },
+  btnsView: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    paddingHorizontal: 16
+  },
+  modalBottomBtn: {
+    flex: 1,
+    paddingVertical: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 14,
+    backgroundColor: '#333333'
+  },
+  modalBottomBtnGreen: {
+    backgroundColor: '#85F380'
+  },
+  modalBottomBtnText: {
+    fontSize: 18,
+    fontWeight: '500',
+    color: '#ffffff'
+  },
+  modalBottomBtnText2: {
+    color: '#262626'
+  },
 });
 
 export default DocumentTranslationScreen;
