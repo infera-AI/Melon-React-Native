@@ -31,7 +31,7 @@ export type AuthStackParamList = {
 const Stack = createNativeStackNavigator<AuthStackParamList>();
 
 const AuthNavigator: React.FC = () => (
-  <Stack.Navigator initialRouteName="Initial" screenOptions={{ headerShown: false }}>
+  <Stack.Navigator initialRouteName="Welcome" screenOptions={{ headerShown: false }}>
     <Stack.Screen name="Initial" component={InitialScreen} />
     <Stack.Screen name="LoginPhone" component={LoginPhoneScreen} />
     <Stack.Screen name="RegisterEmail" component={RegisterEmailScreen} />

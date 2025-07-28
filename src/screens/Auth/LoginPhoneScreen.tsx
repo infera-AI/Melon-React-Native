@@ -22,6 +22,7 @@ import { loginWithDevice } from '../../api/login';
 import { useUserStore } from '../../store';
 import { useMessageModal } from '../../contexts/MessageModalContext';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { getUserInfo } from '../../api/profile/profile';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 const normalize = (size: number, based: 'width' | 'height' = 'width') => {
@@ -77,19 +78,25 @@ const LoginPhoneScreen: React.FC = () => {
     setPassword('');
   };
 
+  const getUserInfoRequest = async () => {
+    const res = await getUserInfo({});
+    console.log('UserInfo', res);
+    if(res.data){
+      useUserStore.getState().setUserInfo(res.data);
+    }
+  }
+
   const handleLogin = async () => {
-    let account = '';
     if (activeTab === 'phone' && !phoneNumber) {
-      account = phoneNumber;
       return;
     }
     if (activeTab === 'email' && !email) {
-      account = email;   
       return;
     }
     if (!password) {
       return;
     }
+    console.log('account',phoneNumber,email,password);
 
      // 获取当前设备的真实信息
      const deviceInfo = getDeviceInfo();
@@ -98,8 +105,8 @@ const LoginPhoneScreen: React.FC = () => {
        // 调用登录接口并传入当前设备的真实信息
        const loginResult = await loginWithDevice({
         auth_type: activeTab,
-        identifier: account,
-        password: "melon_password", // 默认临时密码
+        identifier: activeTab === 'phone'?phoneNumber:email,
+        password: password, 
         device_info: deviceInfo
       });
       if (loginResult) {
@@ -107,6 +114,7 @@ const LoginPhoneScreen: React.FC = () => {
         console.log('注册并登录成功:', loginResult);
        // 保存token到zustand
        useUserStore.getState().setToken(loginResult.token);
+       getUserInfoRequest();
         // 跳转到密码设置页面
         navigation.navigate('MainApp', {
           screen: 'Translate',

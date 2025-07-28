@@ -174,7 +174,7 @@ const RegisterEmailScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={{flex: 1}} edges={['top','bottom','left','right']}>
-      <View style={styles.container}>
+    <View style={styles.container}>
         <StatusBar barStyle="light-content" backgroundColor={theme.background} />
         <KeyboardAvoidingView
           style={{ flex: 1 }}
@@ -327,7 +327,7 @@ const RegisterEmailScreen: React.FC = () => {
           )}
 
         </KeyboardAvoidingView>
-      </View>
+    </View>
     </SafeAreaView>   
   );
 };
