@@ -33,4 +33,13 @@ export const API_ENDPOINTS = {
       TRANLATE_TEXT: '/translations/translate/text',
       CREATE_CONVERSATION: '/conversations/new',
     },
+            PROFILE: {
+          GET_USER_INFO: '/accounts/profile',
+          UPDATE_PROFILE: '/accounts/update_profile',
+          GET_VOICEPRINT_DEMO: '/accounts/voiceprint_demo_info',
+          GET_VOICEPRINT_DEMO_CONFIG: '/accounts/voiceprint/synthesize_demo_config',
+          SYNTHESIZE_SPEECH: '/accounts/voiceprint/synthesize_speech',
+          GET_VOICEPRINT_ENROLLMENT_CONFIG: '/accounts/voiceprint/enrollment_config',
+          UPLOAD_VOICEPRINT_RECORDING: '/accounts/voiceprint/upload_recording',
+        },
   };
