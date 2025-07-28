@@ -28,7 +28,10 @@ export const MessageModalProvider: React.FC<{ children: ReactNode }> = ({ childr
     setVisible(true);
   };
 
-  const hide = () => setVisible(false);
+  const hide = () => {
+    console.log('hide');
+    setVisible(false);
+  };
 
   return (
     <MessageModalContext.Provider value={{ show, hide }}>

@@ -11,6 +11,7 @@ export const theme = {
   textPrimary: '#FFFFFF',
   textSecondary: '#B0B0B0',
   textTertiary: '#808080',
+  textProfile: '#FF86D3',
   
   // 状态颜色
   success: '#4ECDC4',

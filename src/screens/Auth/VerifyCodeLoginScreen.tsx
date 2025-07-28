@@ -12,18 +12,14 @@ import {
   Image,
 } from 'react-native';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
-import { StackNavigationProp } from '@react-navigation/stack';
 import { AuthStackParamList } from './AuthNavigator';
 import theme from '../../utils/theme';
 import { useLanguage } from '../../contexts/LanguageContext';
-import { getLoginCodeApi, loginWithDevice, registerWithToken, verifyCode } from '../../api/login/auth';
+import { getLoginCodeApi,verifyCode } from '../../api/login/auth';
 import { useMessageModal } from '../../contexts/MessageModalContext';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useUserStore } from '../../store';
-import { getDeviceInfo } from '../../utils/helpers';
 import FullScreenLoader from '../../components/FullScreenLoader';
 import { SafeAreaView } from 'react-native-safe-area-context';
-
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 const normalize = (size: number, based: 'width' | 'height' = 'width') => {
   const newSize = based === 'height' ? size * screenHeight / 812 : size * screenWidth / 375;
@@ -35,14 +31,14 @@ const normalizeFontSize = (size: number) => {
 };
 
 type VerifyCodeScreenRouteProp = RouteProp<AuthStackParamList, 'VerifyCode'>;
-type VerifyCodeScreenNavigationProp = StackNavigationProp<AuthStackParamList, 'VerifyCode'>;
+// type VerifyCodeScreenNavigationProp = StackNavigationProp<AuthStackParamList, 'VerifyCode'>;
 
 
 const CODE_LENGTH = 6;
 const COUNTDOWN_SECONDS = 60;
 
-const VerifyCodeScreen: React.FC = () => {
-  const navigation = useNavigation<VerifyCodeScreenNavigationProp>();
+const VerifyCodeLoginScreen: React.FC = () => {
+  const navigation = useNavigation<any>();
   const route = useRoute<VerifyCodeScreenRouteProp>();
   const { t } = useLanguage();
   const [code, setCode] = useState<string[]>(Array(CODE_LENGTH).fill(''));
@@ -54,7 +50,6 @@ const VerifyCodeScreen: React.FC = () => {
   // 假设 route.params.account 传递手机号或邮箱
   const account = route.params?.account || '';
   const type = route.params?.type || 'phone';
-  const countryCode = route.params?.countryCode || '86';
 
   useEffect(() => {
     if (countdown > 0) {
@@ -107,15 +102,11 @@ const VerifyCodeScreen: React.FC = () => {
     if (countdown === 0 && !isResending) {
       setIsResending(true);
       
-      try {
-        // 从路由参数获取账户信息
-        const account = route.params?.account || '';
-        const type = route.params?.type || 'phone';
-        
+      try {        
         const params = {
           recipient_type: type,
-          identifier: account,
-          auth_purpose: 'register' as const, // 根据实际用途调整
+          identifier: account,  
+          auth_purpose: 'login' as const, // 根据实际用途调整
         };
         
         console.log('重新发送验证码参数:', params);
@@ -134,57 +125,6 @@ const VerifyCodeScreen: React.FC = () => {
     }
   };
 
-  const login = async () => {
-    // 获取当前设备的真实信息
-    const deviceInfo = getDeviceInfo();
-    console.log('deviceInfo', deviceInfo);
-    try{
-      // 调用登录接口并传入当前设备的真实信息
-      const loginResult = await loginWithDevice({
-       auth_type: type,
-       identifier: account,
-       password: "melon_password", // 默认临时密码
-       device_info: deviceInfo
-     });
-     if (loginResult) {
-       // 保存登录返回的token到本地
-       console.log('注册并登录成功:', loginResult);
-      // 保存token到zustand
-      useUserStore.getState().setToken(loginResult.token);
-       // 跳转到密码设置页面
-       navigation.navigate('ResetPassword');
-     } else {
-       show({
-        message: "login failed",
-      });
-     }
-         } catch (error:any) {
-      show({
-        message: `登录失败: ${error.message || '未知错误'}`,
-      });
-     }
-  }
-
-  const register = async () => {
-
-    try{
-      const token = useUserStore.getState().token || '';
-      // 调用注册接口
-       await registerWithToken({
-        auth_type: type,
-        identifier: account,
-        country_code: countryCode, // 默认使用中国区号，后续可以添加国家选择器
-        action_token: token, 
-      });
-      login()
-    } catch (error: any) {
-      show({
-        message: `注册失败: ${error.message || '未知错误'}`,
-      });
-    }
-   
-  }
-
   const handleConfirm = async () => {
       // 先测试跳转到重置密码页面
     if (code.join('').length === CODE_LENGTH && !isConfirming) {
@@ -194,15 +134,18 @@ const VerifyCodeScreen: React.FC = () => {
       const params = {
         recipient_type: type,
         identifier: account,
-        auth_purpose: 'register' as const, // 根据实际用途调整
+        auth_purpose: 'login' as const, // 根据实际用途调整
         verification_code: code.join(''),
       };
         const responseData = await verifyCode(params);
+        console.log('验证码登录API', responseData);
         if(responseData.action_token){
           console.log('验证码校验API', responseData);
           //存储action_token
           useUserStore.getState().setToken(responseData.action_token);
-          register()
+          navigation.navigate('MainApp', {
+            screen: 'Translate',
+          });
         }else{
           console.log('验证码校验失败', responseData);
           show({
@@ -223,91 +166,88 @@ const VerifyCodeScreen: React.FC = () => {
     navigation.goBack();
   };
 
-  const handleChangeAccount = () => {
-    navigation.goBack();
-  };
 
   return (
     <SafeAreaView style={{flex: 1}} edges={['top','bottom','left','right']}>
-      <View style={styles.container}>
-        <StatusBar barStyle="light-content" backgroundColor={theme.background} />
-        <KeyboardAvoidingView
-          style={{ flex: 1 }}
-          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    <View style={styles.container}>
+      <StatusBar barStyle="light-content" backgroundColor={theme.background} />
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      >
+        {/* 顶部返回和标题 */}
+        <View style={styles.header}>
+          <TouchableOpacity style={styles.backButton} onPress={handleBack}>
+            <Image source={require('../../../src/assets/main/page_return_icon.png')} style={styles.backArrow} />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>{t('verify_code.title')}</Text>
+          <View style={{ width: normalize(40) }} />
+        </View>
+
+        {/* 副标题 */}
+        <Text style={styles.subtitle}>
+        Verification code has been sent to your {type === 'phone' ? 'phone' : 'email'}
+        </Text>
+        <Text style={styles.accountText}> {account||'18888888888'} </Text>
+
+        {/* 验证码输入框 */}
+        <View style={styles.codeInputRow}>
+          {Array(CODE_LENGTH)
+            .fill(0)
+            .map((_, idx) => (
+              <TextInput
+                key={idx}
+                ref={(ref: TextInput | null) => { inputRefs.current[idx] = ref; }}
+                style={[styles.codeInput, code[idx] ? styles.codeInputFilled : null]}
+                keyboardType="number-pad"
+                maxLength={1}
+                value={code[idx]}
+                onChangeText={text => handleChange(text, idx)}
+                onKeyPress={e => handleKeyPress(e, idx)}
+                returnKeyType="next"
+                selectionColor={theme.primary}
+                autoFocus={idx === 0}
+              />
+            ))}
+        </View>
+
+        {/* 确认按钮 */}
+        <TouchableOpacity
+          style={[styles.confirmButton, code.join('').length === CODE_LENGTH ? styles.confirmButtonActive : null]}
+          onPress={handleConfirm}
+          disabled={code.join('').length !== CODE_LENGTH || isConfirming}
         >
-          {/* 顶部返回和标题 */}
-          <View style={styles.header}>
-            <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-              <Image source={require('../../../src/assets/main/page_return_icon.png')} style={styles.backArrow} />
-            </TouchableOpacity>
-            <Text style={styles.headerTitle}>{t('verify_code.title')}</Text>
-            <View style={{ width: normalize(40) }} />
-          </View>
+          <Text style={[styles.confirmButtonText, code.join('').length === CODE_LENGTH ?  null: styles.disableButtonText]}>Next</Text>
+        </TouchableOpacity>
 
-          {/* 副标题 */}
-          <Text style={styles.subtitle}>
-          Verification code has been sent to your {type === 'phone' ? 'phone' : 'email'}
-          </Text>
-          <Text style={styles.accountText}> {account||'18888888888'} </Text>
-
-          {/* 验证码输入框 */}
-          <View style={styles.codeInputRow}>
-            {Array(CODE_LENGTH)
-              .fill(0)
-              .map((_, idx) => (
-                <TextInput
-                  key={idx}
-                  ref={(ref: TextInput | null) => { inputRefs.current[idx] = ref; }}
-                  style={[styles.codeInput, code[idx] ? styles.codeInputFilled : null]}
-                  keyboardType="number-pad"
-                  maxLength={1}
-                  value={code[idx]}
-                  onChangeText={text => handleChange(text, idx)}
-                  onKeyPress={e => handleKeyPress(e, idx)}
-                  returnKeyType="next"
-                  selectionColor={theme.primary}
-                  autoFocus={idx === 0}
-                />
-              ))}
-          </View>
-
-          {/* 确认按钮 */}
-          <TouchableOpacity
-            style={[styles.confirmButton, code.join('').length === CODE_LENGTH ? styles.confirmButtonActive : null]}
-            onPress={handleConfirm}
-            disabled={code.join('').length !== CODE_LENGTH || isConfirming}
-          >
-            <Text style={[styles.confirmButtonText, code.join('').length === CODE_LENGTH ?  null: styles.disableButtonText]}>Next</Text>
-          </TouchableOpacity>
-
-          {/* 验证码倒计时与重新获取 */}
-          <TouchableOpacity
-            style={[
-              styles.confirmButton,
-              countdown === 0 ? styles.confirmButtonActive : null,
-              { marginTop: 0, marginBottom: normalize(32, 'height') }
-            ]}
-            onPress={handleResend}
-            disabled={countdown > 0 || isResending}
-          >
-            {countdown > 0 ? (
-              <Text style={[styles.confirmButtonText, styles.disableButtonText]}>
-                {t('verify_code.resend')}       {countdown}s
-              </Text>
-            ) : (
-              <Text style={styles.confirmButtonText}>
-                {t('verify_code.resend')}
-              </Text>
-            )}
-          </TouchableOpacity>
-          <FullScreenLoader
-            visible={isConfirming}
-            text="Please wait..."
-            timeout={5000}
-            onTimeout={() => setIsConfirming(false)}
-          />
-        </KeyboardAvoidingView>
-      </View>
+        {/* 验证码倒计时与重新获取 */}
+        <TouchableOpacity
+          style={[
+            styles.confirmButton,
+            countdown === 0 ? styles.confirmButtonActive : null,
+            { marginTop: 0, marginBottom: normalize(32, 'height') }
+          ]}
+          onPress={handleResend}
+          disabled={countdown > 0 || isResending}
+        >
+          {countdown > 0 ? (
+            <Text style={[styles.confirmButtonText, styles.disableButtonText]}>
+              {t('verify_code.resend')}       {countdown}s
+            </Text>
+          ) : (
+            <Text style={styles.confirmButtonText}>
+              {t('verify_code.resend')}
+            </Text>
+          )}
+        </TouchableOpacity>
+        <FullScreenLoader
+          visible={isConfirming}
+          text="Please wait..."
+          timeout={5000}
+          onTimeout={() => setIsConfirming(false)}
+        />
+      </KeyboardAvoidingView>
+    </View>
     </SafeAreaView>
   );
 };
@@ -446,4 +386,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default VerifyCodeScreen;
+export default VerifyCodeLoginScreen;

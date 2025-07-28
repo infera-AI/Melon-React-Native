@@ -16,14 +16,26 @@ const normalize = (size: number) => {
 
 interface MessageModalProps {
   visible: boolean;
+  title?: string;
   message: string;
+  confirmText?: string;
   onClose?: () => void;
+  onConfirm?: () => void;
+  showCancel?: boolean;
+  cancelText?: string;
+  onCancel?: () => void;
 }
 
 const MessageModal: React.FC<MessageModalProps> = ({
   visible,
+  title,
   message,
+  confirmText,
   onClose,
+  onConfirm,
+  showCancel,
+  cancelText,
+  onCancel,
 }) => {
   useEffect(() => {
     if (visible) {
@@ -41,7 +53,22 @@ const MessageModal: React.FC<MessageModalProps> = ({
   return (
     <View style={styles.overlay} pointerEvents="box-none">
       <View style={styles.container}>
+        {title && <Text style={styles.title}>{title}</Text>}
         <Text style={styles.message}>{message}</Text>
+        {(confirmText || showCancel) && (
+          <View style={styles.buttonContainer}>
+            {showCancel && (
+              <Text style={styles.cancelButton} onPress={onCancel}>
+                {cancelText || '取消'}
+              </Text>
+            )}
+            {confirmText && (
+              <Text style={styles.confirmButton} onPress={onConfirm}>
+                {confirmText}
+              </Text>
+            )}
+          </View>
+        )}
       </View>
     </View>
   );
@@ -73,6 +100,32 @@ const styles = StyleSheet.create({
     color: '#fff',
     textAlign: 'center',
     lineHeight: normalize(22),
+  },
+  title: {
+    fontSize: normalize(16),
+    fontWeight: '600',
+    color: '#fff',
+    textAlign: 'center',
+    marginBottom: normalize(8),
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginTop: normalize(16),
+    width: '100%',
+  },
+  cancelButton: {
+    fontSize: normalize(14),
+    color: '#ccc',
+    paddingHorizontal: normalize(16),
+    paddingVertical: normalize(8),
+  },
+  confirmButton: {
+    fontSize: normalize(14),
+    color: '#fff',
+    fontWeight: '600',
+    paddingHorizontal: normalize(16),
+    paddingVertical: normalize(8),
   },
 });
 
