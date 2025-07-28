@@ -16,6 +16,9 @@ import theme from '../../utils/theme';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { RootStackParamList } from '@/navigation/AppNavigator'
+
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 const normalize = (size: number, based: 'width' | 'height' = 'width') => {
   const newSize = based === 'height' ? size * screenHeight / 812 : size * screenWidth / 375;
@@ -40,6 +43,7 @@ const languages = [
 
 const WelcomeScreen: React.FC = () => {
   const navigation = useNavigation<WelcomeScreenNavigationProp>();
+  const navigation2 = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { language, setLanguage } = useLanguage();
   const [showLanguageModal, setShowLanguageModal] = useState(false);
   const [isAgreementChecked, setIsAgreementChecked] = useState(false);
@@ -99,13 +103,20 @@ const WelcomeScreen: React.FC = () => {
           {/* 内容包装器 */}
           <View style={styles.contentWrapper}>
             {/* Melon Logo */}
-            <View style={styles.logoContainer}>
+            <TouchableOpacity style={styles.logoContainer} onPress={() => navigation2.reset({index: 0, routes: [{name: 'MainApp'}]})}>
                 <Image
                   source={require('../../../src/assets/login/welcome_logo.png')}
                   style={styles.logo}
                   resizeMode="contain"
                 />
-            </View>
+            </TouchableOpacity>
+            {/* <View style={styles.logoContainer} >
+                <Image
+                  source={require('../../../src/assets/login/welcome_logo.png')}
+                  style={styles.logo}
+                  resizeMode="contain"
+                />
+            </View> */}
             
                        {/* Melon 标题 - 渐变色文字 */}
              <View style={styles.titleContainer}>

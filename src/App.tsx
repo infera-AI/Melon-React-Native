@@ -5,8 +5,14 @@ import EStyleSheet from 'react-native-extended-stylesheet';
 import { StatusBar } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { MessageModalProvider } from './contexts/MessageModalContext';
+import { useAppStore, useUserStore } from '@/store';
 
 const App = () => {
+  React.useEffect(() => {
+    // 使Zustand主动同步AsyncStorage中的数据
+    useAppStore.persist.rehydrate()
+    useUserStore.persist.rehydrate()
+  }, [])
   EStyleSheet.build({
     $spacing: 32,
   });

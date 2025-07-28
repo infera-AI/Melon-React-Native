@@ -10,16 +10,26 @@ import {
   Dimensions,
   Image
 } from 'react-native';
-import { useLanguage } from '../../../contexts/LanguageContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import LinearGradient from 'react-native-linear-gradient'; // 渐变色
 import { useSafeAreaInsets } from 'react-native-safe-area-context'; // 安全区
-import EStyleSheet from 'react-native-extended-stylesheet';
+// import EStyleSheet from 'react-native-extended-stylesheet';
 import Modal from 'react-native-modal';
-import FullScreenLoader from '../../../components/FullScreenLoader';
+import FullScreenLoader from '@/components/FullScreenLoader';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { RootStackParamList } from '@/navigation/AppNavigator'
+import { useMessageModal } from '@/contexts/MessageModalContext';
 
 const { width } = Dimensions.get('window');
+const pageLRPadding = 16 // 页面左右间距
+const numColumns = 2;
+const gutter = 12; // 每行item 的间距
+const itemWidth = (width - pageLRPadding * 2 - gutter) / numColumns;
 
 const TranslateScreen: React.FC = () => {
+  const { show } = useMessageModal();
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { t } = useLanguage();
   const [langModalVisible, setLangModalVisible] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -30,7 +40,30 @@ const TranslateScreen: React.FC = () => {
   const handlePress = (name: string) => () => {
     // TODO: 实现具体功能
     // console.log(`${name} pressed`);
-    setLoading(true)
+    if (name === 'SpeakerMode') {
+      navigation.navigate('Chat')
+    } else if (name === 'HeadphoneMode') {
+      navigation.navigate('HeadphoneMode')
+    } else if (name === 'ListeningMode') {
+      navigation.navigate('ListeningMode')
+    } else if (name === 'DocumentTranslation') {
+      navigation.navigate('DocumentTranslation')
+    } else if (name === 'AudioTranslation') {
+      navigation.navigate('AudioTranslation')
+    } else if (name === 'ImageTranslation') {
+      navigation.navigate('ImageTranslation')
+    } else if (name === 'OralPractice') {
+      navigation.navigate('OralPractice')
+    } else if (name === 'OnlineCall') {
+      show({
+        message: '即将上线'
+      })
+    }
+    // setLoading(true)
+
+    // show({
+    //   message: '211212'
+    // })
   };
 
   return (
@@ -39,39 +72,43 @@ const TranslateScreen: React.FC = () => {
       <View style={{ height: insets.top }} />
       <ScrollView style={styles.scroll} contentContainerStyle={styles.contentContainer} keyboardShouldPersistTaps="handled">
         {/* 头部卡片，优化渐变色 */}
-        <View style={styles.headerCard}>
-          <LinearGradient
-            colors={['#9CEB90', '#9CBEFD']}
-            start={{ x: 0.145, y: 0.2 }}
-            end={{ x: 0.18, y: 1 }}
-            style={styles.linearGradientBg}
-          ></LinearGradient>
-          <View style={styles.headerCardContent}>
-            {/* 头像占位 */}
-            <View style={styles.avatarPlaceholder}>
-              <Image
-                source={{ uri: 'https://img0.baidu.com/it/u=1972874754,2380280904&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500' }}
-                style={styles.headImg}
-                resizeMode='cover'
-              />
+        <TouchableOpacity
+           onPress={handlePress('OralPractice')}
+           activeOpacity={0.85}
+        >
+          <View style={styles.headerCard}>
+            <LinearGradient
+              colors={['#9CEB90', '#9CBEFD']}
+              start={{ x: 0.145, y: 0.2 }}
+              end={{ x: 0.18, y: 1 }}
+              style={styles.linearGradientBg}
+            ></LinearGradient>
+            <View style={styles.headerCardContent}>
+              {/* 头像 */}
+              <View style={styles.avatarPlaceholder}>
+                <Image
+                  source={require('../../../../assets/images/Home_card_head.png')}
+                  style={styles.headImg}
+                  resizeMode='cover'
+                />
+              </View>
+              <View style={styles.headerTextContainer}>
+                <Text style={styles.headerTitle}>Melon</Text>
+                <Text style={styles.headerDesc}>Supports multilingual AI conversations{"\n"}Oral Practice & Knowledge Q&A</Text>
+              </View>
+              {/* 聊天图标*/}
+              <View
+                style={{
+                  position: 'absolute',
+                  right: 16,
+                  top: 16,
+                }}
+              >
+                <Image source={require('../../../../assets/images/Home_Translate_Msg.png')} style={styles.chatBubbleIcon}/>
+              </View>
             </View>
-            <View style={styles.headerTextContainer}>
-              <Text style={styles.headerTitle}>Melon</Text>
-              <Text style={styles.headerDesc}>Supports multilingual AI conversations{"\n"}Oral Practice & Knowledge Q&A</Text>
-            </View>
-            {/* 聊天图标*/}
-            <TouchableOpacity
-              onPress={handlePress('chatBubble')}
-              style={{
-                position: 'absolute',
-                right: 16,
-                top: 16,
-              }}
-            >
-              <Image source={require('../../../../assets/images/Home_Translate_Msg.png')} style={styles.chatBubbleIcon}/>
-            </TouchableOpacity>
           </View>
-        </View>
+        </TouchableOpacity>
 
         {/* 四个主菜单 */}
         <Text style={styles.sectionTitle}>Conversation Translation Modes</Text>
@@ -193,12 +230,11 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
   },
   contentContainer: {
-    paddingHorizontal: 16,
+    paddingHorizontal: pageLRPadding,
     paddingBottom: 32,
   },
   headerCard: {
     borderRadius: 12,
-    marginBottom: 20,
     position: 'relative',
     overflow: 'hidden',
     alignItems: 'center',
@@ -213,6 +249,7 @@ const styles = StyleSheet.create({
   headerCardContent: {
     flex: 1,
     padding: 14,
+    paddingRight: 0,
     flexDirection: 'row',
     alignItems: 'center',
     position: 'relative',
@@ -222,7 +259,7 @@ const styles = StyleSheet.create({
     height: 84,
     borderRadius: '50%',
     backgroundColor: '#C1E3D6',
-    marginRight: 10,
+    marginRight: 8,
     overflow: 'hidden',
     alignItems: 'center',
     justifyContent: 'center',
@@ -241,7 +278,7 @@ const styles = StyleSheet.create({
     color: '#222',
   },
   headerDesc: {
-    fontSize: 14,
+    fontSize: 12,
     color: '#222',
     marginTop: 6,
   },
@@ -253,7 +290,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '500',
     color: '#fff',
-    marginTop: 4,
+    marginTop: 24,
   },
   // 主菜单左对齐
   modeRow: {
@@ -370,24 +407,27 @@ const styles = StyleSheet.create({
   voiceInputTextInput: {
     color: '#ccc',
     height: 100,
-    fontSize: 20,
+    fontSize: 15,
     minHeight: 40,
     padding: 0,
     margin: 0,
     backgroundColor: 'transparent',
+    textAlignVertical: 'top',
   },
   modeGridBox: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
-    marginTop: 12,
+    marginTop: 18,
+    gap: 12,
   },
   modeCard: {
-    width: '48%',
+    width: itemWidth,
+    position: 'relative',
+    overflow: 'hidden',
     // aspectRatio: 1.65,
     backgroundColor: '#262626',
     borderRadius: 12,
-    marginBottom: 16,
     // alignItems: 'center',
     // justifyContent: 'center',
     padding: 12,
@@ -403,7 +443,7 @@ const styles = StyleSheet.create({
   },
   modeCardText: {
     color: '#fff',
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '500',
     // textAlign: 'center',
     marginBottom: 2,
@@ -432,19 +472,19 @@ const styles = StyleSheet.create({
   },
   langSelectText: {
     color: '#fff',
-    fontSize: 18,
-    marginRight: 14,
+    fontSize: 16,
+    marginRight: 8,
   },
   langSelectArrow: {
-    width: 14,
+    width: 10,
     aspectRatio: 1.67,
   },
   langSwitchIconBox: {
-    width: 40,
+    width: 20,
     alignItems: 'center',
   },
   langSwitchArrow: {
-    width: 22,
+    width: 17,
   },
   langQuickBtnNew: {
     width: 64,
