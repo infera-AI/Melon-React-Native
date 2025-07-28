@@ -167,6 +167,7 @@ const OralPracticeScreen: React.FC = () => {
   }, [isAnimating]);
 
   useEffect(() => {
+    setIsAnimating(true)
   }, [])
 
   const changePageBgOpqcity = (val: number) => {
@@ -396,7 +397,7 @@ const styles = StyleSheet.create({
   scroll: {
     flex: 1,
     backgroundColor: 'transparent',
-    paddingVertical: pageLR,
+    // paddingVertical: pageLR,
   },
   contentContainer: {
     paddingHorizontal: pageLR,
@@ -405,6 +406,7 @@ const styles = StyleSheet.create({
 
   msgItems: {
     gap: 20,
+    marginVertical: 20,
   },
   msgItem: {
     width: '100%',

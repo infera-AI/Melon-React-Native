@@ -353,7 +353,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 76,
+    marginTop: 46,
   },
   uploadContentLast: {
     flex: 1,
@@ -445,9 +445,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#232325',
     borderRadius: 14,
-    height: 54,
     marginRight: 90,
-    // paddingVertical: 16,
+    paddingVertical: 2,
     paddingHorizontal: 0,
   },
   langSelectItem: {
@@ -458,20 +457,20 @@ const styles = StyleSheet.create({
   },
   langSelectText: {
     color: '#fff',
-    fontSize: 16,
-    marginRight: 14,
+    fontSize: 14,
+    marginRight: 8,
     fontWeight: '500',
   },
   langSelectArrow: {
-    width: 12,
+    width: 10,
     aspectRatio: 1.67,
   },
   langSwitchIconBox: {
-    width: 40,
+    width: 20,
     alignItems: 'center',
   },
   langSwitchArrow: {
-    width: 22,
+    width: 16,
   },
   modalContent: {
     backgroundColor: '#fff',

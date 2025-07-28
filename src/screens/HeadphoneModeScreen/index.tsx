@@ -218,8 +218,12 @@ const HeadphoneModeScreen: React.FC = () => {
                 </View>
               </View>
             </ScrollView>
-            <View style={{height: 1, backgroundColor: '#B0B0B080', marginHorizontal: pageLR, marginVertical: 16,}}></View>
           </Animated.View>
+        }
+
+        {
+          isSlice &&
+          <View style={{height: 1, backgroundColor: '#B0B0B080', marginHorizontal: pageLR, marginVertical: 16,}}></View>
         }
 
 
@@ -290,6 +294,7 @@ const HeadphoneModeScreen: React.FC = () => {
                 </View>
               </View>
             </View>
+
           </View>
           
         </ScrollView>
@@ -414,6 +419,7 @@ const styles = StyleSheet.create({
     flex: 1,
     width: contentWidth,
     marginLeft: pageLR,
+    paddingVertical: pageLR,
     backgroundColor: '#262626',
     borderRadius: 10,
     overflow: 'hidden',
@@ -426,7 +432,6 @@ const styles = StyleSheet.create({
   scroll: {
     flex: 1,
     backgroundColor: 'transparent',
-    paddingVertical: pageLR,
   },
   contentContainer: {
     paddingHorizontal: pageLR,
@@ -435,8 +440,8 @@ const styles = StyleSheet.create({
   contentOption: {
     flexDirection: 'row',
     paddingHorizontal: pageLR,
-    paddingVertical: 16,
     alignItems: 'center',
+    marginTop: 16
   },
   noDataTipText: {
     fontSize: 16,
@@ -544,9 +549,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#232325',
     borderRadius: 14,
-    height: 54,
     marginRight: 16,
-    // paddingVertical: 16,
+    paddingVertical: 2,
     paddingHorizontal: 0,
   },
   langSelectItem: {
@@ -557,32 +561,32 @@ const styles = StyleSheet.create({
   },
   langSelectText: {
     color: '#fff',
-    fontSize: 16,
-    marginRight: 14,
+    fontSize: 14,
+    marginRight: 8,
     fontWeight: '500',
   },
   langSelectArrow: {
-    width: 12,
+    width: 10,
     aspectRatio: 1.67,
   },
   langSwitchIconBox: {
-    width: 40,
+    width: 20,
     alignItems: 'center',
   },
   langSwitchArrow: {
-    width: 22,
+    width: 16,
   },
   langQuickBtnNew: {
-    width: 48,
-    height: 48,
+    width: 44,
+    height: 44,
     backgroundColor: '#333333',
     borderRadius: '50%',
     alignItems: 'center',
     justifyContent: 'center',
   },
   iconQuickLangNew: {
-    width: 46,
-    height: 46,
+    width: 40,
+    height: 40,
   },
   inputWrapper: {
     position: 'absolute',

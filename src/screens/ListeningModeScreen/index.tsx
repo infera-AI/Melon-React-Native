@@ -167,12 +167,15 @@ const ListeningModeScreen: React.FC = () => {
           isSlice &&
           <Animated.View style={[styles.animatedContainer]}>
             <ScrollView style={[styles.scroll]} contentContainerStyle={styles.contentContainer} keyboardShouldPersistTaps="handled">
-              <Text style={{fontSize: textSize, color: '#B0B0B0', lineHeight: textSize + 8, marginTop: 16}}>
+              <Text style={{fontSize: textSize, color: '#B0B0B0', lineHeight: textSize + 8}}>
                 17 years later, the author went to college, but chose an expensive one, spending, parents' savings. After 6 months, seeing, no value, not knowing life goals or college's help, decided to drop out. It was scary but a great decision. After dropping out, could stop uninteresting required classes and take interesting ones.
               </Text>
             </ScrollView>
-            <View style={{height: 1, backgroundColor: '#B0B0B080', marginHorizontal: pageLR, marginVertical: 16,}}></View>
           </Animated.View>
+        }
+        {
+          isSlice &&
+          <View style={{height: 1, backgroundColor: '#B0B0B080', marginHorizontal: pageLR, marginVertical: pageLR}}></View>
         }
 
         {/* 对话滚动区域 */}
@@ -313,6 +316,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#262626',
     borderRadius: 10,
     overflow: 'hidden',
+    paddingVertical: 16,
   },
   animatedContainer: {
     flex: 1, // 使容器充满父元素
@@ -331,8 +335,8 @@ const styles = StyleSheet.create({
   contentOption: {
     flexDirection: 'row',
     paddingHorizontal: pageLR,
-    paddingVertical: 16,
     alignItems: 'center',
+    marginTop: 16,
   },
   noDataTipText: {
     fontSize: 16,
@@ -366,9 +370,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#232325',
     borderRadius: 14,
-    height: 54,
     marginRight: 16,
-    // paddingVertical: 16,
+    paddingVertical: 2,
     paddingHorizontal: 0,
   },
   langSelectItem: {
@@ -379,32 +382,32 @@ const styles = StyleSheet.create({
   },
   langSelectText: {
     color: '#fff',
-    fontSize: 16,
-    marginRight: 14,
+    fontSize: 14,
+    marginRight: 8,
     fontWeight: '500',
   },
   langSelectArrow: {
-    width: 12,
+    width: 10,
     aspectRatio: 1.67,
   },
   langSwitchIconBox: {
-    width: 40,
+    width: 20,
     alignItems: 'center',
   },
   langSwitchArrow: {
-    width: 22,
+    width: 16,
   },
   langQuickBtnNew: {
-    width: 48,
-    height: 48,
+    width: 44,
+    height: 44,
     backgroundColor: '#333333',
     borderRadius: '50%',
     alignItems: 'center',
     justifyContent: 'center',
   },
   iconQuickLangNew: {
-    width: 46,
-    height: 46,
+    width: 40,
+    height: 40,
   },
   inputWrapper: {
     position: 'absolute',

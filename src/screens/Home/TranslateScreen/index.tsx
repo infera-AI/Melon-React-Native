@@ -54,6 +54,10 @@ const TranslateScreen: React.FC = () => {
       navigation.navigate('ImageTranslation')
     } else if (name === 'OralPractice') {
       navigation.navigate('OralPractice')
+    } else if (name === 'OnlineCall') {
+      show({
+        message: '即将上线'
+      })
     }
     // setLoading(true)
 
@@ -245,6 +249,7 @@ const styles = StyleSheet.create({
   headerCardContent: {
     flex: 1,
     padding: 14,
+    paddingRight: 0,
     flexDirection: 'row',
     alignItems: 'center',
     position: 'relative',
@@ -254,7 +259,7 @@ const styles = StyleSheet.create({
     height: 84,
     borderRadius: '50%',
     backgroundColor: '#C1E3D6',
-    marginRight: 10,
+    marginRight: 8,
     overflow: 'hidden',
     alignItems: 'center',
     justifyContent: 'center',
@@ -273,7 +278,7 @@ const styles = StyleSheet.create({
     color: '#222',
   },
   headerDesc: {
-    fontSize: 14,
+    fontSize: 12,
     color: '#222',
     marginTop: 6,
   },
@@ -402,7 +407,7 @@ const styles = StyleSheet.create({
   voiceInputTextInput: {
     color: '#ccc',
     height: 100,
-    fontSize: 20,
+    fontSize: 15,
     minHeight: 40,
     padding: 0,
     margin: 0,
@@ -438,7 +443,7 @@ const styles = StyleSheet.create({
   },
   modeCardText: {
     color: '#fff',
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '500',
     // textAlign: 'center',
     marginBottom: 2,
@@ -467,19 +472,19 @@ const styles = StyleSheet.create({
   },
   langSelectText: {
     color: '#fff',
-    fontSize: 18,
-    marginRight: 14,
+    fontSize: 16,
+    marginRight: 8,
   },
   langSelectArrow: {
-    width: 14,
+    width: 10,
     aspectRatio: 1.67,
   },
   langSwitchIconBox: {
-    width: 40,
+    width: 20,
     alignItems: 'center',
   },
   langSwitchArrow: {
-    width: 22,
+    width: 17,
   },
   langQuickBtnNew: {
     width: 64,

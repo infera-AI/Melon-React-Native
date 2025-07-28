@@ -33,7 +33,7 @@ const { width, height } = Dimensions.get('window');
 const pageLR = 16;
 const contentWidth = width - pageLR * 2
 
-const contentMaxHeight = height * 0.6
+const contentMaxHeight = height * 0.7
 
 const downloadModalHeight = height * 0.4
 
@@ -434,7 +434,7 @@ const AudioTranslationScreen: React.FC = () => {
             </View>
             <TouchableOpacity style={styles.downloadBtn} onPress={() => setDownloadModalShow(true)}>
               <Text>
-                <MaterialDesignIcon name="arrow-collapse-down" size={23} color={'#ffffff'}/>
+                <MaterialDesignIcon name="arrow-collapse-down" size={22} color={'#ffffff'}/>
               </Text>
             </TouchableOpacity>
           </View>
@@ -731,10 +731,10 @@ const styles = StyleSheet.create({
   },
   switchBtnText: {
     color: '#fff',
-    fontSize: 18,
+    fontSize: 14,
   },
   downloadBtn: {
-    marginLeft: 60,
+    marginLeft: 40,
   },
   langSelectRow: {
     width: contentWidth,
@@ -749,9 +749,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#232325',
     borderRadius: 14,
-    height: 54,
     marginRight: 90,
-    // paddingVertical: 16,
+    paddingVertical: 2,
     paddingHorizontal: 0,
   },
   langSelectItem: {
@@ -762,20 +761,20 @@ const styles = StyleSheet.create({
   },
   langSelectText: {
     color: '#fff',
-    fontSize: 16,
-    marginRight: 14,
+    fontSize: 14,
+    marginRight: 8,
     fontWeight: '500',
   },
   langSelectArrow: {
-    width: 12,
+    width: 10,
     aspectRatio: 1.67,
   },
   langSwitchIconBox: {
-    width: 40,
+    width: 20,
     alignItems: 'center',
   },
   langSwitchArrow: {
-    width: 22,
+    width: 16,
   },
   modalContent: {
     backgroundColor: '#fff',
