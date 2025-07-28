@@ -50,6 +50,10 @@ const TranslateScreen: React.FC = () => {
       navigation.navigate('DocumentTranslation')
     } else if (name === 'AudioTranslation') {
       navigation.navigate('AudioTranslation')
+    } else if (name === 'ImageTranslation') {
+      navigation.navigate('ImageTranslation')
+    } else if (name === 'OralPractice') {
+      navigation.navigate('OralPractice')
     }
     // setLoading(true)
 
@@ -64,39 +68,43 @@ const TranslateScreen: React.FC = () => {
       <View style={{ height: insets.top }} />
       <ScrollView style={styles.scroll} contentContainerStyle={styles.contentContainer} keyboardShouldPersistTaps="handled">
         {/* 头部卡片，优化渐变色 */}
-        <View style={styles.headerCard}>
-          <LinearGradient
-            colors={['#9CEB90', '#9CBEFD']}
-            start={{ x: 0.145, y: 0.2 }}
-            end={{ x: 0.18, y: 1 }}
-            style={styles.linearGradientBg}
-          ></LinearGradient>
-          <View style={styles.headerCardContent}>
-            {/* 头像占位 */}
-            <View style={styles.avatarPlaceholder}>
-              <Image
-                source={{ uri: 'https://img0.baidu.com/it/u=1972874754,2380280904&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500' }}
-                style={styles.headImg}
-                resizeMode='cover'
-              />
+        <TouchableOpacity
+           onPress={handlePress('OralPractice')}
+           activeOpacity={0.85}
+        >
+          <View style={styles.headerCard}>
+            <LinearGradient
+              colors={['#9CEB90', '#9CBEFD']}
+              start={{ x: 0.145, y: 0.2 }}
+              end={{ x: 0.18, y: 1 }}
+              style={styles.linearGradientBg}
+            ></LinearGradient>
+            <View style={styles.headerCardContent}>
+              {/* 头像 */}
+              <View style={styles.avatarPlaceholder}>
+                <Image
+                  source={require('../../../../assets/images/Home_card_head.png')}
+                  style={styles.headImg}
+                  resizeMode='cover'
+                />
+              </View>
+              <View style={styles.headerTextContainer}>
+                <Text style={styles.headerTitle}>Melon</Text>
+                <Text style={styles.headerDesc}>Supports multilingual AI conversations{"\n"}Oral Practice & Knowledge Q&A</Text>
+              </View>
+              {/* 聊天图标*/}
+              <View
+                style={{
+                  position: 'absolute',
+                  right: 16,
+                  top: 16,
+                }}
+              >
+                <Image source={require('../../../../assets/images/Home_Translate_Msg.png')} style={styles.chatBubbleIcon}/>
+              </View>
             </View>
-            <View style={styles.headerTextContainer}>
-              <Text style={styles.headerTitle}>Melon</Text>
-              <Text style={styles.headerDesc}>Supports multilingual AI conversations{"\n"}Oral Practice & Knowledge Q&A</Text>
-            </View>
-            {/* 聊天图标*/}
-            <TouchableOpacity
-              onPress={handlePress('chatBubble')}
-              style={{
-                position: 'absolute',
-                right: 16,
-                top: 16,
-              }}
-            >
-              <Image source={require('../../../../assets/images/Home_Translate_Msg.png')} style={styles.chatBubbleIcon}/>
-            </TouchableOpacity>
           </View>
-        </View>
+        </TouchableOpacity>
 
         {/* 四个主菜单 */}
         <Text style={styles.sectionTitle}>Conversation Translation Modes</Text>

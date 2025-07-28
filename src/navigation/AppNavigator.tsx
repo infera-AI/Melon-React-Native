@@ -16,6 +16,8 @@ import HeadphoneModeScreen from '@/screens/HeadphoneModeScreen'
 import ListeningModeScreen from '@/screens/ListeningModeScreen'
 import DocumentTranslationScreen from '@/screens/DocumentTranslationScreen'
 import AudioTranslationScreen from '@/screens/AudioTranslationScreen'
+import ImageTranslationScreen from '@/screens/ImageTranslationScreen'
+import OralPracticeScreen from '@/screens/OralPracticeScreen'
 
 export type RootStackParamList = {
   Splash: undefined;
@@ -27,6 +29,8 @@ export type RootStackParamList = {
   ListeningMode: undefined;
   DocumentTranslation: undefined;
   AudioTranslation: undefined;
+  ImageTranslation: undefined;
+  OralPractice: undefined;
 };
 
 // const Stack = createStackNavigator<RootStackParamList>();
@@ -64,6 +68,8 @@ const AppNavigator = () => {
         <Stack.Screen name="ListeningMode" component={ListeningModeScreen} />
         <Stack.Screen name="DocumentTranslation" component={DocumentTranslationScreen} />
         <Stack.Screen name="AudioTranslation" component={AudioTranslationScreen} />
+        <Stack.Screen name="ImageTranslation" component={ImageTranslationScreen} />
+        <Stack.Screen name="OralPractice" component={OralPracticeScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
