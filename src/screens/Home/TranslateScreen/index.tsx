@@ -21,6 +21,7 @@ import type { RootStackParamList } from '@/navigation/AppNavigator'
 import { useMessageModal } from '@/contexts/MessageModalContext';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import LangSelectCard from '@/components/LangSelectCard'
+import type { Language } from '@/i18n/languages';
 
 import { useUserStore } from '@/store';
 
@@ -37,6 +38,10 @@ const TranslateScreen: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [inputValue, setInputValue] = useState(''); // 输入框state
   const insets = useSafeAreaInsets(); // 获取安全区高度
+
+  const { language } = useLanguage();
+  const [beforeLangSelect, setBeforeLangSelect] = useState(language)
+  const [afterLangSelect, setAfterLangSelect] = useState<Language>('en')
 
   const token = useUserStore(s => s.token);
   const scrollRef = useRef<KeyboardAwareScrollView>(null);
@@ -184,7 +189,18 @@ const TranslateScreen: React.FC = () => {
 
         {/* 语言选择栏 */}
         <View style={styles.langSelectRow}>
-          <LangSelectCard/>
+          <LangSelectCard
+            beforeLanguage={beforeLangSelect}
+            afterLanguage={afterLangSelect}
+            beforeSelectBack={(code) => {
+              console.log('beforeSelectBack---', code);
+              setBeforeLangSelect(code)
+            }}
+            afterSelectBack={(code) => {
+              console.log('afterSelectBack---', code);
+              setAfterLangSelect(code)
+            }}
+          />
           <TouchableOpacity style={styles.langQuickBtnNew} onPress={handlePress('QuickLang')}>
             <Image source={require('../../../../assets/images/home_Tab_Translate_active.png')} style={styles.iconQuickLangNew}/>
           </TouchableOpacity>

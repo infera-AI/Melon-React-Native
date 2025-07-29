@@ -90,17 +90,17 @@ export function getImageTranslationDetails(taskId: string){
       );
   }
 
-    /**
-   * 翻译文本接口
-   * @param params 翻译参数
-   * @returns Promise<ApifoxModel>
-   */
-    export function translateText(params: TranslateTextRequest){
-      return http.post<TranslateTextData>(
-        API_ENDPOINTS.TRANSLATE.TRANLATE_TEXT,
-          params
-        );
-    }
+/**
+ * 翻译文本接口
+ * @param params 翻译参数
+ * @returns Promise<ApifoxModel>
+ */
+export function translateText(params: TranslateTextRequest){
+  return http.post<TranslateTextData>(
+    API_ENDPOINTS.TRANSLATE.TRANLATE_TEXT,
+      params
+    );
+}
 
 
     /**

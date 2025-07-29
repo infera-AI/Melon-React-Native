@@ -3,6 +3,7 @@ import { Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import i18nData from '../i18n';
 import type { Language } from '@/i18n/languages'
+import { supportedLanguages } from '@/i18n/languages';
 
 interface LanguageContextProps {
   language: Language;
@@ -27,9 +28,9 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
     (async () => {
       try {
         const stored = await AsyncStorage.getItem(STORAGE_KEY);
+        const languageCodes = supportedLanguages.map(lang => lang.code)
         if (
-          stored &&
-          ['en', 'zh', 'jp', 'de', 'fr', 'es'].includes(stored)
+          stored && (languageCodes as string[]).includes(stored)
         ) {
           setLanguageState(stored as Language);
         } else {

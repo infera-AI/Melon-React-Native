@@ -4,7 +4,7 @@
  * <CountryFlag isoCode="DE" size={25} /> 这个库能根据国家代码渲染图片
  */
 
-export type Language = 'de' | 'en' | 'es' | 'fr' | 'jp' | 'zh';
+export type Language = 'de' | 'en' | 'es' | 'fr' | 'ja' | 'zh';
 
 export type LanguageOption = {
   code: Language; // 对应 json 文件名
@@ -17,7 +17,7 @@ export const supportedLanguages: LanguageOption[] = [
   { code: 'en', label: 'English'},
   { code: 'es', label: 'Español'},
   { code: 'fr', label: 'Français'},
-  { code: 'jp', label: '日本語'}
+  { code: 'ja', label: '日本語'}
 ];
 
 // 语言代码和国家代码映射用于react-native-country-flag找到对应国家图片
@@ -26,6 +26,6 @@ export const languageToCountryCode: Record<Language, string> = {
     en: 'US',
     es: 'ES',
     fr: 'FR',
-    jp: 'JP',
+    ja: 'JP',
     zh: 'CN',
 }
