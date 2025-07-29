@@ -33,7 +33,8 @@ const SplashScreen: React.FC = () => {
     }, 1500);
 
     return () => clearTimeout(timer);
-  }, [fadeAnim, navigation, token]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <SafeAreaView style={styles.safe}>
