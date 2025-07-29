@@ -19,9 +19,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 // 用户信息类型
 interface UserInfo {
   id: string;
-  name: string;
+  username: string;
   email: string;
-  avatar?: string;
+  avatar_url?: string;
   phone?: string;
 }
 

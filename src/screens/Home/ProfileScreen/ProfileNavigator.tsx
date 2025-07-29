@@ -1,0 +1,82 @@
+import React from 'react';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+
+import ProfileScreen from '.';
+import EditProfileScreen from './EditProfileScreen';
+import OfflineLanguageScreen from './OfflineLanguageScreen';
+import VoiceprintManagementScreen from './VoiceprintManagementScreen';
+import CreateVoiceScreen from './CreateVoiceScreen';
+import RecordingScreen from './RecordingScreen';
+import GeneratingVoiceScreen from './GeneratingVoiceScreen';
+import LanguageVoiceScreen from './LanguageVoiceScreen';
+import AccountSecurityScreen from './AccountSecurityScreen';
+import DeregisterAccountScreen from './DeregisterAccountScreen';
+import DeregisterVerificationScreen from './DeregisterVerificationScreen';
+import DeregisterCodeVerificationScreen from './DeregisterCodeVerificationScreen';
+import BindMailboxScreen from './BindMailboxScreen';
+import GeneralSettingsScreen from './GeneralSettingsScreen';
+import SystemLanguageScreen from './SystemLanguageScreen';
+import HelpFeedbackScreen from './HelpFeedbackScreen';
+import ProductFeedbackScreen from './ProductFeedbackScreen';
+import AboutScreen from './AboutScreen';
+import CopyrightStatementScreen from './CopyrightStatementScreen';
+import OptimizVoiceScreen from './OptimizVoiceScreen';
+
+export type ProfileStackParamList = {
+  ProfileMain: undefined;
+  EditProfile: undefined;
+  OfflineLanguage: undefined;
+  VoiceprintManagement: undefined;
+  CreateVoice: undefined;
+  Recording: {locale: string};
+  GeneratingVoice: {recordFileList: any[]};
+  LanguageVoice: undefined;
+  AccountSecurity: undefined;
+  DeregisterAccount: undefined;
+  DeregisterVerification: undefined;
+  DeregisterCodeVerification: { phoneNumber: string ,countryCode:string};
+  BindMailbox: undefined;
+  GeneralSettings: undefined;
+  SystemLanguage: undefined;
+  HelpFeedback: undefined;
+  ProductFeedback: undefined;
+  About: undefined;
+  CopyrightStatement: undefined;
+  OptimizVoice: undefined;
+};
+
+const Stack = createNativeStackNavigator<ProfileStackParamList>();
+
+const ProfileNavigator: React.FC = () => {
+  return (
+    <Stack.Navigator
+      initialRouteName="ProfileMain"
+      screenOptions={{
+        headerShown: false,
+      }}
+    >
+      <Stack.Screen name="ProfileMain" component={ProfileScreen} />
+      <Stack.Screen name="EditProfile" component={EditProfileScreen} />
+      <Stack.Screen name="OfflineLanguage" component={OfflineLanguageScreen} />
+      <Stack.Screen name="VoiceprintManagement" component={VoiceprintManagementScreen} />
+      <Stack.Screen name="CreateVoice" component={CreateVoiceScreen} />
+      <Stack.Screen name="Recording" component={RecordingScreen} />
+      <Stack.Screen name="GeneratingVoice" component={GeneratingVoiceScreen} />
+      <Stack.Screen name="LanguageVoice" component={LanguageVoiceScreen} />
+      <Stack.Screen name="AccountSecurity" component={AccountSecurityScreen} />
+      <Stack.Screen name="DeregisterAccount" component={DeregisterAccountScreen} />
+      <Stack.Screen name="DeregisterVerification" component={DeregisterVerificationScreen} />
+      <Stack.Screen name="DeregisterCodeVerification" component={DeregisterCodeVerificationScreen} />
+      <Stack.Screen name="BindMailbox" component={BindMailboxScreen} />
+      <Stack.Screen name="GeneralSettings" component={GeneralSettingsScreen} />
+      <Stack.Screen name="SystemLanguage" component={SystemLanguageScreen} />
+      <Stack.Screen name="HelpFeedback" component={HelpFeedbackScreen} />
+      <Stack.Screen name="ProductFeedback" component={ProductFeedbackScreen} />
+      <Stack.Screen name="About" component={AboutScreen} />
+      <Stack.Screen name="CopyrightStatement" component={CopyrightStatementScreen} />
+      <Stack.Screen name="OptimizVoice" component={OptimizVoiceScreen} />
+    </Stack.Navigator>
+  );
+};
+
+export default ProfileNavigator; 
