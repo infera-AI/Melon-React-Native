@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 import MessageModal from '../components/MessageModal';
 
-type ModalOptions = {
+export type ModalOptions = {
   title?: string;
   message: string;
   confirmText?: string;

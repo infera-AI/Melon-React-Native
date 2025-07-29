@@ -23,6 +23,8 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import LangSelectCard from '@/components/LangSelectCard'
 import type { Language } from '@/i18n/languages';
 
+import { translateText } from '@/api/translate'
+
 import { useUserStore } from '@/store';
 
 const { width } = Dimensions.get('window');
@@ -78,8 +80,37 @@ const TranslateScreen: React.FC = () => {
     // })
   };
 
+  // 翻译按钮点击
+  const translationBtnClick = () => {
+    if (!inputValue) {
+      show({
+        message: '请输入内容'
+      })
+      textInputRef.current?.focus();
+      return
+    }
+    textInputRef.current?.blur()
+    setLoading(true)
+    translateText({
+      format_type: 'text',
+      source_language: beforeLangSelect,
+      target_language: afterLangSelect,
+      source_text: inputValue
+    }).then((rsp) => {
+      if (rsp?.data?.Translated) {
+        show({
+          message: '翻译成功'
+        })
+        setInputValue(rsp?.data?.Translated)
+        scrollRef.current?.scrollToEnd(true);
+      }
+      setLoading(false)
+    }).catch((err) => {
+      setLoading(false)
+    })
+  }
+
   useEffect(() => {
-    console.log('token----', token);
     
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -201,7 +232,7 @@ const TranslateScreen: React.FC = () => {
               setAfterLangSelect(code)
             }}
           />
-          <TouchableOpacity style={styles.langQuickBtnNew} onPress={handlePress('QuickLang')}>
+          <TouchableOpacity style={styles.langQuickBtnNew} onPress={() => translationBtnClick()}>
             <Image source={require('../../../../assets/images/home_Tab_Translate_active.png')} style={styles.iconQuickLangNew}/>
           </TouchableOpacity>
         </View>

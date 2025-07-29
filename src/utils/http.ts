@@ -2,6 +2,7 @@ import axios, { AxiosInstance, AxiosRequestConfig, Method } from 'axios'
 import { useUserStore } from '../store'
 import { CODE } from './constants'
 import { checkNetwork } from './network'
+import { ToastService } from '@/utils/ToastService';
 
 interface HttpRequestConfig extends AxiosRequestConfig {
     baseURL?: string;
@@ -84,6 +85,9 @@ class HttpRequest {
                 if (code === CODE.SUCCESS) {
                     return data
                 }
+                ToastService.show({
+                    message: message || '服务器错误，请重试'
+                });
 
                 if (code === CODE.TOKEN_INVALID) { // token无效
                     const clearLoginInfo = useUserStore(s => s.clearLoginInfo);
@@ -109,9 +113,13 @@ class HttpRequest {
                         `Status: ${error.response.status}\n`,
                         `Data: ${JSON.stringify(error.response.data, null, 2)}`
                     );
+                    
                 } else {
                     console.error('❌ 网络或请求未送达:', error.message);
                 }
+                ToastService.show({
+                    message: error?.response?.data?.error || '响应错误，请重试'
+                });
                 console.error(
                     '❌ 完整错误信息:',
                     'error.code--',
