@@ -2,8 +2,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import i18nData from '../i18n';
-
-type Language = 'en' | 'zh' | 'jp' | 'de' | 'fr' | 'es';
+import type { Language } from '@/i18n/languages'
 
 interface LanguageContextProps {
   language: Language;

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -8,18 +8,21 @@ import {
   TextInput,
   Platform,
   Dimensions,
-  Image
+  Image,
 } from 'react-native';
 import { useLanguage } from '@/contexts/LanguageContext';
 import LinearGradient from 'react-native-linear-gradient'; // 渐变色
 import { useSafeAreaInsets } from 'react-native-safe-area-context'; // 安全区
 // import EStyleSheet from 'react-native-extended-stylesheet';
-import Modal from 'react-native-modal';
 import FullScreenLoader from '@/components/FullScreenLoader';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '@/navigation/AppNavigator'
 import { useMessageModal } from '@/contexts/MessageModalContext';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import LangSelectCard from '@/components/LangSelectCard'
+
+import { useUserStore } from '@/store';
 
 const { width } = Dimensions.get('window');
 const pageLRPadding = 16 // 页面左右间距
@@ -31,10 +34,14 @@ const TranslateScreen: React.FC = () => {
   const { show } = useMessageModal();
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { t } = useLanguage();
-  const [langModalVisible, setLangModalVisible] = useState(false);
   const [loading, setLoading] = useState(false);
   const [inputValue, setInputValue] = useState(''); // 输入框state
   const insets = useSafeAreaInsets(); // 获取安全区高度
+
+  const token = useUserStore(s => s.token);
+  const scrollRef = useRef<KeyboardAwareScrollView>(null);
+  
+  const textInputRef = useRef<TextInput>(null);
 
   // 占位点击事件
   const handlePress = (name: string) => () => {
@@ -66,11 +73,26 @@ const TranslateScreen: React.FC = () => {
     // })
   };
 
+  useEffect(() => {
+    console.log('token----', token);
+    
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   return (
     <View style={styles.root}>
       {/* 顶部安全区占位，防止内容被遮挡 */}
       <View style={{ height: insets.top }} />
-      <ScrollView style={styles.scroll} contentContainerStyle={styles.contentContainer} keyboardShouldPersistTaps="handled">
+      <KeyboardAwareScrollView
+        ref={scrollRef}
+        style={styles.scroll}
+        contentContainerStyle={styles.contentContainer}
+        keyboardShouldPersistTaps="handled"
+        enableOnAndroid={true} // 必须：支持 Android 滚动
+        extraScrollHeight={20} // 输入框上移的高度
+        enableAutomaticScroll={true} // 自动滚动
+        keyboardOpeningTime={0}
+      >
         {/* 头部卡片，优化渐变色 */}
         <TouchableOpacity
            onPress={handlePress('OralPractice')}
@@ -162,19 +184,7 @@ const TranslateScreen: React.FC = () => {
 
         {/* 语言选择栏 */}
         <View style={styles.langSelectRow}>
-          <View style={styles.langSelectCard}>
-            <TouchableOpacity style={styles.langSelectItem} onPress={() => setLangModalVisible(true)}>
-              <Text style={styles.langSelectText}>Chinese</Text>
-              <Image source={require('../../../../assets/images/Home_Translate_arrow.png')} style={styles.langSelectArrow}/>
-            </TouchableOpacity>
-            <View style={styles.langSwitchIconBox}>
-              <Image source={require('../../../../assets/images/Home_Translate_switch.png')} style={styles.langSwitchArrow} resizeMode='contain'/>
-            </View>
-            <TouchableOpacity style={styles.langSelectItem} onPress={() => setLangModalVisible(true)}>
-              <Text style={styles.langSelectText}>English</Text>
-              <Image source={require('../../../../assets/images/Home_Translate_arrow.png')} style={styles.langSelectArrow}/>
-            </TouchableOpacity>
-          </View>
+          <LangSelectCard/>
           <TouchableOpacity style={styles.langQuickBtnNew} onPress={handlePress('QuickLang')}>
             <Image source={require('../../../../assets/images/home_Tab_Translate_active.png')} style={styles.iconQuickLangNew}/>
           </TouchableOpacity>
@@ -183,6 +193,7 @@ const TranslateScreen: React.FC = () => {
         {/* 输入框 */}
         <View style={styles.voiceInputBar}>
           <TextInput
+            ref={textInputRef}
             style={styles.voiceInputTextInput}
             placeholder="Press and hold the voice button to speak, release to send."
             placeholderTextColor="#B0B0B080"
@@ -190,26 +201,12 @@ const TranslateScreen: React.FC = () => {
             onChangeText={setInputValue}
             multiline
             underlineColorAndroid="transparent"
+            onFocus={() => {
+              scrollRef.current?.scrollToFocusedInput(textInputRef.current!);
+            }}
           />
         </View>
-      </ScrollView>
-      {/* 语言选择弹窗：底部弹出，高度400，方便后续自定义 */}
-      <Modal
-        isVisible={langModalVisible}
-        onBackdropPress={() => setLangModalVisible(false)}  // 点击背景关闭
-        animationIn="slideInUp"
-        animationOut="slideOutDown"
-        backdropOpacity={0.4}
-        backdropTransitionOutTiming={0} // 避免关闭时mask闪
-        style={{
-          justifyContent: 'flex-end', // 让 modal 停在底部
-          margin: 0, // 取消默认 margin，不然内容会上浮
-        }}
-      >
-        <View style={styles.modalContent}>
-          <Text>jshjhj</Text>
-        </View>
-      </Modal>
+      </KeyboardAwareScrollView>
       <FullScreenLoader
         visible={loading}
         text="请稍后..."
@@ -232,6 +229,7 @@ const styles = StyleSheet.create({
   contentContainer: {
     paddingHorizontal: pageLRPadding,
     paddingBottom: 32,
+    flexGrow: 1,
   },
   headerCard: {
     borderRadius: 12,
@@ -453,39 +451,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 20,
   },
-  langSelectCard: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#232325',
-    borderRadius: 14,
-    height: 64,
-    marginRight: 20,
-    // paddingVertical: 16,
-    paddingHorizontal: 16,
-  },
-  langSelectItem: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  langSelectText: {
-    color: '#fff',
-    fontSize: 16,
-    marginRight: 8,
-  },
-  langSelectArrow: {
-    width: 10,
-    aspectRatio: 1.67,
-  },
-  langSwitchIconBox: {
-    width: 20,
-    alignItems: 'center',
-  },
-  langSwitchArrow: {
-    width: 17,
-  },
+  
   langQuickBtnNew: {
     width: 64,
     height: 64,
@@ -498,12 +464,6 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
   },
-  modalContent: {
-    backgroundColor: '#fff',
-    borderTopLeftRadius: 10,
-    borderTopRightRadius: 10,
-    height: 300,
-  }
 });
 
 export default TranslateScreen;
