@@ -4,6 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import i18nData from '../i18n';
 import type { Language } from '@/i18n/languages'
 import { supportedLanguages } from '@/i18n/languages';
+import { i18nService } from '@/utils/i18nService'
 
 interface LanguageContextProps {
   language: Language;
@@ -23,24 +24,6 @@ const STORAGE_KEY = 'app_language';
 
 export const LanguageProvider = ({ children }: { children: ReactNode }) => {
   const [language, setLanguageState] = useState<Language>('en');
-
-  useEffect(() => {
-    (async () => {
-      try {
-        const stored = await AsyncStorage.getItem(STORAGE_KEY);
-        const languageCodes = supportedLanguages.map(lang => lang.code)
-        if (
-          stored && (languageCodes as string[]).includes(stored)
-        ) {
-          setLanguageState(stored as Language);
-        } else {
-          setLanguageState('en');
-        }
-      } catch {
-        setLanguageState('en');
-      }
-    })();
-  }, []);
 
   const setLanguage = (lang: Language) => {
     setLanguageState(lang);
@@ -62,6 +45,26 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
     
     return typeof value === 'string' ? value : key;
   };
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const stored = await AsyncStorage.getItem(STORAGE_KEY);
+        const languageCodes = supportedLanguages.map(lang => lang.code)
+        if (
+          stored && (languageCodes as string[]).includes(stored)
+        ) {
+          setLanguageState(stored as Language);
+        } else {
+          setLanguageState('en');
+        }
+      } catch {
+        setLanguageState('en');
+      }
+    })();
+    i18nService.register(t)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <LanguageContext.Provider value={{ language, setLanguage, t }}>

@@ -22,6 +22,7 @@ import { useMessageModal } from '@/contexts/MessageModalContext';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import LangSelectCard from '@/components/LangSelectCard'
 import type { Language } from '@/i18n/languages';
+import { scaleSize, scaleFont } from '@/utils/scale';
 
 import { translateText } from '@/api/translate'
 
@@ -84,7 +85,7 @@ const TranslateScreen: React.FC = () => {
   const translationBtnClick = () => {
     if (!inputValue) {
       show({
-        message: '请输入内容'
+        message: t('translate_screen.input_no_value')
       })
       textInputRef.current?.focus();
       return
@@ -99,7 +100,7 @@ const TranslateScreen: React.FC = () => {
     }).then((rsp) => {
       if (rsp?.data?.Translated) {
         show({
-          message: '翻译成功'
+          message: t('translate_screen.quick_translation_success')
         })
         setInputValue(rsp?.data?.Translated)
         scrollRef.current?.scrollToEnd(true);
@@ -152,14 +153,14 @@ const TranslateScreen: React.FC = () => {
               </View>
               <View style={styles.headerTextContainer}>
                 <Text style={styles.headerTitle}>Melon</Text>
-                <Text style={styles.headerDesc}>Supports multilingual AI conversations{"\n"}Oral Practice & Knowledge Q&A</Text>
+                <Text style={styles.headerDesc}>{t('translate_screen.card_desc')}</Text>
               </View>
               {/* 聊天图标*/}
               <View
                 style={{
                   position: 'absolute',
-                  right: 16,
-                  top: 16,
+                  right: scaleSize(16),
+                  top: scaleSize(16),
                 }}
               >
                 <Image source={require('../../../../assets/images/Home_Translate_Msg.png')} style={styles.chatBubbleIcon}/>
@@ -169,51 +170,51 @@ const TranslateScreen: React.FC = () => {
         </TouchableOpacity>
 
         {/* 四个主菜单 */}
-        <Text style={styles.sectionTitle}>Conversation Translation Modes</Text>
+        <Text style={styles.sectionTitle}>{t('translate_screen.four_menu_title')}</Text>
         <View style={styles.modeGridBox}>
           <TouchableOpacity style={styles.modeCard} onPress={handlePress('SpeakerMode')}>
             <View style={styles.modeIconBox}>
               <Image source={require('../../../../assets/images/Home_Translate_Voice.png')} style={styles.iconSpeaker}/>
             </View>
-            <Text style={styles.modeCardText}>Speaker Mode</Text>
+            <Text style={styles.modeCardText}>{t('translate_screen.speaker_mode')}</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.modeCard} onPress={handlePress('HeadphoneMode')}>
             <View style={styles.modeIconBox}>
               <Image source={require('../../../../assets/images/Home_Translate_erji.png')} style={styles.iconSpeaker}/>
             </View>
-            <Text style={styles.modeCardText}>Headphone Mode</Text>
+            <Text style={styles.modeCardText}>{t('translate_screen.headPhone_mode')}</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.modeCard} onPress={handlePress('ListeningMode')}>
             <View style={styles.modeIconBox}>
               <Image source={require('../../../../assets/images/Home_Translate_lingdang.png')} style={styles.iconSpeaker}/>
             </View>
-            <Text style={styles.modeCardText}>Listening Mode</Text>
+            <Text style={styles.modeCardText}>{t('translate_screen.listening_mode')}</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.modeCard} onPress={handlePress('OnlineCall')}>
             <View style={styles.modeIconBox}>
               <Image source={require('../../../../assets/images/Home_Translate_video.png')} style={styles.iconSpeaker}/>
             </View>
-            <Text style={styles.modeCardText}>Online Call</Text>
+            <Text style={styles.modeCardText}>{t('translate_screen.online_call')}</Text>
           </TouchableOpacity>
         </View>
 
         {/* 翻译工具 */}
-        <Text style={styles.sectionTitle}>Translation Tools</Text>
+        <Text style={styles.sectionTitle}>{t('translate_screen.translation_tools')}</Text>
         <View style={styles.toolsRowNoBg}>
           <View style={styles.toolBtnNoBgFirst}>
             <TouchableOpacity activeOpacity={0.6} style={styles.toolBtnNoBgContent} onPress={handlePress('DocumentTranslation')}>
               <Image source={require('../../../../assets/images/Home_Teanslate_Document.png')} style={styles.iconDocNoBg}/>
-              <Text style={styles.toolTextNoBg}>{`Document\nTranslation`}</Text>
+              <Text style={styles.toolTextNoBg}>{t('translate_screen.document_translation')}</Text>
             </TouchableOpacity>
           </View>
           <TouchableOpacity activeOpacity={0.6} style={styles.toolBtnNoBgCenter} onPress={handlePress('AudioTranslation')}>
             <Image source={require('../../../../assets/images/Home_Teanslate_MP3.png')} style={styles.iconDocNoBg}/>
-            <Text style={styles.toolTextNoBg}>{`Audio\nTranslation`}</Text>
+            <Text style={styles.toolTextNoBg}>{t('translate_screen.audio_translation')}</Text>
           </TouchableOpacity>
           <View style={styles.toolBtnNoBgLast}>
             <TouchableOpacity activeOpacity={0.6} style={styles.toolBtnNoBgContent} onPress={handlePress('ImageTranslation')}>
               <Image source={require('../../../../assets/images/Home_Teanslate_Image.png')} style={styles.iconDocNoBg}/>
-              <Text style={styles.toolTextNoBg}>{`Image\nTranslation`}</Text>
+              <Text style={styles.toolTextNoBg}>{t('translate_screen.image_translation')}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -242,7 +243,7 @@ const TranslateScreen: React.FC = () => {
           <TextInput
             ref={textInputRef}
             style={styles.voiceInputTextInput}
-            placeholder="Press and hold the voice button to speak, release to send."
+            placeholder={t('translate_screen.quice_translation_placeholder')}
             placeholderTextColor="#B0B0B080"
             value={inputValue}
             onChangeText={setInputValue}
@@ -256,7 +257,7 @@ const TranslateScreen: React.FC = () => {
       </KeyboardAwareScrollView>
       <FullScreenLoader
         visible={loading}
-        text="请稍后..."
+        text={t('translate_screen.loading_text')}
         timeout={5000}
         onTimeout={() => setLoading(false)}
       />
@@ -323,9 +324,10 @@ const styles = StyleSheet.create({
     color: '#222',
   },
   headerDesc: {
-    fontSize: 12,
+    fontSize: scaleFont(10),
     color: '#222',
-    marginTop: 6,
+    marginTop: scaleSize(6),
+    lineHeight: scaleSize(18),
   },
   chatBubbleIcon: {
     width: 22,
