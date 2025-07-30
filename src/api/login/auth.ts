@@ -54,3 +54,8 @@ export function registerWithToken(params: RegisterRequest) {
 export function forgotPasswordReset(params: ForgotPasswordResetRequest) {
   return http.post<any>(API_ENDPOINTS.AUTH.FORGOT_PASSWORD_RESET, params);
 }
+
+// 退出登录
+export function logout(params:{device_fingerprint:string}) {
+  return http.post<any>(API_ENDPOINTS.AUTH.LOGOUT, params);
+}

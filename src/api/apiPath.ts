@@ -41,5 +41,10 @@ export const API_ENDPOINTS = {
           SYNTHESIZE_SPEECH: '/accounts/voiceprint/synthesize_speech',
           GET_VOICEPRINT_ENROLLMENT_CONFIG: '/accounts/voiceprint/enrollment_config',
           UPLOAD_VOICEPRINT_RECORDING: '/accounts/voiceprint/upload_recording',
+          GENERATE_VOICE_ID: '/accounts/voiceprint/generate_voice_id',
+          SUBMIT_FEEDBACK: '/supports/feedback',
+          GET_FEEDBACK_TYPE_CHOICES: '/supports/feedback_type_choices',
+          VERIFY_IDENTITY_BY_PASSWORD: '/accounts/verify_identity_by_password',
+          DELETE_ACCOUNT: '/accounts/delete_account',
         },
   };

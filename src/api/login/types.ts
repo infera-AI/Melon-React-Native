@@ -6,7 +6,8 @@ export type AuthPurpose =
   | 'verify_identity'
   | 'bind_email'
   | 'bind_phone'
-  | 'forgot_password';
+  | 'forgot_password'
+  | 'delete_account';
 
 // 获取验证码参数
 export interface GetLoginCodeParams {
