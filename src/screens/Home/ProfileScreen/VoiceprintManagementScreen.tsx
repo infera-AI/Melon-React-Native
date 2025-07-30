@@ -14,10 +14,21 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ProfileStackParamList } from './ProfileNavigator';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { getVoiceprintDemoConfig ,synthesizeSpeech} from '../../../api/profile/profile';
+import { getVoiceprintDemoConfig ,synthesizeSpeech, translateText} from '../../../api/profile/profile';
 import { useMessageModal } from '../../../contexts/MessageModalContext';
 import Sound from 'react-native-sound';
+import { useVoiceStore } from '@/store';
+import { VoiceType } from '@/store/modules/voice.store';
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
+
+const langs={
+  zh:'中文简体',
+  en:'English',
+  ja:'日语',
+  de:'德语',
+  fr:'法语',
+  es:'西班牙语',
+}
 
 const normalize = (size: number, based: 'width' | 'height' = 'width') => {
   const newSize = based === 'height' ? size * screenHeight / 812 : size * screenWidth / 375;
@@ -36,12 +47,14 @@ const VoiceprintManagementScreen: React.FC = () => {
   const [isRecording] = useState(false);
   const [voiceprintDemo, setVoiceprintDemo] = useState<any>(null);
   const [showLanguageModal, setShowLanguageModal] = useState(false);
-  const [leftLanguage] = useState<string>('中文简体');
-  const [rightLanguage, setRightLanguage] = useState<string>('English');
+  const [leftLanguage, setLeftLanguage] = useState<string>("zh");
+  const [rightLanguage, setRightLanguage] = useState<string>("zh");
   const [audioUrl, setAudioUrl] = useState<string>('');
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isSynthesizing, setIsSynthesizing] = useState(false);
   const [sound, setSound] = useState<Sound | null>(null);
   const { show, hide } = useMessageModal();
+  const [demoText, setDemoText] = useState<string>('');
   const handleBack = () => {
     navigation.goBack();
   };
@@ -53,29 +66,50 @@ const VoiceprintManagementScreen: React.FC = () => {
   const handleLanguageSelect = (language: string) => {
     setRightLanguage(language);
     setShowLanguageModal(false);
+    translateTextRequest(language);
   };
 
   const handleCreateVoice = () => {
+    useVoiceStore.getState().setType(VoiceType.CREATE);
     navigation.navigate('CreateVoice');
   };
 
   const handleOptimizVoice = () => {
-    navigation.navigate('OptimizVoice');
+    useVoiceStore.getState().setType(VoiceType.OPTIMIZE);   
+    navigation.navigate('CreateVoice');  
   };
 
   // 生成试听音频
   const handleSynthesizeSpeech = useCallback(async (text:string) => {
+    setIsSynthesizing(true);
     try{
       const res = await synthesizeSpeech({
         text,
       });
-      setAudioUrl(res.data.audio_url);
+      setAudioUrl(res.audio_url);
     }catch(error){
       show({message: 'Failed to synthesize speech'});
       console.log(error);
+    }finally{
+      setIsSynthesizing(false);
     }
   }, []);
 
+  const translateTextRequest = async (language:string) => {
+    try{
+      const res = await translateText({
+        format_type: 'text',
+        source_language: leftLanguage,
+        source_text: demoText,
+        target_language: language,
+      });
+      setLeftLanguage(language);
+      setDemoText(res.data.Translated);
+      handleSynthesizeSpeech(res.data.Translated);
+    }catch(error){
+      console.log(error);
+    }
+  }
   // 播放音频
   const handlePlayAudio = () => {
     if (!audioUrl) {
@@ -119,6 +153,7 @@ const VoiceprintManagementScreen: React.FC = () => {
     try{
       const res = await getVoiceprintDemoConfig();
       setVoiceprintDemo(res);
+      setDemoText(res.demo_text);
       handleSynthesizeSpeech(res.demo_text);
     }catch(error){
       show({message: 'Failed to get voiceprint demo'});
@@ -156,7 +191,7 @@ const VoiceprintManagementScreen: React.FC = () => {
 
         {/* 标语 */}
         <View style={styles.sloganContainer}>
-          <Text style={styles.sloganText}>{voiceprintDemo?.demo_text}</Text>
+          <Text style={styles.sloganText}>{demoText}</Text>
         </View>
 
         {/* 语言选择器 */}
@@ -164,8 +199,8 @@ const VoiceprintManagementScreen: React.FC = () => {
           <View style={styles.languageContainer}>
             <View style={styles.languageItem}>
                 <Text style={[styles.languageText]}>
-                  {leftLanguage}
-                </Text>
+                  {langs[leftLanguage as keyof typeof langs]}
+        </Text>
               <Image source={require('../../../assets/main/dropdown_disabled_icon.png')} resizeMode='contain' style={styles.dropdownIcon}/>
             </View>
             <Image source={require('../../../assets/main/exchange_icon.png')} resizeMode='contain' style={styles.exchangeIcon}/>
@@ -173,35 +208,35 @@ const VoiceprintManagementScreen: React.FC = () => {
               <Text style={[
                 styles.languageText,styles.languageTextActive
               ]}>
-                {rightLanguage}
-              </Text>
+                {langs[rightLanguage as keyof typeof langs]}
+        </Text>
              <Image source={require('../../../assets/main/dropdown_icon.png')} resizeMode='contain' style={styles.dropdownIcon}/>
             </View>
           </View>
         </TouchableOpacity>
 
         {/* 试听按钮 */}
-        <TouchableOpacity style={styles.trialButton} onPress={handlePlayAudio}>
+        <TouchableOpacity style={[styles.trialButton,isSynthesizing && styles.trialButtonDisabled]} onPress={handlePlayAudio} disabled={isSynthesizing}>
           <Image source={require('../../../assets/profile/profile_play_icon.png')} resizeMode='contain' style={styles.playIcon}/>
-          <Text style={styles.trialText}>
+          <Text style={styles.trialText}> 
             {isPlaying ? 'Playing...' : 'Trial listening'}
           </Text>
         </TouchableOpacity>
       </View>
 
       {/* 语音优化卡片 */}
-      <View style={styles.optimizationCard}>
+      <TouchableOpacity style={styles.optimizationCard} onPress={handleOptimizVoice}>
         <View style={styles.optimizationContent}>
           <Image source={require('../../../assets/profile/profile_optimize_icon.png')} resizeMode='contain' style={styles.optimizationIcon}/>
           <Text style={styles.optimizationTitle}>Voiceprint optimization</Text>
-          <TouchableOpacity style={styles.arrowContainer} onPress={handleOptimizVoice}>
+          <View style={styles.arrowContainer}>
             <Image 
               source={require('../../../assets/main/right_arrow_icon.png')} 
               style={styles.arrowIcon}
             />
-          </TouchableOpacity>
+          </View>
         </View>
-      </View>
+        </TouchableOpacity>
 
         {/* 录音按钮 */}
         <TouchableOpacity 
@@ -236,16 +271,16 @@ const VoiceprintManagementScreen: React.FC = () => {
                     style={styles.languageOption} 
                     onPress={() => handleLanguageSelect(language)}
                   >
-                    <Text style={styles.languageOptionText}>{language}</Text>
+                    <Text style={styles.languageOptionText}>{langs[language as keyof typeof langs]}</Text>
                   </TouchableOpacity>
                 ))}
               </ScrollView>
             </View>
-          </View>
+      </View>
         </Modal>
-      </SafeAreaView>
-    );
-  };
+    </SafeAreaView>
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -410,6 +445,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'flex-start',
     gap: normalize(8),
+  },
+  trialButtonDisabled: {
+    opacity: 0.5,
   },
   trialText: {
     fontSize: normalizeFontSize(15),

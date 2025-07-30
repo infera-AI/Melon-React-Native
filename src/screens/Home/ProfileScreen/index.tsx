@@ -34,6 +34,7 @@ type ProfileScreenNavigationProp = NativeStackNavigationProp<ProfileStackParamLi
 const ProfileScreen: React.FC = () => {
   const navigation = useNavigation<ProfileScreenNavigationProp>();
   const userInfo = useUserStore((state) => state.userInfo);
+  const token = useUserStore((state) => state.token);
 
   const menuItems = [
     {
@@ -113,8 +114,12 @@ const ProfileScreen: React.FC = () => {
   }
 
   useEffect(() => {
-    getUserInfoRequest();
-  }, []);
+    if(!token){
+      navigation.navigate('Welcome' as never);
+    }else{
+      getUserInfoRequest();
+    }
+  }, [token,navigation]);
   
   return (
     <View style={styles.container}>
@@ -251,6 +256,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#262626',
     borderRadius: normalize(12),
     marginBottom: normalize(16),
+    overflow: 'hidden',
   },
   menuItem: {
     flexDirection: 'row',

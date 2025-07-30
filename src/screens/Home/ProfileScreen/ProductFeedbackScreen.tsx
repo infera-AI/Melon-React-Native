@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -15,6 +15,9 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ProfileStackParamList } from './ProfileNavigator';
 import theme from '../../../utils/theme';
+import { submitFeedback, getFeedbackTypeChoices } from '../../../api/profile/profile';
+import { launchImageLibrary } from 'react-native-image-picker';
+import { useMessageModal } from '@/contexts/MessageModalContext';
 
 const normalize = (size: number, based: 'width' | 'height' = 'width') => {
   const { width, height } = require('react-native').Dimensions.get('window');
@@ -28,49 +31,154 @@ const normalizeFontSize = (size: number) => {
 
 type ProductFeedbackScreenNavigationProp = NativeStackNavigationProp<ProfileStackParamList, 'ProductFeedback'>;
 
+interface ScreenshotItem {
+  uri: string;
+  name: string;
+  type: string;
+}
+
 const ProductFeedbackScreen: React.FC = () => {
   const navigation = useNavigation<ProductFeedbackScreenNavigationProp>();
   const [feedbackType, setFeedbackType] = useState('Function suggestion');
   const [feedbackContent, setFeedbackContent] = useState('');
   const [contactInfo, setContactInfo] = useState('');
-  const [_screenshots, _setScreenshots] = useState<string[]>([]);
+  const [screenshots, setScreenshots] = useState<ScreenshotItem[]>([]);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [feedbackTypes, setFeedbackTypes] = useState<any[]>([]);
+  const [showTypeSelector, setShowTypeSelector] = useState(false);
+  const { show } = useMessageModal();
+
+  // 获取反馈类型列表
+  const fetchFeedbackTypes = async () => {
+    try {
+      const response = await getFeedbackTypeChoices();
+      console.log('获取反馈类型列表成功:', response);
+      setFeedbackTypes(response);
+      setFeedbackType(response[0][0]);
+    } catch (error) {
+      console.error('获取反馈类型列表失败:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchFeedbackTypes();
+  }, []);
 
   const handleBack = () => {
     navigation.goBack();
   };
 
   const handleFeedbackTypeSelect = () => {
-    // 这里可以打开反馈类型选择弹窗
-    Alert.alert(
-      '选择反馈类型',
-      '请选择反馈类型',
-      [
-        { text: '功能建议', onPress: () => setFeedbackType('Function suggestion') },
-        { text: '问题反馈', onPress: () => setFeedbackType('Problem feedback') },
-        { text: '其他', onPress: () => setFeedbackType('Other') },
-        { text: '取消', style: 'cancel' },
-      ]
-    );
+    setShowTypeSelector(true);
   };
 
-  const handleAddScreenshot = () => {
-    // 这里可以添加截图功能
-    Alert.alert('添加截图', '截图功能待实现');
+  const handleTypeSelect = (type: string) => {
+    setFeedbackType(type);
+    setShowTypeSelector(false);
   };
 
-  const handleSubmit = () => {
+  const handleCloseTypeSelector = () => {
+    setShowTypeSelector(false);
+  };
+
+  // 获取可用的反馈类型选项
+  const getTypeOptions = () => {
+    if (feedbackTypes.length > 0) {
+      return feedbackTypes.map(type => ({
+        value: type[0],
+        label: type[1]
+      }));
+    } else {
+      // 默认选项
+      return [
+        { value: 'Function suggestion', label: '功能建议' },
+        { value: 'Problem feedback', label: '问题反馈' },
+        { value: 'Other', label: '其他' }
+      ];
+    }
+  };
+
+  const handleAddScreenshot = async () => {
+    try {
+      const result = await launchImageLibrary({
+        mediaType: 'photo',
+        selectionLimit: 9, // 最多选择9张
+        includeBase64: false,
+      });
+
+      if (result.didCancel) {
+        console.log('用户取消选择图片');
+        return;
+      }
+
+      if (result.errorCode) {
+        console.error('选择图片失败:', result.errorMessage);
+        Alert.alert('错误', '选择图片失败，请重试');
+        return;
+      }
+
+      if (result.assets) {
+        const newScreenshots = [...screenshots];
+        result.assets.forEach((asset) => {
+          if (newScreenshots.length < 9) {
+            newScreenshots.push({
+              uri: asset.uri || '',
+              name: asset.fileName || 'screenshot',
+              type: asset.type || 'image/jpeg',
+            });
+          }
+        });
+        console.log(newScreenshots,'newScreenshots')
+        setScreenshots(newScreenshots);
+      }
+    } catch (error) {
+      console.error('添加截图失败:', error);
+      Alert.alert('错误', '添加截图失败，请重试');
+    }
+  };
+
+  const handleRemoveScreenshot = (index: number) => {
+    const newScreenshots = screenshots.filter((_, i) => i !== index);
+    setScreenshots(newScreenshots);
+  };
+
+  const handleSubmit = async () => {
     if (!feedbackContent.trim()) {
-      Alert.alert('提示', '请输入反馈内容');
+      show({message: 'Please enter feedback content'});
       return;
     }
     if (feedbackContent.length < 10) {
-      Alert.alert('提示', '反馈内容不能少于10个字');
+      show({message: 'Feedback content cannot be less than 10 characters'});
+      return;
+    }
+
+    if (!contactInfo.trim()) {
+      show({message: 'Please enter contact information'});
       return;
     }
     
-    // 这里可以提交反馈到服务器
-    setShowSuccessModal(true);
+    try {
+      // 准备提交数据
+      const submitData: any = {
+        type: feedbackType,
+        content: feedbackContent,
+        contact: contactInfo,
+      };
+
+      // 如果有截图，添加到提交数据中
+      if (screenshots.length > 0) {
+        submitData.related_shortcut_imgs = screenshots;
+      }
+      console.log(submitData,'submitData')
+      
+      // 提交反馈到服务器
+      const response = await submitFeedback(submitData);
+      console.log(response,'response')
+      setShowSuccessModal(true);
+    } catch (error) {
+      console.error('提交反馈失败:', error);
+      Alert.alert('提交失败', '反馈提交失败，请重试');
+    }
   };
 
   const handleFinish = () => {
@@ -121,7 +229,8 @@ const ProductFeedbackScreen: React.FC = () => {
               onChangeText={setFeedbackContent}
               multiline
               textAlignVertical="top"
-              numberOfLines={6}
+              numberOfLines={8}
+              scrollEnabled={false}
             />
           </View>
         </View>
@@ -138,7 +247,8 @@ const ProductFeedbackScreen: React.FC = () => {
               onChangeText={setContactInfo}
               multiline
               textAlignVertical="top"
-              numberOfLines={3}
+              numberOfLines={4}
+              scrollEnabled={false}
             />
           </View>
         </View>
@@ -147,15 +257,30 @@ const ProductFeedbackScreen: React.FC = () => {
         <View style={styles.sectionContainer}>
           <View style={styles.screenshotHeader}>
             <Text style={styles.sectionTitle}>Related screenshots</Text>
-            <Text style={styles.screenshotCount}>9 more</Text>
+            <Text style={styles.screenshotCount}>{screenshots.length-9 > 0 ? `${screenshots.length-9} more` : ''}</Text>
           </View>
           <View style={styles.screenshotContainer}>
-            {/* Screenshot Placeholders */}
-            <TouchableOpacity style={styles.screenshotItem} onPress={handleAddScreenshot}>
-              <View style={styles.screenshotPlaceholder}>
-                <Image source={require('../../../assets/profile/profile_feedback_add.png')} style={styles.addIcon} />
+          {screenshots.length < 9 && (
+              <TouchableOpacity style={styles.screenshotItem} onPress={handleAddScreenshot}>
+                <View style={styles.screenshotPlaceholder}>
+                  <Image source={require('../../../assets/profile/profile_feedback_add.png')} style={styles.addIcon} />
+                </View>
+              </TouchableOpacity>
+            )}
+            {screenshots.map((item, index) => (
+              <View key={index} style={styles.screenshotItem}>
+                 <View style={styles.screenshotPlaceholder}>
+                   <Image source={{ uri: item.uri }} style={styles.screenshotImage} />
+                 </View>
+                <TouchableOpacity
+                  style={styles.screenshotDeleteButton}
+                  onPress={() => handleRemoveScreenshot(index)}
+                >
+                  <Text style={styles.screenshotDeleteText}>×</Text>
+                </TouchableOpacity>
               </View>
-            </TouchableOpacity>
+            ))}
+       
           </View>
         </View>
 
@@ -190,6 +315,49 @@ const ProductFeedbackScreen: React.FC = () => {
                 <Text style={styles.modalButtonText}>Finish</Text>
               </TouchableOpacity>
             </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Type Selector Modal */}
+      <Modal
+        visible={showTypeSelector}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={handleCloseTypeSelector}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.typeSelectorContainer}>
+            <View style={styles.typeSelectorHeader}>
+              <Text style={styles.typeSelectorTitle}>选择反馈类型</Text>
+              <TouchableOpacity onPress={handleCloseTypeSelector}>
+                <Text style={styles.typeSelectorClose}>✕</Text>
+              </TouchableOpacity>
+            </View>
+            <ScrollView style={styles.typeSelectorContent}>
+              {getTypeOptions().map((option) => (
+                <TouchableOpacity
+                  key={option.value}
+                  style={[
+                    styles.typeOption,
+                    feedbackType === option.value && styles.typeOptionSelected
+                  ]}
+                  onPress={() => handleTypeSelect(option.value)}
+                >
+                  <Text style={[
+                    styles.typeOptionText,
+                    feedbackType === option.value && styles.typeOptionTextSelected
+                  ]}>
+                    {option.label}
+                  </Text>
+                  {feedbackType === option.value && (
+                    <View style={styles.typeOptionCheck}>
+                      <Text style={styles.typeOptionCheckText}>✓</Text>
+                    </View>
+                  )}
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
           </View>
         </View>
       </Modal>
@@ -235,10 +403,9 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   feedbackTypeCard: {
-    borderRadius: normalize(12),
     marginHorizontal: normalize(24),
     marginBottom: normalize(16),
-    padding: normalize(16),
+    paddingVertical: normalize(16),
     borderBottomColor: '#3E3E3E',
     borderBottomWidth: 1,
   },
@@ -279,6 +446,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#FFFFFF',
     letterSpacing: -0.4,
+    marginBottom: normalize(12),
   },
   feedbackContentContainer: {
     backgroundColor: '#262626',
@@ -293,12 +461,15 @@ const styles = StyleSheet.create({
     lineHeight: normalizeFontSize(20),
     letterSpacing: -0.4,
     textAlignVertical: 'top',
+    minHeight: normalize(120),
+    paddingTop: 0,
+    paddingBottom: 0,
   },
   contactInfoContainer: {
     backgroundColor: '#262626',
     borderRadius: normalize(12),
     padding: normalize(16),
-    minHeight: normalize(72),
+    minHeight: normalize(100),
   },
   contactInfoInput: {
     fontSize: normalizeFontSize(14),
@@ -307,6 +478,9 @@ const styles = StyleSheet.create({
     lineHeight: normalizeFontSize(20),
     letterSpacing: -0.4,
     textAlignVertical: 'top',
+    minHeight: normalize(80),
+    paddingTop: 0,
+    paddingBottom: 0,
   },
   screenshotHeader: {
     flexDirection: 'row',
@@ -328,6 +502,11 @@ const styles = StyleSheet.create({
   screenshotItem: {
     width: normalize(75),
     height: normalize(75),
+    position: 'relative',
+  },
+  screenshotImage: {
+    width: normalize(30),
+    height: normalize(59),
   },
   screenshotPlaceholder: {
     width: '100%',
@@ -437,6 +616,86 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#85F380',
     letterSpacing: -0.4,
+  },
+  // Type Selector Modal styles
+  typeSelectorContainer: {
+    width: normalize(327),
+    backgroundColor: '#333333',
+    borderRadius: normalize(8),
+    overflow: 'hidden',
+  },
+  typeSelectorHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: normalize(16),
+    paddingTop: normalize(12),
+    paddingBottom: normalize(8),
+  },
+  typeSelectorTitle: {
+    fontSize: normalizeFontSize(17),
+    fontWeight: '600',
+    color: '#FFFFFF',
+    letterSpacing: -0.4,
+  },
+  typeSelectorClose: {
+    fontSize: normalizeFontSize(20),
+    color: '#B0B0B0',
+  },
+  typeSelectorContent: {
+    paddingHorizontal: normalize(16),
+    paddingBottom: normalize(16),
+  },
+  typeOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: normalize(12),
+    borderBottomWidth: 1,
+    borderBottomColor: '#4F4F4F',
+  },
+  typeOptionSelected: {
+    borderRadius: normalize(8),
+  },
+  typeOptionText: {
+    fontSize: normalizeFontSize(15),
+    fontWeight: '400',
+    color: '#FFFFFF',
+    letterSpacing: -0.4,
+  },
+  typeOptionTextSelected: {
+    fontWeight: '600',
+    color: '#85F380',
+  },
+  typeOptionCheck: {
+    width: normalize(20),
+    height: normalize(20),
+    backgroundColor: '#85F380',
+    borderRadius: normalize(10),
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  typeOptionCheckText: {
+    fontSize: normalizeFontSize(14),
+    color: '#FFFFFF',
+    fontWeight: 'bold',
+  },
+  screenshotDeleteButton: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    // backgroundColor: 'rgba(0,0,0,0.5)',
+    borderRadius: normalize(10),
+    width: normalize(20),
+    height: normalize(20),
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1,
+  },
+  screenshotDeleteText: {
+    fontSize: normalizeFontSize(12),
+    color: '#FFFFFF',
+    fontWeight: '400',
   },
 });
 

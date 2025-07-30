@@ -7,12 +7,17 @@ import {
   Dimensions,
   Image,
   ScrollView,
+  Alert,
+  Modal,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ProfileStackParamList } from './ProfileNavigator';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import LottieView from 'lottie-react-native';
+import { generateVoiceId } from '@/api/profile/profile';
+import { useVoiceStore } from '@/store';
+import { VoiceType } from '@/store/modules/voice.store';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
@@ -33,30 +38,85 @@ const GeneratingVoiceScreen: React.FC = () => {
   const navigationRef = useRef(navigation);
   navigationRef.current = navigation;
   const [progress, setProgress] = useState(0);
+  const [showCompletionModal, setShowCompletionModal] = useState(false);
+  const progressInterval = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
+
+    if(useVoiceStore.getState().type === VoiceType.OPTIMIZE){
+      generateVoiceIdRequest();
+    }
+
     // 模拟进度更新
-    const progressInterval = setInterval(() => {
+    progressInterval.current = setInterval(() => {
       setProgress(prev => {
         const newProgress = prev + Math.random() * 5 + 3;
         if (newProgress >= 100) {
-          // 进度完成后导航到下一个页面
-          setTimeout(() => {
-            // navigationRef.current.navigate('LanguageVoice');
-          }, 1000);
+          // 进度完成后显示弹窗
+          // setTimeout(() => {
+          //   setShowCompletionModal(true);
+          // }, 1000);
+          if(useVoiceStore.getState().type === VoiceType.CREATE){
+            // 跳转专属音色页面
+            navigation.replace('LanguageVoice');
+          }else{
+            // 跳转专属音色页面
+            setShowCompletionModal(true);
+          }
           return 100;
         }
         return newProgress;
       });
-    }, 500);
+    }, 100);
 
     return () => {
-      clearInterval(progressInterval);
+        if (progressInterval.current) {
+          clearInterval(progressInterval.current);
+        }
     };
   }, []);
 
+  const generateVoiceIdRequest = async () => {
+    const recordFile = useVoiceStore.getState().recordVoiceFile;
+      console.log(recordFile,'recordFile')
+      try {
+        const res = await generateVoiceId({ 
+          audio_file: recordFile,
+        });
+        console.log(res,'res')
+        Alert.alert('Success', 'Voice ID generated successfully');
+      } catch (error) {
+        Alert.alert('Error', 'Failed to generate voice ID');
+        console.log(error,'error')
+      }
+    }
+
+
   const handleBack = () => {
     navigation.goBack();
+  };
+
+  const handleReRecording = () => {
+    setShowCompletionModal(false);
+    useVoiceStore.getState().setVoiceFile({
+      uri: '',
+      type: '',
+      name: '',
+    });
+    useVoiceStore.getState().setLocal("");
+    navigation.navigate('CreateVoice');
+  };
+
+  const handleConfirm = () => {
+    setShowCompletionModal(false);
+    // 跳转到 ProfileHome 页面，注意这里应该直接跳转到 ProfileHome，而不是 ProfileNavigator
+    useVoiceStore.getState().setVoiceFile({
+      uri: '',
+      type: '',
+        name: '',
+      });
+    useVoiceStore.getState().setLocal("");
+    navigation.replace('ProfileMain');
   };
 
   return (
@@ -76,7 +136,7 @@ const GeneratingVoiceScreen: React.FC = () => {
             style={styles.backIcon}
           />
         </TouchableOpacity>
-        <Text style={styles.title}>Create your own voice</Text>
+        <Text style={styles.title}>{useVoiceStore.getState().type === VoiceType.CREATE ? 'Create your own voice' : 'Voiceprint optimization'}</Text>
         <View style={styles.headerSpacer} />
       </View>
 
@@ -101,6 +161,55 @@ const GeneratingVoiceScreen: React.FC = () => {
         </Text>
       </View>
      </ScrollView>
+
+     {/* 生成完成弹窗 */}
+     <Modal
+       visible={showCompletionModal}
+       transparent={true}
+       animationType="fade"
+       onRequestClose={() => setShowCompletionModal(false)}
+     >
+       <View style={styles.modalOverlay}>
+         <View style={styles.modalContainer}>
+           {/* 标题和描述 */}
+           <View style={styles.modalContent}>
+             <View style={styles.iconContainer}>
+                 <Image 
+                   source={require('../../../assets/main/success_icon.png')} 
+                   style={styles.successIconImage}
+                 />
+             </View>
+             
+             <Text style={styles.modalTitle}>
+               Voiceprint optimization is complete.
+             </Text>
+             
+             <Text style={styles.modalDescription}>
+               You can listen to the optimization effect in "My Voiceprint Sample".
+             </Text>
+           </View>
+
+           {/* 按钮 */}
+           <View style={styles.modalButtons}>
+             <TouchableOpacity 
+               style={styles.modalButton} 
+               onPress={handleReRecording}
+             >
+               <Text style={styles.reRecordingText}>Re-recording</Text>
+             </TouchableOpacity>
+             
+             <View style={styles.buttonSeparator} />
+             
+             <TouchableOpacity 
+               style={styles.modalButton} 
+               onPress={handleConfirm}
+             >
+               <Text style={styles.confirmText}>Confirm</Text>
+             </TouchableOpacity>
+           </View>
+         </View>
+       </View>
+     </Modal>
     </SafeAreaView>
   );
 };
@@ -124,7 +233,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     marginTop: normalize(10),
-    marginBottom: normalize(16),
   },
   backButton: {
     width: normalize(40),
@@ -133,6 +241,7 @@ const styles = StyleSheet.create({
     borderRadius: normalize(12),
     justifyContent: 'center',
     alignItems: 'center',
+    zIndex: 1000,
   },
   backIcon: {
     width: normalize(16),
@@ -151,7 +260,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     height: normalize(400),
-    marginTop: normalize(50),
+    marginTop: normalize(0),
   },
   lottieAnimation: {
     width: normalize(517),
@@ -162,7 +271,6 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#FFFFFF',
     textAlign: 'center',
-    marginTop: normalize(100),
   },
   statusContainer: {
     alignItems: 'center',
@@ -175,6 +283,93 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     opacity: 0.5,
     lineHeight: normalize(20),
+  },
+  // 弹窗样式
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContainer: {
+    width: normalize(327),
+    backgroundColor: '#333333',
+    borderRadius: normalize(8),
+    overflow: 'hidden',
+    paddingTop: normalize(12),
+  },
+  modalContent: {
+    alignItems: 'center',
+    paddingHorizontal: normalize(16),
+    paddingBottom: normalize(16),
+    paddingTop: normalize(12),
+  },
+  iconContainer: {
+    alignItems: 'center',
+    paddingVertical: normalize(4),
+    paddingBottom: normalize(8),
+  },
+  successIcon: {
+    width: normalize(48),
+    height: normalize(48),
+    backgroundColor: '#FFFFFF',
+    borderRadius: normalize(24),
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  successIconImage: {
+    width: normalize(36),
+    height: normalize(36),
+    tintColor: '#36F279',
+  },
+  modalTitle: {
+    fontSize: normalizeFontSize(17),
+    fontWeight: '500',
+    color: '#FFFFFF',
+    textAlign: 'center',
+    lineHeight: normalize(22),
+    letterSpacing: -0.4,
+    marginBottom: normalize(4),
+  },
+  modalDescription: {
+    fontSize: normalizeFontSize(13),
+    fontWeight: '400',
+    color: '#B0B0B0',
+    textAlign: 'center',
+    lineHeight: normalize(18),
+    letterSpacing: -0.4,
+  },
+  modalButtons: {
+    flexDirection: 'row',
+    borderTopWidth: normalize(0.33),
+    borderTopColor: '#4F4F4F',
+  },
+  modalButton: {
+    flex: 1,
+    height: normalize(44),
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  buttonSeparator: {
+    width: normalize(0.33),
+    height: normalize(44),
+    backgroundColor: '#4F4F4F',
+  },
+  reRecordingText: {
+    fontSize: normalizeFontSize(17),
+    fontWeight: '400',
+    color: '#FFFFFF',
+    textAlign: 'center',
+    lineHeight: normalize(22),
+    letterSpacing: -0.4,
+  },
+  confirmText: {
+    fontSize: normalizeFontSize(17),
+    fontWeight: '600',
+    color: '#85F380',
+    textAlign: 'center',
+    lineHeight: normalize(22),
+    letterSpacing: -0.4,
   },
 });
 

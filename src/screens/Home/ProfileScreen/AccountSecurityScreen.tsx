@@ -10,6 +10,10 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ProfileStackParamList } from './ProfileNavigator';
+import theme from '@/utils/theme';
+import { logout } from '@/api/login';
+import { getDeviceInfo } from '@/utils/helpers';
+import { useUserStore } from '@/store/modules/user.store'; 
 
 const normalize = (size: number, based: 'width' | 'height' = 'width') => {
   const { width, height } = require('react-native').Dimensions.get('window');
@@ -43,6 +47,18 @@ const AccountSecurityScreen: React.FC = () => {
   const handleDeregisterAccount = () => {
     navigation.navigate('DeregisterAccount');
   };
+
+  const handleLogout = async() => {
+    const deviceInfo = getDeviceInfo();
+    const res = await logout({
+      device_fingerprint: deviceInfo.fingerprint,
+    })
+    console.log('Logout:', res);
+    useUserStore.getState().setUserInfo(null);
+    useUserStore.getState().setToken(null);
+    useUserStore.getState().setRefreshToken(null);
+    useUserStore.getState().setUserInfo(null);
+  }
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
@@ -108,6 +124,22 @@ const AccountSecurityScreen: React.FC = () => {
           />
         </View>
       </TouchableOpacity>
+
+      <TouchableOpacity style={[styles.card,styles.logoutCard]} onPress={handleLogout}>
+        <View style={styles.cardContent}>
+          <View style={styles.cardLeft}>
+            <Image 
+              source={require('../../../assets/main/shutdown_icon.png')} 
+              style={styles.cardIcon}
+            />
+            <Text style={[styles.cardTitle,styles.logoutCardText]}>Logout</Text>
+          </View>
+          <Image 
+            source={require('../../../assets/main/right_arrow_icon.png')} 
+            style={styles.arrowIcon}
+          />
+        </View>
+      </TouchableOpacity>
     </SafeAreaView>
   );
 };
@@ -152,6 +184,13 @@ const styles = StyleSheet.create({
     borderRadius: normalize(12),
     marginBottom: normalize(16),
     height: normalize(52),
+  },
+  logoutCard: {
+    backgroundColor: theme.primary,
+    marginTop: normalize(180),
+  },
+  logoutCardText: {
+    color: theme.backgroundTertiary,
   },
   cardContent: {
     flexDirection: 'row',

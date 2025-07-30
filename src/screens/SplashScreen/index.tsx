@@ -33,7 +33,7 @@ const SplashScreen: React.FC = () => {
     }, 1500);
 
     return () => clearTimeout(timer);
-  }, [fadeAnim, navigation, token]);
+  }, [fadeAnim, navigation]);
 
   return (
     <SafeAreaView style={styles.safe}>

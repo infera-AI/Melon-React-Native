@@ -245,3 +245,230 @@ export interface UploadVoiceprintRecordingResult {
   message: string;
   [property: string]: any;
 }
+
+// 生成用户声纹信息请求参数
+export interface GenerateVoiceIdRequest {
+  /**
+   * 音频文件
+   */
+  audio_file: {
+    uri: string;
+    name: string;
+    type: string;
+  };
+  [property: string]: any;
+}
+
+// 生成用户声纹信息返回数据
+export interface GenerateVoiceIdData {
+  /**
+   * 生成任务ID
+   */
+  generation_task_id: string;
+  [property: string]: any;
+}
+
+// 生成用户声纹信息API返回结果
+export interface GenerateVoiceIdResult {
+  /**
+   * 自定义状态码
+   */
+  code: number;
+  /**
+   * 返回数据
+   */
+  data: GenerateVoiceIdData;
+  /**
+   * 数据说明
+   */
+  message: string;
+  [property: string]: any;
+}
+
+// 用户反馈请求参数
+export interface SubmitFeedbackRequest {
+  /**
+   * 反馈类型
+   */
+  type: string;
+  /**
+   * 反馈内容
+   */
+  content: string;
+  /**
+   * 联系方式
+   */
+  contact: string;
+  /**
+   * 相关截图（可选）
+   */
+  related_shortcut_imgs?: {
+    uri: string;
+    name: string;
+    type: string;
+  };
+  [property: string]: any;
+}
+
+// 用户反馈API返回结果
+export interface SubmitFeedbackResult {
+  /**
+   * 自定义状态码
+   */
+  code: number;
+  /**
+   * 返回数据
+   */
+  data: null;
+  /**
+   * 数据说明
+   */
+  message: string;
+  [property: string]: any;
+}
+
+// 获取反馈类型列表请求参数
+export interface GetFeedbackTypeChoicesParams {
+  [property: string]: any;
+}
+
+// 反馈类型选项
+export interface FeedbackTypeChoice {
+  /**
+   * 反馈类型值
+   */
+  value: string;
+  /**
+   * 反馈类型显示名称
+   */
+  label: string;
+  [property: string]: any;
+}
+
+// 获取反馈类型列表返回数据
+export interface GetFeedbackTypeChoicesData {
+  /**
+   * 反馈类型列表
+   */
+  choices: FeedbackTypeChoice[];
+  [property: string]: any;
+}
+
+// 获取反馈类型列表API返回结果
+export interface GetFeedbackTypeChoicesResult {
+  /**
+   * 自定义状态码
+   */
+  code: number;
+  /**
+   * 返回数据
+   */
+  data: GetFeedbackTypeChoicesData;
+  /**
+   * 数据说明
+   */
+  message: string;
+  [property: string]: any;
+}
+
+// 密码认证身份请求参数
+export interface VerifyIdentityByPasswordRequest {
+  /**
+   * 密码
+   */
+  password: string;
+  [property: string]: any;
+}
+
+// 密码认证身份API返回结果
+export interface VerifyIdentityByPasswordResult {
+  /**
+   * 自定义状态码
+   */
+  code: number;
+  /**
+   * 返回数据
+   */
+  data: null;
+  /**
+   * 数据说明
+   */
+  message: string;
+  [property: string]: any;
+}
+
+// 注销用户请求参数
+export interface DeleteAccountRequest {
+  /**
+   * 操作令牌
+   */
+  action_token: string;
+  [property: string]: any;
+}
+
+// 注销用户API返回结果
+export interface DeleteAccountResult {
+  /**
+   * 自定义状态码
+   */
+  code: number;
+  /**
+   * 返回数据
+   */
+  data: null;
+  /**
+   * 数据说明
+   */
+  message: string;
+  [property: string]: any;
+}
+
+// 翻译文本相关接口
+export interface TranslateTextRequest {
+  /**
+   * 文本格式：html/text
+   */
+  format_type: string;
+  /**
+   * 支持语言查看：https://help.aliyun.com/zh/machine-translation/support/supported-languages-and-codes?spm=api-workbench.api_explorer.0.0.59593014ULnLuq
+   */
+  source_language: string;
+  source_text: string;
+  /**
+   * 支持语言查看：https://help.aliyun.com/zh/machine-translation/support/supported-languages-and-codes?spm=api-workbench.api_explorer.0.0.59593014ULnLuq
+   */
+  target_language: string;
+  [property: string]: any;
+}
+
+export interface TranslateTextData {
+  /**
+   * 源语言传入 auto 时，语种识别后的源语言代码
+   */
+  detected_language: string;
+  /**
+   * 翻译后的结果
+   */
+  translated: string;
+  /**
+   * 总单词数
+   */
+  word_count: string;
+  [property: string]: any;
+}
+
+export interface TranslateTextResult {
+  /**
+   * 自定义状态码
+   */
+  code: number;
+  /**
+   * 返回数据
+   */
+  data: TranslateTextData;
+  /**
+   * 数据说明
+   */
+  message: string;
+  [property: string]: any;
+}

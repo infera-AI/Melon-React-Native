@@ -1,7 +1,7 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
-import ProfileScreen from '.';
+import ProfileScreen from './index';
 import EditProfileScreen from './EditProfileScreen';
 import OfflineLanguageScreen from './OfflineLanguageScreen';
 import VoiceprintManagementScreen from './VoiceprintManagementScreen';
@@ -21,6 +21,7 @@ import ProductFeedbackScreen from './ProductFeedbackScreen';
 import AboutScreen from './AboutScreen';
 import CopyrightStatementScreen from './CopyrightStatementScreen';
 import OptimizVoiceScreen from './OptimizVoiceScreen';
+// import ProfileResetPasswordScreen from './ProfileResetPasswordScreen';
 
 export type ProfileStackParamList = {
   ProfileMain: undefined;
@@ -28,14 +29,14 @@ export type ProfileStackParamList = {
   OfflineLanguage: undefined;
   VoiceprintManagement: undefined;
   CreateVoice: undefined;
-  Recording: {locale: string};
-  GeneratingVoice: {recordFileList: any[]};
+  Recording: undefined;
+  GeneratingVoice: undefined;
   LanguageVoice: undefined;
   AccountSecurity: undefined;
   DeregisterAccount: undefined;
   DeregisterVerification: undefined;
   DeregisterCodeVerification: { phoneNumber: string ,countryCode:string};
-  BindMailbox: undefined;
+  BindMailbox: {action_token:string};
   GeneralSettings: undefined;
   SystemLanguage: undefined;
   HelpFeedback: undefined;
@@ -43,6 +44,7 @@ export type ProfileStackParamList = {
   About: undefined;
   CopyrightStatement: undefined;
   OptimizVoice: undefined;
+  ProfileResetPassword: undefined;
 };
 
 const Stack = createNativeStackNavigator<ProfileStackParamList>();
@@ -75,6 +77,7 @@ const ProfileNavigator: React.FC = () => {
       <Stack.Screen name="About" component={AboutScreen} />
       <Stack.Screen name="CopyrightStatement" component={CopyrightStatementScreen} />
       <Stack.Screen name="OptimizVoice" component={OptimizVoiceScreen} />
+      {/* <Stack.Screen name="ProfileResetPassword" component={ProfileResetPasswordScreen} /> */}
     </Stack.Navigator>
   );
 };

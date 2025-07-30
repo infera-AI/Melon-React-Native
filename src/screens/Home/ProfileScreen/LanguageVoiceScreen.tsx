@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -7,10 +7,15 @@ import {
   StyleSheet,
   SafeAreaView,
   ScrollView,
+  Alert,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ProfileStackParamList } from './ProfileNavigator';
+import { useVoiceStore } from '@/store';
+import { generateVoiceId, getVoiceprintDemoConfig, synthesizeSpeech, translateText } from '@/api/profile';
+import Sound from 'react-native-sound';
+import FullScreenLoader from '@/components/FullScreenLoader';
 
 const normalize = (size: number, based: 'width' | 'height' = 'width') => {
   const { width, height } = require('react-native').Dimensions.get('window');
@@ -24,47 +29,173 @@ const normalizeFontSize = (size: number) => {
 
 type LanguageVoiceScreenNavigationProp = NativeStackNavigationProp<ProfileStackParamList, 'LanguageVoice'>;
 
+const testTexContent = 'Hello World!\nGlad that I can communicate with you in your voice';
+
 const LanguageVoiceScreen: React.FC = () => {
   const navigation = useNavigation<LanguageVoiceScreenNavigationProp>();
-  const [selectedLanguage, setSelectedLanguage] = useState<string>('English');
+  const [selectedLanguage, setSelectedLanguage] = useState<string>('en');
+  const [languageList, setLanguageList] = useState<any[]>([]);
+  const [sound, setSound] = useState<Sound | null>(null);
+  const [isPlaying, setIsPlaying] = useState<boolean>(false);
+  const [testText, setTestText] = useState<string>(testTexContent);
+  const [loading, setLoading] = useState<boolean>(false);
 
-  const languages = [
-    { id: 'chinese', name: 'Chinese', flag: require('../../../../assets/images/flag_cn.png') },
-    { id: 'english', name: 'English', flag: require('../../../../assets/images/flag_usuk.png') },
-    { id: 'japanese', name: 'Japanese', flag: require('../../../../assets/images/flag_jp.png') },
-    { id: 'deutsch', name: 'Deutsch', flag: require('../../../../assets/images/flag_de.png') },
-    { id: 'francasis', name: 'Francasis', flag: require('../../../../assets/images/flag_fr.png') },
-    { id: 'espanol', name: 'Espanol', flag: require('../../../../assets/images/flag_es.png') },
-  ];
+
+  const languages={
+    zh:{name:'Chinese',flag: require('../../../../assets/images/flag_cn.png')},
+    en:{name:'English',flag: require('../../../../assets/images/flag_usuk.png')},
+    ja:{name:'Japanese',flag: require('../../../../assets/images/flag_jp.png')},
+    de:{name:'Deutsch',flag: require('../../../../assets/images/flag_de.png')},
+    fr:{name:'Francasis',flag: require('../../../../assets/images/flag_fr.png')},
+    es:{name:'Espanol',flag: require('../../../../assets/images/flag_es.png')},
+  }
 
   const handleBack = () => {
     navigation.goBack();
   };
 
-  const handleLanguageSelect = (languageId: string) => {
-    setSelectedLanguage(languageId);
+   const generateVoiceIdRequest = async () => {
+    const recordFile = useVoiceStore.getState().recordVoiceFile;
+      console.log(recordFile,'recordFile')
+      try {
+        const res = await generateVoiceId({ 
+          audio_file: recordFile,
+        });
+        console.log(res,'res')
+        Alert.alert('Success', 'Voice ID generated successfully');
+        useVoiceStore.getState().setVoiceFile({
+          uri: '',
+          type: '',
+          name: '',
+        });
+        useVoiceStore.getState().setLocal("");
+        navigation.navigate('ProfileMain');
+      } catch (error) {
+        Alert.alert('Error', 'Failed to generate voice ID');
+        console.log(error,'error')
+      }
+    }
+
+  const getLanguageListRequest = async () => {
+    try{
+      const res = await getVoiceprintDemoConfig();
+      setLanguageList(res.supported_languages);
+      setSelectedLanguage(res.supported_languages?.[0]);
+      setTestText(res.demo_text);
+      getAudioUrlRequest(res.demo_text);
+
+    }catch(error){
+      console.log(error);
+    }
+  }
+
+  const handleLanguageSelect = (language: string) => {
+    setSelectedLanguage(language);
+    translateTextRequest(language);
   };
 
   const handleRecordAgain = () => {
+    useVoiceStore.getState().setVoiceFile({
+      uri: '',
+      type: '',
+      name: '',
+    });
+    useVoiceStore.getState().setLocal("");
     // 重新录音逻辑
-    navigation.navigate('Recording');
+    navigation.navigate('CreateVoice');
+  };
+
+  // 翻译文本
+  const translateTextRequest = async (language: string) => {
+    try{
+      const res = await translateText({
+        format_type: 'text',
+        source_language: 'en',
+        source_text: testTexContent,
+        target_language: language,
+      });
+        console.log(res,res.data.Translated  )
+      setTestText(res.data.Translated);
+      getAudioUrlRequest(res.data.Translated);
+    }catch(error){
+      console.log(error);
+    }
+  }
+
+  // 获取音频
+  const getAudioUrlRequest = async (text: string) => {
+    setLoading(true);
+    try{
+      const res = await synthesizeSpeech({
+        text: text,
+      });
+      handlePlayAudio(res.audio_url);
+    }catch(error){  
+      console.log(error);
+    }finally{
+      setLoading(false);
+    }
+  }
+
+  // 播放音频
+  const handlePlayAudio = (audioUrl: string) => {
+    if (!audioUrl) {
+      // show({message: 'No audio available'});
+      Alert.alert('No audio available');
+      return;
+    }
+
+    // 停止当前播放的音频
+    if (sound) {
+      sound.stop();
+      sound.release();
+    }
+
+    // 创建新的音频实例
+    const newSound = new Sound(audioUrl, Sound.MAIN_BUNDLE, (error) => {
+      if (error) {
+        console.log('Failed to load audio:', error);
+        Alert.alert('Failed to load audio');
+        return;
+      }
+
+      // 音频加载成功，开始播放
+      newSound.play((success) => {
+        if (success) {
+          console.log('Audio played successfully');
+        } else {
+          console.log('Audio playback failed');
+        }
+        setIsPlaying(false);
+        newSound.release();
+      });
+
+      setIsPlaying(true);
+    });
+
+    setSound(newSound);
   };
 
   const handleDone = () => {
     // 完成逻辑
-    navigation.navigate('GeneratingVoice');
+    generateVoiceIdRequest();
+    // navigation.navigate('GeneratingVoice');
   };
+
+  useEffect(() => {
+    getLanguageListRequest();
+  }, []);
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
       {/* 顶部导航栏 */}
       <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={handleBack}>
+        {/* <TouchableOpacity style={styles.backButton} onPress={handleBack}>
           <Image 
             source={require('../../../assets/main/page_return_icon.png')} 
             style={styles.backIcon}
           />
-        </TouchableOpacity>
+        </TouchableOpacity> */}
         <View style={styles.headerSpacer} />
         <View style={styles.headerSpacer} />
       </View>
@@ -77,39 +208,24 @@ const LanguageVoiceScreen: React.FC = () => {
         {/* 示例文本 */}
         <View style={styles.sampleTextContainer}>
           <Text style={styles.sampleText}>
-            "Hello World!"{'\n'}
-            "Glad that I can communicate with you in your voice"
+            {testText}
           </Text>
         </View>
 
         {/* 语言选择网格 */}
         <View style={styles.languageGrid}>
-          {languages.slice(0, 3).map((language, index) => (
+          {languageList.slice(0, 3).map((language) => (
             <TouchableOpacity
-              key={language.id}
+              key={language}
+              disabled={isPlaying}
               style={[
                 styles.languageCard,
-                selectedLanguage === language.id && styles.languageCardSelected
+                selectedLanguage === language && styles.languageCardSelected
               ]}
-              onPress={() => handleLanguageSelect(language.id)}
+              onPress={() => handleLanguageSelect(language)}
             >
-              <Image source={language.flag} style={styles.languageFlag} />
-              <Text style={styles.languageName}>{language.name}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-        <View style={styles.languageGrid}>
-          {languages.slice(3, 6).map((language, index) => (
-            <TouchableOpacity
-              key={language.id}
-              style={[
-                styles.languageCard,
-                selectedLanguage === language.id && styles.languageCardSelected
-              ]}
-              onPress={() => handleLanguageSelect(language.id)}
-            >
-              <Image source={language.flag} style={styles.languageFlag} />
-              <Text style={styles.languageName}>{language.name}</Text>
+              <Image source={languages[language as keyof typeof languages].flag as any} style={styles.languageFlag} />
+              <Text style={styles.languageName}>{languages[language as keyof typeof languages].name}</Text>
             </TouchableOpacity>
           ))}
         </View>
@@ -128,6 +244,12 @@ const LanguageVoiceScreen: React.FC = () => {
           <Text style={styles.doneText}>Done</Text>
         </TouchableOpacity>
       </View>
+      <FullScreenLoader
+        visible={loading}
+        text="Please wait..."
+        timeout={5000}
+        onTimeout={() => setLoading(false)}
+      />
     </SafeAreaView>
   );
 };

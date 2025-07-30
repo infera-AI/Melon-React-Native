@@ -16,7 +16,7 @@ import { RouteProp, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ProfileStackParamList } from './ProfileNavigator';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { getVoiceprintEnrollmentConfig, uploadVoiceprintRecording } from '../../../api/profile/profile';
+import { getVoiceprintEnrollmentConfig, generateVoiceId } from '../../../api/profile/profile';
 import AudioRecorderPlayer, {
   AVEncoderAudioQualityIOSType,
   AVEncodingOption,
@@ -25,6 +25,9 @@ import AudioRecorderPlayer, {
   OutputFormatAndroidType,
 } from 'react-native-audio-recorder-player';
 import RNFS from 'react-native-fs';
+import { mergeAudioFiles, validateAudioFiles, getTotalAudioDuration } from '../../../utils/audioUtils';
+import { useVoiceStore } from '@/store';
+import { VoiceType } from '@/store/modules/voice.store';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
@@ -40,7 +43,7 @@ const normalizeFontSize = (size: number) => {
 
 type RecordingScreenNavigationProp = NativeStackNavigationProp<ProfileStackParamList, 'Recording'>;
 
-const RecordingScreen: React.FC<{route: RouteProp<ProfileStackParamList, 'Recording'>}> = ({route}) => {
+const RecordingScreen: React.FC = () => {
   const navigation = useNavigation<RecordingScreenNavigationProp>();
   const [isRecording, setIsRecording] = useState(false);
   const [currentSegment, setCurrentSegment] = useState(1);
@@ -48,9 +51,24 @@ const RecordingScreen: React.FC<{route: RouteProp<ProfileStackParamList, 'Record
   const [isRecordingValid, setIsRecordingValid] = useState(false);
   const [_recordingPath, setRecordingPath] = useState<string>('');
   const [realRecordingTime, setRealRecordingTime] = useState<number>(0);
+  const [recordFileList, setRecordFileList] = useState<any[]>([]);
   const pulseAnim = useRef(new Animated.Value(1)).current;
   const audioRecorderPlayer = useRef(new AudioRecorderPlayer()).current;
-  const [recordFileList, setRecordFileList] = useState<any[]>(new Array(voiceprintEnrollmentConfig?.required_phrases_count || 0).fill(null));
+  
+  // 使用 useRef 来解决闭包问题
+  const voiceprintEnrollmentConfigRef = useRef(voiceprintEnrollmentConfig);
+  const realRecordingTimeRef = useRef(realRecordingTime);
+  const handleStopRecordingRef = useRef<(() => Promise<void>) | null>(null);
+  const mergedAudioPathRef = useRef<string>('');
+
+  // 更新 ref 值
+  useEffect(() => {
+    voiceprintEnrollmentConfigRef.current = voiceprintEnrollmentConfig;
+  }, [voiceprintEnrollmentConfig]);
+
+  useEffect(() => {
+    realRecordingTimeRef.current = realRecordingTime;
+  }, [realRecordingTime]);
 
   // 请求录音权限
   const requestRecordingPermission = async () => {
@@ -106,15 +124,21 @@ const RecordingScreen: React.FC<{route: RouteProp<ProfileStackParamList, 'Record
       setRecordingPath(uri);
       console.log('开始录音:', uri);
       
-      // 开始监听录音时长
+      // 开始监听录音时长 - 修复闭包问题
       audioRecorderPlayer.addRecordBackListener((e) => {
         const currentPosition = e.currentPosition;
-        setRealRecordingTime(Math.floor(currentPosition / 1000)); // 转换为秒
-        if(Math.floor(currentPosition / 1000) > voiceprintEnrollmentConfig.max_segment_duration_seconds){
+        const currentTime = Math.floor(currentPosition / 1000); // 转换为秒
+        setRealRecordingTime(currentTime);
+        
+        // 使用 ref 获取最新值
+        const config = voiceprintEnrollmentConfigRef.current;
+        if (config && currentTime > config.max_segment_duration_seconds) {
           Alert.alert('recording too long', 'recording time exceeds the maximum recording time and stop recording');
-          handleStopRecording();
+          if (handleStopRecordingRef.current) {
+            handleStopRecordingRef.current();
+          }
         }
-        console.log('录音进度:', currentPosition);
+        console.log('录音进度:', currentPosition, currentTime);
       });
       
       return true;
@@ -129,11 +153,11 @@ const RecordingScreen: React.FC<{route: RouteProp<ProfileStackParamList, 'Record
   const stopRecording = useCallback(async () => {
     try {
       const result = await audioRecorderPlayer.stopRecorder();
-   
       console.log('停止录音:', result);
       
       // 移除录音监听器
       audioRecorderPlayer.removeRecordBackListener();
+      
       return result;
     } catch (error) {
       console.error('停止录音失败:', error);
@@ -145,42 +169,46 @@ const RecordingScreen: React.FC<{route: RouteProp<ProfileStackParamList, 'Record
   const getVoiceprintEnrollmentConfigRequest = useCallback(async () => {
     try{
       const res = await getVoiceprintEnrollmentConfig({
-        locale: route.params.locale,
+        locale: useVoiceStore.getState().local || 'zh',
         mode: 'TEXT_DEPENDENT',
       });
       setVoiceprintEnrollmentConfig(res);
     }catch(error){
       console.log(error);
     }
-  }, [route.params.locale]);
+  }, []);
 
   const handleStopRecording = useCallback(async () => {
+    setIsRecording(false);
     const minDuration = voiceprintEnrollmentConfig?.min_segment_duration_seconds;
+    const currentRealTime = realRecordingTimeRef.current;
 
-    console.log('realRecordingTime', realRecordingTime);
-    
-  
+    console.log('realRecordingTime', currentRealTime);
     
     // 停止真实录音
     const recordingFile = await stopRecording();
-    if (realRecordingTime < minDuration) {
+    console.log(currentRealTime, minDuration, '1111')
+    if (currentRealTime < minDuration) {
       Alert.alert(
         'Recording Too Short', 
         `Recording must be at least ${minDuration} seconds. Please try again.`
       );
-      setIsRecording(false);
+      setRealRecordingTime(0);
+      setIsRecordingValid(false);
       return;
     }
     if (recordingFile && recordingFile.length > 0) {
       console.log('录音完成:', recordingFile);
       
       // 检查录音文件是否有效
-      if (realRecordingTime < 1) {
+      if (currentRealTime < 1) {
         Alert.alert('录音无效', '录音时间太短，请重新录制');
         setIsRecording(false);
         setIsRecordingValid(false);
+        setRealRecordingTime(0);
         return;
       }
+      
       // 保存录音文件
       try {
         const currentPhrase = voiceprintEnrollmentConfig?.phrases?.[currentSegment - 1];
@@ -190,8 +218,11 @@ const RecordingScreen: React.FC<{route: RouteProp<ProfileStackParamList, 'Record
             name: `recording_${currentSegment}.m4a`,
             type: 'audio/m4a',
           }
-          recordFileList[currentSegment-1] = recordFile;
-          setRecordFileList([...recordFileList]);
+          const newRecordFileList = [...recordFileList];
+          newRecordFileList[currentSegment-1] = recordFile;
+          setRecordFileList(newRecordFileList);
+          console.log(newRecordFileList,'recordFileList')
+          
           // const uploadResult = await uploadVoiceprintRecording({
           //   recording_file: {
           //     uri: recordingFile,
@@ -199,21 +230,21 @@ const RecordingScreen: React.FC<{route: RouteProp<ProfileStackParamList, 'Record
           //     type: 'audio/m4a',
           //   },
           //   phrase_id: currentPhrase.id,
-          //   duration: realRecordingTime,
+          //   duration: currentRealTime,
           // });
+          // console.log('上传结果:', uploadResult);
         }
       } catch (error) {
-        console.error('录音上传失败:', error);
-        Alert.alert('上传失败', '录音文件上传失败，请重试');
+        console.error('保存录音文件失败:', error);
+        Alert.alert('保存失败', '录音文件保存失败，请重试');
       }
-      
-      setIsRecording(false);
-      setIsRecordingValid(true);
-    } else {
-      setIsRecording(false);
-      setIsRecordingValid(false);
     }
-  }, [voiceprintEnrollmentConfig, stopRecording, currentSegment, realRecordingTime, recordFileList]);
+  }, [voiceprintEnrollmentConfig, stopRecording, currentSegment, recordFileList]);
+
+  // 更新 ref
+  useEffect(() => {
+    handleStopRecordingRef.current = handleStopRecording;
+  }, [handleStopRecording]);
 
   useEffect(() => {
     getVoiceprintEnrollmentConfigRequest();
@@ -271,7 +302,6 @@ const RecordingScreen: React.FC<{route: RouteProp<ProfileStackParamList, 'Record
     const success = await startRecording();
     if (success) {
       setIsRecording(true);
-      setRealRecordingTime(0);
       setIsRecordingValid(false);
     }
   };
@@ -284,8 +314,56 @@ const RecordingScreen: React.FC<{route: RouteProp<ProfileStackParamList, 'Record
     setRecordingPath('');
   };
 
-  const handleNext = () => {
+  // 音频合成功能
+  const handleMergeAudio = async () => {
+    try {
+      // 检查是否有录音文件
+      if (recordFileList.length === 0) {
+        Alert.alert('提示', '没有录音文件可以合成');
+        return false;
+      }
+
+      // 过滤有效的录音文件
+      const validFiles = recordFileList.filter(file => file && file.uri);
+      if (validFiles.length === 0) {
+        Alert.alert('提示', '没有有效的录音文件');
+        return false;
+      }
+
+      console.log('开始合成音频文件，文件数量:', validFiles.length);
+
+      // 验证音频文件
+      const validation = await validateAudioFiles(validFiles);
+      if (!validation.valid) {
+        Alert.alert('错误', `以下文件无效: ${validation.invalidFiles.join(', ')}`);
+        return false;
+      }
+
+      // 获取总时长
+      const duration = await getTotalAudioDuration(validFiles);
+
+      // 合成音频文件
+      const mergedPath = await mergeAudioFiles(validFiles);
+      mergedAudioPathRef.current = mergedPath;
+
+      console.log('音频合成成功:', mergedPath);
+      console.log('总时长:', duration, '秒');
+
+      return true
+    } catch (error) {
+      console.error('音频合成失败:', error);
+      Alert.alert('合成失败', '音频文件合成失败，请重试');
+      return false;
+    } finally {
+    }
+  };
+
+  const handleNext = async () => {
     const totalPhrases = voiceprintEnrollmentConfig?.required_phrases_count || 0;
+    if(!recordFileList[currentSegment-1]){
+      Alert.alert('提示', '请先录制音频');
+      return;
+    }
     
     if (currentSegment < totalPhrases) {
       setCurrentSegment(prev => prev + 1);
@@ -294,8 +372,22 @@ const RecordingScreen: React.FC<{route: RouteProp<ProfileStackParamList, 'Record
       setIsRecordingValid(false);
       setRecordingPath('');
     } else {
-      // 完成所有录音，导航到生成页面
-      navigation.navigate('GeneratingVoice',{recordFileList});
+      // 合成音频
+      const isMerged = await handleMergeAudio();
+      if(isMerged){
+        // 保存音频文件
+        const voiceFile = {
+          uri: "file:///"+mergedAudioPathRef.current,
+          name:'merged_voiceprint.m4a',
+          type:'audio/m4a'
+        }
+        useVoiceStore.getState().setVoiceFile(voiceFile);
+        // 完成所有录音，导航到生成页面
+        navigation.navigate('GeneratingVoice');
+      }else{
+        Alert.alert('提示', '音频合成失败，请重试');
+      }
+     
     }
   };
 
@@ -316,7 +408,7 @@ const RecordingScreen: React.FC<{route: RouteProp<ProfileStackParamList, 'Record
             style={styles.backIcon}
           />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Create your own voice</Text>
+        <Text style={styles.headerTitle}>{useVoiceStore.getState().type === VoiceType.CREATE ? 'Create your own voice' : 'Optimize your voice'}</Text>
         <View style={styles.headerSpacer} />
       </View>
 
@@ -364,9 +456,7 @@ const RecordingScreen: React.FC<{route: RouteProp<ProfileStackParamList, 'Record
               onPress={handleStartRecording}
               activeOpacity={0.8}
             >
-              <View style={styles.recordingButtonInner}>
-                <View style={styles.recordingButtonCenter} />
-              </View>
+              <View style={styles.recordingButtonInner} />
             </TouchableOpacity>
           ) : (
             <Animated.View
@@ -391,7 +481,7 @@ const RecordingScreen: React.FC<{route: RouteProp<ProfileStackParamList, 'Record
         <TouchableOpacity style={styles.rerecordButton} onPress={handleRerecord}>
           <Text style={styles.rerecordButtonText}>Re-record This Segment</Text>
         </TouchableOpacity>
-        
+
         <TouchableOpacity 
           style={[
             styles.nextButton,
@@ -463,6 +553,13 @@ const styles = StyleSheet.create({
     color: '#B0B0B0',
     textAlign: 'center',
     lineHeight: normalize(20),
+  },
+  recordingFilesText: {
+    fontSize: normalizeFontSize(13),
+    fontWeight: '400',
+    color: '#85F380',
+    textAlign: 'center',
+    marginTop: normalize(5),
   },
   progressContainer: {
     flexDirection: 'row',
@@ -599,6 +696,46 @@ const styles = StyleSheet.create({
     fontSize: normalizeFontSize(14),
     fontWeight: '500',
     color: '#EA4335',
+    textAlign: 'center',
+  },
+  mergeButton: {
+    backgroundColor: '#3E3E3E',
+    borderRadius: normalize(12),
+    paddingVertical: normalize(12),
+    paddingHorizontal: normalize(16),
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  mergeButtonText: {
+    fontSize: normalizeFontSize(16),
+    fontWeight: '500',
+    color: '#FFFFFF',
+    letterSpacing: -0.4,
+  },
+  mergeButtonDisabled: {
+    opacity: 0.5,
+    backgroundColor: '#3E3E3E',
+  },
+  mergeButtonTextDisabled: {
+    color: '#B0B0B0',
+  },
+  mergeResultContainer: {
+    backgroundColor: '#262626',
+    borderRadius: normalize(12),
+    padding: normalize(15),
+    marginTop: normalize(10),
+  },
+  mergeResultText: {
+    fontSize: normalizeFontSize(14),
+    fontWeight: '400',
+    color: '#85F380',
+    textAlign: 'center',
+    marginBottom: normalize(5),
+  },
+  mergeResultPath: {
+    fontSize: normalizeFontSize(12),
+    fontWeight: '400',
+    color: '#B0B0B0',
     textAlign: 'center',
   },
 });

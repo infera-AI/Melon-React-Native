@@ -16,6 +16,8 @@ import { ProfileStackParamList } from './ProfileNavigator';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import theme from '../../../utils/theme';
 import { getVoiceprintDemoConfig } from '../../../api/profile';
+import { useVoiceStore } from '@/store';
+import { VoiceType } from '@/store/modules/voice.store';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
@@ -104,11 +106,16 @@ const CreateVoiceScreen: React.FC = () => {
     };
   }, [outerAnim, middleAnim, innerAnim]);
 
+  useEffect(() => {
+    useVoiceStore.getState().setLocal(selectedLanguage);
+  }, [selectedLanguage]);
 
   const getLanguageListRequest = async () => {
     try{
       const res = await getVoiceprintDemoConfig();
       setLanguageList(res.supported_languages);
+      setSelectedLanguage(res.supported_languages?.[0]);
+
     }catch(error){
       console.log(error);
     }
@@ -143,7 +150,7 @@ const CreateVoiceScreen: React.FC = () => {
             style={styles.backIcon}
           />
         </TouchableOpacity>
-        <Text style={styles.title}>Create your own voice</Text>
+        <Text style={styles.title}>{useVoiceStore.getState().type === VoiceType.CREATE ? 'Create your own voice' : 'Voiceprint optimization'}</Text>
         <View style={styles.headerSpacer} />
       </View>
 
@@ -220,7 +227,7 @@ const CreateVoiceScreen: React.FC = () => {
             source={require('../../../assets/profile/profile_unvoice_icon.png')} 
             style={styles.guidanceImage}
           />
-          <Text style={styles.guidanceText}> Conduct the recording in a quiet environment to avoid background noise interference.</Text>
+          <Text style={styles.guidanceText}> Conduct the recording in a <Text style={styles.guidanceTextColor}>quiet environment</Text> to avoid background noise interference.</Text>
         </View>
 
         <View style={styles.guidanceContainer}>
@@ -228,7 +235,7 @@ const CreateVoiceScreen: React.FC = () => {
             source={require('../../../assets/profile/profile_record_icon.png')} 
             style={styles.guidanceImage}
           />
-          <Text style={styles.guidanceText}>Read the text on the screen with your natural, clear speaking speed and volume.</Text>
+          <Text style={styles.guidanceText}>Read the text on the screen with your <Text style={styles.guidanceTextColor}>natural, clear speaking speed and volume.</Text></Text>
         </View>
 
         <View style={styles.guidanceContainer}>
@@ -236,7 +243,7 @@ const CreateVoiceScreen: React.FC = () => {
             source={require('../../../assets/profile/profile_unrecord_icon.png')} 
             style={styles.guidanceImage}
           />
-          <Text style={styles.guidanceText}>Face the phone's microphone directly at you and maintain a distance of 15 - 20 centimeters.</Text>
+          <Text style={styles.guidanceText}>Face the phone's microphone <Text style={styles.guidanceTextColor}>directly at you</Text> and maintain a distance of 15 - 20 centimeters.</Text>
         </View>
 
 
@@ -376,6 +383,9 @@ const styles = StyleSheet.create({
      color: '#B0B0B0',
      lineHeight: normalize(20),
      flex: 1,
+   },
+   guidanceTextColor: {
+    color: theme.primary,
    },
   languageSelector: {
     marginHorizontal:normalize(44),

@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
   Text,
@@ -14,6 +14,7 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ProfileStackParamList } from './ProfileNavigator';
 import theme from '../../../utils/theme';
+import { getLoginCodeApi, verifyCode } from '@/api/login';
 
 const normalize = (size: number, based: 'width' | 'height' = 'width') => {
   const { width, height } = require('react-native').Dimensions.get('window');
@@ -61,16 +62,27 @@ const DeregisterCodeVerificationScreen: React.FC<{ route: { params: { phoneNumbe
     }, 1000);
   };
 
-  const handleResendCode = () => {
+  const handleResendCode = async() => {
     if (canResend) {
       console.log('Resending verification code...');
-      startCountdown();
       // 这里可以调用重新发送验证码的API
+      try{
+        const res = await getLoginCodeApi({
+          identifier: phoneNumber,
+          auth_purpose: 'delete_account',
+          recipient_type: 'phone',
+        })
+        console.log('Resend code:', res);
+        startCountdown();
+      }catch(error){
+        console.log('Resend code error:', error);
+      }
     }
   };
 
   // 组件卸载时清理定时器
-  React.useEffect(() => {
+  useEffect(() => {
+    startCountdown()
     return () => {
       if (countdownRef.current) {
         clearInterval(countdownRef.current);
@@ -102,7 +114,6 @@ const DeregisterCodeVerificationScreen: React.FC<{ route: { params: { phoneNumbe
     }
 
     setIsVerifying(true);
-    
     Animated.loop(
       Animated.sequence([
         Animated.timing(pulseAnim, {
@@ -117,24 +128,22 @@ const DeregisterCodeVerificationScreen: React.FC<{ route: { params: { phoneNumbe
         }),
       ])
     ).start();
-
-    setTimeout(() => {
+    try{
+      const res = await verifyCode({
+        identifier: phoneNumber,
+        verification_code: code,
+        auth_purpose: 'delete_account',
+        recipient_type: 'phone',
+      })
+      console.log('Verify code:', res);
+      navigation.navigate('BindMailbox',{action_token:res?.action_token});
+    }catch(error){
+      Alert.alert('提示', '验证码错误');
+      console.log('Verify code error:', error);
+    }finally{
       setIsVerifying(false);
       pulseAnim.stopAnimation();
-      
-      Alert.alert(
-        '验证成功',
-        '验证码验证成功，您的账户将被注销',
-        [
-          {
-            text: '确定',
-            onPress: () => {
-              navigation.navigate('BindMailbox');
-            },
-          },
-        ]
-      );
-    }, 1000);
+    }
   };
 
   const isCodeComplete = verificationCode.every(digit => digit !== '');
@@ -201,7 +210,7 @@ const DeregisterCodeVerificationScreen: React.FC<{ route: { params: { phoneNumbe
           )}
         </View>
 
-                 <TouchableOpacity 
+          <TouchableOpacity 
            style={[
              styles.confirmButton,
              (!isCodeComplete || isVerifying) && styles.confirmButtonDisabled

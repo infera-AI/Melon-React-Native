@@ -14,6 +14,9 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ProfileStackParamList } from './ProfileNavigator';
 import theme from '../../../utils/theme';
+import { verifyIdentityByPassword } from '../../../api/profile/profile';
+import { getLoginCodeApi } from '@/api/login';
+import { useMessageModal } from '@/contexts/MessageModalContext';
 
 const normalize = (size: number, based: 'width' | 'height' = 'width') => {
   const { width, height } = require('react-native').Dimensions.get('window');
@@ -38,6 +41,7 @@ const DeregisterVerificationScreen: React.FC = () => {
     code: '+86'
   });
   const [showCountryPicker, setShowCountryPicker] = useState(false);
+  const { show } = useMessageModal();
 
   const handleBack = () => {
     navigation.goBack();
@@ -45,26 +49,57 @@ const DeregisterVerificationScreen: React.FC = () => {
 
   const handleConfirmDeregister = () => {
     if (verificationMethod === 'password' && !password.trim()) {
-      Alert.alert('提示', '请输入登录密码');
+      show({message: 'Please enter login password'});
       return;
     }
     
     if (verificationMethod === 'phone' && (!phoneNumber.trim()) ) {
-      Alert.alert('提示', '请输入手机号码');
+      show({message: 'Please enter mobile phone number'});
       return;
     }
     
     // 验证逻辑
     if (verificationMethod === 'password') {
-      console.log('Verify password:', password);
-      // 密码验证成功后，导航到验证码验证页面
-      navigation.navigate('DeregisterCodeVerification');
+      verifyPassword()
     } else {
       console.log('Verify code:', verificationCode);
       // 手机号验证成功后，导航到验证码验证页面
-      navigation.navigate('DeregisterCodeVerification', { phoneNumber: phoneNumber ,countryCode:selectedCountry.code});
+      sendCode()
     }
   };
+
+  // 发送验证码
+  const sendCode = async() => {
+    try{
+      const res = await getLoginCodeApi({
+        recipient_type: 'phone',
+        identifier: phoneNumber,
+        auth_purpose: 'delete_account'
+      })
+      console.log('Send code:', res);
+      navigation.navigate('DeregisterCodeVerification', { phoneNumber: phoneNumber ,countryCode:selectedCountry.code}); 
+    }catch(error){
+      show({message: 'Send verification code failed'});
+      console.log('Send code error:', error);
+    }
+  }
+
+  // 验证密码
+  const verifyPassword = async() => {
+    try{
+    const res = await verifyIdentityByPassword({
+      password: password,
+    })
+
+    console.log('Verify password:', res);
+
+    navigation.navigate('BindMailbox',{action_token:res?.action_token});
+    
+    }catch(error){
+      show({message: 'Password error'});
+      console.log('Verify password error:', error);
+    }
+  }
 
 
 
@@ -79,7 +114,7 @@ const DeregisterVerificationScreen: React.FC = () => {
       return;
     }
     console.log('Send verification code to:', selectedCountry.code + phoneNumber);
-    Alert.alert('提示', '验证码已发送');
+    sendCode()
   };
 
   return (
@@ -217,7 +252,7 @@ const DeregisterVerificationScreen: React.FC = () => {
                 </TouchableOpacity>
               </View>
               
-                             <ScrollView 
+              <ScrollView 
                  style={styles.countryList}
                  showsVerticalScrollIndicator={false}
                  contentContainerStyle={styles.countryListContent}

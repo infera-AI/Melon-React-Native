@@ -12,6 +12,8 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ProfileStackParamList } from './ProfileNavigator';
 import theme from '../../../utils/theme';
+import { deleteAccount } from '@/api/profile/profile';
+import { useUserStore } from '@/store/modules/user.store';
 
 const normalize = (size: number, based: 'width' | 'height' = 'width') => {
   const { width, height } = require('react-native').Dimensions.get('window');
@@ -25,7 +27,8 @@ const normalizeFontSize = (size: number) => {
 
 type BindMailboxScreenNavigationProp = NativeStackNavigationProp<ProfileStackParamList, 'BindMailbox'>;
 
-const BindMailboxScreen: React.FC = () => {
+const BindMailboxScreen: React.FC<{ route: { params: { action_token: string } } }> = ({ route }) => {
+  const { action_token } = route.params || {};
   const navigation = useNavigation<BindMailboxScreenNavigationProp>();
   const [isConfirmed, setIsConfirmed] = useState(false);
 
@@ -33,30 +36,23 @@ const BindMailboxScreen: React.FC = () => {
     navigation.goBack();
   };
 
-  const handleConfirm = () => {
-    if (!isConfirmed) {
-      Alert.alert('提示', '请先确认您已了解注销后果');
-      return;
+  const handleConfirm = async() => {
+    try{
+      const res = await deleteAccount({
+        action_token: action_token,
+      })
+      console.log('Delete account:', res);
+      useUserStore.getState().setUserInfo({
+        id: '',
+        username: '',
+        email: '',
+      });
+      useUserStore.getState().setToken('');
+      navigation.navigate('Welcome' as never);
+    }catch(error){
+      console.log('Delete account error:', error);
     }
     
-    Alert.alert(
-      '确认注销',
-      '您的账户将被永久删除，所有数据将无法恢复',
-      [
-        {
-          text: '取消',
-          style: 'cancel',
-        },
-        {
-          text: '确认注销',
-          style: 'destructive',
-          onPress: () => {
-            console.log('Account deregistered successfully');
-            // 这里可以调用注销账户的API
-          },
-        },
-      ]
-    );
   };
 
   return (
@@ -98,7 +94,7 @@ const BindMailboxScreen: React.FC = () => {
           <TouchableOpacity 
             style={[
               styles.confirmButton,
-              isConfirmed && styles.confirmButtonActive
+             styles.confirmButtonActive
             ]} 
             onPress={handleConfirm}
           >

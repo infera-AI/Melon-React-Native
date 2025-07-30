@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -7,12 +7,14 @@ import {
   StyleSheet,
   Alert,
   ScrollView,
+  Modal,
+  Animated,
+  Easing,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ProfileStackParamList } from './ProfileNavigator';
-
 
 const normalize = (size: number, based: 'width' | 'height' = 'width') => {
   const { width, height } = require('react-native').Dimensions.get('window');
@@ -29,6 +31,8 @@ type GeneralSettingsScreenNavigationProp = NativeStackNavigationProp<ProfileStac
 const GeneralSettingsScreen: React.FC = () => {
   const navigation = useNavigation<GeneralSettingsScreenNavigationProp>();
   const [cacheSize, setCacheSize] = useState('366M');
+  const [showLoadingModal, setShowLoadingModal] = useState(false);
+  const rotateAnim = useRef(new Animated.Value(0)).current;
 
   const handleBack = () => {
     navigation.goBack();
@@ -39,51 +43,35 @@ const GeneralSettingsScreen: React.FC = () => {
     navigation.navigate('SystemLanguage');
   };
 
+  // 旋转动画效果
+  useEffect(() => {
+    if (showLoadingModal) {
+      const startRotation = () => {
+        rotateAnim.setValue(0);
+        Animated.timing(rotateAnim, {
+          toValue: 1,
+          duration: 1000,
+          useNativeDriver: true,
+          easing: Easing.linear,
+        }).start(() => startRotation());
+      };
+      startRotation();
+    } else {
+      // 停止动画
+      rotateAnim.stopAnimation();
+    }
+  }, [showLoadingModal, rotateAnim]);
+
   const handleClearCache = () => {
-    Alert.alert(
-      '清除缓存',
-      '确定要清除所有缓存数据吗？',
-      [
-        {
-          text: '取消',
-          style: 'cancel',
-        },
-        {
-          text: '确定',
-          style: 'destructive',
-          onPress: () => {
-            // 这里可以调用清除缓存的API
-            setCacheSize('0M');
-            Alert.alert('成功', '缓存已清除');
-          },
-        },
-      ]
-    );
-  };
-
-  const handleDeleteAccount = () => {
-    Alert.alert(
-      '删除账户',
-      '此操作将永久删除您的账户，无法恢复。确定要继续吗？',
-      [
-        {
-          text: '取消',
-          style: 'cancel',
-        },
-        {
-          text: '删除',
-          style: 'destructive',
-          onPress: () => {
-            navigation.navigate('DeregisterAccount');
-          },
-        },
-      ]
-    );
-  };
-
-  const handleHelpFeedback = () => {
-    // 导航到帮助和反馈页面
-    navigation.navigate('HelpFeedback');
+      // 显示加载弹窗
+      setShowLoadingModal(true);
+            
+      // 模拟清除缓存的过程
+      setTimeout(() => {
+        setCacheSize('0M');
+        setShowLoadingModal(false);
+        Alert.alert('成功', '缓存已清除');
+      }, 3000);
   };
 
   return (
@@ -105,10 +93,10 @@ const GeneralSettingsScreen: React.FC = () => {
         <TouchableOpacity style={styles.settingCard} onPress={handleLanguageSelection}>
           <View style={styles.settingContent}>
             <View style={styles.settingLeft}>
-                             <Image 
-                 source={require('../../../assets/profile/profile_setting_language.png')} 
-                 style={styles.settingIcon}
-               />
+              <Image 
+                source={require('../../../assets/profile/profile_setting_language.png')} 
+                style={styles.settingIcon}
+              />
               <Text style={styles.settingTitle}>System language selection</Text>
             </View>
             <View style={styles.settingRight}>
@@ -124,66 +112,68 @@ const GeneralSettingsScreen: React.FC = () => {
         <View style={styles.settingCard}>
           <View style={styles.settingContent}>
             <View style={styles.settingLeft}>
-                             <Image 
-                 source={require('../../../assets/profile/profile_clear_icon.png')} 
-                 style={styles.settingIcon}
-               />
+              <Image 
+                source={require('../../../assets/profile/profile_clear_icon.png')} 
+                style={styles.settingIcon}
+              />
               <Text style={styles.settingTitle}>Clear the cache</Text>
             </View>
             <View style={styles.settingRight}>
               <Text style={styles.cacheSize}>{cacheSize}</Text>
               <TouchableOpacity onPress={handleClearCache}>
-                 <Image 
-                   source={require('../../../assets/profile/profile_clear_clear.png')} 
-                   style={styles.deleteIcon}
-                 />
+                <Image 
+                  source={require('../../../assets/profile/profile_clear_clear.png')} 
+                  style={styles.deleteIcon}
+                />
               </TouchableOpacity>
             </View>
           </View>
           <Text style={styles.cacheDescription}>
             Temporary data generated during the use of cache will not affect the normal use of Melon.
           </Text>
-                 </View>
+        </View>
+      </ScrollView>
 
-         {/* Delete Account */}
-         <TouchableOpacity style={styles.settingCard} onPress={handleDeleteAccount}>
-           <View style={styles.settingContent}>
-             <View style={styles.settingLeft}>
-               <Image 
-                 source={require('../../../assets/profile/profile_security_icon.png')} 
-                 style={styles.settingIcon}
-               />
-               <Text style={[styles.settingTitle, styles.deleteAccountTitle]}>Delete account</Text>
-             </View>
-             <View style={styles.settingRight}>
-               <Image 
-                 source={require('../../../assets/main/right_arrow_icon.png')} 
-                 style={styles.arrowIcon}
-               />
-             </View>
-           </View>
-                   </TouchableOpacity>
-
-          {/* Help and Feedback */}
-          <TouchableOpacity style={styles.settingCard} onPress={handleHelpFeedback}>
-            <View style={styles.settingContent}>
-              <View style={styles.settingLeft}>
-                <Image 
-                  source={require('../../../assets/profile/profile_help_icon.png')} 
-                  style={styles.settingIcon}
-                />
-                <Text style={styles.settingTitle}>Help and feedback</Text>
-              </View>
-              <View style={styles.settingRight}>
-                <Image 
-                  source={require('../../../assets/main/right_arrow_icon.png')} 
-                  style={styles.arrowIcon}
-                />
-              </View>
+      {/* 清除缓存加载弹窗 */}
+      <Modal
+        visible={showLoadingModal}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setShowLoadingModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContainer}>
+            {/* 加载动画 */}
+            <View style={styles.loadingContainer}>
+                             <Animated.View
+                 style={[
+                   styles.rotatingCircle,
+                   {
+                     transform: [
+                       {
+                         rotate: rotateAnim.interpolate({
+                           inputRange: [0, 1],
+                           outputRange: ['0deg', '360deg'],
+                         }),
+                       },
+                     ],
+                   },
+                 ]}
+               >
+                                 <Image 
+                   source={require('../../../assets/profile/profile_clearloading_icon.png')} 
+                   style={styles.outerCircle}
+                   resizeMode="contain"
+                 />
+              </Animated.View>
             </View>
-          </TouchableOpacity>
-        </ScrollView>
-      </SafeAreaView>
+            
+            {/* 文本 */}
+            <Text style={styles.loadingText}>Cleaning cache</Text>
+          </View>
+        </View>
+      </Modal>
+    </SafeAreaView>
   );
 };
 
@@ -281,6 +271,54 @@ const styles = StyleSheet.create({
     marginTop: normalize(8),
     marginLeft: normalize(34),
     lineHeight: normalizeFontSize(16),
+  },
+  // 弹窗样式
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContainer: {
+    width: normalize(327),
+    height: normalize(162),
+    backgroundColor: '#333333',
+    borderRadius: normalize(8),
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  loadingContainer: {
+    width: normalize(56),
+    height: normalize(56),
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: normalize(16),
+  },
+  rotatingCircle: {
+    position: 'absolute',
+    width: normalize(56),
+    height: normalize(56),
+  },
+  outerCircle: {
+    width: normalize(56),
+    height: normalize(56),
+  },
+  innerCircle: {
+    position: 'absolute',
+    width: normalize(8.4),
+    height: normalize(8.4),
+    borderRadius: normalize(4.2),
+    backgroundColor: '#85F380',
+    top: normalize(24.08),
+    left: normalize(47.6),
+  },
+  loadingText: {
+    fontSize: normalizeFontSize(17),
+    fontWeight: '500',
+    color: '#FFFFFF',
+    textAlign: 'center',
+    lineHeight: normalize(22),
+    letterSpacing: -0.4,
   },
 });
 
