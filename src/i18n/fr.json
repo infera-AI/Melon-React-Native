@@ -1,4 +1,12 @@
 {
+  "languageNames": {
+    "de": "Allemand",
+    "en": "Anglais",
+    "es": "Espagnol",
+    "fr": "Français",
+    "ja": "Japonais",
+    "zh": "Chinois"
+  },
   "translate_screen": "Page de traduction",
   "auth_screen": "Page de connexion",
   "music_screen": "Page de musique",

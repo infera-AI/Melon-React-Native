@@ -1,4 +1,12 @@
 {
+  "languageNames": {
+    "de": "ドイツ語",
+    "en": "英語",
+    "es": "スペイン語",
+    "fr": "フランス語",
+    "ja": "日本語",
+    "zh": "中国語"
+  },
   "translate_screen": "翻訳画面",
   "auth_screen": "認証画面",
   "music_screen": "音楽画面",

@@ -2,6 +2,8 @@ import axios, { AxiosInstance, AxiosRequestConfig, Method } from 'axios'
 import { useUserStore } from '../store'
 import { CODE } from './constants'
 import { checkNetwork } from './network'
+import { ToastService } from '@/utils/ToastService';
+import { i18nService } from '@/utils/i18nService';
 
 interface HttpRequestConfig extends AxiosRequestConfig {
     baseURL?: string;
@@ -38,9 +40,12 @@ class HttpRequest {
                 // 检查网络连接
                 const isConnected = await checkNetwork()
                 if (!isConnected) {
+                    ToastService.show({
+                        message: i18nService.t('network_unavailable')
+                    });
                     throw {
                         code: CODE.NETWORK_ERROR,
-                        message: '网络不可用，请检查网络连接',
+                        message: i18nService.t('network_unavailable'),
                     }
                 }
 
@@ -79,18 +84,22 @@ class HttpRequest {
                     `Status: ${response.status}\n`,
                     `Data: ${JSON.stringify(response.data, null, 2)}`
                 );
+                
                 const { code, message, data } = response.data
 
                 if (code === CODE.SUCCESS) {
                     return data
                 }
+                ToastService.show({
+                    message: message || i18nService.t('http_service_error')
+                });
 
                 if (code === CODE.TOKEN_INVALID) { // token无效
                     const clearLoginInfo = useUserStore(s => s.clearLoginInfo);
                     clearLoginInfo()
                     throw {
                         code,
-                        message: '登录已过期，请重新登录',
+                        message: i18nService.t('token_expiration'),
                         data,
                     }
                 }
@@ -109,9 +118,13 @@ class HttpRequest {
                         `Status: ${error.response.status}\n`,
                         `Data: ${JSON.stringify(error.response.data, null, 2)}`
                     );
+                    
                 } else {
                     console.error('❌ 网络或请求未送达:', error.message);
                 }
+                ToastService.show({
+                    message: error?.response?.data?.error || i18nService.t('response_error')
+                });
                 console.error(
                     '❌ 完整错误信息:',
                     'error.code--',
@@ -129,6 +142,9 @@ class HttpRequest {
                     switch (status) {
                         case CODE.UNAUTHORIZED:
                             // store.dispatch({ type: 'user/logout' })
+                            ToastService.show({
+                                message: i18nService.t('http_unauthorized')
+                            });
                             throw {
                                 code: CODE.UNAUTHORIZED,
                                 message: '未授权，请重新登录',

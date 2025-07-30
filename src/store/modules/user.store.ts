@@ -6,7 +6,7 @@
  * const x = useStore(state => state.x);
  * 
  * 外部使用示例：
- * import { useUserStore } from '../../store';
+ * import { useUserStore } from '@/store';
  * const token = useUserStore(s => s.token);
  * const userInfo = useUserStore(s => s.userInfo);
  * const setToken = useUserStore(s => s.setToken);
