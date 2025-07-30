@@ -6,7 +6,7 @@ export const API_ENDPOINTS = {
       VERIFY_CODE: '/auth/verify_verification_code',
       LOGIN: '/auth/login',
       LOGIN_BY_VERIFICATION_CODE: '/auth/login_by_verification_code',
-      MODIFY_PASSWORD: '/auth/modify_password',
+      MODIFY_PASSWORD: '/accounts/modify_password',
       REGISTER: '/auth/register',
       FORGOT_PASSWORD_RESET: '/auth/forgot_password_reset',
       LOGOUT: '/auth/logout',

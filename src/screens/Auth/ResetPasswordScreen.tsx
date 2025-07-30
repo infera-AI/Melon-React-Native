@@ -143,11 +143,11 @@ const ResetPasswordScreen: React.FC = () => {
 
         {/* 确认按钮 */}
         <TouchableOpacity
-          style={[styles.confirmButton, password.length >= 6 && confirmPassword.length >= 6 && !error ? styles.confirmButtonActive : null]}
+          style={[styles.confirmButton, password.length >= 6 && confirmPassword.length >= 6 ? styles.confirmButtonActive : null]}
           onPress={handleConfirm}
           disabled={isSubmitting || password.length < 6 || confirmPassword.length < 6}
         >
-          <Text style={[styles.confirmButtonText, password.length >= 6 && confirmPassword.length >= 6 && !error?styles.confirmButtonTextActive:null]}>{t('reset_password.confirm')}</Text>
+          <Text style={[styles.confirmButtonText, password.length >= 6 && confirmPassword.length >= 6 ?styles.confirmButtonTextActive:null]}>{t('reset_password.confirm')}</Text>
         </TouchableOpacity>
       </KeyboardAvoidingView>
     </View>

@@ -50,7 +50,7 @@ class HttpRequest {
                 }
 
                 // 从store获取token
-                const token = useUserStore.getState().token
+                const token = useUserStore.getState().token||useUserStore.getState().verification_token;
                 if (token) {
                     config.headers = {
                         ...config.headers,

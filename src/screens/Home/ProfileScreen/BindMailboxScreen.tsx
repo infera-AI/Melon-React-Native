@@ -46,9 +46,9 @@ const BindMailboxScreen: React.FC<{ route: { params: { action_token: string } } 
         id: '',
         username: '',
         email: '',
-      });
+      }); 
       useUserStore.getState().setToken('');
-      navigation.navigate('Welcome' as never);
+      navigation.replace('Auth' as never);
     }catch(error){
       console.log('Delete account error:', error);
     }

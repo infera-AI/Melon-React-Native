@@ -168,7 +168,7 @@ const VerifyCodeScreen: React.FC = () => {
   const register = async () => {
 
     try{
-      const token = useUserStore.getState().token || '';
+      const token = useUserStore.getState().verification_token || '';
       // 调用注册接口
        await registerWithToken({
         auth_type: type,
@@ -201,7 +201,7 @@ const VerifyCodeScreen: React.FC = () => {
         if(responseData.action_token){
           console.log('验证码校验API', responseData);
           //存储action_token
-          useUserStore.getState().setToken(responseData.action_token);
+          useUserStore.getState().setVerificationToken(responseData.action_token);
           register()
         }else{
           console.log('验证码校验失败', responseData);

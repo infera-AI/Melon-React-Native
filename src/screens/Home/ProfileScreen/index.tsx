@@ -115,7 +115,7 @@ const ProfileScreen: React.FC = () => {
 
   useEffect(() => {
     if(!token){
-      navigation.navigate('Welcome' as never);
+      navigation.replace('Auth' as never);
     }else{
       getUserInfoRequest();
     }

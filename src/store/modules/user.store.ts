@@ -34,6 +34,9 @@ export interface UserState {
     token: string | null;
     setToken: (token: string) => void;
 
+    verification_token: string | null;
+    setVerificationToken: (verification_token: string) => void;
+
     setLoginInfo: (user: UserInfo, token: string) => void; // 设置登录后用户信息以及token
     clearLoginInfo: () => void;
 }
@@ -51,6 +54,9 @@ export const useUserStore = create<UserState>()(
 
             token: null,
             setToken: (token) => set({token}),
+
+            verification_token: null,
+            setVerificationToken: (verification_token) => set({verification_token}),
 
             setLoginInfo: (userInfo, token) => set({ userInfo, token }),
             clearLoginInfo: () => set({ userInfo: null, token: null }),
