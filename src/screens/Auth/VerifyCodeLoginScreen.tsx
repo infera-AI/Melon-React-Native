@@ -15,11 +15,12 @@ import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { AuthStackParamList } from './AuthNavigator';
 import theme from '../../utils/theme';
 import { useLanguage } from '../../contexts/LanguageContext';
-import { getLoginCodeApi,verifyCode } from '../../api/login/auth';
+import { getLoginCodeApi,loginByVerificationCode } from '../../api/login/auth';
 import { useMessageModal } from '../../contexts/MessageModalContext';
 import { useUserStore } from '../../store';
 import FullScreenLoader from '../../components/FullScreenLoader';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { getDeviceInfo } from '@/utils/helpers';
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 const normalize = (size: number, based: 'width' | 'height' = 'width') => {
   const newSize = based === 'height' ? size * screenHeight / 812 : size * screenWidth / 375;
@@ -50,7 +51,7 @@ const VerifyCodeLoginScreen: React.FC = () => {
   // 假设 route.params.account 传递手机号或邮箱
   const account = route.params?.account || '';
   const type = route.params?.type || 'phone';
-
+  const deviceInfo = getDeviceInfo();
   useEffect(() => {
     if (countdown > 0) {
       const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
@@ -132,17 +133,17 @@ const VerifyCodeLoginScreen: React.FC = () => {
       try{
          // 验证码校验API
       const params = {
-        recipient_type: type,
+        auth_type: type,
         identifier: account,
-        auth_purpose: 'login' as const, // 根据实际用途调整
         verification_code: code.join(''),
+        device_info: deviceInfo, 
       };
-        const responseData = await verifyCode(params);
-        console.log('验证码登录API', responseData);
-        if(responseData.action_token){
+        const responseData = await loginByVerificationCode(params);
+        console.log('验证码登录API', responseData)
+        if(responseData.token){
           console.log('验证码校验API', responseData);
           //存储action_token
-          useUserStore.getState().setToken(responseData.action_token);
+          useUserStore.getState().setToken(responseData.token);
           navigation.navigate('MainApp', {
             screen: 'Translate',
           });

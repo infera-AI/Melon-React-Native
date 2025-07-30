@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
-import MessageModal from '../components/MessageModal';
+import MessageModal from './MessageModal';
 
 export type ModalOptions = {
   title?: string;

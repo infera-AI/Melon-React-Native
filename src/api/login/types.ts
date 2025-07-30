@@ -6,7 +6,8 @@ export type AuthPurpose =
   | 'verify_identity'
   | 'bind_email'
   | 'bind_phone'
-  | 'forgot_password';
+  | 'forgot_password'
+  | 'delete_account';
 
 // 获取验证码参数
 export interface GetLoginCodeParams {
@@ -25,15 +26,45 @@ export interface VerifyCodeRequest {
 
 // 设备信息
 export interface DeviceInfo {
-  app_version: string; // App版本
-  device_model: string; // 设备型号
-  fingerprint: string; // 设备指纹
-  ip_type: string; // IP类型(可选)
+  /**
+   * 客户端App版本 (如果是Web应用，可以是浏览器版本或Web App版本)
+   */
+  app_version: string;
+  /**
+   * 设备型号 (例如: iPhone 15 Pro Max, Samsung S24, MacBook Pro)
+   */
+  device_model: string;
+  /**
+   * 设备指纹哈希
+   */
+  fingerprint: string;
+  /**
+   * IP地址类型（公共IP/私有IP/VPN），前端根据判断上传 (可选)
+   */
+  ip_type?: string;
+  /**
+   * 语言环境
+   */
   locale: string;
+  /**
+   * 网络类型
+   */
   network_type: string;
-  os_type: string; // 操作系统
-  os_version: string; // 系统版本
+  /**
+   * 操作系统类型 (例如: iOS, Android, Windows, macOS, Linux)
+   */
+  os_type: string;
+  /**
+   * 操作系统版本
+   */
+  os_version: string;
+  /**
+   * 屏幕分辨率
+   */
   screen_resolution: string;
+  /**
+   * 时区
+   */
   timezone: string;
   [property: string]: any;
 }
@@ -94,10 +125,55 @@ export interface RegisterRequest {
 
 // 忘记密码重设参数
 export interface ForgotPasswordResetRequest {
-  action_token: string; // 验证token
-  auth_type: string; // email/phone
-  confirm_password: string; // 确认新密码
-  identifier: string; // 邮箱/手机号
-  new_password: string; // 新密码
+  /**
+   * 邮箱地址或手机号码
+   */
+  identifier: string;
+  /**
+   * 新密码
+   */
+  new_password: string;
+  /**
+   * 验证码
+   */
+  verification_code: string;
+  [property: string]: any;
+}
+
+// 验证码登录请求参数
+export interface LoginByVerificationCodeRequest {
+  /**
+   * 可选值: "email" 或 "phone"
+   */
+  auth_type: string;
+  /**
+   * 设备信息
+   */
+  device_info: DeviceInfo;
+  /**
+   * 邮箱地址或手机号码
+   */
+  identifier: string;
+  /**
+   * 验证码
+   */
+  verification_code: string;
+  [property: string]: any;
+}
+
+// 验证码登录API返回结果
+export interface LoginByVerificationCodeResult {
+  /**
+   * 自定义状态码
+   */
+  code: number;
+  /**
+   * 返回数据
+   */
+  data: LoginRes;
+  /**
+   * 数据说明
+   */
+  message: string;
   [property: string]: any;
 }

@@ -8,6 +8,7 @@ import {
   Dimensions,
   Platform,
   ScrollView,
+  Image,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
@@ -49,7 +50,8 @@ const UserServiceAgreementScreen: React.FC = () => {
         <View style={styles.header}>
           <TouchableOpacity style={styles.backButton} onPress={handleBack}>
             <View style={styles.backIcon}>
-              <Text style={styles.backArrow}>←</Text>
+              {/* <Text style={styles.backArrow}>←</Text> */}
+              <Image source={require('../../assets/main/page_return_icon.png')} style={styles.backIcon} />
             </View>
           </TouchableOpacity>
           <Text style={styles.headerTitle}>User Service Agreement</Text>
