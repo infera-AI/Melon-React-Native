@@ -5,7 +5,6 @@ import {
   TouchableOpacity,
   Image,
   StyleSheet,
-  Alert,
   ScrollView,
   Modal,
   Animated,
@@ -15,6 +14,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ProfileStackParamList } from './ProfileNavigator';
+import { useMessageModal } from '@/contexts/MessageModalContext';
 
 const normalize = (size: number, based: 'width' | 'height' = 'width') => {
   const { width, height } = require('react-native').Dimensions.get('window');
@@ -33,7 +33,7 @@ const GeneralSettingsScreen: React.FC = () => {
   const [cacheSize, setCacheSize] = useState('366M');
   const [showLoadingModal, setShowLoadingModal] = useState(false);
   const rotateAnim = useRef(new Animated.Value(0)).current;
-
+  const { show } = useMessageModal();
   const handleBack = () => {
     navigation.goBack();
   };
@@ -70,7 +70,7 @@ const GeneralSettingsScreen: React.FC = () => {
       setTimeout(() => {
         setCacheSize('0M');
         setShowLoadingModal(false);
-        Alert.alert('成功', '缓存已清除');
+        show({message: 'Cache cleared successfully'});
       }, 3000);
   };
 

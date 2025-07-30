@@ -31,6 +31,15 @@ const normalizeFontSize = (size: number) => {
   return Math.min(Math.round(newSize), size);
 };
 
+const langs={
+  zh:'中文简体',
+  en:'English',
+  ja:'日语',
+  de:'德语',
+  fr:'法语',
+  es:'西班牙语',
+}
+
 type CreateVoiceScreenNavigationProp = NativeStackNavigationProp<ProfileStackParamList, 'CreateVoice'>;
 
 const CreateVoiceScreen: React.FC = () => {
@@ -254,7 +263,7 @@ const CreateVoiceScreen: React.FC = () => {
               source={require('../../../assets/main/language_icon.png')} 
               style={styles.voiceIcon}
             />
-            <Text style={styles.languageText}>{selectedLanguage}</Text>
+            <Text style={styles.languageText}>{langs[selectedLanguage as keyof typeof langs]}</Text>
             <Image 
               source={require('../../../assets/main/dropdown_icon.png')} 
               style={styles.arrowIcon}
@@ -298,7 +307,7 @@ const CreateVoiceScreen: React.FC = () => {
                   style={styles.languageOption} 
                   onPress={() => handleLanguageSelect(language)}
                 >
-                  <Text style={styles.languageOptionText}>{language}</Text>
+                  <Text style={styles.languageOptionText}>{langs[language as keyof typeof langs]}</Text>
                 </TouchableOpacity>
               ))}
             </ScrollView>

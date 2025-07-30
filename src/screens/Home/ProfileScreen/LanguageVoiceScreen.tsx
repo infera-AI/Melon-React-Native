@@ -7,7 +7,6 @@ import {
   StyleSheet,
   SafeAreaView,
   ScrollView,
-  Alert,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -16,6 +15,7 @@ import { useVoiceStore } from '@/store';
 import { generateVoiceId, getVoiceprintDemoConfig, synthesizeSpeech, translateText } from '@/api/profile';
 import Sound from 'react-native-sound';
 import FullScreenLoader from '@/components/FullScreenLoader';
+import { useMessageModal } from '@/contexts/MessageModalContext';
 
 const normalize = (size: number, based: 'width' | 'height' = 'width') => {
   const { width, height } = require('react-native').Dimensions.get('window');
@@ -39,7 +39,7 @@ const LanguageVoiceScreen: React.FC = () => {
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [testText, setTestText] = useState<string>(testTexContent);
   const [loading, setLoading] = useState<boolean>(false);
-
+  const { show } = useMessageModal(); 
 
   const languages={
     zh:{name:'Chinese',flag: require('../../../../assets/images/flag_cn.png')},
@@ -62,7 +62,7 @@ const LanguageVoiceScreen: React.FC = () => {
           audio_file: recordFile,
         });
         console.log(res,'res')
-        Alert.alert('Success', 'Voice ID generated successfully');
+        show({message: 'Voice ID generated successfully'});
         useVoiceStore.getState().setVoiceFile({
           uri: '',
           type: '',
@@ -71,7 +71,7 @@ const LanguageVoiceScreen: React.FC = () => {
         useVoiceStore.getState().setLocal("");
         navigation.navigate('ProfileMain');
       } catch (error) {
-        Alert.alert('Error', 'Failed to generate voice ID');
+        show({message: 'Failed to generate voice ID'});
         console.log(error,'error')
       }
     }
@@ -141,7 +141,7 @@ const LanguageVoiceScreen: React.FC = () => {
   const handlePlayAudio = (audioUrl: string) => {
     if (!audioUrl) {
       // show({message: 'No audio available'});
-      Alert.alert('No audio available');
+      show({message: 'No audio available'});
       return;
     }
 
@@ -155,7 +155,7 @@ const LanguageVoiceScreen: React.FC = () => {
     const newSound = new Sound(audioUrl, Sound.MAIN_BUNDLE, (error) => {
       if (error) {
         console.log('Failed to load audio:', error);
-        Alert.alert('Failed to load audio');
+        show({message: 'Failed to load audio'});  
         return;
       }
 
@@ -178,8 +178,15 @@ const LanguageVoiceScreen: React.FC = () => {
 
   const handleDone = () => {
     // 完成逻辑
-    generateVoiceIdRequest();
+    // generateVoiceIdRequest();
     // navigation.navigate('GeneratingVoice');
+    useVoiceStore.getState().setVoiceFile({
+      uri: '',
+      type: '',
+      name: '',
+    });
+    useVoiceStore.getState().setLocal("");
+    navigation.navigate('ProfileMain');
   };
 
   useEffect(() => {

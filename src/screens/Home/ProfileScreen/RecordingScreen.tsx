@@ -8,7 +8,6 @@ import {
   Image,
   Animated,
   ScrollView,
-  Alert,
   PermissionsAndroid,
   Platform,
 } from 'react-native';
@@ -28,6 +27,7 @@ import RNFS from 'react-native-fs';
 import { mergeAudioFiles, validateAudioFiles, getTotalAudioDuration } from '../../../utils/audioUtils';
 import { useVoiceStore } from '@/store';
 import { VoiceType } from '@/store/modules/voice.store';
+import { useMessageModal } from '@/contexts/MessageModalContext';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
@@ -54,7 +54,7 @@ const RecordingScreen: React.FC = () => {
   const [recordFileList, setRecordFileList] = useState<any[]>([]);
   const pulseAnim = useRef(new Animated.Value(1)).current;
   const audioRecorderPlayer = useRef(new AudioRecorderPlayer()).current;
-  
+  const { show } = useMessageModal();
   // 使用 useRef 来解决闭包问题
   const voiceprintEnrollmentConfigRef = useRef(voiceprintEnrollmentConfig);
   const realRecordingTimeRef = useRef(realRecordingTime);
@@ -98,7 +98,7 @@ const RecordingScreen: React.FC = () => {
     try {
       const hasPermission = await requestRecordingPermission();
       if (!hasPermission) {
-        Alert.alert('权限被拒绝', '需要录音权限才能继续');
+        show({message: '权限被拒绝,需要录音权限才能继续'});  
         return false;
       }
 
@@ -133,7 +133,7 @@ const RecordingScreen: React.FC = () => {
         // 使用 ref 获取最新值
         const config = voiceprintEnrollmentConfigRef.current;
         if (config && currentTime > config.max_segment_duration_seconds) {
-          Alert.alert('recording too long', 'recording time exceeds the maximum recording time and stop recording');
+          show({message: 'recording time exceeds the maximum recording time and stop recording'});  
           if (handleStopRecordingRef.current) {
             handleStopRecordingRef.current();
           }
@@ -144,7 +144,7 @@ const RecordingScreen: React.FC = () => {
       return true;
     } catch (error) {
       console.error('开始录音失败:', error);
-      Alert.alert('录音失败', '无法开始录音，请检查麦克风权限并重试');
+      show({message: '无法开始录音，请检查麦克风权限并重试'});  
       return false;
     }
   };
@@ -161,7 +161,7 @@ const RecordingScreen: React.FC = () => {
       return result;
     } catch (error) {
       console.error('停止录音失败:', error);
-      Alert.alert('录音失败', '无法停止录音，请重试');
+      show({message: '无法停止录音，请重试'});  
       return null;
     }
   }, [audioRecorderPlayer]);
@@ -189,10 +189,7 @@ const RecordingScreen: React.FC = () => {
     const recordingFile = await stopRecording();
     console.log(currentRealTime, minDuration, '1111')
     if (currentRealTime < minDuration) {
-      Alert.alert(
-        'Recording Too Short', 
-        `Recording must be at least ${minDuration} seconds. Please try again.`
-      );
+      show({message: `Recording must be at least ${minDuration} seconds. Please try again.`});  
       setRealRecordingTime(0);
       setIsRecordingValid(false);
       return;
@@ -202,7 +199,7 @@ const RecordingScreen: React.FC = () => {
       
       // 检查录音文件是否有效
       if (currentRealTime < 1) {
-        Alert.alert('录音无效', '录音时间太短，请重新录制');
+        show({message: '录音时间太短，请重新录制'});  
         setIsRecording(false);
         setIsRecordingValid(false);
         setRealRecordingTime(0);
@@ -236,7 +233,7 @@ const RecordingScreen: React.FC = () => {
         }
       } catch (error) {
         console.error('保存录音文件失败:', error);
-        Alert.alert('保存失败', '录音文件保存失败，请重试');
+        show({message: '录音文件保存失败，请重试'});  
       }
     }
   }, [voiceprintEnrollmentConfig, stopRecording, currentSegment, recordFileList]);
@@ -294,7 +291,7 @@ const RecordingScreen: React.FC = () => {
     const maxDuration = voiceprintEnrollmentConfig?.max_segment_duration_seconds;
     
     if (!minDuration || !maxDuration) {
-      Alert.alert('Error', 'Recording configuration not loaded');
+      show({message: 'Recording configuration not loaded'});  
       return;
     }
     
@@ -319,14 +316,14 @@ const RecordingScreen: React.FC = () => {
     try {
       // 检查是否有录音文件
       if (recordFileList.length === 0) {
-        Alert.alert('提示', '没有录音文件可以合成');
+        show({message: '没有录音文件可以合成'});  
         return false;
       }
 
       // 过滤有效的录音文件
       const validFiles = recordFileList.filter(file => file && file.uri);
       if (validFiles.length === 0) {
-        Alert.alert('提示', '没有有效的录音文件');
+        show({message: '没有有效的录音文件'});  
         return false;
       }
 
@@ -335,7 +332,7 @@ const RecordingScreen: React.FC = () => {
       // 验证音频文件
       const validation = await validateAudioFiles(validFiles);
       if (!validation.valid) {
-        Alert.alert('错误', `以下文件无效: ${validation.invalidFiles.join(', ')}`);
+        show({message: `以下文件无效: ${validation.invalidFiles.join(', ')}`});  
         return false;
       }
 
@@ -352,7 +349,7 @@ const RecordingScreen: React.FC = () => {
       return true
     } catch (error) {
       console.error('音频合成失败:', error);
-      Alert.alert('合成失败', '音频文件合成失败，请重试');
+      show({message: '音频文件合成失败，请重试'});    
       return false;
     } finally {
     }
@@ -361,7 +358,7 @@ const RecordingScreen: React.FC = () => {
   const handleNext = async () => {
     const totalPhrases = voiceprintEnrollmentConfig?.required_phrases_count || 0;
     if(!recordFileList[currentSegment-1]){
-      Alert.alert('提示', '请先录制音频');
+      show({message: '请先录制音频'});  
       return;
     }
     
@@ -385,7 +382,7 @@ const RecordingScreen: React.FC = () => {
         // 完成所有录音，导航到生成页面
         navigation.navigate('GeneratingVoice');
       }else{
-        Alert.alert('提示', '音频合成失败，请重试');
+        show({message: '音频合成失败，请重试'});  
       }
      
     }

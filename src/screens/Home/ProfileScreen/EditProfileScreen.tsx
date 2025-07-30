@@ -7,7 +7,6 @@ import {
   Dimensions,
   Image,
   TextInput,
-  Alert,
   Platform,
   PermissionsAndroid,
 } from 'react-native';
@@ -104,7 +103,7 @@ const EditProfileScreen: React.FC = () => {
       if (response.didCancel) {
         console.log('User cancelled image picker');
       } else if (response.errorCode) {
-        Alert.alert('Error', 'Failed to pick image');
+        show({message: 'Failed to pick image'});
       } else if (response.assets && response.assets[0]) {
         const selectedImage = response.assets[0];
         if (selectedImage.uri) {
@@ -123,7 +122,7 @@ const EditProfileScreen: React.FC = () => {
         if (hasPermission) {
           launchCamera(options, handleResponse);
         } else {
-          Alert.alert('Permission Denied', 'Camera permission is required to take photos');
+          show({message: 'Camera permission is required to take photos'});
         }
       });
     } else {
@@ -131,7 +130,7 @@ const EditProfileScreen: React.FC = () => {
         if (hasPermission) {
           launchImageLibrary(options, handleResponse);
         } else {
-          Alert.alert('Permission Denied', 'Storage permission is required to select photos');
+          show({message: 'Storage permission is required to select photos'});
         }
       });
     }
@@ -148,10 +147,10 @@ const EditProfileScreen: React.FC = () => {
       const newAvatarUrl = imageUri; // 实际应该是服务器返回的URL
       setAvatar(newAvatarUrl);
       
-      Alert.alert('Success', 'Avatar updated successfully');
+      show({message: 'Avatar updated successfully'});
     } catch (error) {
       console.error('Upload failed:', error);
-      Alert.alert('Error', 'Failed to upload avatar');
+      show({message: 'Failed to upload avatar'});
     } finally {
       setIsUploading(false);
     }

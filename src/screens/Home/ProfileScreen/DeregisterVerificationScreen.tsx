@@ -6,7 +6,6 @@ import {
   Image,
   StyleSheet,
   TextInput,
-  Alert,
   ScrollView,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -110,7 +109,7 @@ const DeregisterVerificationScreen: React.FC = () => {
 
   const handleSendCode = () => {
     if (!phoneNumber.trim()) {
-      Alert.alert('提示', '请输入手机号码');
+      show({message: 'Please enter mobile phone number'});
       return;
     }
     console.log('Send verification code to:', selectedCountry.code + phoneNumber);

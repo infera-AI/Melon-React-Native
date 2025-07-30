@@ -8,7 +8,6 @@ import {
   Image,
   Modal,
   ScrollView,
-  Alert,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -87,8 +86,8 @@ const VoiceprintManagementScreen: React.FC = () => {
         text,
       });
       setAudioUrl(res.audio_url);
-    }catch(error){
-      show({message: 'Failed to synthesize speech'});
+    }catch(error:any){
+      show({message: 'Please recording a main sound first'});
       console.log(error);
     }finally{
       setIsSynthesizing(false);
@@ -114,7 +113,7 @@ const VoiceprintManagementScreen: React.FC = () => {
   const handlePlayAudio = () => {
     if (!audioUrl) {
       // show({message: 'No audio available'});
-      Alert.alert('No audio available');
+      show({message: 'No audio available'});  
       return;
     }
 

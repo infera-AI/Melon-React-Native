@@ -7,7 +7,6 @@ import {
   StyleSheet,
   ScrollView,
   TextInput,
-  Alert,
   Modal,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -113,7 +112,7 @@ const ProductFeedbackScreen: React.FC = () => {
 
       if (result.errorCode) {
         console.error('选择图片失败:', result.errorMessage);
-        Alert.alert('错误', '选择图片失败，请重试');
+        show({message: '选择图片失败，请重试'});  
         return;
       }
 
@@ -133,7 +132,7 @@ const ProductFeedbackScreen: React.FC = () => {
       }
     } catch (error) {
       console.error('添加截图失败:', error);
-      Alert.alert('错误', '添加截图失败，请重试');
+      show({message: '添加截图失败，请重试'});  
     }
   };
 
@@ -177,7 +176,7 @@ const ProductFeedbackScreen: React.FC = () => {
       setShowSuccessModal(true);
     } catch (error) {
       console.error('提交反馈失败:', error);
-      Alert.alert('提交失败', '反馈提交失败，请重试');
+      show({message: '反馈提交失败，请重试'});  
     }
   };
 

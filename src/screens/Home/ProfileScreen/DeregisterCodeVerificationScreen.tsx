@@ -6,7 +6,6 @@ import {
   Image,
   StyleSheet,
   TextInput,
-  Alert,
   Animated,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -15,6 +14,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ProfileStackParamList } from './ProfileNavigator';
 import theme from '../../../utils/theme';
 import { getLoginCodeApi, verifyCode } from '@/api/login';
+import { useMessageModal } from '@/contexts/MessageModalContext';
 
 const normalize = (size: number, based: 'width' | 'height' = 'width') => {
   const { width, height } = require('react-native').Dimensions.get('window');
@@ -38,7 +38,7 @@ const DeregisterCodeVerificationScreen: React.FC<{ route: { params: { phoneNumbe
   const inputRefs = useRef<TextInput[]>([]);
   const pulseAnim = useRef(new Animated.Value(1)).current;
   const countdownRef = useRef<NodeJS.Timeout | null>(null);
-
+  const { show } = useMessageModal();
   const handleBack = () => {
     navigation.goBack();
   };
@@ -109,7 +109,7 @@ const DeregisterCodeVerificationScreen: React.FC<{ route: { params: { phoneNumbe
   const handleVerify = async () => {
     const code = verificationCode.join('');
     if (code.length !== 6) {
-      Alert.alert('提示', '请输入完整的6位验证码');
+      show({message: 'Please enter the complete 6-digit verification code'});
       return;
     }
 
@@ -137,8 +137,8 @@ const DeregisterCodeVerificationScreen: React.FC<{ route: { params: { phoneNumbe
       })
       console.log('Verify code:', res);
       navigation.navigate('BindMailbox',{action_token:res?.action_token});
-    }catch(error){
-      Alert.alert('提示', '验证码错误');
+    }catch(error:any){
+      show({message: 'Verification code error:'+error.msg});
       console.log('Verify code error:', error);
     }finally{
       setIsVerifying(false);

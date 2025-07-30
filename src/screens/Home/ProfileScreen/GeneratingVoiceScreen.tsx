@@ -7,7 +7,6 @@ import {
   Dimensions,
   Image,
   ScrollView,
-  Alert,
   Modal,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
@@ -18,6 +17,7 @@ import LottieView from 'lottie-react-native';
 import { generateVoiceId } from '@/api/profile/profile';
 import { useVoiceStore } from '@/store';
 import { VoiceType } from '@/store/modules/voice.store';
+import { useMessageModal } from '@/contexts/MessageModalContext';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
@@ -40,12 +40,10 @@ const GeneratingVoiceScreen: React.FC = () => {
   const [progress, setProgress] = useState(0);
   const [showCompletionModal, setShowCompletionModal] = useState(false);
   const progressInterval = useRef<NodeJS.Timeout | null>(null);
-
+  const { show } = useMessageModal();
   useEffect(() => {
 
-    if(useVoiceStore.getState().type === VoiceType.OPTIMIZE){
       generateVoiceIdRequest();
-    }
 
     // 模拟进度更新
     progressInterval.current = setInterval(() => {
@@ -67,7 +65,7 @@ const GeneratingVoiceScreen: React.FC = () => {
         }
         return newProgress;
       });
-    }, 100);
+    }, 500);
 
     return () => {
         if (progressInterval.current) {
@@ -84,9 +82,9 @@ const GeneratingVoiceScreen: React.FC = () => {
           audio_file: recordFile,
         });
         console.log(res,'res')
-        Alert.alert('Success', 'Voice ID generated successfully');
+        // show({message: 'Voice ID generated successfully'});
       } catch (error) {
-        Alert.alert('Error', 'Failed to generate voice ID');
+        show({message: 'Failed to generate voice ID'});
         console.log(error,'error')
       }
     }
