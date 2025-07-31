@@ -8,7 +8,6 @@ import {
   StatusBar,
   Platform,
   Dimensions,
-  KeyboardAvoidingView,
   Image,
   ScrollView,
 } from 'react-native';
@@ -94,7 +93,7 @@ const LoginWithCodeScreen: React.FC = () => {
       
     } catch (error:any) {
       show({
-        message: `发送验证码失败: ${error.message || '未知错误'}`,
+        message: `${t('login_with_code.send_code_failed')}: ${error.message || t('common.unknown_error')}`,
       });
       // 这里可以添加错误提示
     } finally {
@@ -111,21 +110,21 @@ const LoginWithCodeScreen: React.FC = () => {
           <TouchableOpacity style={styles.backButton} onPress={handleBack}>
             <Image source={require('../../../src/assets/main/page_return_icon.png')} style={styles.backArrow} />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>{'Login with verification code'}</Text>
+          <Text style={styles.headerTitle}>{t('login_with_code.title')}</Text>
           <View style={{ width: normalize(40) }} />
         </View>
         {/* 副标题说明 */}
         <Text style={styles.subtitle}>
-          { 'Please enter the mobile phone number you used to register your Melon account. We will send a verification code to reset your password.'}
+          {t('login_with_code.subtitle')}
         </Text>
         {/* Tab切换 */}
         <View style={styles.tabContainer}>
           <TouchableOpacity style={styles.tabButton} onPress={() => handleTabSwitch('phone')}>
-            <Text style={activeTab === 'phone' ? styles.activeTab : styles.inactiveTab}>{'by phone number'}</Text>
+            <Text style={activeTab === 'phone' ? styles.activeTab : styles.inactiveTab}>{t('login_with_code.by_phone_number')}</Text>
             {activeTab === 'phone' && <View style={styles.tabIndicator} />}
           </TouchableOpacity>
           <TouchableOpacity style={styles.tabButton} onPress={() => handleTabSwitch('email')}>
-            <Text style={activeTab === 'email' ? styles.activeTab : styles.inactiveTab}>{'by E-mail'}</Text>
+            <Text style={activeTab === 'email' ? styles.activeTab : styles.inactiveTab}>{t('login_with_code.by_email')}</Text>
             {activeTab === 'email' && <View style={styles.tabIndicator} />}
           </TouchableOpacity>
         </View>
@@ -144,7 +143,7 @@ const LoginWithCodeScreen: React.FC = () => {
               <Image source={require('../../../src/assets/login/login_phone_icon.png')} style={styles.inputIcon} />
               <TextInput
                 style={styles.input}
-                placeholder={'Phone number'}
+                placeholder={t('login_with_code.phone_number')}
                 placeholderTextColor={theme.textSecondary}
                 value={phoneNumber}
                 onChangeText={setPhoneNumber}
@@ -159,7 +158,7 @@ const LoginWithCodeScreen: React.FC = () => {
             <Image source={require('../../../src/assets/login/login_email_icon.png')} style={styles.inputIcon} />
             <TextInput
               style={styles.input}
-              placeholder={'Email'}
+              placeholder={t('login_with_code.email')}
               placeholderTextColor={theme.textSecondary}
               value={email}
               onChangeText={setEmail}
@@ -185,14 +184,14 @@ const LoginWithCodeScreen: React.FC = () => {
         >
           <Text style={[styles.sendButtonText,((activeTab === 'phone' && phoneNumber) || (activeTab === 'email' && email)) && !isSubmitting
               ? styles.sendButtonTextActive
-              : null,]}>{'Send verification code'}</Text>
+              : null,]}>{t('login_with_code.send_verification_code')}</Text>
         </TouchableOpacity>
         {/* 国家选择模态框 */}
         {showCountryModal && (
           <View style={styles.modalOverlay}>
             <View style={styles.modalContent}>
               <View style={styles.modalHeader}>
-                <Text style={styles.modalTitle}>{'Select Country'}</Text>
+                <Text style={styles.modalTitle}>{t('login_with_code.select_country')}</Text>
                 <TouchableOpacity onPress={() => setShowCountryModal(false)}>
                   <Text style={styles.modalClose}>✕</Text>
                 </TouchableOpacity>

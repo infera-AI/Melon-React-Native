@@ -13,8 +13,6 @@ import {
   ScrollView,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { StackNavigationProp } from '@react-navigation/stack';
-import { AuthStackParamList } from './AuthNavigator';
 import theme from '../../utils/theme';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { getDeviceInfo } from '../../utils';
@@ -111,7 +109,7 @@ const LoginPhoneScreen: React.FC = () => {
       });
       if (loginResult) {
         // 保存登录返回的token到
-        console.log('注册并登录成功:', loginResult);
+        console.log('登录成功:', loginResult);
        // 保存token到zustand
        useUserStore.getState().setToken(loginResult.token);
        getUserInfoRequest();
@@ -121,12 +119,13 @@ const LoginPhoneScreen: React.FC = () => {
         });
       } else {
         show({
-         message: "login failed",
+         message: t('verify_code.login_failed'),
        });
       }
-          } catch (error:any) {
+      } catch (error:any) {
+        console.log('error', error);
        show({
-         message: `登录失败: ${error.message || '未知错误'}`,
+         message: `${t('verify_code.login_failed')}: ${error.message || t('common.unknown_error')}`,
        });
       }
     setIsSubmitting(true);
@@ -290,9 +289,9 @@ const LoginPhoneScreen: React.FC = () => {
 
         {/* 忘记密码链接 */}
         <View style={styles.forgotPasswordContainer}>
-          <Text style={styles.forgotPasswordText}>Forgot your password? </Text>
+          <Text style={styles.forgotPasswordText}>{t('login_phone.forgot_password')} </Text>
           <TouchableOpacity onPress={handleForgotPassword}>
-            <Text style={styles.forgotPasswordLink}>Log in with verification code</Text>
+            <Text style={styles.forgotPasswordLink}>{t('login_phone.forgot_password_link')}</Text>
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>

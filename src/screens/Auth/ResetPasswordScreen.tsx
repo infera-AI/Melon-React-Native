@@ -17,7 +17,6 @@ import { useLanguage } from '../../contexts/LanguageContext';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { modifyPassword } from '../../api/login';
 import { useMessageModal } from '../../contexts/MessageModalContext';
-import { MainAppStackParamList } from '../../navigation/MainAppNavigator';
 import { RootStackParamList } from '../../navigation/AppNavigator';
 import { SafeAreaView } from 'react-native-safe-area-context';
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');

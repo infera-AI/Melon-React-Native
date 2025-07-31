@@ -65,13 +65,13 @@ const RegisterEmailScreen: React.FC = () => {
     // 检查是否填写了手机号或邮箱
     if (activeTab === 'phone' && !phone.trim()) {
       show({
-        message: "Please enter your phone number",
+        message: t('register.please_enter_phone'),
       });
       return;
     }
     if (activeTab === 'email' && !email.trim()) {
       show({
-        message: "Please enter your email",
+        message: t('register.please_enter_email'),
       });
       return;
     }
@@ -193,7 +193,7 @@ const RegisterEmailScreen: React.FC = () => {
           <View style={styles.tabRow}>
             <TouchableOpacity onPress={() => handleTabChange('phone')}>
               <View style={styles.tabItem}>
-                              <Text style={[styles.tabText, activeTab === 'phone' && styles.tabTextActive]}>
+                  <Text style={[styles.tabText, activeTab === 'phone' && styles.tabTextActive]}>
                   {t('register.phone_number')}
                 </Text>
                 {activeTab === 'phone' && <View style={styles.tabDot} />}
@@ -201,7 +201,7 @@ const RegisterEmailScreen: React.FC = () => {
             </TouchableOpacity>
             <TouchableOpacity onPress={() => handleTabChange('email')}>
               <View style={styles.tabItem}>
-                              <Text style={[styles.tabText, activeTab === 'email' && styles.tabTextActive]}>
+                  <Text style={[styles.tabText, activeTab === 'email' && styles.tabTextActive]}>
                   {t('register.e_mail')}
                 </Text>
                 {activeTab === 'email' && <View style={styles.tabDot} />}
@@ -212,7 +212,7 @@ const RegisterEmailScreen: React.FC = () => {
           {/* 输入区域 */}
           <View style={styles.inputArea}>
             {activeTab === 'email' ? (
-                          <>
+              <>
                 {/* 邮箱输入框 */}
                 <View style={styles.inputBox}>
                   <Image source={require('../../../src/assets/login/login_email_icon.png')} style={styles.inputIcon} />
@@ -268,7 +268,7 @@ const RegisterEmailScreen: React.FC = () => {
                 {agreementChecked && <Text style={styles.checkmarkText}>✓</Text>}
               </View>
             </TouchableOpacity>
-                        <View style={styles.agreementTextContainer}>
+            <View style={styles.agreementTextContainer}>
                 <Text style={styles.agreementText}>{t('register.agreement_text')} </Text>
                 <TouchableOpacity onPress={handleUserAgreement}>
                   <Text style={styles.agreementLink}>{t('register.user_service_agreement')}</Text>
@@ -432,8 +432,8 @@ const styles = StyleSheet.create({
   },
   agreementContainer: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
-    justifyContent: 'flex-start',
+    alignItems: 'center',
+    justifyContent: 'center',
     marginBottom: normalize(16, 'height'),
     paddingHorizontal: normalize(20),
   },
@@ -461,7 +461,6 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   agreementTextContainer: {
-    flex: 1,
     flexDirection: 'row',
     flexWrap: 'wrap',
     alignItems: 'center',

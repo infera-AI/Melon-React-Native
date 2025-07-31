@@ -18,6 +18,7 @@ import { generateVoiceId } from '@/api/profile/profile';
 import { useVoiceStore } from '@/store';
 import { VoiceType } from '@/store/modules/voice.store';
 import { useMessageModal } from '@/contexts/MessageModalContext';
+import { useLanguage } from '../../../contexts/LanguageContext';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
@@ -41,6 +42,7 @@ const GeneratingVoiceScreen: React.FC = () => {
   const [showCompletionModal, setShowCompletionModal] = useState(false);
   const progressInterval = useRef<NodeJS.Timeout | null>(null);
   const { show } = useMessageModal();
+  const { t } = useLanguage();
   useEffect(() => {
 
       generateVoiceIdRequest();
@@ -72,6 +74,7 @@ const GeneratingVoiceScreen: React.FC = () => {
           clearInterval(progressInterval.current);
         }
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const generateVoiceIdRequest = async () => {
@@ -84,7 +87,7 @@ const GeneratingVoiceScreen: React.FC = () => {
         console.log(res,'res')
         // show({message: 'Voice ID generated successfully'});
       } catch (error) {
-        show({message: 'Failed to generate voice ID'});
+        show({message: t('generating_voice.failed_to_generate_voice_id')});
         console.log(error,'error')
       }
     }
@@ -134,7 +137,7 @@ const GeneratingVoiceScreen: React.FC = () => {
             style={styles.backIcon}
           />
         </TouchableOpacity>
-        <Text style={styles.title}>{useVoiceStore.getState().type === VoiceType.CREATE ? 'Create your own voice' : 'Voiceprint optimization'}</Text>
+        <Text style={styles.title}>{useVoiceStore.getState().type === VoiceType.CREATE ? t('generating_voice.create_your_own_voice') : t('generating_voice.voiceprint_optimization')}</Text>
         <View style={styles.headerSpacer} />
       </View>
 
@@ -155,7 +158,7 @@ const GeneratingVoiceScreen: React.FC = () => {
       {/* 状态文本 */}
       <View style={styles.statusContainer}>
         <Text style={styles.statusText}>
-          Your exclusive tone is being generated…
+          {t('generating_voice.your_exclusive_tone_generating')}
         </Text>
       </View>
      </ScrollView>
@@ -179,11 +182,11 @@ const GeneratingVoiceScreen: React.FC = () => {
              </View>
              
              <Text style={styles.modalTitle}>
-               Voiceprint optimization is complete.
+               {t('generating_voice.voiceprint_optimization_complete')}
              </Text>
              
              <Text style={styles.modalDescription}>
-               You can listen to the optimization effect in "My Voiceprint Sample".
+               {t('generating_voice.listen_optimization_effect')}
              </Text>
            </View>
 
@@ -193,7 +196,7 @@ const GeneratingVoiceScreen: React.FC = () => {
                style={styles.modalButton} 
                onPress={handleReRecording}
              >
-               <Text style={styles.reRecordingText}>Re-recording</Text>
+               <Text style={styles.reRecordingText}>{t('generating_voice.re_recording')}</Text>
              </TouchableOpacity>
              
              <View style={styles.buttonSeparator} />
@@ -202,7 +205,7 @@ const GeneratingVoiceScreen: React.FC = () => {
                style={styles.modalButton} 
                onPress={handleConfirm}
              >
-               <Text style={styles.confirmText}>Confirm</Text>
+               <Text style={styles.confirmText}>{t('generating_voice.confirm')}</Text>
              </TouchableOpacity>
            </View>
          </View>

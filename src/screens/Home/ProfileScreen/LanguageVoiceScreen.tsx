@@ -16,6 +16,7 @@ import { generateVoiceId, getVoiceprintDemoConfig, synthesizeSpeech, translateTe
 import Sound from 'react-native-sound';
 import FullScreenLoader from '@/components/FullScreenLoader';
 import { useMessageModal } from '@/contexts/MessageModalContext';
+import { useLanguage } from '../../../contexts/LanguageContext';
 
 const normalize = (size: number, based: 'width' | 'height' = 'width') => {
   const { width, height } = require('react-native').Dimensions.get('window');
@@ -40,6 +41,7 @@ const LanguageVoiceScreen: React.FC = () => {
   const [testText, setTestText] = useState<string>(testTexContent);
   const [loading, setLoading] = useState<boolean>(false);
   const { show } = useMessageModal(); 
+  const { t } = useLanguage();
 
   const languages={
     zh:{name:'Chinese',flag: require('../../../../assets/images/flag_cn.png')},
@@ -62,7 +64,7 @@ const LanguageVoiceScreen: React.FC = () => {
           audio_file: recordFile,
         });
         console.log(res,'res')
-        show({message: 'Voice ID generated successfully'});
+        show({message: t('language_voice.voice_id_generated_successfully')});
         useVoiceStore.getState().setVoiceFile({
           uri: '',
           type: '',
@@ -71,23 +73,10 @@ const LanguageVoiceScreen: React.FC = () => {
         useVoiceStore.getState().setLocal("");
         navigation.navigate('ProfileMain');
       } catch (error) {
-        show({message: 'Failed to generate voice ID'});
+        show({message: t('language_voice.failed_to_generate_voice_id')});
         console.log(error,'error')
       }
     }
-
-  const getLanguageListRequest = async () => {
-    try{
-      const res = await getVoiceprintDemoConfig();
-      setLanguageList(res.supported_languages);
-      setSelectedLanguage(res.supported_languages?.[0]);
-      setTestText(res.demo_text);
-      getAudioUrlRequest(res.demo_text);
-
-    }catch(error){
-      console.log(error);
-    }
-  }
 
   const handleLanguageSelect = (language: string) => {
     setSelectedLanguage(language);
@@ -114,9 +103,9 @@ const LanguageVoiceScreen: React.FC = () => {
         source_text: testTexContent,
         target_language: language,
       });
-        console.log(res,res.data.Translated  )
-      setTestText(res.data.Translated);
-      getAudioUrlRequest(res.data.Translated);
+        console.log(res,res.Translated  )
+      setTestText(res.Translated);
+      getAudioUrlRequest(res.Translated);
     }catch(error){
       console.log(error);
     }
@@ -141,7 +130,7 @@ const LanguageVoiceScreen: React.FC = () => {
   const handlePlayAudio = (audioUrl: string) => {
     if (!audioUrl) {
       // show({message: 'No audio available'});
-      show({message: 'No audio available'});
+      show({message: t('language_voice.no_audio_available')});
       return;
     }
 
@@ -155,7 +144,7 @@ const LanguageVoiceScreen: React.FC = () => {
     const newSound = new Sound(audioUrl, Sound.MAIN_BUNDLE, (error) => {
       if (error) {
         console.log('Failed to load audio:', error);
-        show({message: 'Failed to load audio'});  
+        show({message: t('language_voice.failed_to_load_audio')});  
         return;
       }
 
@@ -190,6 +179,18 @@ const LanguageVoiceScreen: React.FC = () => {
   };
 
   useEffect(() => {
+    const getLanguageListRequest = async () => {
+      try{
+        const res = await getVoiceprintDemoConfig();
+        setLanguageList(res.supported_languages);
+        setSelectedLanguage(res.supported_languages?.[0]);
+        setTestText(res.demo_text);
+        getAudioUrlRequest(res.demo_text);
+
+      }catch(error){
+        console.log(error);
+      }
+    }
     getLanguageListRequest();
   }, []);
 
@@ -208,7 +209,7 @@ const LanguageVoiceScreen: React.FC = () => {
       </View>
 
       {/* 标题 */}
-      <Text style={styles.title}>Generate your own voice</Text>
+      <Text style={styles.title}>{t('language_voice.generate_your_own_voice')}</Text>
 
       {/* 主要内容 */}
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
@@ -238,22 +239,22 @@ const LanguageVoiceScreen: React.FC = () => {
         </View>
 
         {/* 提示文本 */}
-        <Text style={styles.hintText}>click to test on different language</Text>
+        <Text style={styles.hintText}>{t('language_voice.click_to_test_different_language')}</Text>
       </ScrollView>
 
       {/* 底部按钮 */}
       <View style={styles.buttonContainer}>
         <TouchableOpacity style={styles.recordAgainButton} onPress={handleRecordAgain}>
-          <Text style={styles.recordAgainText}>Record again</Text>
+          <Text style={styles.recordAgainText}>{t('language_voice.record_again')}</Text>
         </TouchableOpacity>
         
         <TouchableOpacity style={styles.doneButton} onPress={handleDone}>
-          <Text style={styles.doneText}>Done</Text>
+          <Text style={styles.doneText}>{t('language_voice.done')}</Text>
         </TouchableOpacity>
       </View>
       <FullScreenLoader
         visible={loading}
-        text="Please wait..."
+        text={t('language_voice.please_wait')}
         timeout={5000}
         onTimeout={() => setLoading(false)}
       />

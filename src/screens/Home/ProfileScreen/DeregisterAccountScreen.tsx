@@ -12,6 +12,7 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ProfileStackParamList } from './ProfileNavigator';
 import theme from '../../../utils/theme';
+import { useLanguage } from '../../../contexts/LanguageContext';
 
 const normalize = (size: number, based: 'width' | 'height' = 'width') => {
   const { width, height } = require('react-native').Dimensions.get('window');
@@ -27,6 +28,7 @@ type DeregisterAccountScreenNavigationProp = NativeStackNavigationProp<ProfileSt
 
 const DeregisterAccountScreen: React.FC = () => {
   const navigation = useNavigation<DeregisterAccountScreenNavigationProp>();
+  const { t } = useLanguage();
 
   const handleBack = () => {
     navigation.goBack();
@@ -48,34 +50,34 @@ const DeregisterAccountScreen: React.FC = () => {
             style={styles.backIcon}
           />
         </TouchableOpacity>
-        <Text style={styles.title}>Cancel your account</Text>
+        <Text style={styles.title}>{t('deregister_account.cancel_your_account')}</Text>
         <View style={styles.headerSpacer} />
       </View>
 
         {/* 主要内容卡片 */}
         <View style={styles.mainCard}>
-          <Text style={styles.cardTitle}>Important: Cancel your account</Text>
+          <Text style={styles.cardTitle}>{t('deregister_account.important_cancel_your_account')}</Text>
           
-          <Text style={styles.riskItem}>Risk item 1:</Text>
+          <Text style={styles.riskItem}>{t('deregister_account.risk_item_1')}</Text>
           <Text style={styles.cardText}>
-            Account data will be permanently deleted and cannot be recovered
+            {t('deregister_account.account_data_permanently_deleted')}
           </Text>
           
-          <Text style={styles.riskItem}>Risk item 2:</Text>
+          <Text style={styles.riskItem}>{t('deregister_account.risk_item_2')}</Text>
           <Text style={styles.cardText}>
-            You will no longer be able to use this account to log in to T1 and all related services
+            {t('deregister_account.no_longer_able_to_use_account')}
           </Text>
           
-          <Text style={styles.riskItem}>Risk item 3:</Text>
+          <Text style={styles.riskItem}>{t('deregister_account.risk_item_3')}</Text>
           <Text style={styles.cardText}>
-            The third-party binding associated with the account will be automatically released
+            {t('deregister_account.third_party_binding_released')}
           </Text>
           
-            <Text style={styles.riskItem}>Please be sure to check before canceling</Text>
+            <Text style={styles.riskItem}>{t('deregister_account.please_check_before_canceling')}</Text>
             <Text style={styles.cardText}>
-              1. You have backed up all important conversation records and knowledge base content.{'\n'}
-              2. You have unbound all important third-party accounts in case you cannot log in in the future.{'\n'}
-              3. You are fully aware of the full consequences of cancellation
+              {t('deregister_account.backup_conversation_records')}{'\n'}
+              {t('deregister_account.unbound_third_party_accounts')}{'\n'}
+              {t('deregister_account.aware_of_consequences')}
             </Text>
         </View>
 
@@ -84,10 +86,10 @@ const DeregisterAccountScreen: React.FC = () => {
       {/* 底部确认按钮 */}
       <View style={styles.buttonContainer}>
       <TouchableOpacity style={styles.cancelButton} onPress={handleConfirmDeregister}>
-          <Text style={styles.cancelButtonText}>Cancel</Text>
+          <Text style={styles.cancelButtonText}>{t('deregister_account.cancel')}</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.confirmButton} onPress={handleConfirmDeregister}>
-          <Text style={styles.confirmButtonText}>OK</Text>
+          <Text style={styles.confirmButtonText}>{t('deregister_account.ok')}</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>

@@ -18,6 +18,7 @@ import { useMessageModal } from '../../../contexts/MessageModalContext';
 import Sound from 'react-native-sound';
 import { useVoiceStore } from '@/store';
 import { VoiceType } from '@/store/modules/voice.store';
+import { useLanguage } from '../../../contexts/LanguageContext';
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
 const langs={
@@ -52,8 +53,9 @@ const VoiceprintManagementScreen: React.FC = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isSynthesizing, setIsSynthesizing] = useState(false);
   const [sound, setSound] = useState<Sound | null>(null);
-  const { show, hide } = useMessageModal();
+  const { show } = useMessageModal();
   const [demoText, setDemoText] = useState<string>('');
+  const { t } = useLanguage();
   const handleBack = () => {
     navigation.goBack();
   };
@@ -87,12 +89,12 @@ const VoiceprintManagementScreen: React.FC = () => {
       });
       setAudioUrl(res.audio_url);
     }catch(error:any){
-      show({message: 'Please recording a main sound first'});
+      show({message: t('voiceprint_management.please_record_main_sound_first')});
       console.log(error);
     }finally{
       setIsSynthesizing(false);
     }
-  }, []);
+  }, [show, t]);
 
   const translateTextRequest = async (language:string) => {
     try{
@@ -102,9 +104,10 @@ const VoiceprintManagementScreen: React.FC = () => {
         source_text: demoText,
         target_language: language,
       });
+      console.log(res)
       setLeftLanguage(language);
-      setDemoText(res.data.Translated);
-      handleSynthesizeSpeech(res.data.Translated);
+      setDemoText(res.Translated);
+      handleSynthesizeSpeech(res.Translated);
     }catch(error){
       console.log(error);
     }
@@ -112,8 +115,7 @@ const VoiceprintManagementScreen: React.FC = () => {
   // 播放音频
   const handlePlayAudio = () => {
     if (!audioUrl) {
-      // show({message: 'No audio available'});
-      show({message: 'No audio available'});  
+      show({message: t('voiceprint_management.no_audio_available')});
       return;
     }
 
@@ -127,7 +129,7 @@ const VoiceprintManagementScreen: React.FC = () => {
     const newSound = new Sound(audioUrl, Sound.MAIN_BUNDLE, (error) => {
       if (error) {
         console.log('Failed to load audio:', error);
-        show({message: 'Failed to load audio'});
+        show({message: t('voiceprint_management.failed_to_load_audio')});
         return;
       }
 
@@ -155,14 +157,14 @@ const VoiceprintManagementScreen: React.FC = () => {
       setDemoText(res.demo_text);
       handleSynthesizeSpeech(res.demo_text);
     }catch(error){
-      show({message: 'Failed to get voiceprint demo'});
+      show({message: t('voiceprint_management.failed_to_get_voiceprint_demo')});
       console.log(error);
     }
-  }, [show, handleSynthesizeSpeech]);
+  }, [show, t, handleSynthesizeSpeech]);
 
   useEffect(() => {
      getUserVoiceprintDemoRequest();
-  }, []);
+  }, [getUserVoiceprintDemoRequest]);
 
   return (
     <SafeAreaView style={styles.container} edges={['top' ,'bottom']} >
@@ -174,7 +176,7 @@ const VoiceprintManagementScreen: React.FC = () => {
             style={styles.backIcon}
           />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Voiceprint Management</Text>
+        <Text style={styles.headerTitle}>{t('voiceprint_management.title')}</Text>
         <View style={styles.headerSpacer} />
       </View>
 
@@ -184,7 +186,7 @@ const VoiceprintManagementScreen: React.FC = () => {
         <View style={styles.waveformContainer}>
           <Image source={require('../../../assets/profile/profile_voice_icon.png')} style={styles.voiceprintExampleIcon}/>
           {/* 标题 */}
-          <Text style={styles.voiceprintTitle}>My voiceprint example</Text>
+          <Text style={styles.voiceprintTitle}>{t('voiceprint_management.my_voiceprint_example')}</Text>
         </View>
         
 
@@ -218,7 +220,7 @@ const VoiceprintManagementScreen: React.FC = () => {
         <TouchableOpacity style={[styles.trialButton,isSynthesizing && styles.trialButtonDisabled]} onPress={handlePlayAudio} disabled={isSynthesizing}>
           <Image source={require('../../../assets/profile/profile_play_icon.png')} resizeMode='contain' style={styles.playIcon}/>
           <Text style={styles.trialText}> 
-            {isPlaying ? 'Playing...' : 'Trial listening'}
+            {isPlaying ? t('voiceprint_management.playing') : t('voiceprint_management.trial_listening')}
           </Text>
         </TouchableOpacity>
       </View>
@@ -227,7 +229,7 @@ const VoiceprintManagementScreen: React.FC = () => {
       <TouchableOpacity style={styles.optimizationCard} onPress={handleOptimizVoice}>
         <View style={styles.optimizationContent}>
           <Image source={require('../../../assets/profile/profile_optimize_icon.png')} resizeMode='contain' style={styles.optimizationIcon}/>
-          <Text style={styles.optimizationTitle}>Voiceprint optimization</Text>
+          <Text style={styles.optimizationTitle}>{t('voiceprint_management.voiceprint_optimization')}</Text>
           <View style={styles.arrowContainer}>
             <Image 
               source={require('../../../assets/main/right_arrow_icon.png')} 
@@ -243,7 +245,7 @@ const VoiceprintManagementScreen: React.FC = () => {
           onPress={handleCreateVoice}
         >
           <Text style={styles.recordButtonText}>
-            {isRecording ? 'Recording...' : 'Recording the Main Sound'}
+            {isRecording ? t('voiceprint_management.recording') : t('voiceprint_management.recording_the_main_sound')}
           </Text>
         </TouchableOpacity>
 
@@ -257,7 +259,7 @@ const VoiceprintManagementScreen: React.FC = () => {
           <View style={styles.modalOverlay}>
             <View style={styles.modalContent}>
               <View style={styles.modalHeader}>
-                <Text style={styles.modalTitle}>选择语言</Text>
+                <Text style={styles.modalTitle}>{t('voiceprint_management.select_language')}</Text>
                 <TouchableOpacity onPress={() => setShowLanguageModal(false)}>
                   <Text style={styles.modalClose}>✕</Text>
                 </TouchableOpacity>
