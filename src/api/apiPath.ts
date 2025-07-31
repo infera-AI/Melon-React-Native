@@ -33,6 +33,7 @@ export const API_ENDPOINTS = {
       GET_TRANSLATION_TASK_IMAGE: '/translations/translate/imgs',
       TRANLATE_TEXT: '/translations/translate/text',
       CREATE_CONVERSATION: '/conversations/new',
+      SEND_MSG_TO_AI: '/assistant/send_voice_message',
     },
             PROFILE: {
           GET_USER_INFO: '/accounts/profile',

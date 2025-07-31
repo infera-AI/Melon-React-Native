@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { StyleSheet, Dimensions, StatusBar, SafeAreaView, Animated, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
@@ -10,12 +10,28 @@ const IMAGE_SIZE = Math.min(width, height);
 
 const SplashScreen: React.FC = () => {
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
-  const token = useUserStore((state) => state.token);
   const fadeAnim = useRef(new Animated.Value(1)).current;
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
+  const [hydrated, setHydrated] = useState(false);
 
+  useEffect(() => {
+    
+    if (useUserStore.persist.hasHydrated()) {
+      setHydrated(true);
+    } else {
+      const unsub = useUserStore.persist.onFinishHydration(() => {
+        setHydrated(true);
+      });
+      return unsub;
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (!hydrated) return;
+    const token = useUserStore.getState().token;
+    // console.log('hydrated token ==>', token);
+    setTimeout(() => {
       Animated.timing(fadeAnim, {
         toValue: 0,
         duration: 2000,
@@ -30,11 +46,10 @@ const SplashScreen: React.FC = () => {
           navigation.navigate('Auth' as any);
         }
       });
-    }, 1500);
-
-    return () => clearTimeout(timer);
+    }, 1500)
+    
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [hydrated])
 
   return (
     <SafeAreaView style={styles.safe}>

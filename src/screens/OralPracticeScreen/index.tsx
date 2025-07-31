@@ -12,8 +12,11 @@ import {
   UIManager,
   Platform,
   Easing,
-  Animated
+  Animated,
 } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { RootStackParamList } from '@/navigation/AppNavigator'
 import { useLanguage } from '@/contexts/LanguageContext';
 import FullScreenLoader from '@/components/FullScreenLoader';
 import CustomNavigation from '@/components/CustomNavigation';
@@ -21,6 +24,17 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import PagerView from 'react-native-pager-view';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import FontAwesome6 from 'react-native-vector-icons/FontAwesome6';
+import SpeakBtn, { SpeakBtnRef } from '@/components/SpeakBtn'
+import {
+  sendMsgToAI
+} from '@/api/translate'
+
+import { useMessageModal } from '@/contexts/MessageModalContext';
+
+import { AudioPlayerController } from '@/utils/AudioPlayerController';
+
+import { StatusEnum } from '@/components/SpeakBtn';
+import { scaleSize } from '@/utils/scale';
 
 const { width, height } = Dimensions.get('window');
 const pageLR = 16;
@@ -38,14 +52,52 @@ const textSize = 15
 const textLineHeight = textSize + 6
 
 const OralPracticeScreen: React.FC = () => {
-
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { t } = useLanguage();
   const [loading, setLoading] = useState(false);
   const insets = useSafeAreaInsets(); // 获取安全区域距离
 
   const pagerRef = useRef<PagerView>(null);
 
+  const page2ScrollRef = useRef<ScrollView>(null);
+
   const [nowPageIndex, setNowPageIndex] = useState(0)
+
+  const speakBtnRef = useRef<SpeakBtnRef>(null);
+
+  const [pageStatus, setPageStatus] = useState<StatusEnum>(StatusEnum.TYPE_NORMAL)
+
+  const [chatList, setChatList] = useState<any>([])
+
+  const msgLoadRotateAnim = useRef(new Animated.Value(0)).current;
+  const rotateAnimRef = useRef<Animated.CompositeAnimation | null>(null);
+
+  useEffect(() => {
+    if (pageStatus === StatusEnum.TYPE_WAIT_ANSWER) {
+      
+      msgLoadRotateAnim.setValue(0)
+      const loopAnim = Animated.loop(
+        Animated.timing(msgLoadRotateAnim, {
+          toValue: 360,
+          duration: 2000, // 2秒一圈
+          easing: Easing.linear,
+          useNativeDriver: true,
+        })
+      );
+      rotateAnimRef.current = loopAnim
+      loopAnim.start()
+    } else {
+      rotateAnimRef.current?.stop()
+    }
+    
+  }, [msgLoadRotateAnim, pageStatus]);
+
+  const spin = msgLoadRotateAnim.interpolate({
+    inputRange: [0, 360],
+    outputRange: ['0deg', '360deg'],
+  });
+
+  const { show } = useMessageModal();
 
   const goToPage = (pageIndex: number) => {
     console.log('setPage----', pageIndex);
@@ -168,6 +220,14 @@ const OralPracticeScreen: React.FC = () => {
 
   useEffect(() => {
     setIsAnimating(true)
+
+    const speakBtnRefInstance = speakBtnRef.current; // 必须在这里复制
+    return () => {
+      if (speakBtnRefInstance) {
+        speakBtnRefInstance.destroy();  // 不直接用 ref.current
+      }
+      stopPlayAudio()
+    }
   }, [])
 
   const changePageBgOpqcity = (val: number) => {
@@ -188,6 +248,123 @@ const OralPracticeScreen: React.FC = () => {
     inputRange: [0, 1],
     outputRange: ['0deg', '-360deg'],
   });
+
+
+  const phoneOff = () => {
+    // 关闭音频
+    speakBtnRef.current?.destroy()
+    navigation.goBack()
+  }
+
+  const stopPlayAudio = () => {
+    // 关闭音频
+    AudioPlayerController.getInstance().release()
+    setPageStatus(StatusEnum.TYPE_NORMAL)
+  }
+
+  const startPlayAudio = async (audioUri: string) => {
+    await AudioPlayerController.getInstance().init(audioUri, {
+      onInit: ({ duration, controller }) => {
+        console.log('初始化完成，时长:', duration);
+        console.log('controller----:', controller);
+        controller.play();
+      },
+      onPlay: () => {
+        console.log('播放中');
+
+      },
+      onPause: () => {
+        console.log('暂停播放');
+        // setIsPlay(false)
+      },
+      onStop: () => {
+        console.log('停止播放');
+      },
+      onEnd: () => {
+        console.log('播放完成');
+        stopPlayAudio()
+      },
+      onError: (error) => {
+        console.error('错误:', error.message)
+        stopPlayAudio()
+      },
+    });
+  }
+
+  useEffect(() => {
+    page2ScrollRef.current?.scrollToEnd({animated: true})
+  }, [chatList])
+
+  const tellResultHandle = (data: any) => {
+    console.log('tellResult----', data);
+    if (data?.status === 'success') { // 只处理成功即可，失败时，在内部弹窗显示
+      setPageStatus(StatusEnum.TYPE_WAIT_ANSWER)
+      // 先push到聊天记录
+      setChatList([
+        ...chatList, 
+        {
+          role: 'user',
+          msg: data?.translated_text
+        },
+        {
+          role: 'wait',
+        }
+      ])
+      let params: any = {}
+      if (data?.translated_audio_url) {
+        params.audio_url = data?.translated_audio_url
+      } else if (data?.translated_text) {
+        params.text_message = data?.translated_text
+      }
+      // 发送消息
+      sendMsgToAI(params).then((rsp) => {
+        console.log('rsp------', rsp);
+        if (rsp) {
+          if (rsp?.assistant_reply_audio_url) {
+            setPageStatus(StatusEnum.TYPE_PLAY_ANSWER_AUDIO)
+            startPlayAudio(rsp?.assistant_reply_audio_url)
+          } else {
+            setPageStatus(StatusEnum.TYPE_NORMAL)
+          }
+
+          changeChatList('success', rsp?.assistant_reply)
+          
+
+        } else {
+          // 响应失败
+          setPageStatus(StatusEnum.TYPE_NORMAL)
+          show({
+            message: '处理失败，请重试'
+          })
+          changeChatList('error')
+        }
+        
+      }).catch(() => {
+        // 响应失败
+        setPageStatus(StatusEnum.TYPE_NORMAL)
+        show({
+          message: '处理失败，请重试'
+        })
+        changeChatList('error')
+      })
+    }
+    
+  }
+
+  const changeChatList = (type: string, msg?: string) => {
+    let obj: any = {}
+    if (type === 'error') {
+      obj = {role: 'error'}
+    } else {
+      obj = {role: 'ai', msg}
+    }
+
+    setChatList((prev: any) => {
+      if (prev.length === 0) return prev; // 空数组不动
+      // 替换最后一个
+      return [...prev.slice(0, -1), obj];
+    })
+  }
 
   return (
     <View style={[
@@ -213,37 +390,43 @@ const OralPracticeScreen: React.FC = () => {
       <PagerView ref={pagerRef} style={styles.pagerView} initialPage={0} scrollEnabled={false}>
         {/* 界面1 */}
         <View key="1" style={[styles.page, styles.firstPage]}>
-          <Animated.View
-            style={[
-              styles.ring,
-              {
-                transform: [{ rotate: rotate1Interpolate }, { scale }],
-                opacity,
-                position: 'absolute',
-              },
-            ]}
-          >
-            <Image
-              source={require('../../../assets/images/Oral_head_animate1.png')} // 第一层不规则绿色圈图
-              style={styles.ringImage}
-            />
-          </Animated.View>
+          {
+            isAnimating &&
+            <>
+              <Animated.View
+                style={[
+                  styles.ring,
+                  {
+                    transform: [{ rotate: rotate1Interpolate }, { scale }],
+                    opacity,
+                    position: 'absolute',
+                  },
+                ]}
+              >
+                <Image
+                  source={require('../../../assets/images/Oral_head_animate1.png')} // 第一层不规则绿色圈图
+                  style={styles.ringImage}
+                />
+              </Animated.View>
 
-          <Animated.View
-            style={[
-              styles.ring,
-              {
-                transform: [{ rotate: rotate2Interpolate }, { scale }],
-                opacity,
-                position: 'absolute',
-              },
-            ]}
-          >
-            <Image
-              source={require('../../../assets/images/Oral_head_animate2.png')} // 第二层可以用相同图或另一个图
-              style={styles.ringImage}
-            />
-          </Animated.View>
+              <Animated.View
+                style={[
+                  styles.ring,
+                  {
+                    transform: [{ rotate: rotate2Interpolate }, { scale }],
+                    opacity,
+                    position: 'absolute',
+                  },
+                ]}
+              >
+                <Image
+                  source={require('../../../assets/images/Oral_head_animate2.png')} // 第二层可以用相同图或另一个图
+                  style={styles.ringImage}
+                />
+              </Animated.View>
+            </>
+          }
+          
           {/* 头像 */}
           <View style={styles.avatarPlaceholder}>
             <Image
@@ -257,55 +440,115 @@ const OralPracticeScreen: React.FC = () => {
         {/* 界面2 */}
         <View key="2" style={[styles.page]}>
           <ScrollView
+            ref={page2ScrollRef}
             style={styles.scroll}
             contentContainerStyle={styles.contentContainer}
             keyboardShouldPersistTaps="handled"
           >
             <View style={styles.msgItems}>
-              {/* 我的消息 */}
-              <View style={[styles.msgItem, styles.msgItemMy]}>
-                <View style={[styles.msgTextView, styles.msgTextViewMy]}>
-                  <View style={[styles.msgTextViewPop, styles.msgTextViewPopMy]}>
-                    <Text style={[styles.msgText, styles.msgTextMy, {fontSize: textSize, lineHeight: textLineHeight}]}>
-                      Introduce some history of the Assyrian Dynasty
-                    </Text>
-                  </View>
-                </View>
-                <View style={styles.headContent}>
-                  <Image
-                    source={{ uri: 'https://img0.baidu.com/it/u=1972874754,2380280904&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500' }}
-                    style={styles.headImg}
-                    resizeMode='cover'
-                  />
-                </View>
-              </View>
+              {
+                chatList.map((item: any, index:any) => {
+                  return (
+                    <React.Fragment key={index}>
+                      {
+                        item?.role === 'user' ?
+                          // {/* 我的消息 */}
+                          <View style={[styles.msgItem, styles.msgItemMy]}>
+                            <View style={[styles.msgTextView, styles.msgTextViewMy]}>
+                              <View style={[styles.msgTextViewPop, styles.msgTextViewPopMy]}>
+                                <Text style={[styles.msgText, styles.msgTextMy, {fontSize: textSize, lineHeight: textLineHeight}]}>
+                                  {item?.msg}
+                                </Text>
+                              </View>
+                            </View>
+                            <View style={styles.headContent}>
+                              <Image
+                                source={{ uri: 'https://img0.baidu.com/it/u=1972874754,2380280904&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500' }}
+                                style={styles.headImg}
+                                resizeMode='cover'
+                              />
+                            </View>
+                          </View>
+                          :
+                          // {/* 对方的消息 */}
+                          <View style={[styles.msgItem, styles.msgItemOther]}>
+                            <View style={styles.headContent}>
+                              <Image
+                                source={require('../../../assets/images/Home_card_head.png')}
+                                style={styles.headImg}
+                                resizeMode='cover'
+                              />
+                            </View>
+                            <View style={[styles.msgTextView, styles.msgTextViewOther]}>
+                              <View style={[styles.msgTextViewPop, styles.msgTextViewPopOther]}>
+                                {
+                                  item?.role === 'wait' ?
+                                  <Animated.Image
+                                    source={require('../../../assets/images/loading.png')}
+                                    style={[styles.waitLoadImg, {transform: [{rotate: spin}]}]}
+                                    resizeMode={'contain'}
+                                  />
+                                  :
+                                  <Text style={[styles.msgText, styles.msgTextOther, {fontSize: textSize, lineHeight: textLineHeight}]}>
+                                    {item?.role === 'error' ? '处理失败，请重试' : item?.msg}
+                                  </Text>
+                                }
+                              </View>
+                            </View>
+                          </View>
+                      }
+
+                    </React.Fragment>
+                  )
+                })
+              }
               
-              {/* 对方的消息 */}
-              <View style={[styles.msgItem, styles.msgItemOther]}>
-                <View style={styles.headContent}>
-                  <Image
-                    source={{ uri: 'https://img0.baidu.com/it/u=1972874754,2380280904&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500' }}
-                    style={styles.headImg}
-                    resizeMode='cover'
-                  />
-                </View>
-                <View style={[styles.msgTextView, styles.msgTextViewOther]}>
-                  <View style={[styles.msgTextViewPop, styles.msgTextViewPopOther]}>
-                    <Text style={[styles.msgText, styles.msgTextOther, {fontSize: textSize, lineHeight: textLineHeight}]}>
-                      The Assyrian Dynasty existed from around 3000 BC to over 600 BC and was an ancient kingdom in Mesop-otamia. At its peak of power, its territory spanned West Asia and North Africa. The Assyrians had a powerful military force and invented many advanced weapons and tactics. Their architecture was also distincti-ve, with very magnificent palaces and temples. However, in the later period of the Assyrian Dynasty, political cor-ruption occurred, internal conflicts intensified, and coupled with external invasions, it was finally destroyed by the allied forces of Babylon and the Medes.
-                    </Text>
-                  </View>
-                </View>
-              </View>
             </View>
 
           </ScrollView>
         </View>
       </PagerView>
       <View style={styles.statusView}>
-        {/* 声纹动画 */}
-        {
-          nowPageIndex === 0 ?
+        {/* 状态 */}
+        <TouchableOpacity
+          style={[
+            {alignItems: 'center'},
+            pageStatus !== StatusEnum.TYPE_PLAY_ANSWER_AUDIO && {pointerEvents: 'none'}
+          ]}
+          onPress={() => stopPlayAudio()}
+        >
+          <View style={[styles.voiceAnimate, {alignItems: 'flex-end'}]}>
+              {
+                pageStatus === StatusEnum.TYPE_PLAY_ANSWER_AUDIO &&
+                <Text>
+                  <FontAwesome6 name='stop' size={20} color={'#85F380'}/>
+                </Text>
+              }
+          </View>
+          <Text style={styles.statusText}>
+            {
+                pageStatus === StatusEnum.TYPE_NORMAL ?
+                  'Listening...'
+                  :
+                  pageStatus === StatusEnum.TYPE_INIT ?
+                    '等待麦克风启动完成...'
+                    :
+                    pageStatus === StatusEnum.TYPE_OPEN ?
+                      'Listening...'
+                      :
+                      pageStatus === StatusEnum.TYPE_WAIT_TRANSLATION_RESULT ||
+                      pageStatus === StatusEnum.TYPE_WAIT_ANSWER ||
+                      pageStatus === StatusEnum.TYPE_TRANSLATION_OVER ?
+                        '处理中，请稍后...'
+                        :
+                        pageStatus === StatusEnum.TYPE_PLAY_ANSWER_AUDIO ?
+                          'Speak or click Interrupt'
+                          :
+                          ''
+              }
+          </Text>
+        </TouchableOpacity>
+        {/* {
           <>
             <View style={styles.voiceAnimate}>
               <View style={[styles.voiceItem]}></View>
@@ -318,34 +561,46 @@ const OralPracticeScreen: React.FC = () => {
               <View style={[styles.voiceItem, {height: 18}]}></View>
               <View style={[styles.voiceItem, {height: 15}]}></View>
             </View>
-            <Text style={styles.statusText}>Listening...</Text>
-          </>
-          :
-          <View style={{alignItems: 'center'}}>
-            <Text>
-              <FontAwesome6 name='stop' size={20} color={'#85F380'}/>
-            </Text>
             <Text style={styles.statusText}>
-              Speak or click Interrupt
+              Listening...
             </Text>
-          </View>
-        }
+          </>
+        } */}
       </View>
       <View style={styles.optionView}>
         {/* 语音按钮 */}
-        <TouchableOpacity
-          activeOpacity={0.8}
-          style={styles.btnNew}
-          onPress={() => setIsAnimating(!isAnimating)}
-        >
-            <Image source={require('../../../assets/images/SpeakerMode_Speak.png')} style={styles.btnImg}/>
-        </TouchableOpacity>
+        <SpeakBtn
+          ref={speakBtnRef}
+          beforeLanguage="zh"
+          afterLanguage="en"
+          disabled={
+            pageStatus === StatusEnum.TYPE_WAIT_ANSWER ||
+            pageStatus === StatusEnum.TYPE_TRANSLATION_OVER ||
+            pageStatus === StatusEnum.TYPE_WAIT_TRANSLATION_RESULT
+          }
+          tellResult={(data) => {
+            tellResultHandle(data)
+          }}
+          statusChange={(status) => {
+            console.log('status------', status);
+            setPageStatus(status)
+          }}
+          renderContent={() => {
+            return (
+              <View style={styles.btnNew}>
+                  <Image source={require('../../../assets/images/SpeakerMode_Speak.png')} style={styles.btnImg}/>
+              </View>
+            )
+          }}
+
+        />
         
         {/* 挂断按钮 */}
         <TouchableOpacity
           style={styles.btnNew}
           activeOpacity={0.8}
-          onPress={() => setIsAnimating(!isAnimating)}
+          onPress={() => phoneOff()}
+          // onPress={() => setIsAnimating(!isAnimating)}
         >
             <Text>
               <Ionicons name='close-outline' size={46} color={'#EA4335'}/>
@@ -458,6 +713,10 @@ const styles = StyleSheet.create({
   msgTextOther: {
     color: '#ffffff',
   },
+  waitLoadImg: {
+    width: scaleSize(20),
+    height: scaleSize(20),
+  },
 
   ring: {
     width: 190,
@@ -501,6 +760,7 @@ const styles = StyleSheet.create({
   voiceAnimate: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
     gap: 2,
     height: 40,
   },

@@ -7,6 +7,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { MessageModalProvider } from './contexts/MessageModalContext';
 import { useAppStore, useUserStore } from '@/store';
 import MessageModalRegister from '@/components/MessageModalRegister';
+import { Provider as PaperProvider} from 'react-native-paper';
 
 const App = () => {
   React.useEffect(() => {
@@ -25,20 +26,22 @@ const App = () => {
     $spacing: 32,
   });
   return (
-    <LanguageProvider>
-      <SafeAreaProvider>
-        {/* 透明沉浸式状态栏设置 */}
-        <StatusBar
-          translucent
-          backgroundColor="transparent"
-          barStyle="light-content" // 或 dark-content 看界面颜色
-        />
-        <MessageModalProvider>
-          <AppNavigator />
-          <MessageModalRegister/>
-        </MessageModalProvider>
-      </SafeAreaProvider>
-    </LanguageProvider>
+    <PaperProvider>
+      <LanguageProvider>
+        <SafeAreaProvider>
+          {/* 透明沉浸式状态栏设置 */}
+          <StatusBar
+            translucent
+            backgroundColor="transparent"
+            barStyle="light-content" // 或 dark-content 看界面颜色
+          />
+          <MessageModalProvider>
+            <AppNavigator />
+            <MessageModalRegister/>
+          </MessageModalProvider>
+        </SafeAreaProvider>
+      </LanguageProvider>
+    </PaperProvider>
   );
 };
 
