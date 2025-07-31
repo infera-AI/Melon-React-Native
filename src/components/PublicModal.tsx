@@ -11,12 +11,14 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 type Props = {
   visible: boolean;
+  backdropOpacity?: number;
   bottomSafeBgColor?: string; // 设置底部安全区域颜色，防止安全区域颜色不一致 注： 不设置，外部调用方兼容
   renderContent?: () => JSX.Element;
   onBackdropPress?: (() => void) | null | undefined; // 点击背景关闭回调
 };
 const PublicModal: React.FC<Props> = ({
   visible = false,
+  backdropOpacity = 0.4,
   bottomSafeBgColor = 'transparent',
   renderContent = () => <View/>,
   onBackdropPress = null,
@@ -54,7 +56,7 @@ const PublicModal: React.FC<Props> = ({
       onBackdropPress={bgClose}  // 点击背景关闭
       animationIn="slideInUp"
       animationOut="slideOutDown"
-      backdropOpacity={0.4}
+      backdropOpacity={backdropOpacity}
       backdropTransitionOutTiming={1} // 避免关闭时mask闪
       hideModalContentWhileAnimating={true} // 内容在动画过程中隐藏
       style={{

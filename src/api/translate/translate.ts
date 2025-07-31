@@ -124,3 +124,13 @@ export function sendMsgToAI(params: any){
       params
     );
 }
+
+/**
+ * 发送消息给语音助手
+ */
+export function translationText(params: any){
+    return http.post<any>(
+    API_ENDPOINTS.TRANSLATE.TRANSLATION_TEXT,
+      params
+    );
+}

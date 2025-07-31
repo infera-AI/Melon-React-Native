@@ -321,7 +321,7 @@ const ImageTranslationScreen: React.FC = () => {
       {/* loading */}
       <FullScreenLoader
         visible={loading}
-        text="请稍后..."
+        text="请稍候..."
       />
     </View>
   );

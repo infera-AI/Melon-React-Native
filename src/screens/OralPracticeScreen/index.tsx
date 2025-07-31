@@ -73,7 +73,7 @@ const OralPracticeScreen: React.FC = () => {
   const rotateAnimRef = useRef<Animated.CompositeAnimation | null>(null);
 
   useEffect(() => {
-    if (pageStatus === StatusEnum.TYPE_WAIT_ANSWER) {
+    if (pageStatus === StatusEnum.TYPE_WAIT_ANSWER || pageStatus === StatusEnum.TYPE_TRANSLATION_OVER) {
       
       msgLoadRotateAnim.setValue(0)
       const loopAnim = Animated.loop(
@@ -304,20 +304,16 @@ const OralPracticeScreen: React.FC = () => {
         ...chatList, 
         {
           role: 'user',
-          msg: data?.translated_text
+          msg: data?.source_text
         },
         {
           role: 'wait',
         }
       ])
-      let params: any = {}
-      if (data?.translated_audio_url) {
-        params.audio_url = data?.translated_audio_url
-      } else if (data?.translated_text) {
-        params.text_message = data?.translated_text
-      }
       // 发送消息
-      sendMsgToAI(params).then((rsp) => {
+      sendMsgToAI({
+        text_message: data?.source_text
+      }).then((rsp) => {
         console.log('rsp------', rsp);
         if (rsp) {
           if (rsp?.assistant_reply_audio_url) {
@@ -539,7 +535,7 @@ const OralPracticeScreen: React.FC = () => {
                       pageStatus === StatusEnum.TYPE_WAIT_TRANSLATION_RESULT ||
                       pageStatus === StatusEnum.TYPE_WAIT_ANSWER ||
                       pageStatus === StatusEnum.TYPE_TRANSLATION_OVER ?
-                        '处理中，请稍后...'
+                        '处理中，请稍候...'
                         :
                         pageStatus === StatusEnum.TYPE_PLAY_ANSWER_AUDIO ?
                           'Speak or click Interrupt'
@@ -571,8 +567,7 @@ const OralPracticeScreen: React.FC = () => {
         {/* 语音按钮 */}
         <SpeakBtn
           ref={speakBtnRef}
-          beforeLanguage="zh"
-          afterLanguage="en"
+          onlyRecognition={true}
           disabled={
             pageStatus === StatusEnum.TYPE_WAIT_ANSWER ||
             pageStatus === StatusEnum.TYPE_TRANSLATION_OVER ||
@@ -613,7 +608,7 @@ const OralPracticeScreen: React.FC = () => {
       
       <FullScreenLoader
         visible={loading}
-        text="请稍后..."
+        text={t('translate_screen.loading_text')}
         timeout={5000}
         onTimeout={() => setLoading(false)}
       />

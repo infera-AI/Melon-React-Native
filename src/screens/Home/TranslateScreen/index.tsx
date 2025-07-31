@@ -23,6 +23,7 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import LangSelectCard from '@/components/LangSelectCard'
 import type { Language } from '@/i18n/languages';
 import { scaleSize, scaleFont } from '@/utils/scale';
+import DeviceInfo from 'react-native-device-info';
 
 import { translateText } from '@/api/translate'
 
@@ -52,13 +53,24 @@ const TranslateScreen: React.FC = () => {
   const textInputRef = useRef<TextInput>(null);
 
   // 占位点击事件
-  const handlePress = (name: string) => () => {
+  const handlePress = (name: string) => async () => {
     // TODO: 实现具体功能
     // console.log(`${name} pressed`);
     if (name === 'SpeakerMode') {
       navigation.navigate('Chat')
     } else if (name === 'HeadphoneMode') {
-      navigation.navigate('HeadphoneMode')
+      // @ts-ignore
+      DeviceInfo.isHeadphonesConnected().then((enabled) => {
+        // true or false
+        console.log(enabled ? '耳机已连接' : '未连接耳机');
+        if (enabled) {
+          navigation.navigate('HeadphoneMode')
+        } else {
+          show({
+            message: '请连接您的耳机'
+          })
+        }
+      });
     } else if (name === 'ListeningMode') {
       navigation.navigate('ListeningMode')
     } else if (name === 'DocumentTranslation') {

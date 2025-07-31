@@ -24,9 +24,10 @@
     "audio_translation": "音频翻译",
     "image_translation": "图像翻译",
     "quice_translation_placeholder": "输入您想要翻译的内容",
-    "loading_text": "请稍后...",
+    "loading_text": "请稍候...",
     "input_no_value": "请输入内容",
-    "quick_translation_success": "翻译成功"
+    "quick_translation_success": "翻译成功",
+    "hold_btn": "按住"
   },
   "auth_screen": "登录页面",
   "music_screen": "音乐页面",

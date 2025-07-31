@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		048DA7642E3BFF9E00FA95BE /* HeadsetDetection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 048DA7632E3BFF9E00FA95BE /* HeadsetDetection.swift */; };
+		048DA7662E3C000000FA95BE /* HeadsetDetectionBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = 048DA7652E3C000000FA95BE /* HeadsetDetectionBridge.m */; };
 		04F414372E3B1F5E00D77B0A /* AudioSessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04F414362E3B1F5E00D77B0A /* AudioSessionManager.swift */; };
 		04F4143A2E3B206500D77B0A /* AudioSessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 04F414392E3B206500D77B0A /* AudioSessionManager.m */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
@@ -17,6 +19,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		048DA7632E3BFF9E00FA95BE /* HeadsetDetection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeadsetDetection.swift; sourceTree = "<group>"; };
+		048DA7652E3C000000FA95BE /* HeadsetDetectionBridge.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HeadsetDetectionBridge.m; sourceTree = "<group>"; };
 		04F414362E3B1F5E00D77B0A /* AudioSessionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioSessionManager.swift; sourceTree = "<group>"; };
 		04F414382E3B206500D77B0A /* Melon-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Melon-Bridging-Header.h"; sourceTree = "<group>"; };
 		04F414392E3B206500D77B0A /* AudioSessionManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AudioSessionManager.m; sourceTree = "<group>"; };
@@ -55,6 +59,8 @@
 				04F414362E3B1F5E00D77B0A /* AudioSessionManager.swift */,
 				04F414392E3B206500D77B0A /* AudioSessionManager.m */,
 				04F414382E3B206500D77B0A /* Melon-Bridging-Header.h */,
+				048DA7632E3BFF9E00FA95BE /* HeadsetDetection.swift */,
+				048DA7652E3C000000FA95BE /* HeadsetDetectionBridge.m */,
 			);
 			name = Melon;
 			sourceTree = "<group>";
@@ -221,9 +227,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Melon/Pods-Melon-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Melon/Pods-Melon-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -238,9 +248,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Melon/Pods-Melon-resources-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Copy Pods Resources";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Melon/Pods-Melon-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -256,7 +270,9 @@
 			files = (
 				761780ED2CA45674006654EE /* AppDelegate.swift in Sources */,
 				04F414372E3B1F5E00D77B0A /* AudioSessionManager.swift in Sources */,
+				048DA7642E3BFF9E00FA95BE /* HeadsetDetection.swift in Sources */,
 				04F4143A2E3B206500D77B0A /* AudioSessionManager.m in Sources */,
+				048DA7662E3C000000FA95BE /* HeadsetDetectionBridge.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -390,10 +406,7 @@
 					"-DFOLLY_CFG_NO_COROUTINES=1",
 					"-DFOLLY_HAVE_CLOCK_GETTIME=1",
 				);
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					" ",
-				);
+				OTHER_LDFLAGS = "$(inherited)  ";
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) DEBUG";
@@ -462,10 +475,7 @@
 					"-DFOLLY_CFG_NO_COROUTINES=1",
 					"-DFOLLY_HAVE_CLOCK_GETTIME=1",
 				);
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					" ",
-				);
+				OTHER_LDFLAGS = "$(inherited)  ";
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				USE_HERMES = true;

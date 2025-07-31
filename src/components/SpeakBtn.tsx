@@ -54,11 +54,14 @@ type Props = {
   beforeLanguage?: string; // 主语言
   afterLanguage?: string; // 翻译成什么语言
   disabled?: boolean,
+  voiceWaveBgColor?: string,
+  onlyRecognition?: boolean, // 是否仅仅识别语音， 不做翻译（用在口语练习中），所以也不用传beforeLanguage和afterLanguage，
   // backgroundColor?: string;
   // spinnerSize?: 'small' | 'large';
   renderContent?: () => JSX.Element;
   tellResult?: (data: any) => void;
   statusChange?: (status: StatusEnum) => void;
+  isDownCallBack?: (isDownStatus: boolean) => void;
   // timeout?: number;
   // beforeSelectBack?: (code: Language) => void; // 主语言选择回调
   // afterSelectBack?: (code: Language) => void; // 目标语言选择回调
@@ -83,9 +86,12 @@ let ws: any = null
 const SpeakBtn = forwardRef<SpeakBtnRef, Props>(({
   beforeLanguage = 'en',
   afterLanguage = 'en',
+  voiceWaveBgColor = '#262626',
+  onlyRecognition = false,
   renderContent = () => <View/>,
   tellResult = () => null,
   statusChange = () => null,
+  isDownCallBack = () => null,
   disabled = false
   // beforeSelectBack = null,
   // afterSelectBack = null
@@ -103,6 +109,10 @@ const SpeakBtn = forwardRef<SpeakBtnRef, Props>(({
   const [isDown, setIsDown] = useState(false)
 
   const [pcmData, setPcmData] = useState<string>('');
+
+  useEffect(() => {
+    isDownCallBack(isDown)
+  }, [isDown])
 
   const openMic = async () => {
     if (Platform.OS === 'android') {
@@ -122,9 +132,14 @@ const SpeakBtn = forwardRef<SpeakBtnRef, Props>(({
     setVoiceStatus(StatusEnum.TYPE_INIT)
     socketStatusRef.current = WSStatus.INIT
     setSocketStatus(WSStatus.INIT)
-    // 连接websocket
+    let wsUri
+    if (onlyRecognition) {
+      wsUri = `ws://218.244.147.232:80/ws/assistant/send_audio_message?token=${token}`
+    } else {
+      wsUri = `ws://218.244.147.232:80/ws/conversations/send_audio_message?token=${token}`
+    }
     ws = new WebSocketWrapper({
-      url: `ws://218.244.147.232:80/ws/conversations/send_audio_message?token=${token}`,
+      url: wsUri,
       // 连接成功回调
       onOpen: () => {
         console.log('连接成功----');
@@ -133,12 +148,23 @@ const SpeakBtn = forwardRef<SpeakBtnRef, Props>(({
           destroy()
           return
         }
-        ws.send({
-          "format": 'PCM',
-          "sample_rate": 16000,
-          "source_language": beforeLanguage,
-          "target_language": afterLanguage
-        });
+        let param
+        if (onlyRecognition) {
+          param = {
+            "format": 'PCM',
+            "sample_rate": 16000,
+          }
+        } else {
+          param = {
+            "format": 'PCM',
+            "sample_rate": 16000,
+            "source_language": beforeLanguage,
+            "target_language": afterLanguage
+          }
+        }
+        console.log('发送首条消息-----', param);
+        
+        ws.send(param);
         setVoiceStatus(StatusEnum.TYPE_OPEN)
         setSocketStatus(WSStatus.OPEN)
         socketStatusRef.current = WSStatus.OPEN
@@ -147,9 +173,9 @@ const SpeakBtn = forwardRef<SpeakBtnRef, Props>(({
       // 收到消息回调
       onMessage: (data) => {
         console.log('收到消息:', data);
-        if (data?.type) { // type存在时，才是服务端给我发的消息
+        if (data.hasOwnProperty('status') && data.hasOwnProperty('error_msg')) { // status 和 error_msg存在时，才是服务端给我发的消息
           if (data?.status === 'success') {
-            // setVoiceStatus(StatusEnum.TYPE_TRANSLATION_OVER)
+            setVoiceStatus(StatusEnum.TYPE_TRANSLATION_OVER)
             tellResult(data)
           } else {
             setVoiceStatus(StatusEnum.TYPE_NORMAL)
@@ -330,7 +356,7 @@ const SpeakBtn = forwardRef<SpeakBtnRef, Props>(({
       {
         socketStatus === WSStatus.OPEN && isDown &&
         <Portal>
-          <View style={styles.voiceView}>
+          <View style={[styles.voiceView, {backgroundColor: voiceWaveBgColor}]}>
             <VoiceWave
               pcmData={pcmData}
               barCount={15}

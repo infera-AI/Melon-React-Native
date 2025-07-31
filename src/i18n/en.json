@@ -26,7 +26,8 @@
     "quice_translation_placeholder": "Press and hold the voice button to speak, release to send.",
     "loading_text": "Please wait a moment ...",
     "input_no_value": "Please enter the content",
-    "quick_translation_success": "Translation successful"
+    "quick_translation_success": "Translation successful",
+    "hold_btn": "Hold"
   },
   "auth_screen": "Auth Screen",
   "music_screen": "Music Screen",
