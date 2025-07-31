@@ -36,7 +36,7 @@ const AppNavigator = () => {
   return (
     <NavigationContainer theme={MyTheme}>
       <Stack.Navigator
-        initialRouteName="Splash"
+        initialRouteName="MainApp"
         screenOptions={{
           headerShown: false, // 由页面自定义 header
         }}
