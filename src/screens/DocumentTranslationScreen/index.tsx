@@ -9,7 +9,8 @@ import {
   TouchableWithoutFeedback,
   Image,
   ScrollView,
-  Animated
+  Animated,
+  Platform
 } from 'react-native';
 import { useLanguage } from '@/contexts/LanguageContext';
 import EStyleSheet from 'react-native-extended-stylesheet';
@@ -22,14 +23,21 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Octicons';
 import MaterialDesignIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import type { Language } from '@/i18n/languages';
+import { useMessageModal } from '@/contexts/MessageModalContext';
+import { scaleSize, scaleFont } from '@/utils/scale';
+import { pick, isKnownType } from '@react-native-documents/picker';
+import {
+  translateDocument,
+  getTranslationTask
+} from '@/api/translate/translate'
 
 import PublicModal from '@/components/PublicModal'
+import LangSelectCard from '@/components/LangSelectCard'
 
 const { width, height } = Dimensions.get('window');
 const pageLR = 16;
 const contentWidth = width - pageLR * 2
-
-const contentMaxHeight = height * 0.7
 
 const downloadModalHeight = height * 0.4
 
@@ -45,11 +53,37 @@ const OriginalSwitchEnum = {
   TYPE_TRANSLATION: 'translation', // 译文
 }
 
+const MAX_FILE_SIZE_MB = 100; // 文件大小限制（M）
+
+const iosTypes = [
+  'com.adobe.pdf',
+  'com.microsoft.word.doc',
+  'org.openxmlformats.wordprocessingml.document',
+  'com.microsoft.excel.xls',
+  'org.openxmlformats.spreadsheetml.sheet',
+  'com.microsoft.powerpoint.ppt',
+  'org.openxmlformats.presentationml.presentation',
+];
+
+const androidTypes = [
+  'application/pdf',
+  'application/msword', // .doc
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document', // .docx
+  'application/vnd.ms-excel', // .xls
+  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // .xlsx
+  'application/vnd.ms-powerpoint', // .ppt
+  'application/vnd.openxmlformats-officedocument.presentationml.presentation', // .pptx
+]
+
+const fileTypes = Platform.select({
+  ios: iosTypes,
+  android: androidTypes,
+});
+
 const DocumentTranslationScreen: React.FC = () => {
 
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { t } = useLanguage();
-  const [langModalVisible, setLangModalVisible] = useState(false);
   const [loading, setLoading] = useState(false);
   const [uploadStatus, setUploadStatus] = useState(UploadStatusEnum.TYPE_NORMAL);
 
@@ -59,6 +93,14 @@ const DocumentTranslationScreen: React.FC = () => {
 
   const insets = useSafeAreaInsets(); // 获取安全区域距离
 
+  const { language } = useLanguage();
+  const { show } = useMessageModal()
+
+  const [beforeLangSelect, setBeforeLangSelect] = useState(language)
+  const [afterLangSelect, setAfterLangSelect] = useState<Language>('en')
+  const [fileName, setFileName] = useState<string>('')
+  const [taskId, setTaskId] = useState<string>('')
+
   // 占位点击事件
   const handlePress = (name: string) => () => {
     // TODO: 实现具体功能
@@ -66,12 +108,94 @@ const DocumentTranslationScreen: React.FC = () => {
     // setLoading(true)
   };
 
-  const selectFileBtnClick = () => {
-    setUploadStatus(UploadStatusEnum.TYPE_SUCCESS)
+  // 选择文件
+  const selectFileBtnClick = async () => {
+    try {
+      const res = await pick({
+        type: fileTypes,
+        allowMultiSelection: false,
+      });
+      if (androidTypes.includes(res[0]?.type ?? '')) {
+        console.log('文件格式正确');
+      } else {
+        show({
+          message: '文件类型不支持，请重新选择'
+        })
+        return
+      }
+
+      let totalSizeBytes = 0;
+
+      res.forEach((file) => {
+        totalSizeBytes += file.size ?? 0;
+      });
+
+      const totalSizeMB = totalSizeBytes / (1024 * 1024);
+
+      if (totalSizeMB  > MAX_FILE_SIZE_MB) {
+        console.warn(`文件大小不能超过 ${MAX_FILE_SIZE_MB}MB，请重新选择`);
+        return;
+      }
+
+      console.log('✅ 选中的文件:', res);
+      // 每个文件结构：
+      // {
+      //   name: 'example.pdf',
+      //   size: 123456, // 字节数
+      //   uri: 'file://...',
+      //   type: 'application/pdf',
+      //   fileCopyUri: 'file://...' // copyTo 后稳定可用
+      // }
+
+      // ✅ 在这里你可以处理上传等逻辑
+      if (res && res.length > 0) {
+        setLoading(true)
+        const file = res[0];
+        translateDocument({
+          source_language: 'en',
+          target_language: 'zh',
+          file: {
+            uri: file.uri,
+            name: file.name ?? Date.now() + '',
+            type: file.type || 'application/octet-stream', // 兜底
+          },
+        }).then(response => {
+          console.log('上传成功', response);
+          setLoading(false)
+          setFileName(file.name ?? Date.now() + '')
+          setTaskId(response.task_id)
+          setUploadStatus(UploadStatusEnum.TYPE_SUCCESS)
+        }).catch(err => {
+          setLoading(false)
+          console.error('上传失败', err);
+        });
+      }
+
+    } catch (err) {
+        console.log('用户取消选择');
+        // console.error('文件选择出错:', err);
+    }
   }
+
+  // 开始翻译按钮
   const startTranslationBtnClick = () => {
     setUploadStatus(UploadStatusEnum.TYPE_TRANSLATING)
+    getTranslationTask(taskId).then((rsp) => {
+      console.log('rsp----', rsp);
+      
+      }).catch(() => {
+
+      })
+    
   }
+
+  // 轮询获取翻译文档结果
+  const loopGetTranslationResultByTaskId = () => {
+    // setTimeout(() => {
+      
+    // }, 3000)
+  }
+
   const cancelTranslationBtnClick = () => {
     // setUploadStatus(UploadStatusEnum.TYPE_NORMAL)
     setUploadStatus(UploadStatusEnum.TYPE_TRANSLATION_SUCCESS)
@@ -161,7 +285,7 @@ const DocumentTranslationScreen: React.FC = () => {
                 />
               </View>
               <Text style={[styles.uploadTipText, { marginTop: 24 }]}>
-                {`Cloud Virtual Machine Rental Contract\n(Template).docx`}
+                {`Cloud Virtual Machine Rental Contract\n${fileName}`}
               </Text>
               <View style={{flex: 1, justifyContent: 'flex-end', marginBottom: 40}}>
                 <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'center'}}>
@@ -240,6 +364,7 @@ const DocumentTranslationScreen: React.FC = () => {
                 opacity: uploadStatus === UploadStatusEnum.TYPE_SUCCESS ? 1 : 0,
                 pointerEvents: uploadStatus === UploadStatusEnum.TYPE_TRANSLATING ? 'none' : 'auto'
               }}
+              onPress={selectFileBtnClick}
             >
               <View style={styles.reUploadBtn}>
                 <Text style={{
@@ -330,34 +455,21 @@ const DocumentTranslationScreen: React.FC = () => {
       {
         uploadStatus !== UploadStatusEnum.TYPE_TRANSLATION_SUCCESS &&
         <View style={styles.langSelectRow}>
-          <View style={styles.langSelectCard}>
-            <TouchableOpacity style={styles.langSelectItem} onPress={() => setLangModalVisible(true)}>
-              <Text style={styles.langSelectText}>Chinese</Text>
-              <Image source={require('../../../assets/images/Home_Translate_arrow.png')} style={styles.langSelectArrow}/>
-            </TouchableOpacity>
-            <View style={styles.langSwitchIconBox}>
-              <Image source={require('../../../assets/images/Home_Translate_switch.png')} style={styles.langSwitchArrow} resizeMode='contain'/>
-            </View>
-            <TouchableOpacity style={styles.langSelectItem} onPress={() => setLangModalVisible(true)}>
-              <Text style={styles.langSelectText}>English</Text>
-              <Image source={require('../../../assets/images/Home_Translate_arrow.png')} style={styles.langSelectArrow}/>
-            </TouchableOpacity>
-          </View>
+          <LangSelectCard
+            beforeLanguage={beforeLangSelect}
+            afterLanguage={afterLangSelect}
+            textSize={14}
+            beforeSelectBack={(code) => {
+              console.log('beforeSelectBack---', code);
+              setBeforeLangSelect(code)
+            }}
+            afterSelectBack={(code) => {
+              console.log('afterSelectBack---', code);
+              setAfterLangSelect(code)
+            }}
+          />
         </View>
       }
-      
-      {/* 语言选择弹窗：底部弹出，高度400，方便后续自定义 */}
-      <PublicModal
-        visible={langModalVisible}
-        onBackdropPress={() => setLangModalVisible(false)}
-        renderContent={() => {
-          return (
-            <View style={styles.modalContent}>
-              <Text>jshjhj</Text>
-            </View>
-          )
-        }}
-      />
 
       {/* 下载弹窗 */}
       <PublicModal
@@ -466,7 +578,7 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    maxHeight: contentMaxHeight,
+    maxHeight: scaleSize(500),
     width: contentWidth,
     marginLeft: pageLR,
     backgroundColor: '#262626',
@@ -580,50 +692,12 @@ const styles = StyleSheet.create({
     marginLeft: 10,
   },
   langSelectRow: {
-    width: contentWidth,
+    alignSelf: 'stretch',
     marginLeft: pageLR,
     flexDirection: 'row',
     alignItems: 'center',
     marginTop: 20,
-  },
-  langSelectCard: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#232325',
-    borderRadius: 14,
-    marginRight: 90,
-    paddingVertical: 2,
-    paddingHorizontal: 0,
-  },
-  langSelectItem: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  langSelectText: {
-    color: '#fff',
-    fontSize: 14,
-    marginRight: 8,
-    fontWeight: '500',
-  },
-  langSelectArrow: {
-    width: 10,
-    aspectRatio: 1.67,
-  },
-  langSwitchIconBox: {
-    width: 'auto',
-    alignItems: 'center',
-  },
-  langSwitchArrow: {
-    width: 16,
-  },
-  modalContent: {
-    backgroundColor: '#fff',
-    borderTopLeftRadius: 10,
-    borderTopRightRadius: 10,
-    height: 300,
+    marginRight: scaleSize(60),
   },
   downloadModalContent: {
     backgroundColor: '#262626',

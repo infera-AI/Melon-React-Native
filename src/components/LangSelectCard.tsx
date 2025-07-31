@@ -25,6 +25,7 @@ import FontAwesome6 from 'react-native-vector-icons/FontAwesome6';
 type Props = {
   beforeLanguage?: string; // 主语言
   afterLanguage?: string; // 翻译成什么语言
+  textSize?: number,
   // backgroundColor?: string;
   // spinnerSize?: 'small' | 'large';
   // customIndicator?: React.ReactNode;
@@ -40,9 +41,10 @@ const modalHeight = height * 0.4
 
 const pageLR = 16;
 
-const FullScreenLoader: React.FC<Props> = ({
+const LangSelectCard: React.FC<Props> = ({
   beforeLanguage = 'en',
   afterLanguage = 'en',
+  textSize = 14,
   beforeSelectBack = null,
   afterSelectBack = null
 }) => {
@@ -82,7 +84,7 @@ const FullScreenLoader: React.FC<Props> = ({
       <View style={styles.langSelectCard}>
         <TouchableOpacity style={styles.langSelectItem} onPress={() => openSelectLang('before')}>
           <View style={styles.langSelectTextView}>
-            <Text style={styles.langSelectText} numberOfLines={1} ellipsizeMode={'tail'}>
+            <Text style={[styles.langSelectText, {fontSize: scaleFont(textSize)}]} numberOfLines={1} ellipsizeMode={'tail'}>
               {beforeLanguage ? t(`languageNames.${beforeLanguage}`) : ''}
             </Text>
             <Image source={require('../../assets/images/Home_Translate_arrow.png')} style={styles.langSelectArrow}/>
@@ -93,7 +95,7 @@ const FullScreenLoader: React.FC<Props> = ({
         </View>
         <TouchableOpacity style={styles.langSelectItem} onPress={() => openSelectLang('after')}>
           <View style={styles.langSelectTextView}>
-            <Text style={styles.langSelectText} numberOfLines={1} ellipsizeMode={'tail'}>
+            <Text style={[styles.langSelectText, {fontSize: scaleFont(textSize)}]} numberOfLines={1} ellipsizeMode={'tail'}>
               {afterLanguage ? t(`languageNames.${afterLanguage}`) : ''}
             </Text>
             <Image source={require('../../assets/images/Home_Translate_arrow.png')} style={styles.langSelectArrow}/>
@@ -214,7 +216,6 @@ const styles = StyleSheet.create({
   },
   langSelectText: {
     color: '#fff',
-    fontSize: scaleFont(15),
     flexShrink: 1,
     flexGrow: 0,
     minWidth: 0,
@@ -297,4 +298,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default FullScreenLoader;
+export default LangSelectCard;

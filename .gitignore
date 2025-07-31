@@ -22,7 +22,7 @@ DerivedData
 *.xcuserstate
 **/.xcode.env.local
 *-lock.json
-.lock
+*.lock
 npm_cache_tmp/
 
 # Android/IntelliJ
