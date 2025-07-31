@@ -20,7 +20,6 @@ import HelpFeedbackScreen from './HelpFeedbackScreen';
 import ProductFeedbackScreen from './ProductFeedbackScreen';
 import AboutScreen from './AboutScreen';
 import CopyrightStatementScreen from './CopyrightStatementScreen';
-import OptimizVoiceScreen from './OptimizVoiceScreen';
 // import ProfileResetPasswordScreen from './ProfileResetPasswordScreen';
 
 export type ProfileStackParamList = {
@@ -29,7 +28,7 @@ export type ProfileStackParamList = {
   OfflineLanguage: undefined;
   VoiceprintManagement: undefined;
   CreateVoice: undefined;
-  Recording: undefined;
+  Recording: { locale: string };
   GeneratingVoice: undefined;
   LanguageVoice: undefined;
   AccountSecurity: undefined;
@@ -76,7 +75,6 @@ const ProfileNavigator: React.FC = () => {
       <Stack.Screen name="ProductFeedback" component={ProductFeedbackScreen} />
       <Stack.Screen name="About" component={AboutScreen} />
       <Stack.Screen name="CopyrightStatement" component={CopyrightStatementScreen} />
-      <Stack.Screen name="OptimizVoice" component={OptimizVoiceScreen} />
       {/* <Stack.Screen name="ProfileResetPassword" component={ProfileResetPasswordScreen} /> */}
     </Stack.Navigator>
   );

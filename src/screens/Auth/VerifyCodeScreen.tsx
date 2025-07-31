@@ -18,7 +18,6 @@ import theme from '../../utils/theme';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { getLoginCodeApi, loginWithDevice, registerWithToken, verifyCode } from '../../api/login/auth';
 import { useMessageModal } from '../../contexts/MessageModalContext';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useUserStore } from '../../store';
 import { getDeviceInfo } from '../../utils/helpers';
 import FullScreenLoader from '../../components/FullScreenLoader';
@@ -155,12 +154,12 @@ const VerifyCodeScreen: React.FC = () => {
        navigation.navigate('ResetPassword');
      } else {
        show({
-        message: "login failed",
+        message: t('verify_code.login_failed'),
       });
      }
          } catch (error:any) {
       show({
-        message: `登录失败: ${error.message || '未知错误'}`,
+        message: `${t('verify_code.login_failed')}: ${error.message || t('common.unknown_error')}`,
       });
      }
   }
@@ -179,7 +178,7 @@ const VerifyCodeScreen: React.FC = () => {
       login()
     } catch (error: any) {
       show({
-        message: `注册失败: ${error.message || '未知错误'}`,
+        message: `${t('verify_code.register_failed')}: ${error.message || t('common.unknown_error')}`,
       });
     }
    
@@ -206,12 +205,12 @@ const VerifyCodeScreen: React.FC = () => {
         }else{
           console.log('验证码校验失败', responseData);
           show({
-            message: "verification code is incorrect"+responseData.message,
+            message: t('verify_code.verification_code_incorrect') + responseData.message,
           });
         }
       } catch (error: any) {
         show({
-          message: `验证码校验失败: ${error.message || '未知错误'}`,
+          message: `${t('verify_code.verification_failed')}: ${error.message || t('common.unknown_error')}`,
         });
       } finally {
         setIsConfirming(false);
@@ -220,10 +219,6 @@ const VerifyCodeScreen: React.FC = () => {
   };
 
   const handleBack = () => {
-    navigation.goBack();
-  };
-
-  const handleChangeAccount = () => {
     navigation.goBack();
   };
 
@@ -246,7 +241,7 @@ const VerifyCodeScreen: React.FC = () => {
 
           {/* 副标题 */}
           <Text style={styles.subtitle}>
-          Verification code has been sent to your {type === 'phone' ? 'phone' : 'email'}
+            {type === 'phone' ? t('verify_code.subtitle') : t('verify_code.subtitle_email')}
           </Text>
           <Text style={styles.accountText}> {account||'18888888888'} </Text>
 
@@ -277,7 +272,7 @@ const VerifyCodeScreen: React.FC = () => {
             onPress={handleConfirm}
             disabled={code.join('').length !== CODE_LENGTH || isConfirming}
           >
-            <Text style={[styles.confirmButtonText, code.join('').length === CODE_LENGTH ?  null: styles.disableButtonText]}>Next</Text>
+            <Text style={[styles.confirmButtonText, code.join('').length === CODE_LENGTH ?  null: styles.disableButtonText]}>{t('verify_code.next')}</Text>
           </TouchableOpacity>
 
           {/* 验证码倒计时与重新获取 */}
@@ -302,7 +297,7 @@ const VerifyCodeScreen: React.FC = () => {
           </TouchableOpacity>
           <FullScreenLoader
             visible={isConfirming}
-            text="Please wait..."
+            text={t('verify_code.please_wait')}
             timeout={5000}
             onTimeout={() => setIsConfirming(false)}
           />

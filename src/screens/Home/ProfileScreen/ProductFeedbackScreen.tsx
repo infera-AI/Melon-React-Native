@@ -17,6 +17,7 @@ import theme from '../../../utils/theme';
 import { submitFeedback, getFeedbackTypeChoices } from '../../../api/profile/profile';
 import { launchImageLibrary } from 'react-native-image-picker';
 import { useMessageModal } from '@/contexts/MessageModalContext';
+import { useLanguage } from '../../../contexts/LanguageContext';
 
 const normalize = (size: number, based: 'width' | 'height' = 'width') => {
   const { width, height } = require('react-native').Dimensions.get('window');
@@ -46,6 +47,7 @@ const ProductFeedbackScreen: React.FC = () => {
   const [feedbackTypes, setFeedbackTypes] = useState<any[]>([]);
   const [showTypeSelector, setShowTypeSelector] = useState(false);
   const { show } = useMessageModal();
+  const { t } = useLanguage();
 
   // 获取反馈类型列表
   const fetchFeedbackTypes = async () => {
@@ -112,7 +114,7 @@ const ProductFeedbackScreen: React.FC = () => {
 
       if (result.errorCode) {
         console.error('选择图片失败:', result.errorMessage);
-        show({message: '选择图片失败，请重试'});  
+        show({message: t('product_feedback.select_image_failed')});  
         return;
       }
 
@@ -132,7 +134,7 @@ const ProductFeedbackScreen: React.FC = () => {
       }
     } catch (error) {
       console.error('添加截图失败:', error);
-      show({message: '添加截图失败，请重试'});  
+      show({message: t('product_feedback.add_screenshot_failed')});  
     }
   };
 
@@ -143,16 +145,16 @@ const ProductFeedbackScreen: React.FC = () => {
 
   const handleSubmit = async () => {
     if (!feedbackContent.trim()) {
-      show({message: 'Please enter feedback content'});
+      show({message: t('product_feedback.please_enter_feedback_content')});
       return;
     }
     if (feedbackContent.length < 10) {
-      show({message: 'Feedback content cannot be less than 10 characters'});
+      show({message: t('product_feedback.feedback_content_too_short')});
       return;
     }
 
     if (!contactInfo.trim()) {
-      show({message: 'Please enter contact information'});
+      show({message: t('product_feedback.please_enter_contact_information')});
       return;
     }
     
@@ -176,7 +178,7 @@ const ProductFeedbackScreen: React.FC = () => {
       setShowSuccessModal(true);
     } catch (error) {
       console.error('提交反馈失败:', error);
-      show({message: '反馈提交失败，请重试'});  
+      show({message: t('product_feedback.feedback_submit_failed')});  
     }
   };
 
@@ -196,7 +198,7 @@ const ProductFeedbackScreen: React.FC = () => {
               style={styles.backIcon}
             />
           </TouchableOpacity>
-          <Text style={styles.title}>Product Feedback</Text>
+          <Text style={styles.title}>{t('product_feedback.product_feedback')}</Text>
           <View style={styles.headerSpacer} />
         </View>
 
@@ -204,7 +206,7 @@ const ProductFeedbackScreen: React.FC = () => {
         <TouchableOpacity style={styles.feedbackTypeCard} onPress={handleFeedbackTypeSelect}>
           <View style={styles.feedbackTypeContent}>
             <View style={styles.feedbackTypeLeft}>
-              <Text style={styles.feedbackTypeTitle}>Feedback type</Text>
+              <Text style={styles.feedbackTypeTitle}>{t('product_feedback.feedback_type')}</Text>
             </View>
             <View style={styles.feedbackTypeRight}>
               <Text style={styles.feedbackTypeValue}>{feedbackType}</Text>
@@ -218,11 +220,11 @@ const ProductFeedbackScreen: React.FC = () => {
 
         {/* Feedback Content */}
         <View style={styles.sectionContainer}>
-          <Text style={styles.sectionTitle}>Feedback content</Text>
+          <Text style={styles.sectionTitle}>{t('product_feedback.feedback_content')}</Text>
           <View style={styles.feedbackContentContainer}>
             <TextInput
               style={styles.feedbackContentInput}
-              placeholder="Please describe the problem or suggestion you encountered, no less than 10 words."
+              placeholder={t('product_feedback.please_describe_problem')}
               placeholderTextColor="rgba(176, 176, 176, 0.5)"
               value={feedbackContent}
               onChangeText={setFeedbackContent}
@@ -236,11 +238,11 @@ const ProductFeedbackScreen: React.FC = () => {
 
         {/* Contact Information */}
         <View style={styles.sectionContainer}>
-          <Text style={styles.sectionTitle}>Contact information</Text>
+          <Text style={styles.sectionTitle}>{t('product_feedback.contact_information')}</Text>
           <View style={styles.contactInfoContainer}>
             <TextInput
               style={styles.contactInfoInput}
-              placeholder="Please enter your mobile phone number or email address so that we can contact you"
+              placeholder={t('product_feedback.please_enter_contact')}
               placeholderTextColor="rgba(176, 176, 176, 0.5)"
               value={contactInfo}
               onChangeText={setContactInfo}
@@ -255,7 +257,7 @@ const ProductFeedbackScreen: React.FC = () => {
         {/* Related Screenshots */}
         <View style={styles.sectionContainer}>
           <View style={styles.screenshotHeader}>
-            <Text style={styles.sectionTitle}>Related screenshots</Text>
+            <Text style={styles.sectionTitle}>{t('product_feedback.related_screenshots')}</Text>
             <Text style={styles.screenshotCount}>{screenshots.length-9 > 0 ? `${screenshots.length-9} more` : ''}</Text>
           </View>
           <View style={styles.screenshotContainer}>
@@ -285,7 +287,7 @@ const ProductFeedbackScreen: React.FC = () => {
 
         {/* Submit Button */}
         <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
-          <Text style={styles.submitButtonText}>Submit</Text>
+          <Text style={styles.submitButtonText}>{t('product_feedback.submit')}</Text>
         </TouchableOpacity>
       </ScrollView>
 
@@ -305,13 +307,13 @@ const ProductFeedbackScreen: React.FC = () => {
                 </View>
               </View>
               <Text style={styles.modalTitle}>
-                Feedback has been submitted, thank you for your support!
+                {t('product_feedback.feedback_submitted_successfully')}
               </Text>
             </View>
             <View style={styles.modalButtons}>
               <View style={styles.modalSeparator} />
               <TouchableOpacity style={styles.modalButton} onPress={handleFinish}>
-                <Text style={styles.modalButtonText}>Finish</Text>
+                <Text style={styles.modalButtonText}>{t('product_feedback.finish')}</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -328,7 +330,7 @@ const ProductFeedbackScreen: React.FC = () => {
         <View style={styles.modalOverlay}>
           <View style={styles.typeSelectorContainer}>
             <View style={styles.typeSelectorHeader}>
-              <Text style={styles.typeSelectorTitle}>选择反馈类型</Text>
+              <Text style={styles.typeSelectorTitle}>{t('product_feedback.select_feedback_type')}</Text>
               <TouchableOpacity onPress={handleCloseTypeSelector}>
                 <Text style={styles.typeSelectorClose}>✕</Text>
               </TouchableOpacity>

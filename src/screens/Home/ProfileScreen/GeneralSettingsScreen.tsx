@@ -15,6 +15,7 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ProfileStackParamList } from './ProfileNavigator';
 import { useMessageModal } from '@/contexts/MessageModalContext';
+import { useLanguage } from '../../../contexts/LanguageContext';
 
 const normalize = (size: number, based: 'width' | 'height' = 'width') => {
   const { width, height } = require('react-native').Dimensions.get('window');
@@ -34,6 +35,7 @@ const GeneralSettingsScreen: React.FC = () => {
   const [showLoadingModal, setShowLoadingModal] = useState(false);
   const rotateAnim = useRef(new Animated.Value(0)).current;
   const { show } = useMessageModal();
+  const { t } = useLanguage();
   const handleBack = () => {
     navigation.goBack();
   };
@@ -70,7 +72,7 @@ const GeneralSettingsScreen: React.FC = () => {
       setTimeout(() => {
         setCacheSize('0M');
         setShowLoadingModal(false);
-        show({message: 'Cache cleared successfully'});
+        show({message: t('general_settings.cache_cleared_successfully')});
       }, 3000);
   };
 
@@ -85,7 +87,7 @@ const GeneralSettingsScreen: React.FC = () => {
               style={styles.backIcon}
             />
           </TouchableOpacity>
-          <Text style={styles.title}>General settings</Text>
+          <Text style={styles.title}>{t('general_settings.general_settings')}</Text>
           <View style={styles.headerSpacer} />
         </View>
 
@@ -97,7 +99,7 @@ const GeneralSettingsScreen: React.FC = () => {
                 source={require('../../../assets/profile/profile_setting_language.png')} 
                 style={styles.settingIcon}
               />
-              <Text style={styles.settingTitle}>System language selection</Text>
+              <Text style={styles.settingTitle}>{t('general_settings.system_language_selection')}</Text>
             </View>
             <View style={styles.settingRight}>
               <Image 
@@ -116,7 +118,7 @@ const GeneralSettingsScreen: React.FC = () => {
                 source={require('../../../assets/profile/profile_clear_icon.png')} 
                 style={styles.settingIcon}
               />
-              <Text style={styles.settingTitle}>Clear the cache</Text>
+              <Text style={styles.settingTitle}>{t('general_settings.clear_the_cache')}</Text>
             </View>
             <View style={styles.settingRight}>
               <Text style={styles.cacheSize}>{cacheSize}</Text>
@@ -129,7 +131,7 @@ const GeneralSettingsScreen: React.FC = () => {
             </View>
           </View>
           <Text style={styles.cacheDescription}>
-            Temporary data generated during the use of cache will not affect the normal use of Melon.
+            {t('general_settings.cache_description')}
           </Text>
         </View>
       </ScrollView>
@@ -169,7 +171,7 @@ const GeneralSettingsScreen: React.FC = () => {
             </View>
             
             {/* 文本 */}
-            <Text style={styles.loadingText}>Cleaning cache</Text>
+            <Text style={styles.loadingText}>{t('general_settings.cleaning_cache')}</Text>
           </View>
         </View>
       </Modal>

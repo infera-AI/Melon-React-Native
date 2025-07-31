@@ -18,6 +18,7 @@ import { launchImageLibrary, launchCamera, ImagePickerResponse, ImageLibraryOpti
 import { updateProfile } from '../../../api/profile/profile';
 import { AvatarFile } from '../../../api/profile/types';
 import { useMessageModal } from '../../../contexts/MessageModalContext';
+import { useLanguage } from '../../../contexts/LanguageContext';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
@@ -36,6 +37,7 @@ const EditProfileScreen: React.FC = () => {
   const navigation = useNavigation();
   const userInfo = useUserStore((state) => state.userInfo);
   const updateUserInfo = useUserStore((state) => state.updateUserInfo);
+  const { t } = useLanguage();
   
   const [name, setName] = useState(userInfo?.username || '');
   const [avatar, setAvatar] = useState(userInfo?.avatar_url || '');
@@ -103,7 +105,7 @@ const EditProfileScreen: React.FC = () => {
       if (response.didCancel) {
         console.log('User cancelled image picker');
       } else if (response.errorCode) {
-        show({message: 'Failed to pick image'});
+        show({message: t('edit_profile.failed_to_pick_image')});
       } else if (response.assets && response.assets[0]) {
         const selectedImage = response.assets[0];
         if (selectedImage.uri) {
@@ -122,7 +124,7 @@ const EditProfileScreen: React.FC = () => {
         if (hasPermission) {
           launchCamera(options, handleResponse);
         } else {
-          show({message: 'Camera permission is required to take photos'});
+          show({message: t('edit_profile.camera_permission_required')});
         }
       });
     } else {
@@ -130,7 +132,7 @@ const EditProfileScreen: React.FC = () => {
         if (hasPermission) {
           launchImageLibrary(options, handleResponse);
         } else {
-          show({message: 'Storage permission is required to select photos'});
+          show({message: t('edit_profile.storage_permission_required')});
         }
       });
     }
@@ -147,10 +149,10 @@ const EditProfileScreen: React.FC = () => {
       const newAvatarUrl = imageUri; // 实际应该是服务器返回的URL
       setAvatar(newAvatarUrl);
       
-      show({message: 'Avatar updated successfully'});
+      show({message: t('edit_profile.avatar_updated_successfully')});
     } catch (error) {
       console.error('Upload failed:', error);
-      show({message: 'Failed to upload avatar'});
+      show({message: t('edit_profile.failed_to_upload_avatar')});
     } finally {
       setIsUploading(false);
     }
@@ -181,7 +183,7 @@ const EditProfileScreen: React.FC = () => {
       navigation.goBack();
     } catch (error) {
       console.error('保存失败:', error);
-      show({message: 'Failed to save profile', type: 'error'});
+      show({message: t('edit_profile.failed_to_save_profile')});
     } finally {
       setIsSaving(false);
     }
@@ -197,7 +199,7 @@ const EditProfileScreen: React.FC = () => {
             style={styles.backIcon}
           />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Personal data</Text>
+        <Text style={styles.headerTitle}>{t('edit_profile.title')}</Text>
         <View style={styles.headerSpacer} />
       </View>
 
@@ -227,24 +229,24 @@ const EditProfileScreen: React.FC = () => {
             </TouchableOpacity>
             {isUploading && (
               <View style={styles.uploadingOverlay}>
-                <Text style={styles.uploadingText}>Uploading...</Text>
+                <Text style={styles.uploadingText}>{t('edit_profile.uploading')}</Text>
               </View>
             )}
           </View>
         </View>
-        <Text style={styles.changeAvatarText}>Change your profile picture</Text>
+        <Text style={styles.changeAvatarText}>{t('edit_profile.change_profile_picture')}</Text>
       </View>
 
       {/* 姓名输入区域 */}
       <View style={styles.inputSection}>
-        <Text style={styles.inputLabel}>Name</Text>
+        <Text style={styles.inputLabel}>{t('edit_profile.name')}</Text>
         <View style={styles.inputCard}>
           <View style={styles.inputContainer}>
             <TextInput
               style={styles.textInput}
               value={name}
               onChangeText={setName}
-              placeholder="Enter your name"
+              placeholder={t('edit_profile.enter_your_name')}
               placeholderTextColor="#B3B3B3"
               autoFocus={false}
             />
@@ -260,7 +262,7 @@ const EditProfileScreen: React.FC = () => {
           disabled={!name.trim() || isSaving}
         >
           <Text style={[styles.saveButtonText, (!name.trim() || isSaving) && styles.saveButtonTextDisabled]}>
-            {isSaving ? 'Saving...' : 'Save'}
+            {isSaving ? t('edit_profile.saving') : t('edit_profile.save')}
           </Text>
         </TouchableOpacity>
       </View>

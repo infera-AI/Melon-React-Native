@@ -15,7 +15,7 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ProfileStackParamList } from './ProfileNavigator';
 import { getUserInfo } from '../../../api/profile/profile';
-import { UserInfo } from '../../../api/profile/types';
+import { useLanguage } from '../../../contexts/LanguageContext';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
@@ -35,36 +35,37 @@ const ProfileScreen: React.FC = () => {
   const navigation = useNavigation<ProfileScreenNavigationProp>();
   const userInfo = useUserStore((state) => state.userInfo);
   const token = useUserStore((state) => state.token);
+  const { t } = useLanguage();
 
   const menuItems = [
     {
       id: 'ai_voiceprint',  
-      title: 'AI voiceprint management',
+      title: t('profile.ai_voiceprint_management'),
       icon: require('../../../assets/profile/profile_voice_icon.png'),
       hasArrow: true,
       hasIcon: true,
     },
     {
       id: 'account_security',
-      title: 'Account and security',
+      title: t('profile.account_and_security'),
       icon:require('../../../assets/profile/profile_security_icon.png'),
       hasArrow: true,
     },
     {
       id: 'general_settings',
-      title: 'General settings',
+      title: t('profile.general_settings'),
       icon:require('../../../assets/profile/profile_setting_icon.png'),
       hasArrow: true,
     },
     {
       id: 'help_feedback',
-      title: 'Help and feedback',
+      title: t('profile.help_and_feedback'),
       icon:require('../../../assets/profile/profile_help_icon.png'),
       hasArrow: true,
     },
     {
       id: 'about_melon',
-      title: 'About Melon',
+      title: t('profile.about_melon'),
       icon:require('../../../assets/profile/profile_about_icon.png'),
       hasArrow: true,
     },
@@ -101,7 +102,7 @@ const ProfileScreen: React.FC = () => {
     navigation.navigate('EditProfile');
   };
   const getUserInfoRequest = async () => {
-    const info:UserInfo = await getUserInfo({});
+    const info:any = await getUserInfo({});
     console.log('UserInfo', info);
     if(info){
       useUserStore.getState().setUserInfo({
@@ -115,7 +116,7 @@ const ProfileScreen: React.FC = () => {
 
   useEffect(() => {
     if(!token){
-      navigation.replace('Auth' as never);
+      navigation.replace('Auth' as any);
     }else{
       getUserInfoRequest();
     }
@@ -131,7 +132,7 @@ const ProfileScreen: React.FC = () => {
           <Image source={userInfo?.avatar_url ? {uri: userInfo?.avatar_url} : require('../../../assets/profile/profile_default_avatar.png')} style={styles.avatarContainer}/>
           <View style={styles.userDetails}>
             <Text style={styles.userName}>{`Melon(${userInfo?.username || 'name'})`}</Text>
-            <Text style={styles.userId}>Melon ID: {userInfo?.id || ''}</Text>
+            <Text style={styles.userId}>{t('profile.melon_id')}: {userInfo?.id || ''}</Text>
           </View>
           <TouchableOpacity style={styles.editButton} onPress={handleEditProfile}>
             <Image source={require('../../../assets/main/right_arrow_icon.png')} style={styles.arrowIcon}/>
@@ -146,7 +147,7 @@ const ProfileScreen: React.FC = () => {
           <View style={styles.menuItem}>
             <View style={styles.menuItemLeft}>
                 <Image source={require('../../../assets/profile/profile_voice_icon.png')} style={styles.menuIcon}/>
-              <Text style={styles.menuTitle}>AI voiceprint management</Text>
+              <Text style={styles.menuTitle}>{t('profile.ai_voiceprint_management')}</Text>
             </View>
             <TouchableOpacity style={styles.arrowContainer}>
               <Image source={require('../../../assets/main/right_arrow_icon.png')} style={styles.arrowIcon}/>

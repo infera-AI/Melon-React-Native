@@ -13,6 +13,7 @@ import { ProfileStackParamList } from './ProfileNavigator';
 import theme from '../../../utils/theme';
 import { deleteAccount } from '@/api/profile/profile';
 import { useUserStore } from '@/store/modules/user.store';
+import { useLanguage } from '../../../contexts/LanguageContext';
 
 const normalize = (size: number, based: 'width' | 'height' = 'width') => {
   const { width, height } = require('react-native').Dimensions.get('window');
@@ -30,6 +31,7 @@ const BindMailboxScreen: React.FC<{ route: { params: { action_token: string } } 
   const { action_token } = route.params || {};
   const navigation = useNavigation<BindMailboxScreenNavigationProp>();
   const [isConfirmed, setIsConfirmed] = useState(false);
+  const { t } = useLanguage();
 
   const handleBack = () => {
     navigation.goBack();
@@ -47,7 +49,7 @@ const BindMailboxScreen: React.FC<{ route: { params: { action_token: string } } 
         email: '',
       }); 
       useUserStore.getState().setToken('');
-      navigation.replace('Auth' as never);
+      navigation.replace('Auth' as any);
     }catch(error){
       console.log('Delete account error:', error);
     }
@@ -69,7 +71,7 @@ const BindMailboxScreen: React.FC<{ route: { params: { action_token: string } } 
               style={styles.backIcon}
             />
           </TouchableOpacity>
-          <Text style={styles.title}>Bind mailboxes</Text>
+          <Text style={styles.title}>{t('bind_mailbox.bind_mailboxes')}</Text>
           <View style={styles.headerSpacer} />
         </View>
 
@@ -85,7 +87,7 @@ const BindMailboxScreen: React.FC<{ route: { params: { action_token: string } } 
           {/* 说明文字 */}
           <View style={styles.descriptionContainer}>
             <Text style={styles.descriptionText}>
-              Once your account is canceled, all data will be permanently deleted and cannot be recovered
+              {t('bind_mailbox.account_canceled_warning')}
             </Text>
           </View>
 
@@ -98,7 +100,7 @@ const BindMailboxScreen: React.FC<{ route: { params: { action_token: string } } 
             onPress={handleConfirm}
           >
             <Text style={styles.confirmButtonText}>
-              Confirm the logout
+              {t('bind_mailbox.confirm_logout')}
             </Text>
           </TouchableOpacity>
 
@@ -116,7 +118,7 @@ const BindMailboxScreen: React.FC<{ route: { params: { action_token: string } } 
                )}
              </View> */}
             <Text style={styles.checkboxText}>
-              I fully understand the consequences of cancellation and voluntarily delete my Melon account and all data permanently
+              {t('bind_mailbox.understand_consequences')}
             </Text>
           </TouchableOpacity>
         </View>

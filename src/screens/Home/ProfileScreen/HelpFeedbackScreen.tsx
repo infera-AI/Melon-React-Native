@@ -11,6 +11,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ProfileStackParamList } from './ProfileNavigator';
+import { useLanguage } from '../../../contexts/LanguageContext';
 
 const normalize = (size: number, based: 'width' | 'height' = 'width') => {
   const { width, height } = require('react-native').Dimensions.get('window');
@@ -26,6 +27,7 @@ type HelpFeedbackScreenNavigationProp = NativeStackNavigationProp<ProfileStackPa
 
 const HelpFeedbackScreen: React.FC = () => {
   const navigation = useNavigation<HelpFeedbackScreenNavigationProp>();
+  const { t } = useLanguage();
 
   const handleBack = () => {
     navigation.goBack();
@@ -57,13 +59,13 @@ const HelpFeedbackScreen: React.FC = () => {
               style={styles.backIcon}
             />
           </TouchableOpacity>
-          <Text style={styles.title}>Help and feedback</Text>
+          <Text style={styles.title}>{t('help_feedback.help_and_feedback')}</Text>
           <View style={styles.headerSpacer} />
         </View>
 
         {/* FAQ Section */}
         <View style={styles.sectionContainer}>
-          <Text style={styles.sectionTitle}>FAQ</Text>
+          <Text style={styles.sectionTitle}>{t('help_feedback.faq')}</Text>
         </View>
 
         {/* Translation Function Help */}
@@ -75,8 +77,8 @@ const HelpFeedbackScreen: React.FC = () => {
                 style={styles.helpIcon}
               />
               <View style={styles.helpTextContainer}>
-                <Text style={styles.helpTitle}>Using the translation function</Text>
-                <Text style={styles.helpDescription}>Graphic description</Text>
+                <Text style={styles.helpTitle}>{t('help_feedback.using_translation_function')}</Text>
+                <Text style={styles.helpDescription}>{t('help_feedback.graphic_description')}</Text>
               </View>
             </View>
             <View style={styles.helpRight}>
@@ -97,8 +99,8 @@ const HelpFeedbackScreen: React.FC = () => {
                  style={styles.helpIcon}
                />
               <View style={styles.helpTextContainer}>
-                <Text style={styles.helpTitle}>Voiceprint settings</Text>
-                <Text style={styles.helpDescription}>Graphic description</Text>
+                <Text style={styles.helpTitle}>{t('help_feedback.voiceprint_settings')}</Text>
+                <Text style={styles.helpDescription}>{t('help_feedback.graphic_description')}</Text>
               </View>
             </View>
             <View style={styles.helpRight}>
@@ -119,8 +121,8 @@ const HelpFeedbackScreen: React.FC = () => {
                  style={styles.helpIcon}
                />
               <View style={styles.helpTextContainer}>
-                <Text style={styles.helpTitle}>Account and security</Text>
-                <Text style={styles.helpDescription}>Graphic description</Text>
+                <Text style={styles.helpTitle}>{t('help_feedback.account_and_security')}</Text>
+                <Text style={styles.helpDescription}>{t('help_feedback.graphic_description')}</Text>
               </View>
             </View>
             <View style={styles.helpRight}>
@@ -133,7 +135,7 @@ const HelpFeedbackScreen: React.FC = () => {
         </TouchableOpacity>
         {/* Submit Button */}
         <TouchableOpacity style={styles.submitButton} onPress={handleAccountSecurityHelp}>
-          <Text style={styles.submitButtonText}>Product feedback</Text>
+          <Text style={styles.submitButtonText}>{t('help_feedback.product_feedback')}</Text>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>

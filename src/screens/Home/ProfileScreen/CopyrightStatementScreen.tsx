@@ -11,6 +11,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ProfileStackParamList } from './ProfileNavigator';
+import { useLanguage } from '../../../contexts/LanguageContext';
 
 const normalize = (size: number, based: 'width' | 'height' = 'width') => {
   const { width, height } = require('react-native').Dimensions.get('window');
@@ -26,6 +27,7 @@ type CopyrightStatementScreenNavigationProp = NativeStackNavigationProp<ProfileS
 
 const CopyrightStatementScreen: React.FC = () => {
   const navigation = useNavigation<CopyrightStatementScreenNavigationProp>();
+  const { t } = useLanguage();
 
   const handleBack = () => {
     navigation.goBack();
@@ -42,55 +44,14 @@ const CopyrightStatementScreen: React.FC = () => {
               style={styles.backIcon}
             />
           </TouchableOpacity>
-          <Text style={styles.title}>Copyright Statement</Text>
+          <Text style={styles.title}>{t('copyright_statement.copyright_statement')}</Text>
           <View style={styles.headerSpacer} />
         </View>
 
         {/* Content */}
         <View style={styles.contentContainer}>
           <Text style={styles.contentText}>
-            {`Melon Al Headphones Copyright Statement
-
-Article 1 Ownership of Rights 
-1.1 This Agreement is between you and Melon Al Headphones ("Melon", "we", "us", or "our") regarding your use of our mobile application and related services.
-
-1.2 All content, features, and functionality of the Melon Al Headphones application, including but not limited to text, graphics, logos, icons, images, audio clips, digital downloads, data compilations, and software, are the exclusive property of Melon or its content suppliers and are protected by international copyright, trademark, patent, trade secret, and other intellectual property laws.
-
-1.3 The compilation of all content in the application is the exclusive property of Melon and is protected by copyright laws.
-
-Article 2 Authorized Use
-2.1 You are granted a limited, non-exclusive, non-transferable, and revocable license to use the application for personal, non-commercial purposes only.
-
-2.2 You may not:
-- Copy, reproduce, distribute, transmit, broadcast, display, sell, license, or otherwise exploit any content for any commercial purposes
-- Modify, adapt, translate, reverse engineer, decompile, disassemble, or create derivative works based on the application
-- Remove any copyright, trademark, or other proprietary notices from the application
-- Use the application in any manner that could damage, disable, overburden, or impair our servers or networks
-
-Article 3 User Content
-3.1 You retain ownership of any content you submit, post, or display on or through the application.
-
-3.2 By submitting content, you grant Melon a worldwide, non-exclusive, royalty-free license to use, reproduce, modify, adapt, publish, translate, and distribute such content in connection with the application and our business.
-
-Article 4 Copyright Infringement
-4.1 If you believe that your copyrighted work has been copied in a way that constitutes copyright infringement, please contact us with the following information:
-- A description of the copyrighted work that you claim has been infringed
-- A description of where the material is located in the application
-- Your contact information
-- A statement that you have a good faith belief that the use is not authorized
-- A statement that the information is accurate and that you are the copyright owner
-
-Article 5 Updates and Modifications
-5.1 We reserve the right to modify this Copyright Statement at any time. Changes will be effective immediately upon posting.
-
-5.2 Your continued use of the application after any changes constitutes acceptance of the new terms.
-
-Article 6 Contact Information
-6.1 For questions about this Copyright Statement, please contact us at:
-Email: legal@melon.com
-Address: [Company Address]
-
-© 2025 Melon. All Rights Reserved.`}
+            {t('copyright_statement.content')}
           </Text>
         </View>
       </ScrollView>

@@ -15,6 +15,7 @@ import { ProfileStackParamList } from './ProfileNavigator';
 import theme from '../../../utils/theme';
 import { getLoginCodeApi, verifyCode } from '@/api/login';
 import { useMessageModal } from '@/contexts/MessageModalContext';
+import { useLanguage } from '../../../contexts/LanguageContext';
 
 const normalize = (size: number, based: 'width' | 'height' = 'width') => {
   const { width, height } = require('react-native').Dimensions.get('window');
@@ -39,6 +40,7 @@ const DeregisterCodeVerificationScreen: React.FC<{ route: { params: { phoneNumbe
   const pulseAnim = useRef(new Animated.Value(1)).current;
   const countdownRef = useRef<NodeJS.Timeout | null>(null);
   const { show } = useMessageModal();
+  const { t } = useLanguage();
   const handleBack = () => {
     navigation.goBack();
   };
@@ -109,7 +111,7 @@ const DeregisterCodeVerificationScreen: React.FC<{ route: { params: { phoneNumbe
   const handleVerify = async () => {
     const code = verificationCode.join('');
     if (code.length !== 6) {
-      show({message: 'Please enter the complete 6-digit verification code'});
+      show({message: t('deregister_code_verification.please_enter_complete_verification_code')});
       return;
     }
 
@@ -138,7 +140,7 @@ const DeregisterCodeVerificationScreen: React.FC<{ route: { params: { phoneNumbe
       console.log('Verify code:', res);
       navigation.navigate('BindMailbox',{action_token:res?.action_token});
     }catch(error:any){
-      show({message: 'Verification code error:'+error.msg});
+      show({message: t('deregister_code_verification.verification_code_error')+error.msg});
       console.log('Verify code error:', error);
     }finally{
       setIsVerifying(false);
@@ -163,12 +165,12 @@ const DeregisterCodeVerificationScreen: React.FC<{ route: { params: { phoneNumbe
               style={styles.backIcon}
             />
           </TouchableOpacity>
-          <Text style={styles.title}>Cancel your account</Text>
+          <Text style={styles.title}>{t('deregister_code_verification.cancel_your_account')}</Text>
           <View style={styles.headerSpacer} />
         </View>
 
         <View style={styles.verificationContainer}>
-          <Text style={styles.verificationTitle}>The verification code has been sent to the mobile phone:</Text>
+          <Text style={styles.verificationTitle}>{t('deregister_code_verification.verification_code_sent')}</Text>
           <Text style={styles.verificationSubtitle}>
             {countryCode + ' ' + phoneNumber}
           </Text>
@@ -205,7 +207,7 @@ const DeregisterCodeVerificationScreen: React.FC<{ route: { params: { phoneNumbe
               ]}
             >
               <View style={styles.verifyingDot} />
-              <Text style={styles.verifyingText}>正在验证...</Text>
+              <Text style={styles.verifyingText}>{t('deregister_code_verification.verifying')}</Text>
             </Animated.View>
           )}
         </View>
@@ -219,7 +221,7 @@ const DeregisterCodeVerificationScreen: React.FC<{ route: { params: { phoneNumbe
            disabled={!isCodeComplete || isVerifying}
          >
            <Text style={styles.confirmButtonText}>
-             {isVerifying ? '验证中...' : 'next step'}
+             {isVerifying ? t('deregister_code_verification.verifying_in_progress') : t('deregister_code_verification.next_step')}
            </Text>
          </TouchableOpacity>
          <TouchableOpacity 
@@ -234,7 +236,7 @@ const DeregisterCodeVerificationScreen: React.FC<{ route: { params: { phoneNumbe
              styles.resendText,
              !canResend && styles.resendTextDisabled
            ]}>
-             Retrieve verification code again {countdown > 0 ? `${countdown}s` : ''}
+             {t('deregister_code_verification.retrieve_verification_code_again')} {countdown > 0 ? `${countdown}s` : ''}
            </Text>
          </TouchableOpacity>
       </View>

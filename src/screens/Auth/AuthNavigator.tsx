@@ -10,7 +10,6 @@ import WelcomeScreen from './WelcomeScreen';
 import UserServiceAgreementScreen from './UserServiceAgreementScreen';
 import PrivacyPolicyScreen from './PrivacyPolicyScreen';
 import LoginWithCodeScreen from './LoginWithCodeScreen';
-import InitialScreen from './InitialScreen';
 import VerifyCodeLoginScreen from './VerifyCodeLoginScreen';
 
 export type AuthStackParamList = {
@@ -32,7 +31,6 @@ const Stack = createNativeStackNavigator<AuthStackParamList>();
 
 const AuthNavigator: React.FC = () => (
   <Stack.Navigator initialRouteName="Welcome" screenOptions={{ headerShown: false }}>
-    <Stack.Screen name="Initial" component={InitialScreen} />
     <Stack.Screen name="LoginPhone" component={LoginPhoneScreen} />
     <Stack.Screen name="RegisterEmail" component={RegisterEmailScreen} />
     <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />

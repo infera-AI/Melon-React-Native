@@ -18,6 +18,7 @@ import theme from '../../../utils/theme';
 import { getVoiceprintDemoConfig } from '../../../api/profile';
 import { useVoiceStore } from '@/store';
 import { VoiceType } from '@/store/modules/voice.store';
+import { useLanguage } from '../../../contexts/LanguageContext';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
@@ -47,6 +48,7 @@ const CreateVoiceScreen: React.FC = () => {
   const [selectedLanguage, setSelectedLanguage] = useState<string>('English');
   const [languageList, setLanguageList] = useState<any[]>([]);
   const [showLanguageModal, setShowLanguageModal] = useState(false);
+  const { t } = useLanguage();
   
   // 动画值 - 根据Figma设计稿的三个椭圆
   const outerAnim = useRef(new Animated.Value(1)).current;
@@ -159,7 +161,7 @@ const CreateVoiceScreen: React.FC = () => {
             style={styles.backIcon}
           />
         </TouchableOpacity>
-        <Text style={styles.title}>{useVoiceStore.getState().type === VoiceType.CREATE ? 'Create your own voice' : 'Voiceprint optimization'}</Text>
+        <Text style={styles.title}>{useVoiceStore.getState().type === VoiceType.CREATE ? t('create_voice.create_your_own_voice') : t('create_voice.voiceprint_optimization')}</Text>
         <View style={styles.headerSpacer} />
       </View>
 
@@ -222,13 +224,13 @@ const CreateVoiceScreen: React.FC = () => {
           </View>
         </View>
           <Text style={styles.descriptionText}>
-            Personalize your voice for more natural translations.
+            {t('create_voice.personalize_your_voice')}
           </Text>
         </View>
 
         {/* 录音指导 */}
         <Text style={styles.guidanceTitle}>
-          To accurately clone your voice color, please:
+          {t('create_voice.to_accurately_clone')}
         </Text>
 
         <View style={styles.guidanceContainer}>
@@ -236,7 +238,7 @@ const CreateVoiceScreen: React.FC = () => {
             source={require('../../../assets/profile/profile_unvoice_icon.png')} 
             style={styles.guidanceImage}
           />
-          <Text style={styles.guidanceText}> Conduct the recording in a <Text style={styles.guidanceTextColor}>quiet environment</Text> to avoid background noise interference.</Text>
+          <Text style={styles.guidanceText}> {t('create_voice.conduct_recording_quiet')}</Text>
         </View>
 
         <View style={styles.guidanceContainer}>
@@ -244,7 +246,7 @@ const CreateVoiceScreen: React.FC = () => {
             source={require('../../../assets/profile/profile_record_icon.png')} 
             style={styles.guidanceImage}
           />
-          <Text style={styles.guidanceText}>Read the text on the screen with your <Text style={styles.guidanceTextColor}>natural, clear speaking speed and volume.</Text></Text>
+          <Text style={styles.guidanceText}>{t('create_voice.read_text_natural')}</Text>
         </View>
 
         <View style={styles.guidanceContainer}>
@@ -252,7 +254,7 @@ const CreateVoiceScreen: React.FC = () => {
             source={require('../../../assets/profile/profile_unrecord_icon.png')} 
             style={styles.guidanceImage}
           />
-          <Text style={styles.guidanceText}>Face the phone's microphone <Text style={styles.guidanceTextColor}>directly at you</Text> and maintain a distance of 15 - 20 centimeters.</Text>
+          <Text style={styles.guidanceText}>{t('create_voice.face_microphone_directly')}</Text>
         </View>
 
 
@@ -276,10 +278,10 @@ const CreateVoiceScreen: React.FC = () => {
         {/* 底部按钮 */}
         <View style={styles.buttonContainer}>
           <TouchableOpacity style={styles.startButton} onPress={handleStartRecording}>
-            <Text style={styles.startButtonText}>I'm ready, let's start recording</Text>
+            <Text style={styles.startButtonText}>{t('create_voice.im_ready_start_recording')}</Text>
           </TouchableOpacity>
         </View>
-        <Text style={styles.bottomText}>Not recording for now, will record later in settings.</Text>
+        <Text style={styles.bottomText}>{t('create_voice.not_recording_now')}</Text>
 
       </View>
       </ScrollView>
@@ -294,7 +296,7 @@ const CreateVoiceScreen: React.FC = () => {
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>选择录音语言</Text>
+              <Text style={styles.modalTitle}>{t('create_voice.select_recording_language')}</Text>
               <TouchableOpacity onPress={() => setShowLanguageModal(false)}>
                 <Text style={styles.modalClose}>✕</Text>
               </TouchableOpacity>

@@ -14,6 +14,7 @@ import theme from '@/utils/theme';
 import { logout } from '@/api/login';
 import { getDeviceInfo } from '@/utils/helpers';
 import { useUserStore } from '@/store/modules/user.store'; 
+import { useLanguage } from '../../../contexts/LanguageContext';
 
 const normalize = (size: number, based: 'width' | 'height' = 'width') => {
   const { width, height } = require('react-native').Dimensions.get('window');
@@ -29,6 +30,7 @@ type AccountSecurityScreenNavigationProp = NativeStackNavigationProp<ProfileStac
 
 const AccountSecurityScreen: React.FC = () => {
   const navigation = useNavigation<AccountSecurityScreenNavigationProp>();
+  const { t } = useLanguage();
 
   const handleBack = () => {
     navigation.goBack();
@@ -70,7 +72,7 @@ const AccountSecurityScreen: React.FC = () => {
             style={styles.backIcon}
           />
         </TouchableOpacity>
-        <Text style={styles.title}>Account & Security</Text>
+        <Text style={styles.title}>{t('account_security.account_and_security')}</Text>
         <View style={styles.headerSpacer} />
       </View>
 
@@ -82,7 +84,7 @@ const AccountSecurityScreen: React.FC = () => {
               source={require('../../../assets/profile/profile_security_icon.png')} 
               style={styles.cardIcon}
             />
-            <Text style={styles.cardTitle}>Change password</Text>
+            <Text style={styles.cardTitle}>{t('account_security.change_password')}</Text>
           </View>
           <Image 
             source={require('../../../assets/main/right_arrow_icon.png')} 
@@ -99,7 +101,7 @@ const AccountSecurityScreen: React.FC = () => {
                 source={require('../../../assets/profile/profile_bind_icon.png')} 
                 style={styles.bindIcon}
               />
-            <Text style={styles.cardTitle}>Bind phone number/email</Text>
+            <Text style={styles.cardTitle}>{t('account_security.bind_phone_number_email')}</Text>
           </View>
           <Image 
             source={require('../../../assets/main/right_arrow_icon.png')} 
@@ -116,7 +118,7 @@ const AccountSecurityScreen: React.FC = () => {
               source={require('../../../assets/main/shutdown_icon.png')} 
               style={styles.cardIcon}
             />
-            <Text style={styles.cardTitle}>Deregister account</Text>
+            <Text style={styles.cardTitle}>{t('account_security.deregister_account')}</Text>
           </View>
           <Image 
             source={require('../../../assets/main/right_arrow_icon.png')} 
@@ -132,7 +134,7 @@ const AccountSecurityScreen: React.FC = () => {
               source={require('../../../assets/main/shutdown_icon.png')} 
               style={styles.cardIcon}
             />
-            <Text style={[styles.cardTitle,styles.logoutCardText]}>Logout</Text>
+            <Text style={[styles.cardTitle,styles.logoutCardText]}>{t('account_security.logout')}</Text>
           </View>
           <Image 
             source={require('../../../assets/main/right_arrow_icon.png')} 

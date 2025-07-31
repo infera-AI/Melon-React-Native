@@ -11,11 +11,11 @@ import {
   PermissionsAndroid,
   Platform,
 } from 'react-native';
-import { RouteProp, useNavigation } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ProfileStackParamList } from './ProfileNavigator';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { getVoiceprintEnrollmentConfig, generateVoiceId } from '../../../api/profile/profile';
+import { getVoiceprintEnrollmentConfig } from '../../../api/profile/profile';
 import AudioRecorderPlayer, {
   AVEncoderAudioQualityIOSType,
   AVEncodingOption,
@@ -28,6 +28,7 @@ import { mergeAudioFiles, validateAudioFiles, getTotalAudioDuration } from '../.
 import { useVoiceStore } from '@/store';
 import { VoiceType } from '@/store/modules/voice.store';
 import { useMessageModal } from '@/contexts/MessageModalContext';
+import { useLanguage } from '../../../contexts/LanguageContext';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
@@ -55,6 +56,7 @@ const RecordingScreen: React.FC = () => {
   const pulseAnim = useRef(new Animated.Value(1)).current;
   const audioRecorderPlayer = useRef(new AudioRecorderPlayer()).current;
   const { show } = useMessageModal();
+  const { t } = useLanguage();
   // 使用 useRef 来解决闭包问题
   const voiceprintEnrollmentConfigRef = useRef(voiceprintEnrollmentConfig);
   const realRecordingTimeRef = useRef(realRecordingTime);
@@ -77,8 +79,8 @@ const RecordingScreen: React.FC = () => {
         const granted = await PermissionsAndroid.request(
           PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
           {
-            title: '录音权限',
-            message: '需要录音权限来录制您的声音，用于声纹注册',
+            title: t('recording.recording_permission'),
+            message: t('recording.recording_permission_message'),
             buttonNeutral: '稍后询问',
             buttonNegative: '取消',
             buttonPositive: '确定',
@@ -98,7 +100,7 @@ const RecordingScreen: React.FC = () => {
     try {
       const hasPermission = await requestRecordingPermission();
       if (!hasPermission) {
-        show({message: '权限被拒绝,需要录音权限才能继续'});  
+        show({message: t('recording.permission_denied')});  
         return false;
       }
 
@@ -144,7 +146,7 @@ const RecordingScreen: React.FC = () => {
       return true;
     } catch (error) {
       console.error('开始录音失败:', error);
-      show({message: '无法开始录音，请检查麦克风权限并重试'});  
+      show({message: t('recording.cannot_start_recording')});  
       return false;
     }
   };
@@ -161,10 +163,10 @@ const RecordingScreen: React.FC = () => {
       return result;
     } catch (error) {
       console.error('停止录音失败:', error);
-      show({message: '无法停止录音，请重试'});  
+      show({message: t('recording.cannot_stop_recording')});  
       return null;
     }
-  }, [audioRecorderPlayer]);
+  }, [audioRecorderPlayer, show, t]);
 
   const getVoiceprintEnrollmentConfigRequest = useCallback(async () => {
     try{
@@ -189,7 +191,7 @@ const RecordingScreen: React.FC = () => {
     const recordingFile = await stopRecording();
     console.log(currentRealTime, minDuration, '1111')
     if (currentRealTime < minDuration) {
-      show({message: `Recording must be at least ${minDuration} seconds. Please try again.`});  
+      show({message: t('recording.recording_must_be_at_least').replace('{duration}', minDuration.toString())});  
       setRealRecordingTime(0);
       setIsRecordingValid(false);
       return;
@@ -199,7 +201,7 @@ const RecordingScreen: React.FC = () => {
       
       // 检查录音文件是否有效
       if (currentRealTime < 1) {
-        show({message: '录音时间太短，请重新录制'});  
+        show({message: t('recording.recording_too_short')});  
         setIsRecording(false);
         setIsRecordingValid(false);
         setRealRecordingTime(0);
@@ -233,10 +235,10 @@ const RecordingScreen: React.FC = () => {
         }
       } catch (error) {
         console.error('保存录音文件失败:', error);
-        show({message: '录音文件保存失败，请重试'});  
+        show({message: t('recording.recording_file_save_failed')});  
       }
     }
-  }, [voiceprintEnrollmentConfig, stopRecording, currentSegment, recordFileList]);
+  }, [voiceprintEnrollmentConfig, stopRecording, currentSegment, recordFileList, show, t]);
 
   // 更新 ref
   useEffect(() => {
@@ -291,7 +293,7 @@ const RecordingScreen: React.FC = () => {
     const maxDuration = voiceprintEnrollmentConfig?.max_segment_duration_seconds;
     
     if (!minDuration || !maxDuration) {
-      show({message: 'Recording configuration not loaded'});  
+      show({message: t('recording.recording_config_not_loaded')});  
       return;
     }
     
@@ -316,14 +318,14 @@ const RecordingScreen: React.FC = () => {
     try {
       // 检查是否有录音文件
       if (recordFileList.length === 0) {
-        show({message: '没有录音文件可以合成'});  
+        show({message: t('recording.no_recording_files_to_merge')});  
         return false;
       }
 
       // 过滤有效的录音文件
       const validFiles = recordFileList.filter(file => file && file.uri);
       if (validFiles.length === 0) {
-        show({message: '没有有效的录音文件'});  
+        show({message: t('recording.no_valid_recording_files')});  
         return false;
       }
 
@@ -349,7 +351,7 @@ const RecordingScreen: React.FC = () => {
       return true
     } catch (error) {
       console.error('音频合成失败:', error);
-      show({message: '音频文件合成失败，请重试'});    
+      show({message: t('recording.audio_merge_failed')});    
       return false;
     } finally {
     }
@@ -358,7 +360,7 @@ const RecordingScreen: React.FC = () => {
   const handleNext = async () => {
     const totalPhrases = voiceprintEnrollmentConfig?.required_phrases_count || 0;
     if(!recordFileList[currentSegment-1]){
-      show({message: '请先录制音频'});  
+      show({message: t('recording.please_record_audio_first')});  
       return;
     }
     
@@ -382,7 +384,7 @@ const RecordingScreen: React.FC = () => {
         // 完成所有录音，导航到生成页面
         navigation.navigate('GeneratingVoice');
       }else{
-        show({message: '音频合成失败，请重试'});  
+        show({message: t('recording.audio_merge_failed')});  
       }
      
     }
@@ -405,13 +407,13 @@ const RecordingScreen: React.FC = () => {
             style={styles.backIcon}
           />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>{useVoiceStore.getState().type === VoiceType.CREATE ? 'Create your own voice' : 'Optimize your voice'}</Text>
+        <Text style={styles.headerTitle}>{useVoiceStore.getState().type === VoiceType.CREATE ? t('recording.create_your_own_voice') : t('recording.optimize_your_voice')}</Text>
         <View style={styles.headerSpacer} />
       </View>
 
       <View style={styles.recordingStatus}>
         <Text style={styles.recordingStatusText}>
-          {isRecording ? 'Recording...' : 'Ready to record'} Segment {currentSegment}{'\n'}({voiceprintEnrollmentConfig?.required_phrases_count || 0} segments in total)
+          {isRecording ? t('recording.recording') : t('recording.ready_to_record')} {t('recording.segment')} {currentSegment}{'\n'}({voiceprintEnrollmentConfig?.required_phrases_count || 0} {t('recording.segments_in_total')})
         </Text>
       </View>
 
@@ -429,7 +431,7 @@ const RecordingScreen: React.FC = () => {
 
       <View style={styles.transcriptContainer}>
         <Text style={styles.transcriptText}>
-          {voiceprintEnrollmentConfig?.phrases?.[currentSegment - 1] || 'Loading...'}
+          {voiceprintEnrollmentConfig?.phrases?.[currentSegment - 1] || t('recording.loading')}
         </Text>
       </View>
 
@@ -441,7 +443,7 @@ const RecordingScreen: React.FC = () => {
       
       {isRecording && (
         <View style={styles.recordingIndicator}>
-          <Text style={styles.recordingIndicatorText}>Recording in progress...</Text>
+          <Text style={styles.recordingIndicatorText}>{t('recording.recording_in_progress')}</Text>
         </View>
       )}
 
@@ -476,7 +478,7 @@ const RecordingScreen: React.FC = () => {
 
       <View style={styles.buttonContainer}>
         <TouchableOpacity style={styles.rerecordButton} onPress={handleRerecord}>
-          <Text style={styles.rerecordButtonText}>Re-record This Segment</Text>
+          <Text style={styles.rerecordButtonText}>{t('recording.re_record_this_segment')}</Text>
         </TouchableOpacity>
 
         <TouchableOpacity 
@@ -490,7 +492,7 @@ const RecordingScreen: React.FC = () => {
             styles.nextButtonText,
             isRecordingValid && currentSegment === (voiceprintEnrollmentConfig?.required_phrases_count|| 0) && styles.nextButtonTextActive
           ]}>
-            Next
+            {t('recording.next')}
           </Text>
         </TouchableOpacity>
       </View>

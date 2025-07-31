@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   View,
   Text,
@@ -6,13 +6,13 @@ import {
   Image,
   StyleSheet,
   ScrollView,
-  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ProfileStackParamList } from './ProfileNavigator';
-import theme from '../../../utils/theme';
+import { supportedLanguages } from '../../../i18n/languages';
+import { useLanguage } from '../../../contexts/LanguageContext';
 
 const normalize = (size: number, based: 'width' | 'height' = 'width') => {
   const { width, height } = require('react-native').Dimensions.get('window');
@@ -34,7 +34,12 @@ interface Language {
 
 const SystemLanguageScreen: React.FC = () => {
   const navigation = useNavigation<SystemLanguageScreenNavigationProp>();
-  const [selectedLanguage, setSelectedLanguage] = useState('zh-CN');
+  const { language, setLanguage } = useLanguage();
+  const { t } = useLanguage();
+
+
+  // 获取当前选中的语言信息
+  const currentLanguage = supportedLanguages.find(lang => lang.code === language) || supportedLanguages[0];
 
   const languages: Language[] = [
     { id: 'zh-CN', name: '简体中文', nativeName: '简体中文' },
@@ -58,24 +63,7 @@ const SystemLanguageScreen: React.FC = () => {
   };
 
   const handleLanguageSelect = (languageId: string) => {
-    setSelectedLanguage(languageId);
-    Alert.alert(
-      '语言切换',
-      '语言设置已更改，部分功能需要重启应用才能生效',
-      [
-        {
-          text: '稍后重启',
-          style: 'cancel',
-        },
-        {
-          text: '立即重启',
-          onPress: () => {
-            // 这里可以调用重启应用的逻辑
-            console.log('Restart app with language:', languageId);
-          },
-        },
-      ]
-    );
+    setLanguage(languageId as any);
   };
 
   return (
@@ -88,7 +76,7 @@ const SystemLanguageScreen: React.FC = () => {
             style={styles.backIcon}
           />
         </TouchableOpacity>
-        <Text style={styles.title}>System language selection</Text>
+        <Text style={styles.title}>{t('system_language.system_language_selection')}</Text>
         <View style={styles.headerSpacer} />
       </View>
 
@@ -99,21 +87,21 @@ const SystemLanguageScreen: React.FC = () => {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollContent}
         >
-          {languages.map((language, index) => (
+          {supportedLanguages.map((language, index) => (
             <TouchableOpacity
-              key={language.id}
+              key={language.code}
               style={[
                 styles.languageItem,
               ]}
-              onPress={() => handleLanguageSelect(language.id)}
+              onPress={() => handleLanguageSelect(language.code)}
             >
               <View style={styles.languageContent}>
                 <Text style={[
                   styles.languageText,
                 ]}>
-                  {language.nativeName}
+                  {language.label}
                 </Text>
-                {selectedLanguage === language.id && (
+                {currentLanguage.code === language.code && (
                   <View style={styles.checkIcon}>
                     <Image 
                       source={require('../../../assets/profile/profile_langguage_selected.png')} 

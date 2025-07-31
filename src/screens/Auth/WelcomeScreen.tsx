@@ -129,7 +129,7 @@ const WelcomeScreen: React.FC = () => {
             
             {/* 标语 - 渐变色文字 */}
             <View style={styles.sloganContainer}>
-                <Text style={styles.sloganText}>MELON SLOGAN</Text>
+                <Text style={styles.sloganText}>{t('welcome.slogan')}</Text>
             </View>
             
             {/* 注册按钮 */}
@@ -141,9 +141,9 @@ const WelcomeScreen: React.FC = () => {
             </TouchableOpacity>
               {/* 登录链接 */}
              <View style={styles.loginLink}>
-               <Text style={styles.loginLinkText}>Already have an account? </Text>
+               <Text style={styles.loginLinkText}>{t('welcome.already_have_account')}</Text>
                <TouchableOpacity onPress={handleLogin}>
-                 <Text style={styles.loginLinkButton}>Log in</Text>
+                 <Text style={styles.loginLinkButton}>{t('welcome.log_in')}</Text>
                </TouchableOpacity>
              </View>
             
@@ -167,7 +167,7 @@ const WelcomeScreen: React.FC = () => {
               </View>
             </TouchableOpacity>
             
-                           {/* 用户协议 */}
+              {/* 用户协议 */}
               <View style={styles.agreementContainer}>
                 <TouchableOpacity 
                   style={styles.checkboxContainer} 
@@ -184,14 +184,14 @@ const WelcomeScreen: React.FC = () => {
                 </TouchableOpacity>
                 <View style={styles.agreementTextContainer}>
                   <Text style={styles.agreementText}>
-                    By registering or logging in, you have read and agreed to the{' '}
+                    {t('welcome.agreement_text')}{' '}
                   </Text>
-                     <TouchableOpacity onPress={handleUserServiceAgreement}>
-                     <Text style={styles.agreementLink}>User Service Agreement</Text>
+                  <TouchableOpacity onPress={handleUserServiceAgreement}>
+                     <Text style={styles.agreementLink}>{t('welcome.user_service_agreement')}</Text>
                    </TouchableOpacity>
-                   <Text style={styles.agreementText}> and </Text>
+                   <Text style={styles.agreementText}> {t('welcome.and')} </Text>
                    <TouchableOpacity onPress={handlePrivacyPolicy}>
-                     <Text style={styles.agreementLink}>Privacy Policy.</Text>
+                     <Text style={styles.agreementLink}>{t('welcome.privacy_policy')}</Text>
                    </TouchableOpacity>
                 </View>
               </View>
@@ -204,7 +204,7 @@ const WelcomeScreen: React.FC = () => {
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>选择语言</Text>
+              <Text style={styles.modalTitle}>{t('welcome.select_language')}</Text>
               <TouchableOpacity onPress={() => setShowLanguageModal(false)}>
                 <Text style={styles.modalClose}>✕</Text>
               </TouchableOpacity>
@@ -444,7 +444,7 @@ const styles = StyleSheet.create({
     checkboxContainer: {
       marginRight: normalize(8),
     },
-         checkbox: {
+    checkbox: {
        width: normalize(17),
        height: normalize(17),
        borderWidth: 1,
@@ -464,7 +464,6 @@ const styles = StyleSheet.create({
        fontWeight: 'bold',
      },
     agreementTextContainer: {
-      flex: 1,
       flexDirection: 'row',
       flexWrap: 'wrap',
       alignItems: 'center',

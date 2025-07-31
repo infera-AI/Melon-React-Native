@@ -13,6 +13,7 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ProfileStackParamList } from './ProfileNavigator';
 import theme from '../../../utils/theme';
+import { useLanguage } from '../../../contexts/LanguageContext';
 
 const normalize = (size: number, based: 'width' | 'height' = 'width') => {
   const { width, height } = require('react-native').Dimensions.get('window');
@@ -28,6 +29,7 @@ type AboutScreenNavigationProp = NativeStackNavigationProp<ProfileStackParamList
 
 const AboutScreen: React.FC = () => {
   const navigation = useNavigation<AboutScreenNavigationProp>();
+  const { t } = useLanguage();
 
   const handleBack = () => {
     navigation.goBack();
@@ -63,7 +65,7 @@ const AboutScreen: React.FC = () => {
               style={styles.backIcon}
             />
           </TouchableOpacity>
-          <Text style={styles.title}>About Melon</Text>
+          <Text style={styles.title}>{t('about.about_melon')}</Text>
           <View style={styles.headerSpacer} />
         </View>
 
@@ -75,11 +77,11 @@ const AboutScreen: React.FC = () => {
         </View>
 
         <View style={styles.appNameContainer}>
-          <Text style={styles.appName}>Melon AI</Text>
+          <Text style={styles.appName}>{t('about.melon_ai')}</Text>
         </View>
 
         <View style={styles.versionContainer}>
-          <Text style={styles.versionText}>Version: V1.0.0</Text>
+          <Text style={styles.versionText}>{t('about.version')}</Text>
         </View>
 
         <View style={styles.legalSection}>
@@ -90,7 +92,7 @@ const AboutScreen: React.FC = () => {
           >
             <View style={styles.legalContent}>
               <View style={styles.legalLeft}>
-                <Text style={styles.legalTitle}>User Service Agreement</Text>
+                <Text style={styles.legalTitle}>{t('about.user_service_agreement')}</Text>
               </View>
               <View style={styles.legalRight}>
                 <Image 
@@ -108,7 +110,7 @@ const AboutScreen: React.FC = () => {
           >
             <View style={styles.legalContent}>
               <View style={styles.legalLeft}>
-                <Text style={styles.legalTitle}>Privacy Policy</Text>
+                <Text style={styles.legalTitle}>{t('about.privacy_policy')}</Text>
               </View>
               <View style={styles.legalRight}>
                 <Image 
@@ -126,7 +128,7 @@ const AboutScreen: React.FC = () => {
           >
             <View style={styles.legalContent}>
               <View style={styles.legalLeft}>
-                <Text style={styles.legalTitle}>Copyright Statement</Text>
+                <Text style={styles.legalTitle}>{t('about.copyright_statement')}</Text>
               </View>
               <View style={styles.legalRight}>
                 <Image 
@@ -140,15 +142,15 @@ const AboutScreen: React.FC = () => {
 
         <View style={styles.contactContainer}>
           <TouchableOpacity onPress={handleWebsiteClick} activeOpacity={1}>
-            <Text style={styles.contactText}>Official Website: www.xxxxx.cn</Text>
+            <Text style={styles.contactText}>{t('about.official_website')}</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={handleEmailClick} activeOpacity={1}>
-            <Text style={styles.contactText}>Customer Service Email: xxx@gmail.com</Text>
+            <Text style={styles.contactText}>{t('about.customer_service_email')}</Text>
           </TouchableOpacity>
         </View>
 
         <View style={styles.copyrightContainer}>
-          <Text style={styles.copyrightText}>© 2025 Melon. All Rights Reserved.</Text>
+          <Text style={styles.copyrightText}>{t('about.copyright_text')}</Text>
         </View>
       </ScrollView>
     </SafeAreaView>

@@ -16,6 +16,7 @@ import theme from '../../../utils/theme';
 import { verifyIdentityByPassword } from '../../../api/profile/profile';
 import { getLoginCodeApi } from '@/api/login';
 import { useMessageModal } from '@/contexts/MessageModalContext';
+import { useLanguage } from '../../../contexts/LanguageContext';
 
 const normalize = (size: number, based: 'width' | 'height' = 'width') => {
   const { width, height } = require('react-native').Dimensions.get('window');
@@ -32,7 +33,7 @@ type DeregisterVerificationScreenNavigationProp = NativeStackNavigationProp<Prof
 const DeregisterVerificationScreen: React.FC = () => {
   const navigation = useNavigation<DeregisterVerificationScreenNavigationProp>();
   const [verificationMethod, setVerificationMethod] = useState<'password' | 'phone'>('password');
-  const [verificationCode, setVerificationCode] = useState('');
+  const [verificationCode, _setVerificationCode] = useState('');
   const [password, setPassword] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [selectedCountry, setSelectedCountry] = useState({
@@ -41,6 +42,7 @@ const DeregisterVerificationScreen: React.FC = () => {
   });
   const [showCountryPicker, setShowCountryPicker] = useState(false);
   const { show } = useMessageModal();
+  const { t } = useLanguage();
 
   const handleBack = () => {
     navigation.goBack();
@@ -48,12 +50,12 @@ const DeregisterVerificationScreen: React.FC = () => {
 
   const handleConfirmDeregister = () => {
     if (verificationMethod === 'password' && !password.trim()) {
-      show({message: 'Please enter login password'});
+      show({message: t('deregister_verification.please_enter_login_password_error')});
       return;
     }
     
     if (verificationMethod === 'phone' && (!phoneNumber.trim()) ) {
-      show({message: 'Please enter mobile phone number'});
+      show({message: t('deregister_verification.please_enter_mobile_phone_number_error')});
       return;
     }
     
@@ -78,7 +80,7 @@ const DeregisterVerificationScreen: React.FC = () => {
       console.log('Send code:', res);
       navigation.navigate('DeregisterCodeVerification', { phoneNumber: phoneNumber ,countryCode:selectedCountry.code}); 
     }catch(error){
-      show({message: 'Send verification code failed'});
+      show({message: t('deregister_verification.send_verification_code_failed')});
       console.log('Send code error:', error);
     }
   }
@@ -95,7 +97,7 @@ const DeregisterVerificationScreen: React.FC = () => {
     navigation.navigate('BindMailbox',{action_token:res?.action_token});
     
     }catch(error){
-      show({message: 'Password error'});
+      show({message: t('deregister_verification.password_error')});
       console.log('Verify password error:', error);
     }
   }
@@ -109,7 +111,7 @@ const DeregisterVerificationScreen: React.FC = () => {
 
   const handleSendCode = () => {
     if (!phoneNumber.trim()) {
-      show({message: 'Please enter mobile phone number'});
+      show({message: t('deregister_verification.please_enter_mobile_phone_number_error')});
       return;
     }
     console.log('Send verification code to:', selectedCountry.code + phoneNumber);
@@ -136,7 +138,7 @@ const DeregisterVerificationScreen: React.FC = () => {
             style={styles.backIcon}
           />
         </TouchableOpacity>
-        <Text style={styles.title}>Cancel your account</Text>
+        <Text style={styles.title}>{t('deregister_verification.cancel_your_account')}</Text>
         <View style={styles.headerSpacer} />
       </View>
         
@@ -153,7 +155,7 @@ const DeregisterVerificationScreen: React.FC = () => {
                styles.tabText,
                verificationMethod === 'password' && styles.activeTabText
              ]}>
-               Password verification
+               {t('deregister_verification.password_verification')}
              </Text>
            </TouchableOpacity>
            <TouchableOpacity 
@@ -167,7 +169,7 @@ const DeregisterVerificationScreen: React.FC = () => {
                styles.tabText,
                verificationMethod === 'phone' && styles.activeTabText
              ]}>
-               Mobile phone verification
+               {t('deregister_verification.mobile_phone_verification')}
              </Text>
            </TouchableOpacity>
          </View>
@@ -180,7 +182,7 @@ const DeregisterVerificationScreen: React.FC = () => {
                  style={styles.input}
                  value={password}
                  onChangeText={setPassword}
-                 placeholder="Please enter your login password"
+                 placeholder={t('deregister_verification.please_enter_login_password')}
                  placeholderTextColor="#666666"
                  secureTextEntry
                />
@@ -201,7 +203,7 @@ const DeregisterVerificationScreen: React.FC = () => {
                    style={styles.input}
                    value={phoneNumber}
                    onChangeText={setPhoneNumber}
-                   placeholder="Please enter your mobile phone number"
+                   placeholder={t('deregister_verification.please_enter_mobile_phone_number')}
                    placeholderTextColor="#666666"
                    keyboardType="phone-pad"
                  />
@@ -219,21 +221,21 @@ const DeregisterVerificationScreen: React.FC = () => {
            ]} 
            onPress={handleConfirmDeregister}
          >
-           <Text style={styles.confirmButtonText}>verify</Text>
+           <Text style={styles.confirmButtonText}>{t('deregister_verification.verify')}</Text>
          </TouchableOpacity>
 
          
                    {/* 发送验证码 - 仅在手机号验证时显示 */}
           {verificationMethod === 'phone' && (
             <TouchableOpacity style={styles.resendButton} onPress={handleSendCode}>
-              <Text style={styles.forgotPasswordText}>Send a verification code</Text>
+              <Text style={styles.forgotPasswordText}>{t('deregister_verification.send_verification_code')}</Text>
             </TouchableOpacity>
           )}
 
           {/* 忘记密码链接 - 仅在密码验证时显示 */}
           {verificationMethod === 'password' && (
            <TouchableOpacity style={styles.forgotPasswordButton}>
-             <Text style={styles.forgotPasswordText}>Forgot password</Text>
+             <Text style={styles.forgotPasswordText}>{t('deregister_verification.forgot_password')}</Text>
            </TouchableOpacity>
           )}
 
@@ -242,7 +244,7 @@ const DeregisterVerificationScreen: React.FC = () => {
           <View style={styles.modalOverlay}>
             <View style={styles.modalContainer}>
               <View style={styles.modalHeader}>
-                <Text style={styles.modalTitle}>Select Country/Region</Text>
+                <Text style={styles.modalTitle}>{t('deregister_verification.select_country_region')}</Text>
                 <TouchableOpacity 
                   style={styles.closeButton}
                   onPress={() => setShowCountryPicker(false)}
