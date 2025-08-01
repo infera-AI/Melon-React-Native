@@ -11,6 +11,7 @@ import {
   Image,
   Dimensions,
 } from 'react-native';
+import { polishLyrics } from '@/api/music/music';
 
 const { width } = Dimensions.get('window');
 
@@ -21,6 +22,15 @@ const MusicScreen: React.FC = () => {
   const [lyrics, setLyrics] = useState('');
   const [fromLang, setFromLang] = useState('Chinese');
   const [toLang, setToLang] = useState('English');
+
+
+  // 歌词润饰
+  const handleAiPolish = async () => {
+    const res = await polishLyrics({
+      work_lyrics: lyrics,
+    });
+    console.log(res);
+  }
 
   return (
     <View style={styles.container}>
@@ -59,7 +69,7 @@ const MusicScreen: React.FC = () => {
       <View style={styles.lyricCard}>
         <View style={styles.lyricCardHeader}>
           <Text style={styles.lyricCardTitle}>Write Lyrics</Text>
-          <View style={styles.aiPolish}>
+          <TouchableOpacity style={styles.aiPolish} onPress={handleAiPolish}>
             <Image
               source={require('../../../../assets/images/ai_polishing_star.png')}
               style={styles.aiIcon}
@@ -80,7 +90,7 @@ const MusicScreen: React.FC = () => {
                 </Text>
               </LinearGradient>
             </MaskedView>
-          </View>
+          </TouchableOpacity>
         </View>
         <TextInput
           style={styles.lyricInput}
