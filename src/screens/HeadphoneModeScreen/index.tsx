@@ -1,4 +1,4 @@
-// Speaker Mode Page
+// 耳机模式页面
 import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
@@ -161,7 +161,7 @@ const HeadphoneModeScreen: React.FC = () => {
     const stop = listenHeadsetState((plugged) => {
       if (!plugged) {
         show({
-          message: '耳机已断开，请连接耳机后使用'
+          message: t('translate_screen.headset_cut_tip')
         })
         navigation.goBack()
       }
@@ -332,7 +332,7 @@ const HeadphoneModeScreen: React.FC = () => {
       }
     ]}>
       <CustomNavigation
-        text="Headphone Mode"
+        text={t('translate_screen.headPhone_mode')}
         backgroundColor="#181819"
         onBack={() => navigation.goBack()}
       />
@@ -351,7 +351,7 @@ const HeadphoneModeScreen: React.FC = () => {
                 !chatList.length ?
                 <View style={styles.scaleXStyle}>
                   <Text style={styles.noDataTipText}>
-                    Press and hold the voice button to speak, release to send.
+                    {t('translate_screen.Speaker_noData_tip')}
                   </Text>
                 </View>
                 
@@ -443,7 +443,7 @@ const HeadphoneModeScreen: React.FC = () => {
           {
             !chatList.length ?
             <Text style={styles.noDataTipText}>
-              Press and hold the voice button to speak, release to send.
+              {t('translate_screen.Speaker_noData_tip')}
             </Text>
             :
             <View style={styles.msgItems}>
@@ -588,7 +588,7 @@ const HeadphoneModeScreen: React.FC = () => {
       </View>
       <FullScreenLoader
         visible={loading}
-        text="请稍候..."
+        text={t('translate_screen.loading_text')}
         timeout={20000}
         onTimeout={() => setLoading(false)}
       />
@@ -613,7 +613,7 @@ const HeadphoneModeScreen: React.FC = () => {
           <TextInput
             ref={inputRef}
             style={styles.input}
-            placeholder="请输入内容"
+            placeholder={t('translate_screen.input_no_value')}
             value={inputValue}
             onChangeText={setInputValue}
             autoFocus

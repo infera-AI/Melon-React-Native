@@ -388,14 +388,14 @@ const ListeningModeScreen: React.FC = () => {
   const copyText = () => {
     if (!sourceText && !translatedText) {
       show({
-        message: '无聆听结果'
+        message: t('translate_screen.no_listen_result')
       })
       return
     }
-    let str = `原文文本：\n${sourceText}\n----------------------\n译文文本：\n${translatedText}`
+    let str = `${t('translate_screen.copy_tip_source')}:\n${sourceText}\n----------------------\n${t('translate_screen.copy_tip_translated')}:\n${translatedText}`
     Clipboard.setString(str);
     show({
-      message: '复制成功'
+      message: t('translate_screen.copy_success')
     })
   }
 
@@ -407,7 +407,7 @@ const ListeningModeScreen: React.FC = () => {
       }
     ]}>
       <CustomNavigation
-        text="Listening Mode"
+        text={t('translate_screen.listening_mode')}
         backgroundColor="#181819"
         onBack={() => navigation.goBack()}
       />
@@ -433,7 +433,7 @@ const ListeningModeScreen: React.FC = () => {
             !isSlice &&
             <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
               <Text style={[styles.noDataTipText, {textAlign: 'center'}]}>
-                {isListening ? '聆听中...' : `Click the voice button to start listening\nClick Pause again`}
+                {isListening ? t('translate_screen.Oral_Listening') : `${t('translate_screen.listening_tip1')}\n${t('translate_screen.listening_tip2')}`}
               </Text>
             </View>
           }
@@ -512,7 +512,7 @@ const ListeningModeScreen: React.FC = () => {
       </View>
       <FullScreenLoader
         visible={loading}
-        text="请稍候..."
+        text={t('translate_screen.loading_text')}
         timeout={5000}
         onTimeout={() => setLoading(false)}
       />
@@ -527,7 +527,7 @@ const ListeningModeScreen: React.FC = () => {
           <TextInput
             ref={inputRef}
             style={styles.input}
-            placeholder="请输入内容"
+            placeholder={t('translate_screen.input_no_value')}
             value={inputValue}
             onChangeText={setInputValue}
             autoFocus
