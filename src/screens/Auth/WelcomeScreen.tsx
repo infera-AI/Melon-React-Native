@@ -14,6 +14,9 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import { AuthStackParamList } from './AuthNavigator';
 import theme from '../../utils/theme';
 import { useLanguage } from '../../contexts/LanguageContext';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import CountryFlag from 'react-native-country-flag';
+import { languageToCountryCode, supportedLanguages } from "@/i18n/languages"
 
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '@/navigation/AppNavigator'
@@ -31,14 +34,14 @@ const normalizeFontSize = (size: number) => {
 type WelcomeScreenNavigationProp = StackNavigationProp<AuthStackParamList, 'Initial'>;
 
 // 支持的语言列表
-const languages = [
-  { code: 'en', name: 'English', flag: require('../../../assets/images/flag_usuk.png') },
-  { code: 'zh', name: '中文', flag: require('../../../assets/images/flag_cn.png') },
-  { code: 'jp', name: '日本語', flag: require('../../../assets/images/flag_jp.png') },
-  { code: 'de', name: 'Deutsch', flag: require('../../../assets/images/flag_de.png') },
-  { code: 'fr', name: 'Français', flag: require('../../../assets/images/flag_fr.png') },
-  { code: 'es', name: 'Español', flag: require('../../../assets/images/flag_es.png') },
-];
+// const languages = [
+//   { code: 'en', name: 'English', flag: require('../../../assets/images/flag_usuk.png') },
+//   { code: 'zh', name: '中文', flag: require('../../../assets/images/flag_cn.png') },
+//   { code: 'jp', name: '日本語', flag: require('../../../assets/images/flag_jp.png') },
+//   { code: 'de', name: 'Deutsch', flag: require('../../../assets/images/flag_de.png') },
+//   { code: 'fr', name: 'Français', flag: require('../../../assets/images/flag_fr.png') },
+//   { code: 'es', name: 'Español', flag: require('../../../assets/images/flag_es.png') },
+// ];
 
 const WelcomeScreen: React.FC = () => {
   const navigation = useNavigation<WelcomeScreenNavigationProp>();
@@ -47,8 +50,10 @@ const WelcomeScreen: React.FC = () => {
   const [showLanguageModal, setShowLanguageModal] = useState(false);
   const [isAgreementChecked, setIsAgreementChecked] = useState(false);
 
+  const { t } = useLanguage();
+
   // 获取当前选中的语言信息
-  const currentLanguage = languages.find(lang => lang.code === language) || languages[0];
+  const currentLanguage = supportedLanguages.find(lang => lang.code === language) || supportedLanguages[0];
 
   const handleRegister = () => {
     navigation.navigate('RegisterEmail');
@@ -76,7 +81,7 @@ const WelcomeScreen: React.FC = () => {
   };
 
   return (
-    <>
+    <SafeAreaView style={{flex: 1}} edges={['top','bottom','left','right']}>
       <View style={styles.container}>
         <StatusBar barStyle="light-content" backgroundColor={theme.background} />
         
@@ -119,23 +124,26 @@ const WelcomeScreen: React.FC = () => {
             
                        {/* Melon 标题 - 渐变色文字 */}
              <View style={styles.titleContainer}>
-               <Text style={styles.titleText}>Melon</Text>
+               <Image source={require('../../../src/assets/login/login_title_icon.png')} resizeMode="contain" style={styles.titleIcon} />
              </View>
             
             {/* 标语 - 渐变色文字 */}
             <View style={styles.sloganContainer}>
-                <Text style={styles.sloganText}>MELON SLOGAN</Text>
+                <Text style={styles.sloganText}>{t('welcome.slogan')}</Text>
             </View>
             
             {/* 注册按钮 */}
             <TouchableOpacity style={styles.registerButton} onPress={handleRegister}>
-              <Text style={styles.registerButtonText}>Register a Melon account</Text>
+              <Text style={styles.registerButtonText}>
+                {t('register.register_melon_account')}
+                {/* Register a Melon account */}
+              </Text>
             </TouchableOpacity>
               {/* 登录链接 */}
              <View style={styles.loginLink}>
-               <Text style={styles.loginLinkText}>Already have an account? </Text>
+               <Text style={styles.loginLinkText}>{t('welcome.already_have_account')}</Text>
                <TouchableOpacity onPress={handleLogin}>
-                 <Text style={styles.loginLinkButton}>Log in</Text>
+                 <Text style={styles.loginLinkButton}>{t('welcome.log_in')}</Text>
                </TouchableOpacity>
              </View>
             
@@ -143,20 +151,23 @@ const WelcomeScreen: React.FC = () => {
             <TouchableOpacity style={styles.languageSelector} onPress={handleLanguageSelectorPress}>
               <View style={styles.languageContainer}>
                 <View style={styles.flagContainer}>
-                  <Image
-                    source={currentLanguage.flag}
+                  {/* <Image
+                    source={}
                     style={styles.flag}
                     resizeMode="contain"
-                  />
+                  /> */}
+                  <View style={styles.flagOutView}>
+                    <CountryFlag isoCode={languageToCountryCode[currentLanguage.code]} size={25} style={styles.flag}/>
+                  </View>
                 </View>
-                <Text style={styles.languageText}>{currentLanguage.name}</Text>
+                <Text style={styles.languageText}>{currentLanguage.label}</Text>
                 <View style={styles.dropdownIcon}>
                   <Image source={require('../../../src/assets/main/dropdown_icon.png')} style={styles.dropdownIcon} />
                 </View>
               </View>
             </TouchableOpacity>
             
-                           {/* 用户协议 */}
+              {/* 用户协议 */}
               <View style={styles.agreementContainer}>
                 <TouchableOpacity 
                   style={styles.checkboxContainer} 
@@ -173,14 +184,14 @@ const WelcomeScreen: React.FC = () => {
                 </TouchableOpacity>
                 <View style={styles.agreementTextContainer}>
                   <Text style={styles.agreementText}>
-                    By registering or logging in, you have read and agreed to the{' '}
+                    {t('welcome.agreement_text')}{' '}
                   </Text>
-                     <TouchableOpacity onPress={handleUserServiceAgreement}>
-                     <Text style={styles.agreementLink}>User Service Agreement</Text>
+                  <TouchableOpacity onPress={handleUserServiceAgreement}>
+                     <Text style={styles.agreementLink}>{t('welcome.user_service_agreement')}</Text>
                    </TouchableOpacity>
-                   <Text style={styles.agreementText}> and </Text>
+                   <Text style={styles.agreementText}> {t('welcome.and')} </Text>
                    <TouchableOpacity onPress={handlePrivacyPolicy}>
-                     <Text style={styles.agreementLink}>Privacy Policy.</Text>
+                     <Text style={styles.agreementLink}>{t('welcome.privacy_policy')}</Text>
                    </TouchableOpacity>
                 </View>
               </View>
@@ -193,13 +204,13 @@ const WelcomeScreen: React.FC = () => {
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>选择语言</Text>
+              <Text style={styles.modalTitle}>{t('welcome.select_language')}</Text>
               <TouchableOpacity onPress={() => setShowLanguageModal(false)}>
                 <Text style={styles.modalClose}>✕</Text>
               </TouchableOpacity>
             </View>
             <View style={styles.languageList}>
-              {languages.map((lang, index) => (
+              {supportedLanguages.map((lang, index) => (
                 <TouchableOpacity
                   key={index}
                   style={[
@@ -208,12 +219,15 @@ const WelcomeScreen: React.FC = () => {
                   ]}
                   onPress={() => handleLanguageSelect(lang.code)}
                 >
-                  <Image source={lang.flag} style={styles.languageItemFlag} />
+                  <View style={styles.languageItemFlagView}>
+                    <CountryFlag isoCode={languageToCountryCode[lang.code]} size={25} style={styles.languageItemFlag}/>
+                  </View>
+                  {/* <Image source={lang.flag}  /> */}
                   <Text style={[
                     styles.languageItemText,
                     lang.code === language && styles.languageItemTextActive
                   ]}>
-                    {lang.name}
+                    {lang.label}
                   </Text>
                   {lang.code === language && (
                     <Text style={styles.languageItemCheck}>✓</Text>
@@ -224,7 +238,7 @@ const WelcomeScreen: React.FC = () => {
           </View>
         </View>
       )}
-     </>
+     </SafeAreaView>
    );
  };
 
@@ -298,6 +312,10 @@ const styles = StyleSheet.create({
       fontWeight: '700',
       textAlign: 'center',
       color: theme.textPrimary,
+    },
+    titleIcon: {
+      width: normalize(132),
+      height: normalize(32),
     },
     title: {
       fontSize: normalizeFontSize(48),
@@ -388,6 +406,13 @@ const styles = StyleSheet.create({
       height: normalize(20),
       marginRight: normalize(12),
     },
+    flagOutView: {
+      width: '100%',
+      height: '100%',
+      borderRadius: '50%',
+      overflow: 'hidden',
+      position: 'relative'
+    },
     flag: {
       width: '100%',
       height: '100%',
@@ -419,7 +444,7 @@ const styles = StyleSheet.create({
     checkboxContainer: {
       marginRight: normalize(8),
     },
-         checkbox: {
+    checkbox: {
        width: normalize(17),
        height: normalize(17),
        borderWidth: 1,
@@ -439,7 +464,6 @@ const styles = StyleSheet.create({
        fontWeight: 'bold',
      },
     agreementTextContainer: {
-      flex: 1,
       flexDirection: 'row',
       flexWrap: 'wrap',
       alignItems: 'center',
@@ -509,10 +533,17 @@ const styles = StyleSheet.create({
     languageItemActive: {
       backgroundColor: theme.backgroundTertiary,
     },
-    languageItemFlag: {
+    languageItemFlagView: {
       width: normalize(24),
       height: normalize(24),
       marginRight: normalize(12),
+      borderRadius: '50%',
+      position: 'relative',
+      overflow: 'hidden',
+    },
+    languageItemFlag: {
+      width: normalize(24),
+      height: normalize(24),
     },
     languageItemText: {
       flex: 1,

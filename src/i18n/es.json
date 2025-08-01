@@ -1,4 +1,12 @@
 {
+  "languageNames": {
+    "de": "Alemán",
+    "en": "Inglés",
+    "es": "Español",
+    "fr": "Francés",
+    "ja": "Japonés",
+    "zh": "Chino"
+  },
   "translate_screen": "Página de traducción",
   "auth_screen": "Página de autenticación",
   "music_screen": "Página de música",
@@ -19,17 +27,25 @@
     "register_melon_account": "Registrar cuenta Melon",
     "phone_number": "Número de teléfono",
     "e_mail": "Correo electrónico",
-    "select_country": "Seleccionar país"
+    "select_country": "Seleccionar país",
+    "please_enter_phone": "Por favor ingresa tu número de teléfono",
+    "please_enter_email": "Por favor ingresa tu correo electrónico"
   },
   "verify_code": {
     "title": "Verificar código",
-    "subtitle": "Se ha enviado un código de verificación a",
+    "subtitle": "Se ha enviado un código de verificación a tu teléfono",
+    "subtitle_email": "Se ha enviado un código de verificación a tu correo electrónico",
     "input_placeholder": "Ingrese el código de verificación",
     "resend": "Reenviar",
     "countdown": "s",
     "confirm": "Confirmar",
+    "next": "Siguiente",
     "not_received": "¿No recibiste el código?",
-    "change_account": "Cambiar cuenta"
+    "change_account": "Cambiar cuenta",
+    "login_failed": "Error de inicio de sesión",
+    "verification_code_incorrect": "El código de verificación es incorrecto",
+    "verification_failed": "Error de verificación",
+    "please_wait": "Por favor espera..."
   },
   "reset_password": {
     "title": "Recuperar tu contraseña",
@@ -48,7 +64,241 @@
     "email_placeholder": "Correo electrónico",
     "password_placeholder": "Contraseña",
     "log_in": "Iniciar sesión",
-    "forgot_password": "¿Olvidaste tu contraseña? Inicia sesión con código de verificación",
+    "forgot_password": "¿Olvidaste tu contraseña?",
+    "forgot_password_link": "Iniciar sesión con código de verificación",
     "select_country": "Seleccionar país"
+  },
+  "welcome": {
+    "slogan": "SLOGAN MELON",
+    "already_have_account": "¿Ya tienes una cuenta?",
+    "log_in": "Iniciar sesión",
+    "select_language": "Seleccionar idioma",
+    "agreement_text": "Al registrarte o iniciar sesión, has leído y aceptado",
+    "user_service_agreement": "Acuerdo de Servicio de Usuario",
+    "and": "y",
+    "privacy_policy": "Política de Privacidad"
+  },
+  "common": {
+    "unknown_error": "Error desconocido"
+  },
+  "login_with_code": {
+    "title": "Iniciar sesión con código de verificación",
+    "subtitle": "Por favor ingrese el número de teléfono móvil que usó para registrar su cuenta Melon. Enviaremos un código de verificación para restablecer su contraseña.",
+    "by_phone_number": "por número de teléfono",
+    "by_email": "por correo electrónico",
+    "phone_number": "Número de teléfono",
+    "email": "Correo electrónico",
+    "send_verification_code": "Enviar código de verificación",
+    "select_country": "Seleccionar país",
+    "send_code_failed": "Error al enviar código de verificación"
+  },
+  "profile": {
+    "melon_id": "Melon ID",
+    "ai_voiceprint_management": "Gestión de huella vocal IA",
+    "account_and_security": "Cuenta y seguridad",
+    "general_settings": "Configuración general",
+    "help_and_feedback": "Ayuda y comentarios",
+    "about_melon": "Acerca de Melon"
+  },
+  "edit_profile": {
+    "title": "Datos personales",
+    "change_profile_picture": "Cambiar tu foto de perfil",
+    "name": "Nombre",
+    "enter_your_name": "Ingresa tu nombre",
+    "save": "Guardar",
+    "saving": "Guardando...",
+    "uploading": "Subiendo...",
+    "avatar_updated_successfully": "Avatar actualizado exitosamente",
+    "failed_to_upload_avatar": "Error al subir avatar",
+    "failed_to_save_profile": "Error al guardar perfil",
+    "camera_permission_required": "Se requiere permiso de cámara para tomar fotos",
+    "storage_permission_required": "Se requiere permiso de almacenamiento para seleccionar fotos",
+    "failed_to_pick_image": "Error al seleccionar imagen"
+  },
+  "voiceprint_management": {
+    "title": "Gestión de huella vocal",
+    "my_voiceprint_example": "Mi ejemplo de huella vocal",
+    "trial_listening": "Escucha de prueba",
+    "playing": "Reproduciendo...",
+    "voiceprint_optimization": "Optimización de huella vocal",
+    "recording_the_main_sound": "Grabando el sonido principal",
+    "recording": "Grabando...",
+    "select_language": "Seleccionar idioma",
+    "please_record_main_sound_first": "Por favor graba el sonido principal primero",
+    "no_audio_available": "No hay audio disponible",
+    "failed_to_load_audio": "Error al cargar audio",
+    "failed_to_get_voiceprint_demo": "Error al obtener demo de huella vocal"
+  },
+  "create_voice": {
+    "create_your_own_voice": "Crea tu propia voz",
+    "voiceprint_optimization": "Optimización de huella vocal",
+    "personalize_your_voice": "Personaliza tu voz para traducciones más naturales.",
+    "to_accurately_clone": "Para clonar con precisión tu color de voz, por favor:",
+    "conduct_recording_quiet": "Realiza la grabación en un entorno tranquilo para evitar interferencias de ruido de fondo.",
+    "read_text_natural": "Lee el texto en pantalla con tu velocidad y volumen de habla naturales y claros.",
+    "face_microphone_directly": "Dirige el micrófono del teléfono directamente hacia ti y mantén una distancia de 15-20 centímetros.",
+    "quiet_environment": "entorno tranquilo",
+    "natural_clear_speaking": "velocidad y volumen de habla naturales y claros",
+    "directly_at_you": "directamente hacia ti",
+    "im_ready_start_recording": "Estoy listo, empecemos a grabar",
+    "not_recording_now": "No grabando por ahora, grabaré más tarde en configuraciones.",
+    "select_recording_language": "Seleccionar idioma de grabación"
+  },
+  "recording": {
+    "create_your_own_voice": "Crea tu propia voz",
+    "optimize_your_voice": "Optimiza tu voz",
+    "recording": "Grabando...",
+    "ready_to_record": "Listo para grabar",
+    "segment": "Segmento",
+    "segments_in_total": "segmentos en total",
+    "loading": "Cargando...",
+    "recording_in_progress": "Grabación en progreso...",
+    "re_record_this_segment": "Re-grabar este segmento",
+    "next": "Siguiente",
+    "recording_permission": "Permiso de grabación",
+    "recording_permission_message": "Se requiere permiso de grabación para grabar tu voz para el registro de huella vocal",
+    "permission_denied": "Permiso denegado, se requiere permiso de grabación para continuar",
+    "cannot_start_recording": "No se puede iniciar la grabación, verifica el permiso del micrófono e intenta de nuevo",
+    "cannot_stop_recording": "No se puede detener la grabación, intenta de nuevo",
+    "recording_too_short": "El tiempo de grabación es muy corto, graba de nuevo",
+    "recording_file_save_failed": "Error al guardar el archivo de grabación, intenta de nuevo",
+    "recording_config_not_loaded": "Configuración de grabación no cargada",
+    "no_recording_files_to_merge": "No hay archivos de grabación para fusionar",
+    "no_valid_recording_files": "No hay archivos de grabación válidos",
+    "audio_merge_failed": "Error al fusionar archivo de audio, intenta de nuevo",
+    "please_record_audio_first": "Por favor graba audio primero",
+    "recording_must_be_at_least": "La grabación debe ser de al menos {duration} segundos. Intenta de nuevo."
+  },
+  "generating_voice": {
+    "create_your_own_voice": "Crea tu propia voz",
+    "voiceprint_optimization": "Optimización de huella vocal",
+    "your_exclusive_tone_generating": "Tu tono exclusivo se está generando…",
+    "voiceprint_optimization_complete": "La optimización de huella vocal está completa.",
+    "listen_optimization_effect": "Puedes escuchar el efecto de optimización en \"Mi ejemplo de huella vocal\".",
+    "re_recording": "Re-grabar",
+    "confirm": "Confirmar",
+    "failed_to_generate_voice_id": "Error al generar ID de voz"
+  },
+  "language_voice": {
+    "generate_your_own_voice": "Genera tu propia voz",
+    "click_to_test_different_language": "haz clic para probar en diferentes idiomas",
+    "record_again": "Grabar de nuevo",
+    "done": "Hecho",
+    "voice_id_generated_successfully": "ID de voz generado exitosamente",
+    "failed_to_generate_voice_id": "Error al generar ID de voz",
+    "no_audio_available": "No hay audio disponible",
+    "failed_to_load_audio": "Error al cargar audio",
+    "please_wait": "Por favor espera..."
+  },
+  "account_security": {
+    "account_and_security": "Cuenta y seguridad",
+    "change_password": "Cambiar contraseña",
+    "bind_phone_number_email": "Vincular número de teléfono/correo",
+    "deregister_account": "Eliminar cuenta",
+    "logout": "Cerrar sesión"
+  },
+  "deregister_account": {
+    "cancel_your_account": "Cancelar tu cuenta",
+    "important_cancel_your_account": "Importante: Cancelar tu cuenta",
+    "risk_item_1": "Punto de riesgo 1:",
+    "risk_item_2": "Punto de riesgo 2:",
+    "risk_item_3": "Punto de riesgo 3:",
+    "account_data_permanently_deleted": "Los datos de la cuenta se eliminarán permanentemente y no se podrán recuperar",
+    "no_longer_able_to_use_account": "Ya no podrás usar esta cuenta para iniciar sesión en T1 y todos los servicios relacionados",
+    "third_party_binding_released": "La vinculación de terceros asociada con la cuenta se liberará automáticamente",
+    "please_check_before_canceling": "Por favor verifica antes de cancelar",
+    "backup_conversation_records": "1. Has respaldado todos los registros de conversación importantes y el contenido de la base de conocimientos.",
+    "unbound_third_party_accounts": "2. Has desvinculado todas las cuentas de terceros importantes en caso de que no puedas iniciar sesión en el futuro.",
+    "aware_of_consequences": "3. Eres plenamente consciente de las consecuencias completas de la cancelación",
+    "cancel": "Cancelar",
+    "ok": "OK"
+  },
+  "deregister_verification": {
+    "cancel_your_account": "Cancelar tu cuenta",
+    "password_verification": "Verificación de contraseña",
+    "mobile_phone_verification": "Verificación de teléfono móvil",
+    "please_enter_login_password": "Por favor ingresa tu contraseña de inicio de sesión",
+    "please_enter_mobile_phone_number": "Por favor ingresa tu número de teléfono móvil",
+    "verify": "verificar",
+    "send_verification_code": "Enviar código de verificación",
+    "forgot_password": "Olvidé mi contraseña",
+    "select_country_region": "Seleccionar país/región",
+    "please_enter_login_password_error": "Por favor ingresa la contraseña de inicio de sesión",
+    "please_enter_mobile_phone_number_error": "Por favor ingresa el número de teléfono móvil",
+    "send_verification_code_failed": "Error al enviar código de verificación",
+    "password_error": "Error de contraseña"
+  },
+  "deregister_code_verification": {
+    "cancel_your_account": "Cancelar tu cuenta",
+    "verification_code_sent": "El código de verificación ha sido enviado al teléfono móvil:",
+    "verifying": "Verificando...",
+    "verifying_in_progress": "Verificación en progreso...",
+    "next_step": "siguiente paso",
+    "retrieve_verification_code_again": "Recuperar código de verificación nuevamente",
+    "please_enter_complete_verification_code": "Por favor ingresa el código de verificación completo de 6 dígitos",
+    "verification_code_error": "Error de código de verificación:"
+  },
+  "bind_mailbox": {
+    "bind_mailboxes": "Vincular buzones de correo",
+    "account_canceled_warning": "Una vez que tu cuenta sea cancelada, todos los datos serán eliminados permanentemente y no se podrán recuperar",
+    "confirm_logout": "Confirmar el cierre de sesión",
+    "understand_consequences": "Entiendo completamente las consecuencias de la cancelación y elimino voluntariamente mi cuenta Melon y todos los datos permanentemente"
+  },
+  "general_settings": {
+    "general_settings": "Configuración general",
+    "system_language_selection": "Selección de idioma del sistema",
+    "clear_the_cache": "Limpiar caché",
+    "cache_description": "Los datos temporales generados durante el uso del caché no afectarán el uso normal de Melon.",
+    "cache_cleared_successfully": "Caché limpiado exitosamente",
+    "cleaning_cache": "Limpiando caché"
+  },
+  "help_feedback": {
+    "help_and_feedback": "Ayuda y comentarios",
+    "faq": "Preguntas frecuentes",
+    "using_translation_function": "Uso de la función de traducción",
+    "voiceprint_settings": "Configuración de huella vocal",
+    "account_and_security": "Cuenta y seguridad",
+    "graphic_description": "Descripción gráfica",
+    "product_feedback": "Comentarios del producto"
+  },
+  "about": {
+    "about_melon": "Acerca de Melon",
+    "melon_ai": "Melon AI",
+    "version": "Versión: V1.0.0",
+    "user_service_agreement": "Acuerdo de servicio de usuario",
+    "privacy_policy": "Política de privacidad",
+    "copyright_statement": "Declaración de derechos de autor",
+    "official_website": "Sitio web oficial: www.xxxxx.cn",
+    "customer_service_email": "Correo del servicio al cliente: xxx@gmail.com",
+    "copyright_text": "© 2025 Melon. Todos los derechos reservados."
+  },
+  "copyright_statement": {
+    "copyright_statement": "Declaración de derechos de autor",
+    "content": "Declaración de derechos de autor de Melon Al Auriculares\n\nArtículo 1 Propiedad de los derechos\n1.1 Este acuerdo es entre usted y Melon Al Auriculares (\"Melon\", \"nosotros\", \"nos\" o \"nuestro\") con respecto a su uso de nuestra aplicación móvil y servicios relacionados.\n\n1.2 Todo el contenido, características y funcionalidad de la aplicación Melon Al Auriculares, incluyendo pero no limitado a texto, gráficos, logos, iconos, imágenes, clips de audio, descargas digitales, compilaciones de datos y software, son propiedad exclusiva de Melon o sus proveedores de contenido y están protegidos por leyes internacionales de derechos de autor, marcas comerciales, patentes, secretos comerciales y otras leyes de propiedad intelectual.\n\n1.3 La compilación de todo el contenido en la aplicación es propiedad exclusiva de Melon y está protegida por las leyes de derechos de autor.\n\nArtículo 2 Uso autorizado\n2.1 Se le otorga una licencia limitada, no exclusiva, no transferible y revocable para usar la aplicación únicamente para fines personales y no comerciales.\n\n2.2 Usted no puede:\n- Copiar, reproducir, distribuir, transmitir, difundir, mostrar, vender, licenciar o explotar de otra manera cualquier contenido para fines comerciales\n- Modificar, adaptar, traducir, ingeniería inversa, descompilar, desensamblar o crear obras derivadas basadas en la aplicación\n- Eliminar cualquier aviso de derechos de autor, marca comercial u otra propiedad de la aplicación\n- Usar la aplicación de cualquier manera que pueda dañar, deshabilitar, sobrecargar o perjudicar nuestros servidores o redes\n\nArtículo 3 Contenido del usuario\n3.1 Usted conserva la propiedad de cualquier contenido que envíe, publique o muestre en o a través de la aplicación.\n\n3.2 Al enviar contenido, usted otorga a Melon una licencia mundial, no exclusiva, libre de regalías para usar, reproducir, modificar, adaptar, publicar, traducir y distribuir dicho contenido en conexión con la aplicación y nuestro negocio.\n\nArtículo 4 Violación de derechos de autor\n4.1 Si cree que su obra protegida por derechos de autor ha sido copiada de una manera que constituye una violación de derechos de autor, por favor contáctenos con la siguiente información:\n- Una descripción de la obra protegida por derechos de autor que usted afirma ha sido violada\n- Una descripción de dónde se encuentra el material en la aplicación\n- Su información de contacto\n- Una declaración de que tiene una creencia de buena fe de que el uso no está autorizado\n- Una declaración de que la información es precisa y que usted es el propietario de los derechos de autor\n\nArtículo 5 Actualizaciones y modificaciones\n5.1 Nos reservamos el derecho de modificar esta declaración de derechos de autor en cualquier momento. Los cambios serán efectivos inmediatamente después de la publicación.\n\n5.2 Su uso continuado de la aplicación después de cualquier cambio constituye la aceptación de los nuevos términos.\n\nArtículo 6 Información de contacto\n6.1 Para preguntas sobre esta declaración de derechos de autor, por favor contáctenos en:\nCorreo electrónico: legal@melon.com\nDirección: [Dirección de la empresa]\n\n© 2025 Melon. Todos los derechos reservados."
+  },
+  "product_feedback": {
+    "product_feedback": "Comentarios del producto",
+    "feedback_type": "Tipo de comentario",
+    "feedback_content": "Contenido del comentario",
+    "contact_information": "Información de contacto",
+    "related_screenshots": "Capturas de pantalla relacionadas",
+    "submit": "Enviar",
+    "please_describe_problem": "Por favor describe el problema o sugerencia que encontraste, no menos de 10 palabras.",
+    "please_enter_contact": "Por favor ingresa tu número de teléfono móvil o dirección de correo electrónico para que podamos contactarte",
+    "please_enter_feedback_content": "Por favor ingresa el contenido del comentario",
+    "feedback_content_too_short": "El contenido del comentario no puede ser menos de 10 caracteres",
+    "please_enter_contact_information": "Por favor ingresa la información de contacto",
+    "feedback_submitted_successfully": "¡El comentario ha sido enviado, gracias por tu apoyo!",
+    "finish": "Terminar",
+    "select_feedback_type": "Seleccionar tipo de comentario",
+    "function_suggestion": "Sugerencia de función",
+    "problem_feedback": "Comentario de problema",
+    "other": "Otro",
+    "select_image_failed": "La selección de imagen falló, por favor intenta de nuevo",
+    "add_screenshot_failed": "Agregar captura de pantalla falló, por favor intenta de nuevo",
+    "feedback_submit_failed": "El envío del comentario falló, por favor intenta de nuevo"
+  },
+  "system_language": {
+    "system_language_selection": "Selección de idioma del sistema"
   }
 }

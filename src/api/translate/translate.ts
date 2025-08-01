@@ -61,7 +61,7 @@ export function translateImage(params: TranslateImageRequest){
    */
 export function getTranslationTask(taskId: string){
       return http.get<TranslationTaskResponse>(
-        `${API_ENDPOINTS.TRANSLATE.GET_TRANSLATION_TASK}?task_id=${taskId}`
+        `${API_ENDPOINTS.TRANSLATE.GET_TRANSLATION_TASK}/${taskId}`
     );   
 }
 
@@ -90,27 +90,37 @@ export function getImageTranslationDetails(taskId: string){
       );
   }
 
-    /**
-   * 翻译文本接口
-   * @param params 翻译参数
-   * @returns Promise<ApifoxModel>
-   */
-    export function translateText(params: TranslateTextRequest){
-      return http.post<TranslateTextData>(
-        API_ENDPOINTS.TRANSLATE.TRANLATE_TEXT,
-          params
-        );
-    }
+/**
+ * 翻译文本接口
+ * @param params 翻译参数
+ * @returns Promise<ApifoxModel>
+ */
+export function translateText(params: TranslateTextRequest){
+  return http.post<TranslateTextData>(
+    API_ENDPOINTS.TRANSLATE.TRANLATE_TEXT,
+      params
+    );
+}
 
 
-    /**
-   * 创建新会话
-   * @param params 会话参数
-   * @returns Promise<ApifoxModel>
-   */
-    export function createConversation(params: CreateConversationRequest){
-        return http.post<CreateConversationResponse>(
-        API_ENDPOINTS.TRANSLATE.CREATE_CONVERSATION,
-          params
-        );
-    }
+  /**
+ * 创建新会话
+ * @param params 会话参数
+ * @returns Promise<ApifoxModel>
+ */
+export function createConversation(params: CreateConversationRequest){
+    return http.post<CreateConversationResponse>(
+    API_ENDPOINTS.TRANSLATE.CREATE_CONVERSATION,
+      params
+    );
+}
+
+/**
+ * 发送消息给语音助手
+ */
+export function sendMsgToAI(params: any){
+    return http.post<any>(
+    API_ENDPOINTS.TRANSLATE.SEND_MSG_TO_AI,
+      params
+    );
+}

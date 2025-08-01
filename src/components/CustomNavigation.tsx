@@ -24,9 +24,10 @@ import type { RootStackParamList } from '@/navigation/AppNavigator'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'; // 安全区
 
 type Props = {
-  text: string;
+  text?: string;
   rightBtnText?: string;
   backgroundColor?: string;
+  useTopSafeArea?: boolean;
   onBack?: (() => void) | null | undefined;
   rightBtnClick?: (() => void) | null | undefined;
   textStyle?: TextStyle;
@@ -34,9 +35,10 @@ type Props = {
 };
 
 const CustomNavigation: React.FC<Props> = ({
-  text,
+  text = '',
   rightBtnText = '',
   backgroundColor = '#2196F3',
+  useTopSafeArea = true,
   onBack = null,
   rightBtnClick = null,
   textStyle,
@@ -60,7 +62,8 @@ const CustomNavigation: React.FC<Props> = ({
   }
   return (
     <View>
-      <View style={{ height: insets.top }} />
+      {useTopSafeArea && <View style={{ height: insets.top }} />}
+      
       <View style={[styles.container, { backgroundColor }, style]}>
         {
           rightBtnText ? null :

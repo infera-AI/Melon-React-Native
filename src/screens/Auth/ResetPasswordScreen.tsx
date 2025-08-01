@@ -15,10 +15,10 @@ import { useNavigation } from '@react-navigation/native';
 import theme from '../../utils/theme';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { StackNavigationProp } from '@react-navigation/stack';
-import { AuthStackParamList } from './AuthNavigator';
 import { modifyPassword } from '../../api/login';
 import { useMessageModal } from '../../contexts/MessageModalContext';
-
+import { RootStackParamList } from '../../navigation/AppNavigator';
+import { SafeAreaView } from 'react-native-safe-area-context';
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 const normalize = (size: number, based: 'width' | 'height' = 'width') => {
   const newSize = based === 'height' ? size * screenHeight / 812 : size * screenWidth / 375;
@@ -29,7 +29,7 @@ const normalizeFontSize = (size: number) => {
   return Math.min(Math.round(newSize), size);
 };
 
-type ResetPasswordScreenNavigationProp = StackNavigationProp<AuthStackParamList, 'ResetPassword'>;
+type ResetPasswordScreenNavigationProp = StackNavigationProp<RootStackParamList, 'MainApp'>;
 
 const ResetPasswordScreen: React.FC = () => {
   const navigation = useNavigation<ResetPasswordScreenNavigationProp>();
@@ -69,17 +69,20 @@ const ResetPasswordScreen: React.FC = () => {
         confirm_password: confirmPassword,
       });
       console.log('resetPassword', response);
-      navigation.navigate('LoginPhone');
+      navigation.navigate('MainApp', {
+        screen: 'Translate',
+      });
     } catch (error: any) {
       show({
         message: error.message,
       });
-    }finally{
+    } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
+    <SafeAreaView style={{flex: 1}} edges={['top','bottom','left','right']}>
     <View style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor={theme.background} />
       <KeyboardAvoidingView
@@ -139,14 +142,15 @@ const ResetPasswordScreen: React.FC = () => {
 
         {/* 确认按钮 */}
         <TouchableOpacity
-          style={[styles.confirmButton, password.length >= 6 && confirmPassword.length >= 6 && !error ? styles.confirmButtonActive : null]}
+          style={[styles.confirmButton, password.length >= 6 && confirmPassword.length >= 6 ? styles.confirmButtonActive : null]}
           onPress={handleConfirm}
           disabled={isSubmitting || password.length < 6 || confirmPassword.length < 6}
         >
-          <Text style={[styles.confirmButtonText, password.length >= 6 && confirmPassword.length >= 6 && !error?styles.confirmButtonTextActive:null]}>{t('reset_password.confirm')}</Text>
+          <Text style={[styles.confirmButtonText, password.length >= 6 && confirmPassword.length >= 6 ?styles.confirmButtonTextActive:null]}>{t('reset_password.confirm')}</Text>
         </TouchableOpacity>
       </KeyboardAvoidingView>
     </View>
+    </SafeAreaView>
   );
 };
 

@@ -1,28 +1,55 @@
-import React, { useEffect, useRef } from 'react';
-import { StyleSheet, View, Dimensions, StatusBar, SafeAreaView, Animated, Image } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { StyleSheet, Dimensions, StatusBar, SafeAreaView, Animated, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
+import { useUserStore } from '../../store';
+import { RootStackParamList } from '../../navigation/AppNavigator';
 
 const { width, height } = Dimensions.get('window');
 const IMAGE_SIZE = Math.min(width, height);
 
 const SplashScreen: React.FC = () => {
-  const navigation = useNavigation<StackNavigationProp<any>>();
+  const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
   const fadeAnim = useRef(new Animated.Value(1)).current;
 
+  const [hydrated, setHydrated] = useState(false);
+
   useEffect(() => {
-    const timer = setTimeout(() => {
+    
+    if (useUserStore.persist.hasHydrated()) {
+      setHydrated(true);
+    } else {
+      const unsub = useUserStore.persist.onFinishHydration(() => {
+        setHydrated(true);
+      });
+      return unsub;
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (!hydrated) return;
+    const token = useUserStore.getState().token;
+    // console.log('hydrated token ==>', token);
+    setTimeout(() => {
       Animated.timing(fadeAnim, {
         toValue: 0,
         duration: 2000,
         useNativeDriver: true,
       }).start(() => {
-        navigation.replace('Language');
+        // 根据是否有 token 决定跳转到哪个页面
+        if (token) {
+          // 有 token，跳转到主应用（Translate 页面）
+          navigation.navigate('MainApp' as any);
+        } else {
+          // 没有 token，跳转到欢迎页面
+          navigation.navigate('Auth' as any);
+        }
       });
-    }, 1500);
-
-    return () => clearTimeout(timer);
-  }, [fadeAnim, navigation]);
+    }, 1500)
+    
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hydrated])
 
   return (
     <SafeAreaView style={styles.safe}>

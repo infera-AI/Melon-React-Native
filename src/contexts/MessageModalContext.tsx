@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
-import MessageModal from '../components/MessageModal';
+import MessageModal from './MessageModal';
 
-type ModalOptions = {
+export type ModalOptions = {
   title?: string;
   message: string;
   confirmText?: string;
@@ -28,7 +28,10 @@ export const MessageModalProvider: React.FC<{ children: ReactNode }> = ({ childr
     setVisible(true);
   };
 
-  const hide = () => setVisible(false);
+  const hide = () => {
+    console.log('hide');
+    setVisible(false);
+  };
 
   return (
     <MessageModalContext.Provider value={{ show, hide }}>

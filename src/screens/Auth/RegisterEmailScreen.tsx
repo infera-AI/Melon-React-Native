@@ -19,6 +19,7 @@ import theme from '../../utils/theme';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { getLoginCodeApi } from '../../api/login/auth';
 import { useMessageModal } from '../../contexts/MessageModalContext';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
@@ -64,13 +65,13 @@ const RegisterEmailScreen: React.FC = () => {
     // 检查是否填写了手机号或邮箱
     if (activeTab === 'phone' && !phone.trim()) {
       show({
-        message: "Please enter your phone number",
+        message: t('register.please_enter_phone'),
       });
       return;
     }
     if (activeTab === 'email' && !email.trim()) {
       show({
-        message: "Please enter your email",
+        message: t('register.please_enter_email'),
       });
       return;
     }
@@ -172,160 +173,162 @@ const RegisterEmailScreen: React.FC = () => {
   };
 
   return (
+    <SafeAreaView style={{flex: 1}} edges={['top','bottom','left','right']}>
     <View style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor={theme.background} />
-      <KeyboardAvoidingView
-        style={{ flex: 1 }}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      >
-        {/* 顶部Header */}
-        <View style={styles.header}>
-          <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-            <Image source={require('../../../src/assets/main/page_return_icon.png')} style={styles.backArrow} />
-          </TouchableOpacity>
-                     <Text style={styles.headerTitle}>{t('register.register_melon_account')}</Text>
-          <View style={{ width: normalize(40) }} />
-        </View>
-
-        {/* Tab切换 */}
-        <View style={styles.tabRow}>
-          <TouchableOpacity onPress={() => handleTabChange('phone')}>
-            <View style={styles.tabItem}>
-                             <Text style={[styles.tabText, activeTab === 'phone' && styles.tabTextActive]}>
-                 {t('register.phone_number')}
-               </Text>
-              {activeTab === 'phone' && <View style={styles.tabDot} />}
-            </View>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => handleTabChange('email')}>
-            <View style={styles.tabItem}>
-                             <Text style={[styles.tabText, activeTab === 'email' && styles.tabTextActive]}>
-                 {t('register.e_mail')}
-               </Text>
-              {activeTab === 'email' && <View style={styles.tabDot} />}
-            </View>
-          </TouchableOpacity>
-        </View>
-
-        {/* 输入区域 */}
-        <View style={styles.inputArea}>
-          {activeTab === 'email' ? (
-                        <>
-              {/* 邮箱输入框 */}
-              <View style={styles.inputBox}>
-                <Image source={require('../../../src/assets/login/login_email_icon.png')} style={styles.inputIcon} />
-                                 <TextInput
-                   style={styles.input}
-                   placeholder={t('register.email_placeholder')}
-                   placeholderTextColor={theme.textSecondary}
-                   value={email}
-                   onChangeText={setEmail}
-                   keyboardType="email-address"
-                   autoCapitalize="none"
-                 />
-              </View>
-            </>
-          ) : (
-            <>
-              {/* 国家选择框 */}
-              <View style={styles.inputBox}>
-                <TouchableOpacity style={styles.countrySelector} onPress={handleCountrySelect}>
-                  <View style={styles.locationIcon}>
-                    <Image source={require('../../../src/assets/login/login_area_icon.png')} style={styles.locationIcon} />
-                  </View>
-                  <Text style={styles.areaText}>
-                    {selectedCountry.name} ({selectedCountry.code})
-                  </Text>
-                </TouchableOpacity>
-              </View>
-              {/* 手机号输入框 */}
-              <View style={styles.inputBox}>
-                <Image source={require('../../../src/assets/login/login_phone_icon.png')} style={styles.inputIcon} />
-                                 <TextInput
-                   style={styles.input}
-                   placeholder={t('register.phone_placeholder')}
-                   placeholderTextColor={theme.textSecondary}
-                   value={phone}
-                   onChangeText={setPhone}
-                   keyboardType="phone-pad"
-                 />
-              </View>
-            </>
-          )}
-        </View>
-
-        {/* 注册按钮 */}
-                 <TouchableOpacity style={styles.registerButton} onPress={handleRegister}>
-           <Text style={styles.registerButtonText}>{t('register.send_verification_code')}</Text>
-         </TouchableOpacity>
-
-          {/* 协议提示 */}
-         <View style={styles.agreementContainer}>
-           <TouchableOpacity style={styles.checkboxContainer} onPress={handleAgreementToggle}>
-             <View style={[styles.checkbox, agreementChecked && styles.checkboxChecked]}>
-               {agreementChecked && <Text style={styles.checkmarkText}>✓</Text>}
-             </View>
-           </TouchableOpacity>
-                       <View style={styles.agreementTextContainer}>
-              <Text style={styles.agreementText}>{t('register.agreement_text')} </Text>
-              <TouchableOpacity onPress={handleUserAgreement}>
-                <Text style={styles.agreementLink}>{t('register.user_service_agreement')}</Text>
-              </TouchableOpacity>
-              <Text style={styles.agreementText}> {t('register.and')} </Text>
-              <TouchableOpacity onPress={handlePrivacyPolicy}>
-                <Text style={styles.agreementLink}>{t('register.privacy_policy')}</Text>
-              </TouchableOpacity>
-              <Text style={styles.agreementText}>.</Text>
-            </View>
-         </View>
-
-        {/* 国家选择弹窗 - 使用 View 模拟 Modal */}
-        {showCountryModal && (
-          <View style={styles.modalOverlay}>
-            <View style={styles.modalContainer}>
-              <View style={styles.modalHeader}>
-                <Text style={styles.modalTitle}>{t('register.select_country')}</Text>
-                <TouchableOpacity onPress={handleCloseModal}>
-                  <Text style={styles.modalCloseButton}>✕</Text>
-                </TouchableOpacity>
-              </View>
-              <ScrollView style={styles.countryList}>
-                {countries.map((country) => (
-                  <TouchableOpacity
-                    key={country.id}
-                    style={[
-                      styles.countryItem,
-                      selectedCountry.id === country.id && styles.countryItemSelected
-                    ]}
-                    onPress={() => handleCountryChange(country)}
-                  >
-                    <Text style={styles.countryItemFlag}>{country.flag}</Text>
-                    <View style={styles.countryItemInfo}>
-                      <Text style={[
-                        styles.countryItemName,
-                        selectedCountry.id === country.id && styles.countryItemNameSelected
-                      ]}>
-                        {country.name}
-                      </Text>
-                      <Text style={[
-                        styles.countryItemCode,
-                        selectedCountry.id === country.id && styles.countryItemCodeSelected
-                      ]}>
-                        {country.code}
-                      </Text>
-                    </View>
-                    {selectedCountry.id === country.id && (
-                      <Text style={styles.checkmark}>✓</Text>
-                    )}
-                  </TouchableOpacity>
-                ))}
-              </ScrollView>
-            </View>
+        <StatusBar barStyle="light-content" backgroundColor={theme.background} />
+        <KeyboardAvoidingView
+          style={{ flex: 1 }}
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        >
+          {/* 顶部Header */}
+          <View style={styles.header}>
+            <TouchableOpacity style={styles.backButton} onPress={handleBack}>
+              <Image source={require('../../../src/assets/main/page_return_icon.png')} style={styles.backArrow} />
+            </TouchableOpacity>
+                      <Text style={styles.headerTitle}>{t('register.register_melon_account')}</Text>
+            <View style={{ width: normalize(40) }} />
           </View>
-        )}
 
-      </KeyboardAvoidingView>
+          {/* Tab切换 */}
+          <View style={styles.tabRow}>
+            <TouchableOpacity onPress={() => handleTabChange('phone')}>
+              <View style={styles.tabItem}>
+                  <Text style={[styles.tabText, activeTab === 'phone' && styles.tabTextActive]}>
+                  {t('register.phone_number')}
+                </Text>
+                {activeTab === 'phone' && <View style={styles.tabDot} />}
+              </View>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => handleTabChange('email')}>
+              <View style={styles.tabItem}>
+                  <Text style={[styles.tabText, activeTab === 'email' && styles.tabTextActive]}>
+                  {t('register.e_mail')}
+                </Text>
+                {activeTab === 'email' && <View style={styles.tabDot} />}
+              </View>
+            </TouchableOpacity>
+          </View>
+
+          {/* 输入区域 */}
+          <View style={styles.inputArea}>
+            {activeTab === 'email' ? (
+              <>
+                {/* 邮箱输入框 */}
+                <View style={styles.inputBox}>
+                  <Image source={require('../../../src/assets/login/login_email_icon.png')} style={styles.inputIcon} />
+                                  <TextInput
+                    style={styles.input}
+                    placeholder={t('register.email_placeholder')}
+                    placeholderTextColor={theme.textSecondary}
+                    value={email}
+                    onChangeText={setEmail}
+                    keyboardType="email-address"
+                    autoCapitalize="none"
+                  />
+                </View>
+              </>
+            ) : (
+              <>
+                {/* 国家选择框 */}
+                <View style={styles.inputBox}>
+                  <TouchableOpacity style={styles.countrySelector} onPress={handleCountrySelect}>
+                    <View style={styles.locationIcon}>
+                      <Image source={require('../../../src/assets/login/login_area_icon.png')} style={styles.locationIcon} />
+                    </View>
+                    <Text style={styles.areaText}>
+                      {selectedCountry.name} ({selectedCountry.code})
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+                {/* 手机号输入框 */}
+                <View style={styles.inputBox}>
+                  <Image source={require('../../../src/assets/login/login_phone_icon.png')} style={styles.inputIcon} />
+                                  <TextInput
+                    style={styles.input}
+                    placeholder={t('register.phone_placeholder')}
+                    placeholderTextColor={theme.textSecondary}
+                    value={phone}
+                    onChangeText={setPhone}
+                    keyboardType="phone-pad"
+                  />
+                </View>
+              </>
+            )}
+          </View>
+
+          {/* 注册按钮 */}
+                  <TouchableOpacity style={styles.registerButton} onPress={handleRegister}>
+            <Text style={styles.registerButtonText}>{t('register.send_verification_code')}</Text>
+          </TouchableOpacity>
+
+            {/* 协议提示 */}
+          <View style={styles.agreementContainer}>
+            <TouchableOpacity style={styles.checkboxContainer} onPress={handleAgreementToggle}>
+              <View style={[styles.checkbox, agreementChecked && styles.checkboxChecked]}>
+                {agreementChecked && <Text style={styles.checkmarkText}>✓</Text>}
+              </View>
+            </TouchableOpacity>
+            <View style={styles.agreementTextContainer}>
+                <Text style={styles.agreementText}>{t('register.agreement_text')} </Text>
+                <TouchableOpacity onPress={handleUserAgreement}>
+                  <Text style={styles.agreementLink}>{t('register.user_service_agreement')}</Text>
+                </TouchableOpacity>
+                <Text style={styles.agreementText}> {t('register.and')} </Text>
+                <TouchableOpacity onPress={handlePrivacyPolicy}>
+                  <Text style={styles.agreementLink}>{t('register.privacy_policy')}</Text>
+                </TouchableOpacity>
+                <Text style={styles.agreementText}>.</Text>
+              </View>
+          </View>
+
+          {/* 国家选择弹窗 - 使用 View 模拟 Modal */}
+          {showCountryModal && (
+            <View style={styles.modalOverlay}>
+              <View style={styles.modalContainer}>
+                <View style={styles.modalHeader}>
+                  <Text style={styles.modalTitle}>{t('register.select_country')}</Text>
+                  <TouchableOpacity onPress={handleCloseModal}>
+                    <Text style={styles.modalCloseButton}>✕</Text>
+                  </TouchableOpacity>
+                </View>
+                <ScrollView style={styles.countryList}>
+                  {countries.map((country) => (
+                    <TouchableOpacity
+                      key={country.id}
+                      style={[
+                        styles.countryItem,
+                        selectedCountry.id === country.id && styles.countryItemSelected
+                      ]}
+                      onPress={() => handleCountryChange(country)}
+                    >
+                      <Text style={styles.countryItemFlag}>{country.flag}</Text>
+                      <View style={styles.countryItemInfo}>
+                        <Text style={[
+                          styles.countryItemName,
+                          selectedCountry.id === country.id && styles.countryItemNameSelected
+                        ]}>
+                          {country.name}
+                        </Text>
+                        <Text style={[
+                          styles.countryItemCode,
+                          selectedCountry.id === country.id && styles.countryItemCodeSelected
+                        ]}>
+                          {country.code}
+                        </Text>
+                      </View>
+                      {selectedCountry.id === country.id && (
+                        <Text style={styles.checkmark}>✓</Text>
+                      )}
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
+              </View>
+            </View>
+          )}
+
+        </KeyboardAvoidingView>
     </View>
+    </SafeAreaView>   
   );
 };
 
@@ -429,8 +432,8 @@ const styles = StyleSheet.create({
   },
   agreementContainer: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
-    justifyContent: 'flex-start',
+    alignItems: 'center',
+    justifyContent: 'center',
     marginBottom: normalize(16, 'height'),
     paddingHorizontal: normalize(20),
   },
@@ -458,7 +461,6 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   agreementTextContainer: {
-    flex: 1,
     flexDirection: 'row',
     flexWrap: 'wrap',
     alignItems: 'center',

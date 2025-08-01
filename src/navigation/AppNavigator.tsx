@@ -11,7 +11,13 @@ import { NavigatorScreenParams } from '@react-navigation/native';
 import { AuthStackParamList } from '../screens/Auth/AuthNavigator';
 import { MainAppStackParamList } from './MainAppNavigator';
 
-import ChatScreen from '../screens/ChatScreen'
+import ChatScreen from '@/screens/ChatScreen'
+import HeadphoneModeScreen from '@/screens/HeadphoneModeScreen'
+import ListeningModeScreen from '@/screens/ListeningModeScreen'
+import DocumentTranslationScreen from '@/screens/DocumentTranslationScreen'
+import AudioTranslationScreen from '@/screens/AudioTranslationScreen'
+import ImageTranslationScreen from '@/screens/ImageTranslationScreen'
+import OralPracticeScreen from '@/screens/OralPracticeScreen'
 
 export type RootStackParamList = {
   Splash: undefined;
@@ -19,6 +25,12 @@ export type RootStackParamList = {
   Auth: NavigatorScreenParams<AuthStackParamList>;
   MainApp: NavigatorScreenParams<MainAppStackParamList>;
   Chat: undefined;
+  HeadphoneMode: undefined;
+  ListeningMode: undefined;
+  DocumentTranslation: undefined;
+  AudioTranslation: undefined;
+  ImageTranslation: undefined;
+  OralPractice: undefined;
 };
 
 // const Stack = createStackNavigator<RootStackParamList>();
@@ -52,6 +64,12 @@ const AppNavigator = () => {
         />
         {/* 这里可继续添加其他页面 */}
         <Stack.Screen name="Chat" component={ChatScreen} />
+        <Stack.Screen name="HeadphoneMode" component={HeadphoneModeScreen} />
+        <Stack.Screen name="ListeningMode" component={ListeningModeScreen} />
+        <Stack.Screen name="DocumentTranslation" component={DocumentTranslationScreen} />
+        <Stack.Screen name="AudioTranslation" component={AudioTranslationScreen} />
+        <Stack.Screen name="ImageTranslation" component={ImageTranslationScreen} />
+        <Stack.Screen name="OralPractice" component={OralPracticeScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

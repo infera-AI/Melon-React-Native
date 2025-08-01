@@ -7,7 +7,7 @@ import CustomTabBar from '../screens/Home/CustomTabBar'
 import TranslateScreen from '../screens/Home/TranslateScreen';
 import MusicStackNavigator from '../screens/Home/MusicScreen/navigator';
 // 首页-个人资料
-import ProfileScreen from '../screens/Home/ProfileScreen';
+import ProfileNavigator from '../screens/Home/ProfileScreen/ProfileNavigator';
 
 export type MainAppStackParamList = {
   Translate: undefined;
@@ -32,7 +32,7 @@ const MainAppNavigator: React.FC = () => (
   >
     <Tab.Screen name="Translate" component={TranslateScreen} />
     <Tab.Screen name="Music" component={MusicStackNavigator} />
-    <Tab.Screen name="Profile" component={ProfileScreen} />
+    <Tab.Screen name="Profile" component={ProfileNavigator} />
   </Tab.Navigator>
 );
 

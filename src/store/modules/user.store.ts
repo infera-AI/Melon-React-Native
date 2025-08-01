@@ -6,7 +6,7 @@
  * const x = useStore(state => state.x);
  * 
  * 外部使用示例：
- * import { useUserStore } from '../../store';
+ * import { useUserStore } from '@/store';
  * const token = useUserStore(s => s.token);
  * const userInfo = useUserStore(s => s.userInfo);
  * const setToken = useUserStore(s => s.setToken);
@@ -19,9 +19,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 // 用户信息类型
 interface UserInfo {
   id: string;
-  name: string;
+  username: string;
   email: string;
-  avatar?: string;
+  avatar_url?: string;
   phone?: string;
 }
 
@@ -33,6 +33,9 @@ export interface UserState {
 
     token: string | null;
     setToken: (token: string) => void;
+
+    verification_token: string | null;
+    setVerificationToken: (verification_token: string) => void;
 
     setLoginInfo: (user: UserInfo, token: string) => void; // 设置登录后用户信息以及token
     clearLoginInfo: () => void;
@@ -51,6 +54,9 @@ export const useUserStore = create<UserState>()(
 
             token: null,
             setToken: (token) => set({token}),
+
+            verification_token: null,
+            setVerificationToken: (verification_token) => set({verification_token}),
 
             setLoginInfo: (userInfo, token) => set({ userInfo, token }),
             clearLoginInfo: () => set({ userInfo: null, token: null }),
