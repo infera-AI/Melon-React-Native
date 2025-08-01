@@ -28,6 +28,7 @@ type Props = {
   textSize?: number,
   paddingTopBottom?: number,
   marginRight?: number,
+  disabled?: boolean,
   // backgroundColor?: string;
   // spinnerSize?: 'small' | 'large';
   // customIndicator?: React.ReactNode;
@@ -49,6 +50,7 @@ const LangSelectCard: React.FC<Props> = ({
   textSize = 14,
   paddingTopBottom = 8,
   marginRight = 20,
+  disabled = false,
   beforeSelectBack = null,
   afterSelectBack = null
 }) => {
@@ -85,7 +87,16 @@ const LangSelectCard: React.FC<Props> = ({
 
   return (
     <>
-      <View style={[styles.langSelectCard, {paddingVertical: scaleSize(paddingTopBottom), marginRight: scaleSize(marginRight),}]}>
+      <View
+        style={[
+          styles.langSelectCard,
+          disabled && styles.disabledDom,
+          {
+            paddingVertical: scaleSize(paddingTopBottom),
+            marginRight: scaleSize(marginRight)
+          }
+        ]}
+      >
         <TouchableOpacity style={styles.langSelectItem} onPress={() => openSelectLang('before')}>
           <View style={styles.langSelectTextView}>
             <Text style={[styles.langSelectText, {fontSize: scaleFont(textSize)}]} numberOfLines={1} ellipsizeMode={'tail'}>
@@ -201,6 +212,10 @@ const styles = StyleSheet.create({
     borderRadius: scaleSize(14),
     // height: scaleSize(64),
     paddingHorizontal: scaleSize(16),
+  },
+  disabledDom: {
+    pointerEvents: 'none',
+    opacity: 0.5,
   },
   langSelectItem: {
     flex: 1,

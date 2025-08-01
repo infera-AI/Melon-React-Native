@@ -105,3 +105,23 @@ export interface CreateConversationResponse {
   success: string;
   task_id: string;
 }
+
+// 翻译音频请求参数
+export interface TranslateAudioRequest {
+  /**
+   * 源语言
+   */
+  source_language: string;
+  /**
+   * 目标语言
+   */
+  target_language: string;
+  /**
+   * 要翻译的图片文件列表
+   */
+  audio_file: {
+    uri: string;
+    name: string;
+    type: string;
+  };
+}

@@ -48,12 +48,16 @@ import { AudioPlayerController } from '@/utils/AudioPlayerController';
 
 export type SpeakBtnRef = {
   destroy: () => void;
+  start: () => void;
+  stop: () => void;
 };
 
 type Props = {
   beforeLanguage?: string; // 主语言
   afterLanguage?: string; // 翻译成什么语言
   disabled?: boolean,
+  hidden?: boolean, // 是否不渲染页面元素
+  mode?: string, // listening (长连接，以及不断返回识别结果的)    | chat（对话模式）
   voiceWaveBgColor?: string,
   onlyRecognition?: boolean, // 是否仅仅识别语音， 不做翻译（用在口语练习中），所以也不用传beforeLanguage和afterLanguage，
   // backgroundColor?: string;
@@ -88,6 +92,8 @@ const SpeakBtn = forwardRef<SpeakBtnRef, Props>(({
   afterLanguage = 'en',
   voiceWaveBgColor = '#262626',
   onlyRecognition = false,
+  hidden = false,
+  mode = 'chat',
   renderContent = () => <View/>,
   tellResult = () => null,
   statusChange = () => null,
@@ -115,6 +121,9 @@ const SpeakBtn = forwardRef<SpeakBtnRef, Props>(({
   }, [isDown])
 
   const openMic = async () => {
+    console.log('openMic1111-------', beforeLanguage);
+    console.log('openMic22222-------', afterLanguage);
+    
     if (Platform.OS === 'android') {
       let hasPermission = await checkMicrophone();
       if (!hasPermission) {
@@ -156,6 +165,7 @@ const SpeakBtn = forwardRef<SpeakBtnRef, Props>(({
           }
         } else {
           param = {
+            "mode": mode,
             "format": 'PCM',
             "sample_rate": 16000,
             "source_language": beforeLanguage,
@@ -172,9 +182,12 @@ const SpeakBtn = forwardRef<SpeakBtnRef, Props>(({
       },
       // 收到消息回调
       onMessage: (data) => {
-        console.log('收到消息:', data);
-        if (data.hasOwnProperty('status') && data.hasOwnProperty('error_msg')) { // status 和 error_msg存在时，才是服务端给我发的消息
-          if (data?.status === 'success') {
+        console.log('speakbtn收到消息:', data);
+        if (data.hasOwnProperty('status') && (data.hasOwnProperty('error_msg') || data.hasOwnProperty('translated_text'))) { // status 和 error_msg存在时，才是服务端给我发的消息
+          if (mode === 'listening' && data?.status === 'processing') {
+            tellResult(data)
+            return
+          } else if (data?.status === 'success') {
             setVoiceStatus(StatusEnum.TYPE_TRANSLATION_OVER)
             tellResult(data)
           } else {
@@ -240,6 +253,8 @@ const SpeakBtn = forwardRef<SpeakBtnRef, Props>(({
           const chunk = Buffer.concat(audioBuffer);
           const sendBuffer = chunk.slice(0, CHUNK_SIZE);
 
+          // console.log('发送的音频数据------', sendBuffer);
+          
           // 发送音频数据
           ws && ws.send(sendBuffer)
 
@@ -276,7 +291,7 @@ const SpeakBtn = forwardRef<SpeakBtnRef, Props>(({
   const stopMic = () => {
     try {
       AudioRecord.stop();
-      setAudioCategory('playback')
+      // setAudioCategory('playback')
       ws && ws.send({finish: true})
     } catch (error) {
       
@@ -287,7 +302,7 @@ const SpeakBtn = forwardRef<SpeakBtnRef, Props>(({
     ws && ws.close()
     try {
       AudioRecord.stop();
-      setAudioCategory('playback')
+      // setAudioCategory('playback')
     } catch (error) {
       
     }
@@ -328,7 +343,7 @@ const SpeakBtn = forwardRef<SpeakBtnRef, Props>(({
     return () => {
       try {
         AudioRecord.stop();
-        setAudioCategory('playback')
+        // setAudioCategory('playback')
       } catch (error) {
         
       }
@@ -340,7 +355,13 @@ const SpeakBtn = forwardRef<SpeakBtnRef, Props>(({
   // 💡暴露方法
   useImperativeHandle(ref, () => ({
     destroy,
+    start: downClick,
+    stop: upClick
   }));
+
+  if (hidden) {
+    return null
+  }
 
   return (
     <>

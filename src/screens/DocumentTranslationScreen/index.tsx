@@ -29,7 +29,7 @@ import { scaleSize, scaleFont } from '@/utils/scale';
 import { pick, isKnownType } from '@react-native-documents/picker';
 import {
   translateDocument,
-  getTranslationTask
+  getTranslationTask,
 } from '@/api/translate/translate'
 
 import PublicModal from '@/components/PublicModal'

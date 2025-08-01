@@ -1,4 +1,4 @@
-import type { TranslateDocumentRequest, TranslateImageRequest, TranslationTaskResponse, TranslateTextData, TranslateTextRequest, CreateConversationRequest, CreateConversationResponse} from './types'
+import type { TranslateDocumentRequest, TranslateImageRequest, TranslationTaskResponse, TranslateTextData, TranslateTextRequest, CreateConversationRequest, CreateConversationResponse, TranslateAudioRequest} from './types'
 import http from '../../utils/http'
 import { API_ENDPOINTS } from '../apiPath';
 
@@ -47,6 +47,33 @@ export function translateImage(params: TranslateImageRequest){
       // 使用httpClient的upload方法
       return http.post<any>(
         API_ENDPOINTS.TRANSLATE.TRANLATE_IMAGE,
+        formData,
+        { headers: { 'Content-Type': 'multipart/form-data' } }
+      );
+
+  }
+
+  /**
+   * 翻译音频接口
+   * @param params 翻译参数
+   * @returns Promise<ApifoxModel>
+   */
+export function translateAudio(params: TranslateAudioRequest){
+      // 创建FormData对象用于文件上传
+      const formData = new FormData();
+      formData.append('source_language', params.source_language);
+      formData.append('target_language', params.target_language);
+      
+      // 添加音频文件
+      formData.append('audio_file', {
+        uri: params.audio_file.uri,
+        name: params.audio_file.name, 
+        type: params.audio_file.type,
+      });
+
+      // 使用httpClient的upload方法
+      return http.post<any>(
+        API_ENDPOINTS.TRANSLATE.TRANLATE_AUDIO,
         formData,
         { headers: { 'Content-Type': 'multipart/form-data' } }
       );

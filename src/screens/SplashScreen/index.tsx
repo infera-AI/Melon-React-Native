@@ -40,7 +40,8 @@ const SplashScreen: React.FC = () => {
         // 根据是否有 token 决定跳转到哪个页面
         if (token) {
           // 有 token，跳转到主应用（Translate 页面）
-          navigation.navigate('MainApp' as any);
+          // navigation.navigate('MainApp' as any);
+          navigation.reset({index: 0, routes: [{name: 'MainApp'}]})
         } else {
           // 没有 token，跳转到欢迎页面
           navigation.navigate('Auth' as any);

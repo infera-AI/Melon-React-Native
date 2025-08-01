@@ -9,7 +9,8 @@ import {
   TouchableWithoutFeedback,
   Image,
   ScrollView,
-  Animated
+  Animated,
+  Platform
 } from 'react-native';
 import { useLanguage } from '@/contexts/LanguageContext';
 import EStyleSheet from 'react-native-extended-stylesheet';
@@ -22,6 +23,14 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Octicons';
 import MaterialDesignIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import { useMessageModal } from '@/contexts/MessageModalContext';
+import type { Language } from '@/i18n/languages';
+
+import {
+  translateAudio
+} from '@/api/translate/translate'
+
+import { pick } from '@react-native-documents/picker';
 
 import PublicModal from '@/components/PublicModal'
 
@@ -49,6 +58,28 @@ const OriginalSwitchEnum = {
   TYPE_TRANSLATION: 'translation', // 译文
 }
 
+const MAX_FILE_SIZE_MB = 100; // 文件大小限制（M）
+
+const iosTypes = [
+  'public.mp3',
+  'com.microsoft.waveform-audio',
+  'public.wav',
+  'public.mpeg-4-audio',
+];
+
+const androidTypes = [
+  'audio/mpeg',    // mp3
+  'audio/wav',     // wav
+  'audio/x-wav',   // wav 另一种写法
+  'audio/mp4',     // m4a
+  'audio/x-m4a',   // m4a 另一种写法
+]
+
+const fileTypes = Platform.select({
+  ios: iosTypes,
+  android: androidTypes,
+});
+
 const AudioTranslationScreen: React.FC = () => {
 
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
@@ -62,6 +93,13 @@ const AudioTranslationScreen: React.FC = () => {
   const [downloadModalShow, setDownloadModalShow] = useState(false)
 
   const insets = useSafeAreaInsets(); // 获取安全区域距离
+
+  const { language } = useLanguage();
+  const { show } = useMessageModal()
+
+  const [beforeLangSelect, setBeforeLangSelect] = useState(language)
+  const [afterLangSelect, setAfterLangSelect] = useState<Language>('en')
+  const [fileName, setFileName] = useState<string>('')
 
   const [isPlay, setIsPlay] = useState(false); // 音频是否在播放
   const [audioUrl, setAudioUrl] = useState(''); // 音频是否在播放
@@ -77,8 +115,73 @@ const AudioTranslationScreen: React.FC = () => {
     // setLoading(true)
   };
 
-  const selectFileBtnClick = () => {
-    setUploadStatus(UploadStatusEnum.TYPE_SUCCESS)
+  const selectFileBtnClick = async() => {
+    // setUploadStatus(UploadStatusEnum.TYPE_SUCCESS)
+    try {
+      const res = await pick({
+        type: fileTypes,
+        allowMultiSelection: false,
+      });
+      console.log('res----', res);
+      if (androidTypes.includes(res[0]?.type ?? '')) {
+        console.log('文件格式正确');
+      } else {
+        show({
+          message: '文件类型不支持，请重新选择'
+        })
+        return
+      }
+
+      let totalSizeBytes = 0;
+
+      res.forEach((file) => {
+        totalSizeBytes += file.size ?? 0;
+      });
+
+      const totalSizeMB = totalSizeBytes / (1024 * 1024);
+
+      if (totalSizeMB  > MAX_FILE_SIZE_MB) {
+        console.warn(`文件大小不能超过 ${MAX_FILE_SIZE_MB}MB，请重新选择`);
+        return;
+      }
+
+      console.log('选中的文件:', res);
+      // 每个文件结构：
+      // {
+      //   name: 'example.pdf',
+      //   size: 123456, // 字节数
+      //   uri: 'file://...',
+      //   type: 'application/pdf',
+      //   fileCopyUri: 'file://...' // copyTo 后稳定可用
+      // }
+
+      // 在这里你可以处理上传等逻辑
+      if (res && res.length > 0) {
+        setLoading(true)
+        const file = res[0];
+        translateAudio({
+          source_language: 'en',
+          target_language: 'zh',
+          audio_file: {
+            uri: file.uri,
+            name: file.name ?? Date.now() + '',
+            type: file.type || 'application/octet-stream', // 兜底
+          },
+        }).then(response => {
+          console.log('上传成功', response);
+          setLoading(false)
+          setFileName(file.name ?? Date.now() + '')
+          setUploadStatus(UploadStatusEnum.TYPE_SUCCESS)
+        }).catch(err => {
+          setLoading(false)
+          console.error('上传失败', err);
+        });
+      }
+
+    } catch (err) {
+        console.log('用户取消选择');
+        // console.error('文件选择出错:', err);
+    }
   }
   const startTranslationBtnClick = () => {
     setUploadStatus(UploadStatusEnum.TYPE_TRANSLATING)

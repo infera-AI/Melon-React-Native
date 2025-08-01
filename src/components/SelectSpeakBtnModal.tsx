@@ -58,6 +58,14 @@ const SelectSpeakBtnModal = forwardRef<SelectSpeakBtnModalRef, Props>(({
   const beforeLanguageFromCountry = supportedLanguages.find(lang => lang.code === beforeLanguage) || supportedLanguages[0];
   const afterLanguageFromCountry = supportedLanguages.find(lang => lang.code === afterLanguage) || supportedLanguages[0];
 
+  // const [beforeLanguageComp, setBeforeLanguageComp] = useState(beforeLanguage)
+  // const [afterLanguageComp, setAfterLanguageComp] = useState(afterLanguage)
+
+  // useEffect(() => {
+  //   setBeforeLanguageComp(beforeLanguage)
+  //   setAfterLanguageComp(afterLanguage)
+  // }, [beforeLanguage, afterLanguage])
+
   const bgClose = () => {
     onBackdropPress && onBackdropPress()
   }
@@ -94,6 +102,7 @@ const SelectSpeakBtnModal = forwardRef<SelectSpeakBtnModalRef, Props>(({
             {/* 主语音按钮 */}
             <SpeakBtn
               ref={speakBtn1Ref}
+              key={`speakBtn1-${beforeLanguage}-${afterLanguage}`}
               beforeLanguage={beforeLanguage}
               afterLanguage={afterLanguage}
               voiceWaveBgColor={'#1d1c1cff'}
@@ -140,10 +149,11 @@ const SelectSpeakBtnModal = forwardRef<SelectSpeakBtnModalRef, Props>(({
             {/* 次语音按钮 */}
             <SpeakBtn
               ref={speakBtn2Ref}
-              // beforeLanguage={afterLanguage}
-              // afterLanguage={beforeLanguage}
-              beforeLanguage={beforeLanguage}
-              afterLanguage={afterLanguage}
+              key={`speakBtn2-${afterLanguage}-${beforeLanguage}`}
+              beforeLanguage={afterLanguage}
+              afterLanguage={beforeLanguage}
+              // beforeLanguage={beforeLanguage}
+              // afterLanguage={afterLanguage}
               voiceWaveBgColor={'#1d1c1cff'}
               disabled={speakBtn1IsDown}
               isDownCallBack={(isDown) => {

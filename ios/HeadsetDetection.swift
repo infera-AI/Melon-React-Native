@@ -37,14 +37,20 @@ class HeadsetDetection: RCTEventEmitter {
 
     @objc func audioRouteChanged(notification: Notification) {
         guard let reasonValue = notification.userInfo?[AVAudioSessionRouteChangeReasonKey] as? UInt,
-              let reason = AVAudioSession.RouteChangeReason(rawValue: reasonValue) else { return }
+              let _ = AVAudioSession.RouteChangeReason(rawValue: reasonValue) else { return }
 
-        let hasHeadphones = AVAudioSession.sharedInstance().currentRoute.outputs.contains {
-            $0.portType == .headphones || $0.portType == .bluetoothA2DP || $0.portType == .bluetoothLE
-        }
+        // 延迟判断，避免误判耳机状态
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            let hasHeadphones = AVAudioSession.sharedInstance().currentRoute.outputs.contains {
+                $0.portType == .headphones ||
+                $0.portType == .bluetoothA2DP ||
+                $0.portType == .bluetoothLE ||
+                $0.portType == .bluetoothHFP
+            }
 
-        if hasListeners {
-            sendEvent(withName: "onHeadsetStateChanged", body: hasHeadphones)
+            if self.hasListeners {
+                self.sendEvent(withName: "onHeadsetStateChanged", body: hasHeadphones)
+            }
         }
     }
 

@@ -107,13 +107,14 @@ const WelcomeScreen: React.FC = () => {
           {/* 内容包装器 */}
           <View style={styles.contentWrapper}>
             {/* Melon Logo */}
-            <TouchableOpacity style={styles.logoContainer} onPress={() => navigation2.reset({index: 0, routes: [{name: 'MainApp'}]})}>
+            {/* <TouchableOpacity style={styles.logoContainer} onPress={() => navigation2.reset({index: 0, routes: [{name: 'MainApp'}]})}> */}
+            <View style={styles.logoContainer}>
                 <Image
                   source={require('../../../src/assets/login/welcome_logo.png')}
                   style={styles.logo}
                   resizeMode="contain"
                 />
-            </TouchableOpacity>
+            </View>
             {/* <View style={styles.logoContainer} >
                 <Image
                   source={require('../../../src/assets/login/welcome_logo.png')}
