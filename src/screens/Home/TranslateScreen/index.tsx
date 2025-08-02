@@ -75,6 +75,10 @@ const TranslateScreen: React.FC = () => {
     } else if (name === 'ListeningMode') {
       navigation.navigate('ListeningMode')
     } else if (name === 'DocumentTranslation') {
+      show({
+        message: '即将上线'
+      })
+      return
       navigation.navigate('DocumentTranslation')
     } else if (name === 'AudioTranslation') {
       navigation.navigate('AudioTranslation')
