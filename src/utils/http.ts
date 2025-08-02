@@ -25,7 +25,7 @@ class HttpRequest {
     constructor(config: HttpRequestConfig = {}) {
         this.config = {
             baseURL: config.baseURL,
-            timeout: config.timeout || 15000,
+            timeout: config.timeout || 60000,
             withCredentials: config.withCredentials || false,
         }
 
@@ -147,7 +147,7 @@ class HttpRequest {
                             });
                             throw {
                                 code: CODE.UNAUTHORIZED,
-                                message: '未授权，请重新登录',
+                                message: i18nService.t('http_unauthorized'),
                             }
                             // 其他错误处理...
                     }

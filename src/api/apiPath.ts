@@ -29,6 +29,7 @@ export const API_ENDPOINTS = {
       TRANLATE_DOCUMENT: '/translations/translate/docs',
       TRANLATE_IMAGE: '/translations/translate/imgs',
       TRANLATE_AUDIO: '/translations/translate/audio',
+      GET_TRANLATE_AUDIO_TASK: '/translations/translate/audio',
       GET_TRANSLATION_TASK: '/translations/translate/docs',
       GET_TRANSLATION_TASK_IMAGE: '/translations/translate/imgs',
       TRANLATE_TEXT: '/translations/translate/text',

@@ -136,7 +136,7 @@ const LangSelectCard: React.FC<Props> = ({
                     numberOfLines={1}
                     ellipsizeMode="tail"
                   >
-                    Language Selection
+                    {t('translate_screen.language_select_title')}
                   </Text>
                 </View>
                 <TouchableOpacity onPress={() => closeModalFun()}>

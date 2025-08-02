@@ -188,12 +188,19 @@ const SpeakBtn = forwardRef<SpeakBtnRef, Props>(({
             tellResult(data)
             return
           } else if (data?.status === 'success') {
+            if (data?.error_msg) {
+              show({
+                message: data?.error_msg
+              })
+            } else {
+              tellResult(data)
+            }
             setVoiceStatus(StatusEnum.TYPE_TRANSLATION_OVER)
-            tellResult(data)
+            
           } else {
             setVoiceStatus(StatusEnum.TYPE_NORMAL)
             show({
-              message: data?.error_msg || '语音识别失败, 请重试'
+              message: data?.error_msg || t('translate_screen.mic_result_error')
             })
           }
           destroy()
@@ -279,10 +286,10 @@ const SpeakBtn = forwardRef<SpeakBtnRef, Props>(({
     const granted = await PermissionsAndroid.request(
       PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
       {
-        title: '录音权限',
-        message: '应用需要访问麦克风录音',
-        buttonPositive: '确定',
-        buttonNegative: '取消',
+        title: t('translate_screen.permission_title'),
+        message: t('translate_screen.permission_desc'),
+        buttonPositive: t('translate_screen.permission_confirm'),
+        buttonNegative: t('translate_screen.document_cancel'),
       }
     );
     return granted === PermissionsAndroid.RESULTS.GRANTED;

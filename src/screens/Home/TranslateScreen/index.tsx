@@ -24,6 +24,7 @@ import LangSelectCard from '@/components/LangSelectCard'
 import type { Language } from '@/i18n/languages';
 import { scaleSize, scaleFont } from '@/utils/scale';
 import DeviceInfo from 'react-native-device-info';
+import Clipboard from '@react-native-clipboard/clipboard';
 
 import { translateText } from '@/api/translate'
 
@@ -110,16 +111,23 @@ const TranslateScreen: React.FC = () => {
       target_language: afterLangSelect,
       source_text: inputValue
     }).then((rsp) => {
-      if (rsp?.data?.Translated) {
+      if (rsp?.Translated) {
         show({
           message: t('translate_screen.quick_translation_success')
         })
-        setInputValue(rsp?.data?.Translated)
+        setInputValue(rsp?.Translated)
         scrollRef.current?.scrollToEnd(true);
       }
       setLoading(false)
     }).catch((err) => {
       setLoading(false)
+    })
+  }
+
+  const copyText = () => {    
+    Clipboard.setString(inputValue);
+    show({
+      message: t('translate_screen.copy_success')
     })
   }
 
@@ -265,6 +273,11 @@ const TranslateScreen: React.FC = () => {
               scrollRef.current?.scrollToFocusedInput(textInputRef.current!);
             }}
           />
+          <View style={{alignItems: 'flex-end'}}>
+            <TouchableOpacity onPress={copyText} style={!inputValue && styles.disabledCopy}>
+              <Image source={require('../../../../assets/images/ListeningScreen_Copy.png')} style={styles.copyImg}/>
+            </TouchableOpacity>
+          </View>
         </View>
       </KeyboardAwareScrollView>
       <FullScreenLoader
@@ -472,6 +485,14 @@ const styles = StyleSheet.create({
     margin: 0,
     backgroundColor: 'transparent',
     textAlignVertical: 'top',
+  },
+  disabledCopy: {
+    opacity: 0.5,
+    pointerEvents: 'none',
+  },
+  copyImg: {
+    width: 20,
+    height: 20,
   },
   modeGridBox: {
     flexDirection: 'row',

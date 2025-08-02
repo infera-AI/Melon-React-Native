@@ -10,7 +10,8 @@ import {
   Image,
   ScrollView,
   Animated,
-  Platform
+  Platform,
+  PermissionsAndroid
 } from 'react-native';
 import { useLanguage } from '@/contexts/LanguageContext';
 import EStyleSheet from 'react-native-extended-stylesheet';
@@ -25,9 +26,16 @@ import MaterialDesignIcon from 'react-native-vector-icons/MaterialCommunityIcons
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useMessageModal } from '@/contexts/MessageModalContext';
 import type { Language } from '@/i18n/languages';
+import LangSelectCard from '@/components/LangSelectCard'
+
+import { NativeModules} from 'react-native';
+
+import RNFS from 'react-native-fs';
+import Share from 'react-native-share';
 
 import {
-  translateAudio
+  translateAudio,
+  getTranslationAudioTask
 } from '@/api/translate/translate'
 
 import { pick } from '@react-native-documents/picker';
@@ -60,6 +68,8 @@ const OriginalSwitchEnum = {
 
 const MAX_FILE_SIZE_MB = 100; // 文件大小限制（M）
 
+const TRANSLATION_MAX_TIME = 60000 // 翻译任务最大时长 (1分钟)，伪进度
+
 const iosTypes = [
   'public.mp3',
   'com.microsoft.waveform-audio',
@@ -80,11 +90,12 @@ const fileTypes = Platform.select({
   android: androidTypes,
 });
 
+let getTaskInfoTimer:any = null
+
 const AudioTranslationScreen: React.FC = () => {
 
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { t } = useLanguage();
-  const [langModalVisible, setLangModalVisible] = useState(false);
   const [loading, setLoading] = useState(false);
   const [uploadStatus, setUploadStatus] = useState(UploadStatusEnum.TYPE_NORMAL);
 
@@ -99,7 +110,12 @@ const AudioTranslationScreen: React.FC = () => {
 
   const [beforeLangSelect, setBeforeLangSelect] = useState(language)
   const [afterLangSelect, setAfterLangSelect] = useState<Language>('en')
-  const [fileName, setFileName] = useState<string>('')
+  const [selectFileInfo, setSelectFileInfo] = useState<any>(null)
+  const createTaskTime = useRef(0)
+  const [taskId, setTaskId] = useState('')
+  const [taskInfo, setTaskInfo] = useState<any>(null)
+
+  const [translationProgress, setTranslationProgress] = useState(0)
 
   const [isPlay, setIsPlay] = useState(false); // 音频是否在播放
   const [audioUrl, setAudioUrl] = useState(''); // 音频是否在播放
@@ -107,6 +123,8 @@ const AudioTranslationScreen: React.FC = () => {
   const [playProgress, setPlayProgress] = useState(0); // 音频播放进度
   const [nowPlayTime, setNowPlayTime] = useState(''); // 音频当前播放时间
   const [audioDuration, setAudioDuration] = useState(''); // 音频总时长
+
+  const [downloadType, setDownloadType] = useState('word')
 
   // 占位点击事件
   const handlePress = (name: string) => () => {
@@ -127,7 +145,7 @@ const AudioTranslationScreen: React.FC = () => {
         console.log('文件格式正确');
       } else {
         show({
-          message: '文件类型不支持，请重新选择'
+          message: t('translate_screen.document_filetype_error')
         })
         return
       }
@@ -141,27 +159,19 @@ const AudioTranslationScreen: React.FC = () => {
       const totalSizeMB = totalSizeBytes / (1024 * 1024);
 
       if (totalSizeMB  > MAX_FILE_SIZE_MB) {
-        console.warn(`文件大小不能超过 ${MAX_FILE_SIZE_MB}MB，请重新选择`);
+        console.warn(`${t('translate_screen.document_filesize_max1')} ${MAX_FILE_SIZE_MB}MB, ${t('translate_screen.document_filesize_max2')}`);
         return;
       }
 
       console.log('选中的文件:', res);
-      // 每个文件结构：
-      // {
-      //   name: 'example.pdf',
-      //   size: 123456, // 字节数
-      //   uri: 'file://...',
-      //   type: 'application/pdf',
-      //   fileCopyUri: 'file://...' // copyTo 后稳定可用
-      // }
 
       // 在这里你可以处理上传等逻辑
       if (res && res.length > 0) {
         setLoading(true)
         const file = res[0];
         translateAudio({
-          source_language: 'en',
-          target_language: 'zh',
+          source_language: beforeLangSelect,
+          target_language: afterLangSelect,
           audio_file: {
             uri: file.uri,
             name: file.name ?? Date.now() + '',
@@ -169,8 +179,11 @@ const AudioTranslationScreen: React.FC = () => {
           },
         }).then(response => {
           console.log('上传成功', response);
+          setTaskId(response?.task_id)
+          createTaskTime.current = Math.floor(performance.now())
+          
           setLoading(false)
-          setFileName(file.name ?? Date.now() + '')
+          setSelectFileInfo(res[0])
           setUploadStatus(UploadStatusEnum.TYPE_SUCCESS)
         }).catch(err => {
           setLoading(false)
@@ -183,13 +196,54 @@ const AudioTranslationScreen: React.FC = () => {
         // console.error('文件选择出错:', err);
     }
   }
+
+  const getTaskInfo = () => {
+    getTaskInfoTimer = setTimeout(() => {
+      getTranslationAudioTask(taskId).then((rsp) => {
+        if (rsp?.status !== 'success' && rsp?.status !== 'failed') {
+          getTaskInfo()
+          let percent = toPercent(Math.floor(performance.now()) - createTaskTime.current)
+          setTranslationProgress(percent === 100 ? 99 : percent)
+          
+        } else {
+          setTranslationProgress(100)
+          setAudioUrl(rsp?.audio_file_url)
+          setTimeout(() => {
+            setTaskInfo(rsp)
+            clearTimeout(getTaskInfoTimer)
+            setUploadStatus(UploadStatusEnum.TYPE_TRANSLATION_SUCCESS)
+          }, 1000)
+          
+        }
+      }).catch(() => {
+        cancelTranslationBtnClick()
+        show({
+          message: t('translate_screen.translation_fail')
+        })
+        
+       
+      })
+    }, 3000)
+  }
+
+  const toPercent = (num: number) => {
+    const percent = (num / TRANSLATION_MAX_TIME) * 100;
+    return Math.min(Math.round(percent), 100); // 四舍五入并确保最大值为 100
+  }
+
   const startTranslationBtnClick = () => {
+    setTranslationProgress(0)
+    getTaskInfo()
     setUploadStatus(UploadStatusEnum.TYPE_TRANSLATING)
   }
   const cancelTranslationBtnClick = () => {
-    // setUploadStatus(UploadStatusEnum.TYPE_NORMAL)
-    setUploadStatus(UploadStatusEnum.TYPE_TRANSLATION_SUCCESS)
-    // startProgress()
+    setUploadStatus(UploadStatusEnum.TYPE_NORMAL)
+    setSelectFileInfo(null)
+    createTaskTime.current = 0
+    setTaskId('')
+    setTaskInfo(null)
+    clearTimeout(getTaskInfoTimer)
+    setTranslationProgress(0)
   }
 
   const originalSwitchChange = (type: string) => () => {
@@ -289,11 +343,133 @@ const AudioTranslationScreen: React.FC = () => {
     return `${minutes}:${seconds < 10 ? '0' + seconds : seconds}`;
   };
 
+  /**
+   * 请求 Android 存储权限
+   */
+  const requestStoragePermission = async () => {
+    if (Platform.OS !== 'android') return true;
+
+    try {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+        {
+          title: t('translate_screen.audio_permission_title'),
+          message: t('translate_screen.audio_permission_desc'),
+          buttonNeutral: t('translate_screen.audio_permission_btn1'),
+          buttonNegative: t('translate_screen.document_cancel'),
+          buttonPositive: t('translate_screen.camera_permission_ok'),
+        }
+      );
+      return granted === PermissionsAndroid.RESULTS.GRANTED;
+    } catch (err) {
+      console.warn('权限请求失败:', err);
+      return false;
+    }
+  };
+
+  const downloadFileFromUrl = async (url: string, fileName: string) => {
+    if (Platform.OS === 'android') {
+      const isPermission = requestStoragePermission()
+      if (!isPermission) {
+        console.log('无权限');
+        return
+      }
+      downloadToDownloads(url, fileName)
+      return
+    }
+    // 获取存储路径
+    let localFilePath = `${RNFS.DocumentDirectoryPath}/${fileName}`;
+
+    const options = {
+      fromUrl: url, // 网络文件地址
+      toFile: localFilePath, // 本地保存路径
+    };
+
+    try {
+      const result = await RNFS.downloadFile(options).promise;
+
+      if (result.statusCode === 200) {
+        console.log('下载成功:', localFilePath);
+        shareFile(localFilePath)
+        return localFilePath;
+      } else {
+        console.warn('下载失败，状态码:', result.statusCode);
+        return null;
+      }
+    } catch (err) {
+      console.error('下载失败:', err);
+      return null;
+    }
+  };
+
+  const downloadToDownloads = async (url: string, name: string) => {
+    const { FileSaver } = NativeModules;
+
+    try {
+      const savedPath = await FileSaver.saveFileToDownloadsUsingMediaStore(url, name);
+      console.log('下载成功', `文件已保存到：\nDownload`);
+      show({
+        message: `${t('translate_screen.download_file_success')}: /Download`
+      })
+    } catch (e: any) {
+      console.log('下载失败', e.message || '未知错误');
+      show({
+        message: t('translate_screen.download_file_error')
+      })
+    }
+  };
+
+  const downloadBtnClick = () => {
+    if (originalSwitch === OriginalSwitchEnum.TYPE_ORIGINAL) {
+      if (downloadType === 'word') {
+        downloadFileFromUrl(taskInfo?.source_language_docx_url, `Melon_download_file_${Math.floor(performance.now())}.${taskInfo?.source_language_docx_url.split(/\.(?=[^\.]+$)/)[1]}`)
+      } else {
+        downloadFileFromUrl(taskInfo?.source_language_pdf_url, `Melon_download_file_${Math.floor(performance.now())}.${taskInfo?.source_language_pdf_url.split(/\.(?=[^\.]+$)/)[1]}`)
+      }
+    } else {
+      if (downloadType === 'word') {
+        downloadFileFromUrl(taskInfo?.translated_docx_url, `Melon_download_file_${Math.floor(performance.now())}.${taskInfo?.translated_docx_url.split(/\.(?=[^\.]+$)/)[1]}`)
+      } else {
+        downloadFileFromUrl(taskInfo?.translated_pdf_url, `Melon_download_file_${Math.floor(performance.now())}.${taskInfo?.translated_pdf_url.split(/\.(?=[^\.]+$)/)[1]}`)
+      }
+    }
+  }
+
+  const shareFile = async (filePath: string) => {
+
+    try {
+       // 目标文件路径（公有或可分享）
+      const fileName = filePath.split('/').pop();
+      const destPath = `${RNFS.CachesDirectoryPath}/${fileName}`;
+      // 复制到缓存目录
+      await RNFS.copyFile(filePath, destPath);
+      const exists = await RNFS.exists(destPath);
+      if (!exists) {
+        console.warn('复制后的文件不存在，不能分享');
+        return;
+      }
+      console.log('准备分享路径:', `file://${destPath}`);
+      Share.open({
+        url: 'file://' + destPath,
+        type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        showAppsToView: true,
+      }).then((res) => {
+        console.log('res---', res);
+        if (res?.success) {
+          show({
+            message: t('translate_screen.save_file_success')
+          })
+        }
+      })
+    } catch (err) {
+      console.log('分享失败:', err);
+    }
+  };
+
   useEffect(() => {
-    setAudioUrl('https://www.cambridgeenglish.org/images/153149-movers-sample-listening-test-vol2.mp3')
     return () => {
-      
       AudioPlayerController.getInstance().release();
+      clearTimeout(getTaskInfoTimer)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -306,7 +482,7 @@ const AudioTranslationScreen: React.FC = () => {
       }
     ]}>
       <CustomNavigation
-        text="Audio Translation"
+        text={t('translate_screen.audio_page_title')}
         backgroundColor="#181819"
         onBack={() => navigation.goBack()}
       />
@@ -329,7 +505,7 @@ const AudioTranslationScreen: React.FC = () => {
                 />
               </View>
               <Text style={styles.uploadTipText}>
-                {`Supports formats: .mp3, .wav, .m4a, etc.\n(within 100M)`}
+                {`${t('translate_screen.audio_filetype_tip1')}\n(${t('translate_screen.audio_filetype_tip2')})`}
               </Text>
             </View>
           }
@@ -346,14 +522,14 @@ const AudioTranslationScreen: React.FC = () => {
                 />
               </View>
               <Text style={[styles.uploadTipText, { marginTop: 24 }]}>
-                SILENCE.MP3
+                {selectFileInfo?.name}
               </Text>
               <View style={{flex: 1, justifyContent: 'flex-end', marginBottom: 40}}>
                 <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'center'}}>
                   <Text>
                     <Icon name="check-circle-fill" size={17} color={'#36F279'}/>
                   </Text>
-                  <Text style={{fontSize: 16, color: '#85F380', fontWeight: '500', marginLeft: 10}}>Upload Successful !</Text>
+                  <Text style={{fontSize: 16, color: '#85F380', fontWeight: '500', marginLeft: 10}}>{t('translate_screen.document_upload_success')} !</Text>
                 </View>
               </View>
             </View>
@@ -370,12 +546,12 @@ const AudioTranslationScreen: React.FC = () => {
                 />
               </View>
               <Text style={[styles.uploadTipText, { marginTop: 24 }]}>
-                SILENCE.MP3
+                {selectFileInfo?.name}
               </Text>
               <View style={{flex: 1, justifyContent: 'flex-end', marginBottom: 40}}>
                 <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'center'}}>
-                  <Text style={{fontSize: 16, color: '#85F380', fontWeight: '500', marginLeft: 10}}>
-                    Translating...77%
+                  <Text style={{fontSize: 16, color: '#85F380', fontWeight: '500', marginLeft: translationProgress ? 10 : 0}}>
+                    {t('translate_screen.document_translating')}{translationProgress ? `...${translationProgress}%` : ''}
                   </Text>
                 </View>
               </View>
@@ -387,51 +563,55 @@ const AudioTranslationScreen: React.FC = () => {
             <View style={[styles.uploadContent, {justifyContent: 'flex-start'}]}>
               <View style={styles.titleView}>
                 <Text style={styles.titleViewText} numberOfLines={1}>
-                  SILENCE.mp3
+                  {selectFileInfo?.name}
                 </Text>
               </View>
-              <View style={styles.wordContent}>
+              {
+                originalSwitch === OriginalSwitchEnum.TYPE_ORIGINAL ?
+                <View style={styles.wordContent}>
+                  {
+                    taskInfo?.transcription_results?.length && taskInfo?.transcription_results.map((item, index) => {
+                      return (
+                        <View key={index} style={styles.itemView}>
+                          <View style={styles.itemLabelView}>
+                            <Text style={styles.itemLabelText}>
+                              Speaker {index + 1}
+                            </Text>
+                          </View>
+                          <View style={styles.itemValueView}>
+                            <Text style={styles.itemValueText}>
+                              {item?.text}
+                            </Text>
+                          </View>
+                        </View>
+                      )
+                    })
+                  }
 
-                <View style={styles.itemView}>
-                  <View style={styles.itemLabelView}>
-                    <Text style={styles.itemLabelText}>
-                      Speaker 1
-                    </Text>
-                  </View>
-                  <View style={styles.itemValueView}>
-                    <Text style={styles.itemValueText}>
-                      目前我们上海没有封城，现在也不必封城。所以当前上海的疫情形式，我们将根据区域风险来判断。
-                    </Text>
-                  </View>
                 </View>
+                :
+                <View style={styles.wordContent}>
+                  {
+                    taskInfo?.translated_results?.length && taskInfo?.translated_results.map((item: any, index: number) => {
+                      return (
+                        <View key={index} style={styles.itemView}>
+                          <View style={styles.itemLabelView}>
+                            <Text style={styles.itemLabelText}>
+                              Speaker {index + 1}
+                            </Text>
+                          </View>
+                          <View style={styles.itemValueView}>
+                            <Text style={styles.itemValueText}>
+                              {item?.text}
+                            </Text>
+                          </View>
+                        </View>
+                      )
+                    })
+                  }
 
-                <View style={styles.itemView}>
-                  <View style={styles.itemLabelView}>
-                    <Text style={styles.itemLabelText}>
-                      Speaker 2
-                    </Text>
-                  </View>
-                  <View style={styles.itemValueView}>
-                    <Text style={styles.itemValueText}>
-                      表示同意
-                    </Text>
-                  </View>
                 </View>
-
-                <View style={styles.itemView}>
-                  <View style={styles.itemLabelView}>
-                    <Text style={styles.itemLabelText}>
-                      Speaker 3
-                    </Text>
-                  </View>
-                  <View style={styles.itemValueView}>
-                    <Text style={styles.itemValueText}>
-                      全票通过
-                    </Text>
-                  </View>
-                </View>
-
-              </View>
+              }
             </View>
           }
 
@@ -447,7 +627,7 @@ const AudioTranslationScreen: React.FC = () => {
                   color: '#0c0c0dbc',
                   fontWeight: '400'
                 }}>
-                  Upload Audio
+                  {t('translate_screen.audio_uploadbtn_text')}
                 </Text>
               </View>
             </TouchableOpacity>
@@ -462,6 +642,7 @@ const AudioTranslationScreen: React.FC = () => {
                 opacity: uploadStatus === UploadStatusEnum.TYPE_SUCCESS ? 1 : 0,
                 pointerEvents: uploadStatus === UploadStatusEnum.TYPE_TRANSLATING ? 'none' : 'auto'
               }}
+              onPress={cancelTranslationBtnClick}
             >
               <View style={styles.reUploadBtn}>
                 <Text style={{
@@ -469,7 +650,7 @@ const AudioTranslationScreen: React.FC = () => {
                   color: '#fff',
                   fontWeight: '400'
                 }}>
-                  Re-upload
+                  {t('translate_screen.document_reUpload')}
                 </Text>
               </View>
             </TouchableOpacity>
@@ -484,7 +665,7 @@ const AudioTranslationScreen: React.FC = () => {
                   color: '#0c0c0dbc',
                   fontWeight: '400'
                 }}>
-                  Start Translation
+                  {t('translate_screen.document_start_translated')}
                 </Text>
               </View>
             </TouchableOpacity>
@@ -500,7 +681,7 @@ const AudioTranslationScreen: React.FC = () => {
                   color: '#0c0c0dbc',
                   fontWeight: '400'
                 }}>
-                  Cancel
+                  {t('translate_screen.document_cancel')}
                 </Text>
               </View>
             </TouchableOpacity>
@@ -520,7 +701,7 @@ const AudioTranslationScreen: React.FC = () => {
                 onPress={originalSwitchChange(OriginalSwitchEnum.TYPE_ORIGINAL)}
               >
                 <Text style={styles.switchBtnText}>
-                  Original text
+                  {t('translate_screen.document_source')}
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
@@ -531,7 +712,7 @@ const AudioTranslationScreen: React.FC = () => {
                 onPress={originalSwitchChange(OriginalSwitchEnum.TYPE_TRANSLATION)}
               >
                 <Text style={styles.switchBtnText}>
-                  Translation
+                  {t('translate_screen.document_translated')}
                 </Text>
               </TouchableOpacity>
             </View>
@@ -547,21 +728,23 @@ const AudioTranslationScreen: React.FC = () => {
 
       {/* 语言选择栏 */}
       {
-        uploadStatus !== UploadStatusEnum.TYPE_TRANSLATION_SUCCESS &&
+        uploadStatus === UploadStatusEnum.TYPE_NORMAL &&
         <View style={styles.langSelectRow}>
-          <View style={styles.langSelectCard}>
-            <TouchableOpacity style={styles.langSelectItem} onPress={() => setLangModalVisible(true)}>
-              <Text style={styles.langSelectText}>Chinese</Text>
-              <Image source={require('../../../assets/images/Home_Translate_arrow.png')} style={styles.langSelectArrow}/>
-            </TouchableOpacity>
-            <View style={styles.langSwitchIconBox}>
-              <Image source={require('../../../assets/images/Home_Translate_switch.png')} style={styles.langSwitchArrow} resizeMode='contain'/>
-            </View>
-            <TouchableOpacity style={styles.langSelectItem} onPress={() => setLangModalVisible(true)}>
-              <Text style={styles.langSelectText}>English</Text>
-              <Image source={require('../../../assets/images/Home_Translate_arrow.png')} style={styles.langSelectArrow}/>
-            </TouchableOpacity>
-          </View>
+          <LangSelectCard
+            beforeLanguage={beforeLangSelect}
+            afterLanguage={afterLangSelect}
+            paddingTopBottom={0}
+            textSize={12}
+            marginRight={16}
+            beforeSelectBack={(code) => {
+              console.log('beforeSelectBack---', code);
+              setBeforeLangSelect(code)
+            }}
+            afterSelectBack={(code) => {
+              console.log('afterSelectBack---', code);
+              setAfterLangSelect(code)
+            }}
+          />
         </View>
       }
 
@@ -601,23 +784,11 @@ const AudioTranslationScreen: React.FC = () => {
           </View>
         </View>
       }
-      
-      {/* 语言选择弹窗：底部弹出，高度400，方便后续自定义 */}
-      <PublicModal
-        visible={langModalVisible}
-        onBackdropPress={() => setLangModalVisible(false)}
-        renderContent={() => {
-          return (
-            <View style={styles.modalContent}>
-              <Text>jshjhj</Text>
-            </View>
-          )
-        }}
-      />
 
       {/* 下载弹窗 */}
       <PublicModal
         visible={downloadModalShow}
+        backdropOpacity={0.1}
         onBackdropPress={() => setDownloadModalShow(false)}
         renderContent={() => {
           return (
@@ -632,7 +803,7 @@ const AudioTranslationScreen: React.FC = () => {
                     numberOfLines={1}
                     ellipsizeMode="tail"
                   >
-                    Choose Download Format
+                    {t('translate_screen.document_down_title')}
                   </Text>
                 </View>
                 <TouchableOpacity onPress={() => setDownloadModalShow(false)}>
@@ -645,12 +816,13 @@ const AudioTranslationScreen: React.FC = () => {
                 <TouchableWithoutFeedback
                   onPressIn={() => wordBtnPressIn('word')}
                   onPressOut={() => wordBtnPressOut('word')}
+                  onPress={() => setDownloadType('word')}
                 >
                   <Animated.View
                     style={[
                       styles.fileTypeBtn,
                       {
-                        borderColor: wordBorderColor
+                        borderColor: downloadType === 'word' ? '#85F380' : 'transparent'
                       }
                     ]}
                   >
@@ -665,12 +837,13 @@ const AudioTranslationScreen: React.FC = () => {
                 <TouchableWithoutFeedback
                   onPressIn={() => wordBtnPressIn('pdf')}
                   onPressOut={() => wordBtnPressOut('pdf')}
+                  onPress={() => setDownloadType('pdf')}
                 >
                   <Animated.View
                     style={[
                       styles.fileTypeBtn,
                       {
-                        borderColor: pdfBorderColor
+                        borderColor: downloadType === 'pdf' ? '#85F380' : 'transparent'
                       }
                     ]}
                   >
@@ -688,14 +861,15 @@ const AudioTranslationScreen: React.FC = () => {
                   onPress={() => setDownloadModalShow(false)}
                 >
                   <Text style={styles.modalBottomBtnText}>
-                    Cancel
+                    {t('translate_screen.document_cancel')}
                   </Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={[styles.modalBottomBtn, styles.modalBottomBtnGreen]}
+                  onPress={downloadBtnClick}
                 >
                   <Text style={[styles.modalBottomBtnText, styles.modalBottomBtnText2]}>
-                    Download
+                    {t('translate_screen.document_downbtn')}
                   </Text>
                 </TouchableOpacity>
               </View>
@@ -707,7 +881,7 @@ const AudioTranslationScreen: React.FC = () => {
       {/* loading */}
       <FullScreenLoader
         visible={loading}
-        text="请稍候..."
+        text={t('translate_screen.loading_text')}
       />
     </View>
   );
@@ -840,50 +1014,11 @@ const styles = StyleSheet.create({
     marginLeft: 40,
   },
   langSelectRow: {
-    width: contentWidth,
+    width: '80%',
     marginLeft: pageLR,
     flexDirection: 'row',
     alignItems: 'center',
     marginTop: 20,
-  },
-  langSelectCard: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#232325',
-    borderRadius: 14,
-    marginRight: 90,
-    paddingVertical: 2,
-    paddingHorizontal: 0,
-  },
-  langSelectItem: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  langSelectText: {
-    color: '#fff',
-    fontSize: 14,
-    marginRight: 8,
-    fontWeight: '500',
-  },
-  langSelectArrow: {
-    width: 10,
-    aspectRatio: 1.67,
-  },
-  langSwitchIconBox: {
-    width: 20,
-    alignItems: 'center',
-  },
-  langSwitchArrow: {
-    width: 16,
-  },
-  modalContent: {
-    backgroundColor: '#fff',
-    borderTopLeftRadius: 10,
-    borderTopRightRadius: 10,
-    height: 300,
   },
   downloadModalContent: {
     backgroundColor: '#262626',

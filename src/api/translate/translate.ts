@@ -80,6 +80,17 @@ export function translateAudio(params: TranslateAudioRequest){
 
   }
 
+/**
+ * 获取翻译音频任务详情
+ * @param taskId 任务ID
+ * @returns Promise<ApifoxModel>
+ */
+export function getTranslationAudioTask(taskId: string){
+  return http.get<any>(
+    `${API_ENDPOINTS.TRANSLATE.GET_TRANLATE_AUDIO_TASK}/${taskId}`
+  );   
+}
+
   
   /**
    * 获取翻译文档任务详情
