@@ -37,6 +37,7 @@ import { useMessageModal } from '@/contexts/MessageModalContext';
 import { NativeModules, NativeEventEmitter } from 'react-native';
 const { HeadsetDetection } = NativeModules;
 const headsetEvents = new NativeEventEmitter(HeadsetDetection);
+import { useUnifiedHeadsetListener } from '@/contexts/useUnifiedHeadsetListener';
 
 export const listenHeadsetState = (cb: (plugged: boolean) => void) => {
   HeadsetDetection.startListening();
@@ -62,6 +63,8 @@ if (
 
 
 const HeadphoneModeScreen: React.FC = () => {
+
+  
 
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { t } = useLanguage();
@@ -96,6 +99,17 @@ const HeadphoneModeScreen: React.FC = () => {
   const insets = useSafeAreaInsets(); // 获取安全区域距离
   
   const SelectSpeakBtnModalRef = useRef<SelectSpeakBtnModalRef>(null);
+
+  // 监听耳机连接状态变化
+  useUnifiedHeadsetListener((isConnected) => {
+    console.log('耳机连接状态：', isConnected);
+    if (!isConnected) {
+      show({
+        message: t('translate_screen.headset_cut_tip')
+      })
+      navigation.goBack()
+    }
+  });
 
   useEffect(() => {
     const keyboardShow = Keyboard.addListener(
@@ -158,21 +172,24 @@ const HeadphoneModeScreen: React.FC = () => {
   }, [isSlice])
 
   useEffect(() => {
-    const stop = listenHeadsetState((plugged) => {
-      if (!plugged) {
-        show({
-          message: t('translate_screen.headset_cut_tip')
-        })
-        navigation.goBack()
-      }
-    });
+    let stop:any
+    if (Platform.OS === 'ios') {
+      stop = listenHeadsetState((plugged) => {
+        if (!plugged) {
+          show({
+            message: t('translate_screen.headset_cut_tip')
+          })
+          navigation.goBack()
+        }
+      });
+    }
 
 
     const SelectSpeakBtnModalRefInstance = SelectSpeakBtnModalRef.current
     return () => {
       stopPlayAudio()
       SelectSpeakBtnModalRefInstance?.destroy()
-      stop();
+      stop && stop();
       
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
