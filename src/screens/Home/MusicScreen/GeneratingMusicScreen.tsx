@@ -1,0 +1,471 @@
+import React, { useState, useEffect, useRef } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Dimensions,
+  Image,
+  ScrollView,
+  Modal,
+  AppState,
+} from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { MusicStackParamList } from './navigator';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import LottieView from 'lottie-react-native';
+import { generateMusic, getMusicTaskStatus } from '@/api/music/music';
+import { useMusicStore } from '@/store/modules/music.store';
+import { useVoiceStore } from '@/store/modules/voice.store';
+import { useMessageModal } from '@/contexts/MessageModalContext';
+import { useLanguage } from '../../../contexts/LanguageContext';
+
+const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
+
+const normalize = (size: number, based: 'width' | 'height' = 'width') => {
+  const newSize = based === 'height' ? size * screenHeight / 812 : size * screenWidth / 375;
+  return Math.round(newSize);
+};
+
+const normalizeFontSize = (size: number) => {
+  const newSize = size * screenWidth / 375;
+  return Math.min(Math.round(newSize), size);
+};
+
+type GeneratingMusicScreenNavigationProp = NativeStackNavigationProp<MusicStackParamList, 'GeneratingMusic'>;
+
+const GeneratingMusicScreen: React.FC = () => {
+  const navigation = useNavigation<GeneratingMusicScreenNavigationProp>();
+  const navigationRef = useRef(navigation);
+  navigationRef.current = navigation;
+  const [progress, setProgress] = useState(0);
+  const [showCompletionModal, setShowCompletionModal] = useState(false);
+  const [_taskId, setTaskId] = useState<string>('');
+  const [_isGenerating, setIsGenerating] = useState(false);
+  const progressInterval = useRef<NodeJS.Timeout | null>(null);
+  const statusInterval = useRef<NodeJS.Timeout | null>(null);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const { show } = useMessageModal();
+  const { t } = useLanguage();
+  const { lyrics, musicStyles, title } = useMusicStore.getState().musicGenerateInfo;
+
+  // 清理所有轮询
+  const cleanupPolling = () => {
+    console.log('清理轮询...');
+    if (progressInterval.current) {
+      clearInterval(progressInterval.current);
+      progressInterval.current = null;
+    }
+    if (statusInterval.current) {
+      clearInterval(statusInterval.current);
+      statusInterval.current = null;
+    }
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
+  };
+
+  useEffect(() => {
+    generateMusicRequest();
+
+    // 监听应用状态变化
+    const handleAppStateChange = (nextAppState: string) => {
+      if (nextAppState === 'background' || nextAppState === 'inactive') {
+        console.log('应用进入后台，清理轮询');
+        cleanupPolling();
+      }
+    };
+
+    const subscription = AppState.addEventListener('change', handleAppStateChange);
+
+    return () => {
+      cleanupPolling();
+      subscription?.remove();
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const generateMusicRequest = async () => {
+    console.log(lyrics, musicStyles, title, 'lyrics, musicStyles');
+    try {
+      setIsGenerating(true);
+      const res = await generateMusic({ 
+        work_title: title,
+        work_lyrics: lyrics,
+        work_genres: musicStyles,
+      });
+      console.log(res, 'res');
+      setTaskId(res.task_id);
+      
+      // 开始轮询查询状态
+      startStatusPolling(res.task_id);
+      
+      // 开始模拟进度更新
+      startProgressSimulation();
+      
+      // 设置超时，5分钟后自动停止轮询
+      timeoutRef.current = setTimeout(() => {
+        console.log('轮询超时，自动停止');
+        cleanupPolling();
+        setIsGenerating(false);
+        show({message: t('music.generation_timeout')});
+      }, 5 * 60 * 1000); // 5分钟
+      
+    } catch (error) {
+      show({message: t('music.generation_failed')});
+      console.log(error, 'error');
+      setIsGenerating(false);
+      // 发生错误时清理轮询
+      cleanupPolling();
+    }
+  };
+
+  // 开始轮询查询状态
+  const startStatusPolling = (id: string) => {
+    statusInterval.current = setInterval(async () => {
+      await getMusicTaskStatusRequest(id);
+    }, 3500); // 每2秒查询一次
+  };
+
+  // 开始模拟进度更新
+  const startProgressSimulation = () => {
+    progressInterval.current = setInterval(() => {
+      setProgress(prev => {
+        const newProgress = prev + 2;
+        if (newProgress >= 100) {
+          return 100;
+        }
+        return newProgress;
+      });
+    }, 2000);
+  };
+
+  // 查询生成状态
+  const getMusicTaskStatusRequest = async (id: string) => {
+    try {
+      const res = await getMusicTaskStatus({
+        task_id: id,
+      });
+      console.log(res, 'status res');
+      
+      // 如果res.data不为null，说明生成成功
+      if (res !== null) {
+        // 停止轮询和进度模拟
+        cleanupPolling();
+        
+        // 设置进度为100%
+        setProgress(100);
+        setIsGenerating(false);
+        const timer = setTimeout(() => {
+           // 跳转音乐预览页面
+          navigation.replace('MusicPreview',{music:res});
+          clearTimeout(timer);
+        }, 500);
+        // setIsGenerating(false);
+
+       
+        
+        // 显示完成弹窗
+        // setTimeout(() => {
+        //   if(useVoiceStore.getState().type === VoiceType.CREATE){
+        //     // 跳转专属音色页面
+        //     // navigation.replace('LanguageVoice');
+        //   } else {
+        //     // 跳转专属音色页面
+        //     setShowCompletionModal(true);
+        //   }
+        // }, 1000);
+      }
+    } catch (error) {
+      console.log('Status check error:', error);
+    }
+  };
+
+
+  const handleBack = () => {
+    // 清理轮询
+    cleanupPolling();
+    navigation.goBack();
+  };
+
+  const handleReRecording = () => {
+    setShowCompletionModal(false);
+    useVoiceStore.getState().setVoiceFile({
+      uri: '',
+      type: '',
+      name: '',
+    });
+    useVoiceStore.getState().setLocal("");
+    // navigation.navigate('CreateVoice');
+  };
+
+  const handleConfirm = () => {
+    setShowCompletionModal(false);
+    // 跳转到 ProfileHome 页面，注意这里应该直接跳转到 ProfileHome，而不是 ProfileNavigator
+    useVoiceStore.getState().setVoiceFile({
+      uri: '',
+      type: '',
+        name: '',
+      });
+    useVoiceStore.getState().setLocal("");
+    navigation.replace('MusicMain');
+  };
+
+  return (
+    <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
+     <ScrollView>
+       {/* 背景图片 */}
+       <Image 
+        source={require('../../../assets/profile/profile_generate_bg.png')} 
+        style={styles.backgroundImage} 
+      />
+      
+      {/* 顶部导航栏 */}
+      <View style={styles.header}>
+        {/* <TouchableOpacity style={styles.backButton} onPress={handleBack}>
+          <Image 
+            source={require('../../../assets/main/page_return_icon.png')} 
+            style={styles.backIcon}
+          />
+        </TouchableOpacity> */}
+        <Text style={styles.title}>{t('music.generating_music')}</Text>
+        <View style={styles.headerSpacer} />
+      </View>
+
+       {/* 动画容器 */}
+       <View style={styles.animationContainer}>
+        <LottieView
+          source={require('../../../assets/lottie/generate_voice.json')}
+          style={styles.lottieAnimation}
+          autoPlay
+          loop
+          speed={1}
+        />
+      </View>
+
+      {/* 进度百分比 */}
+      <Text style={styles.progressText}>{Math.round(progress)}%</Text>
+
+      {/* 状态文本 */}
+      <View style={styles.statusContainer}>
+        <Text style={styles.statusText}>
+           {t('music.generating_music')}
+        </Text>
+      </View>
+     </ScrollView>
+
+     {/* 生成完成弹窗 */}
+     <Modal
+       visible={showCompletionModal}
+       transparent={true}
+       animationType="fade"
+       onRequestClose={() => setShowCompletionModal(false)}
+     >
+       <View style={styles.modalOverlay}>
+         <View style={styles.modalContainer}>
+           {/* 标题和描述 */}
+           <View style={styles.modalContent}>
+             <View style={styles.iconContainer}>
+                 <Image 
+                   source={require('../../../assets/main/success_icon.png')} 
+                   style={styles.successIconImage}
+                 />
+             </View>
+             
+             <Text style={styles.modalTitle}>
+               {t('generating_voice.voiceprint_optimization_complete')}
+             </Text>
+             
+             <Text style={styles.modalDescription}>
+               {t('generating_voice.listen_optimization_effect')}
+             </Text>
+           </View>
+
+           {/* 按钮 */}
+           <View style={styles.modalButtons}>
+             <TouchableOpacity 
+               style={styles.modalButton} 
+               onPress={handleReRecording}
+             >
+               <Text style={styles.reRecordingText}>{t('generating_voice.re_recording')}</Text>
+             </TouchableOpacity>
+             
+             <View style={styles.buttonSeparator} />
+             
+             <TouchableOpacity 
+               style={styles.modalButton} 
+               onPress={handleConfirm}
+             >
+               <Text style={styles.confirmText}>{t('generating_voice.confirm')}</Text>
+             </TouchableOpacity>
+           </View>
+         </View>
+       </View>
+     </Modal>
+    </SafeAreaView>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#181819',
+    paddingHorizontal: normalize(24),
+  },
+  backgroundImage: {
+    position: 'absolute',
+    top: normalize(0),
+    left: normalize(-224),
+    width: normalize(831),
+    height: normalize(747),
+    backgroundColor: 'transparent',
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginTop: normalize(10),
+  },
+  backButton: {
+    width: normalize(40),
+    height: normalize(40),
+    backgroundColor: '#3E3E3E',
+    borderRadius: normalize(12),
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1000,
+  },
+  backIcon: {
+    width: normalize(16),
+    height: normalize(16),
+  },
+  headerSpacer: {
+    width: normalize(40),
+  },
+  title: {
+    flex:1,
+    fontSize: normalizeFontSize(18),
+    fontWeight: '700',
+    color: '#FFFFFF',
+    textAlign: 'center',
+  },
+  animationContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: normalize(400),
+    marginTop: normalize(0),
+  },
+  lottieAnimation: {
+    width: normalize(517),
+    height: normalize(517),
+  },
+  progressText: {
+    fontSize: normalizeFontSize(25),
+    fontWeight: '600',
+    color: '#FFFFFF',
+    textAlign: 'center',
+  },
+  statusContainer: {
+    alignItems: 'center',
+    marginTop: normalize(20),
+  },
+  statusText: {
+    fontSize: normalizeFontSize(16),
+    fontWeight: '400',
+    color: '#FFFFFF',
+    textAlign: 'center',
+    opacity: 0.5,
+    lineHeight: normalize(20),
+  },
+  // 弹窗样式
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContainer: {
+    width: normalize(327),
+    backgroundColor: '#333333',
+    borderRadius: normalize(8),
+    overflow: 'hidden',
+    paddingTop: normalize(12),
+  },
+  modalContent: {
+    alignItems: 'center',
+    paddingHorizontal: normalize(16),
+    paddingBottom: normalize(16),
+    paddingTop: normalize(12),
+  },
+  iconContainer: {
+    alignItems: 'center',
+    paddingVertical: normalize(4),
+    paddingBottom: normalize(8),
+  },
+  successIcon: {
+    width: normalize(48),
+    height: normalize(48),
+    backgroundColor: '#FFFFFF',
+    borderRadius: normalize(24),
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  successIconImage: {
+    width: normalize(36),
+    height: normalize(36),
+    tintColor: '#36F279',
+  },
+  modalTitle: {
+    fontSize: normalizeFontSize(17),
+    fontWeight: '500',
+    color: '#FFFFFF',
+    textAlign: 'center',
+    lineHeight: normalize(22),
+    letterSpacing: -0.4,
+    marginBottom: normalize(4),
+  },
+  modalDescription: {
+    fontSize: normalizeFontSize(13),
+    fontWeight: '400',
+    color: '#B0B0B0',
+    textAlign: 'center',
+    lineHeight: normalize(18),
+    letterSpacing: -0.4,
+  },
+  modalButtons: {
+    flexDirection: 'row',
+    borderTopWidth: normalize(0.33),
+    borderTopColor: '#4F4F4F',
+  },
+  modalButton: {
+    flex: 1,
+    height: normalize(44),
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  buttonSeparator: {
+    width: normalize(0.33),
+    height: normalize(44),
+    backgroundColor: '#4F4F4F',
+  },
+  reRecordingText: {
+    fontSize: normalizeFontSize(17),
+    fontWeight: '400',
+    color: '#FFFFFF',
+    textAlign: 'center',
+    lineHeight: normalize(22),
+    letterSpacing: -0.4,
+  },
+  confirmText: {
+    fontSize: normalizeFontSize(17),
+    fontWeight: '600',
+    color: '#85F380',
+    textAlign: 'center',
+    lineHeight: normalize(22),
+    letterSpacing: -0.4,
+  },
+});
+
+export default GeneratingMusicScreen; 

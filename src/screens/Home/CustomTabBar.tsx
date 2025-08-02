@@ -40,7 +40,24 @@ const CustomTabBar = ({
     }
   }, [])
 
-  if (isKeyboardVisible) return null // 👈 键盘弹出时不显示 tabBar
+  // 隐藏 tabBar: 1. 键盘弹出时 2. Music tab下的HummingMusic页面
+  if (isKeyboardVisible) return null;
+
+  // 检查是否在Music tab下的HummingMusic页面
+  const currentRoute = state.routes[state.index];
+  // 需要隐藏tabBar的Music子页面
+  const HIDE_TABBAR_SCREENS = ['HummingMusic', 'MusicEdit'];
+  if (
+    currentRoute.name === 'Music' &&
+    currentRoute.state &&
+    currentRoute.state.routes &&
+    HIDE_TABBAR_SCREENS.includes(
+      currentRoute.state.routes[currentRoute.state.index || 0]?.name
+    )
+  ) {
+    return null;
+  }
+
   return (
     <View style={styles.outContainer}>
       <View

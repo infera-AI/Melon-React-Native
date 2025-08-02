@@ -135,7 +135,7 @@ const RecordingScreen: React.FC = () => {
         // 使用 ref 获取最新值
         const config = voiceprintEnrollmentConfigRef.current;
         if (config && currentTime > config.max_segment_duration_seconds) {
-          show({message: 'recording time exceeds the maximum recording time and stop recording'});  
+          show({message: t('recording.recording_time_exceeds_maximum')});  
           if (handleStopRecordingRef.current) {
             handleStopRecordingRef.current();
           }

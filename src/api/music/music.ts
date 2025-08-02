@@ -10,6 +10,7 @@ export function getMusicWorks() {
 // 生成音乐
 export function generateMusic(params: GenerateMusicParams) {
   const formData = new FormData();
+  formData.append('work_title', params.work_title);
   formData.append('work_lyrics', params.work_lyrics);
   params.work_genres.forEach((genre: string) => {
     formData.append('work_genres', genre);
@@ -31,7 +32,7 @@ export function recommendGenres(params: RecommendGenresParams) {
 
 // 获取音乐作品信息
 export function getMusicWorkInfo(params: GetMusicWorkInfoParams) {
-  return http.get<any>(API_ENDPOINTS.MUSIC.GET_MUSIC_WORK_INFO, { params });
+  return http.get<any>(API_ENDPOINTS.MUSIC.GET_MUSIC_WORK_INFO+'?work_id='+params.work_id, {params});
 }
 
 // 重命名音乐
@@ -51,7 +52,7 @@ export function deleteMusicWork(params: DeleteMusicWorkParams) {
 
 // 查询任务状态
 export function getMusicTaskStatus(params: GetMusicTaskStatusParams) {
-  return http.get<any>(API_ENDPOINTS.MUSIC.GET_MUSIC_TASK_STATUS, { params });
+  return http.get<any>(API_ENDPOINTS.MUSIC.GET_MUSIC_TASK_STATUS, params);
 }
 
 // 哼唱成曲

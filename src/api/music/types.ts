@@ -7,6 +7,7 @@ export interface ApifoxModel<T = any> {
 
 // 歌曲生成请求参数
 export interface GenerateMusicParams {
+  work_title: string;
   work_genres: string[];
   work_lyrics: string;
   [property: string]: any;
@@ -76,7 +77,6 @@ export interface GetMusicTaskStatusParams {
 export interface SingToMusicFileInfo {
   name: string;
   type: string;
-  size: number;
   uri: string;
 }
 

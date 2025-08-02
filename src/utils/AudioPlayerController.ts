@@ -1,5 +1,74 @@
 import Sound from 'react-native-sound';
 import { useAppStore } from '@/store';
+import { FFmpegKit } from 'ffmpeg-kit-react-native';
+
+// 快速获取音频时长的类
+export class AudioDurationManager {
+  private static cache = new Map<string, number>();
+  
+  static async getDuration(audioUrl: string): Promise<number> {
+    // 检查缓存
+    if (this.cache.has(audioUrl)) {
+      console.log('从缓存获取音频时长:', audioUrl);
+      return this.cache.get(audioUrl)!;
+    }
+    
+    try {
+      console.log('开始获取音频时长:', audioUrl);
+      const duration = await this.getDurationWithFFmpeg(audioUrl);
+      this.cache.set(audioUrl, duration);
+      console.log('音频时长获取成功:', duration, '秒');
+      return duration;
+    } catch (error) {
+      console.error('获取音频时长失败:', error);
+      return 0;
+    }
+  }
+  
+  private static async getDurationWithFFmpeg(audioUrl: string): Promise<number> {
+    try {
+      const result = await FFmpegKit.execute(`-i "${audioUrl}" -f null - 2>&1`);
+      const output = await result.getOutput();
+      
+      console.log('FFmpeg输出:', output);
+      
+      // 尝试多种时长格式匹配
+      const durationMatch = output.match(/Duration: (\d{2}):(\d{2}):(\d{2})\.(\d{2})/);
+      if (durationMatch) {
+        const hours = parseInt(durationMatch[1]);
+        const minutes = parseInt(durationMatch[2]);
+        const seconds = parseInt(durationMatch[3]);
+        const centiseconds = parseInt(durationMatch[4]);
+        
+        const duration = hours * 3600 + minutes * 60 + seconds + centiseconds / 100;
+        console.log('解析到的时长:', duration, '秒');
+        return duration;
+      }
+      
+      // 尝试其他格式
+      const durationMatch2 = output.match(/Duration: (\d{2}):(\d{2}):(\d{2})/);
+      if (durationMatch2) {
+        const hours = parseInt(durationMatch2[1]);
+        const minutes = parseInt(durationMatch2[2]);
+        const seconds = parseInt(durationMatch2[3]);
+        
+        const duration = hours * 3600 + minutes * 60 + seconds;
+        console.log('解析到的时长(无毫秒):', duration, '秒');
+        return duration;
+      }
+      
+      console.error('无法从FFmpeg输出中解析时长，输出内容:', output);
+      throw new Error('无法解析音频时长');
+    } catch (error) {
+      console.error('FFmpeg执行失败:', error);
+      throw error;
+    }
+  }
+  
+  static clearCache() {
+    this.cache.clear();
+  }
+}
 
 type Callbacks = {
   onInit?: (info: { duration: string; controller: AudioPlayerController }) => void;

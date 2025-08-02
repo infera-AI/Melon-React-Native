@@ -17,7 +17,7 @@ export enum VoiceType {
 // Store 类型定义
 export interface VoiceState {
     recordVoiceFile: VoiceFile;
-    setVoiceFile: (user: VoiceFile) => void;
+    setVoiceFile: (voiceFile: VoiceFile) => void;
     local: string | null;
     setLocal: (lang: string) => void;
     type: VoiceType;
@@ -27,7 +27,7 @@ export interface VoiceState {
 export const useVoiceStore = create<VoiceState>()(
         (set) => ({
             recordVoiceFile: {uri: '', name: '', type: ''},
-            setVoiceFile: (file) => set({recordVoiceFile: file}),
+            setVoiceFile: (voiceFile) => set({recordVoiceFile: voiceFile}),
             local: null,
             setLocal: (lang) => set({local: lang}),
             type: VoiceType.CREATE,

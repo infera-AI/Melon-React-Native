@@ -160,11 +160,11 @@ const VoiceprintManagementScreen: React.FC = () => {
       show({message: t('voiceprint_management.failed_to_get_voiceprint_demo')});
       console.log(error);
     }
-  }, [show, t, handleSynthesizeSpeech]);
+  }, [show, t]);
 
   useEffect(() => {
      getUserVoiceprintDemoRequest();
-  }, [getUserVoiceprintDemoRequest]);
+  }, []);
 
   return (
     <SafeAreaView style={styles.container} edges={['top' ,'bottom']} >

@@ -1,12 +1,36 @@
 import RNFS from 'react-native-fs';
 import { Platform } from 'react-native';
 import { FFmpegKit, ReturnCode } from 'ffmpeg-kit-react-native';
+import { AudioDurationManager } from './AudioPlayerController';
 
 interface AudioFile {
   uri: string;
   name: string;
   type: string;
 }
+
+/**
+ * 清理音频文件路径
+ */
+const cleanAudioPath = (filePath: string): string => {
+  let cleanPath = filePath;
+  
+  // 处理多余的斜杠
+  if (cleanPath.startsWith('file:///')) {
+    cleanPath = cleanPath.replace('file:///', 'file://');
+  }
+  
+  // 确保路径格式正确
+  if (cleanPath.startsWith('file://') && !cleanPath.startsWith('file:///')) {
+    // 路径格式正确
+  } else if (!cleanPath.startsWith('file://')) {
+    // 添加 file:// 前缀
+    cleanPath = `file://${cleanPath}`;
+  }
+  
+  console.log('路径清理:', filePath, '->', cleanPath);
+  return cleanPath;
+};
 
 /**
  * 音频文件合成工具类
@@ -184,13 +208,19 @@ export class AudioMerger {
    */
   static async validateAudioFile(filePath: string): Promise<boolean> {
     try {
-      const exists = await RNFS.exists(filePath);
+      const cleanPath = cleanAudioPath(filePath);
+      console.log('验证音频文件，清理后路径:', cleanPath);
+      
+      const exists = await RNFS.exists(cleanPath);
       if (!exists) {
+        console.log('文件不存在:', cleanPath);
         return false;
       }
 
-      const stats = await RNFS.stat(filePath);
-      return stats.size > 0;
+      const stats = await RNFS.stat(cleanPath);
+      const isValid = stats.size > 0;
+      console.log('文件验证结果:', isValid, '文件大小:', stats.size);
+      return isValid;
     } catch (error) {
       console.error('验证音频文件失败:', error);
       return false;
@@ -220,20 +250,89 @@ export class AudioMerger {
    */
   static async getAudioDuration(filePath: string): Promise<number> {
     try {
-      const command = `-i "${filePath}" -show_entries format=duration -v quiet -of csv="p=0"`;
+      console.log('=== 开始获取音频时长 ===');
+      console.log('原始路径:', filePath);
+      
+      const cleanPath = cleanAudioPath(filePath);
+      console.log('清理后路径:', cleanPath);
+      
+      // 先验证文件是否存在
+      const exists = await RNFS.exists(cleanPath);
+      console.log('文件是否存在:', exists);
+      
+      if (!exists) {
+        console.error('文件不存在，无法获取时长');
+        return 0;
+      }
+      
+      const command = `-i "${cleanPath}" -show_entries format=duration -v quiet -of csv="p=0"`;
+      console.log('FFmpeg 命令:', command);
+      
       const session = await FFmpegKit.execute(command);
       const returnCode = await session.getReturnCode();
+      console.log('FFmpeg 返回码:', returnCode);
       
       if (ReturnCode.isSuccess(returnCode)) {
         const output = await session.getOutput();
+        console.log('FFmpeg 输出:', output);
         const duration = parseFloat(output?.trim() || '0');
-        return isNaN(duration) ? 0 : duration;
+        console.log('解析后的时长:', duration);
+        console.log('是否为NaN:', isNaN(duration));
+        const finalDuration = isNaN(duration) ? 0 : duration;
+        console.log('最终时长:', finalDuration);
+        return finalDuration;
       } else {
-        console.warn('获取音频时长失败:', filePath);
-        return 0;
+        const logs = await session.getLogs();
+        const output = await session.getOutput();
+        console.error('FFmpeg 执行失败');
+        console.error('返回码:', returnCode);
+        console.error('输出:', output);
+        console.error('日志:', logs.map(log => log.getMessage()));
+        
+        // 尝试备用方法
+        console.log('尝试备用方法获取时长...');
+        return await this.getAudioDurationFallback(cleanPath);
       }
     } catch (error) {
       console.error('获取音频时长失败:', error);
+      // 尝试备用方法
+      try {
+        const cleanPath = cleanAudioPath(filePath);
+        return await this.getAudioDurationFallback(cleanPath);
+      } catch (fallbackError) {
+        console.error('备用方法也失败:', fallbackError);
+        return 0;
+      }
+    }
+  }
+
+  /**
+   * 备用的音频时长获取方法
+   */
+  private static async getAudioDurationFallback(filePath: string): Promise<number> {
+    try {
+      console.log('使用备用方法获取音频时长');
+      
+      // 使用 react-native-sound 获取时长
+      const { default: Sound } = await import('react-native-sound');
+      Sound.setCategory('Playback');
+      
+      return new Promise((resolve) => {
+        const sound = new Sound(filePath, undefined, (error) => {
+          if (error) {
+            console.error('备用方法加载音频失败:', error);
+            resolve(0);
+            return;
+          }
+          
+          const duration = sound.getDuration();
+          console.log('备用方法获取到的时长:', duration);
+          sound.release();
+          resolve(duration);
+        });
+      });
+    } catch (error) {
+      console.error('备用方法失败:', error);
       return 0;
     }
   }
@@ -277,4 +376,354 @@ export const getTotalAudioDuration = async (audioFiles: AudioFile[]): Promise<nu
   }
   
   return totalDuration;
+};
+
+/**
+ * 音频播放工具类
+ */
+export class AudioPlayer {
+  private static instance: AudioPlayer;
+  private sound: any = null;
+  private isPlaying: boolean = false;
+  private currentTime: number = 0;
+  private duration: number = 0;
+  private onProgressCallback?: (currentTime: number, duration: number) => void;
+  public onFinishCallback?: () => void;
+
+  static getInstance(): AudioPlayer {
+    if (!AudioPlayer.instance) {
+      AudioPlayer.instance = new AudioPlayer();
+    }
+    return AudioPlayer.instance;
+  }
+
+  /**
+   * 播放音频文件
+   */
+  async playAudio(filePath: string): Promise<boolean> {
+    try {
+      // 清理路径
+      const cleanPath = cleanAudioPath(filePath);
+      console.log('播放音频文件:', cleanPath);
+
+      // 如果正在播放，先停止
+      if (this.sound) {
+        await this.stopAudio();
+      }
+
+      // 动态导入 Sound 模块
+      const { default: Sound } = await import('react-native-sound');
+      
+      // 启用播放功能
+      Sound.setCategory('Playback');
+
+      return new Promise((resolve, reject) => {
+        this.sound = new Sound(cleanPath, undefined, (error) => {
+          if (error) {
+            console.error('音频加载失败:', error);
+            reject(error);
+            return;
+          }
+
+          console.log('音频加载成功');
+          this.duration = this.sound.getDuration();
+          console.log('音频时长:', this.duration);
+
+          this.sound.play((success: boolean) => {
+            if (success) {
+              console.log('音频播放完成');
+              this.isPlaying = false;
+              this.onFinishCallback?.();
+            } else {
+              console.error('音频播放失败');
+            }
+          });
+
+          this.isPlaying = true;
+          this.startProgressTracking();
+          resolve(true);
+        });
+      });
+    } catch (error) {
+      console.error('播放音频失败:', error);
+      return false;
+    }
+  }
+
+  /**
+   * 暂停播放
+   */
+  pauseAudio(): void {
+    if (this.sound && this.isPlaying) {
+      this.sound.pause();
+      this.isPlaying = false;
+      console.log('音频已暂停');
+    }
+  }
+
+  /**
+   * 恢复播放
+   */
+  resumeAudio(): void {
+    if (this.sound && !this.isPlaying) {
+      this.sound.play();
+      this.isPlaying = true;
+      console.log('音频已恢复播放');
+    }
+  }
+
+  /**
+   * 停止播放
+   */
+  async stopAudio(): Promise<void> {
+    if (this.sound) {
+      this.sound.stop();
+      this.sound.release();
+      this.sound = null;
+      this.isPlaying = false;
+      this.currentTime = 0;
+      console.log('音频已停止');
+    }
+  }
+
+  /**
+   * 跳转到指定时间
+   */
+  seekTo(time: number): void {
+    if (this.sound) {
+      this.sound.setCurrentTime(time);
+      this.currentTime = time;
+      console.log('跳转到时间:', time);
+    }
+  }
+
+  /**
+   * 设置音量
+   */
+  setVolume(volume: number): void {
+    if (this.sound) {
+      this.sound.setVolume(volume);
+    }
+  }
+
+  /**
+   * 获取当前播放状态
+   */
+  getPlaybackStatus(): { isPlaying: boolean; currentTime: number; duration: number } {
+    return {
+      isPlaying: this.isPlaying,
+      currentTime: this.currentTime,
+      duration: this.duration
+    };
+  }
+
+  /**
+   * 设置进度回调
+   */
+  setProgressCallback(callback: (currentTime: number, duration: number) => void): void {
+    this.onProgressCallback = callback;
+  }
+
+  /**
+   * 设置播放完成回调
+   */
+  setFinishCallback(callback: () => void): void {
+    this.onFinishCallback = callback;
+  }
+
+  /**
+   * 开始进度跟踪
+   */
+  private startProgressTracking(): void {
+    if (!this.onProgressCallback) return;
+
+    const updateProgress = () => {
+      if (this.sound && this.isPlaying) {
+        this.sound.getCurrentTime((seconds: number) => {
+          this.currentTime = seconds;
+          this.onProgressCallback?.(seconds, this.duration);
+        });
+      }
+    };
+
+    // 每秒更新一次进度
+    this.progressInterval = setInterval(updateProgress, 1000);
+  }
+
+  /**
+   * 停止进度跟踪
+   */
+  private stopProgressTracking(): void {
+    if (this.progressInterval) {
+      clearInterval(this.progressInterval);
+      this.progressInterval = null;
+    }
+  }
+
+  private progressInterval: NodeJS.Timeout | null = null;
+}
+
+/**
+ * 获取音频文件时长（支持本地和网络音频）
+ */
+export const getAudioDuration = async (filePath: string): Promise<number> => {
+  // 如果是网络音频，使用AudioDurationManager
+  if (filePath.startsWith('http://') || filePath.startsWith('https://')) {
+    return await AudioDurationManager.getDuration(filePath);
+  }
+  
+  // 本地文件使用AudioMerger
+  return await AudioMerger.getAudioDuration(filePath);
+};
+
+/**
+ * 播放音频文件（简化版本）
+ */
+export const playAudio = async (filePath: string): Promise<boolean> => {
+  return await AudioPlayer.getInstance().playAudio(filePath);
+};
+
+/*
+使用示例：
+
+// 1. 获取音频时长
+const duration = await getAudioDuration('file:////data/user/0/com.melon/cache/recording_1754071756609.m4a');
+console.log('音频时长:', duration);
+
+// 2. 播放音频
+const audioPlayer = AudioPlayer.getInstance();
+const success = await audioPlayer.playAudio('file:////data/user/0/com.melon/cache/recording_1754071756609.m4a');
+
+// 3. 设置进度回调
+audioPlayer.setProgressCallback((currentTime, duration) => {
+  console.log(`播放进度: ${currentTime}/${duration}`);
+});
+
+// 4. 设置播放完成回调
+audioPlayer.setFinishCallback(() => {
+  console.log('播放完成');
+});
+
+// 5. 控制播放
+audioPlayer.pauseAudio();  // 暂停
+audioPlayer.resumeAudio(); // 恢复
+audioPlayer.seekTo(30);    // 跳转到30秒
+audioPlayer.stopAudio();   // 停止
+
+// 6. 获取播放状态
+const status = audioPlayer.getPlaybackStatus();
+console.log('播放状态:', status);
+*/
+
+/**
+ * 测试音频文件功能
+ */
+export const testAudioFile = async (filePath: string) => {
+  try {
+    console.log('=== 音频文件测试 ===');
+    console.log('文件路径:', filePath);
+    
+    // 1. 验证文件
+    const isValid = await AudioMerger.validateAudioFile(filePath);
+    console.log('文件验证结果:', isValid);
+    
+    if (!isValid) {
+      console.log('文件无效，跳过测试');
+      return;
+    }
+    
+    // 2. 获取文件信息
+    const fileInfo = await AudioMerger.getAudioFileInfo(filePath);
+    console.log('文件信息:', fileInfo);
+    
+    // 3. 获取音频时长
+    const duration = await getAudioDuration(filePath);
+    console.log('音频时长:', duration, '秒');
+    
+    // 4. 播放音频
+    const audioPlayer = AudioPlayer.getInstance();
+    
+    // 设置进度回调
+    audioPlayer.setProgressCallback((currentTime, totalDuration) => {
+      console.log(`播放进度: ${currentTime.toFixed(1)}/${totalDuration.toFixed(1)}秒`);
+    });
+    
+    // 设置完成回调
+    audioPlayer.setFinishCallback(() => {
+      console.log('播放完成');
+    });
+    
+    // 开始播放
+    const success = await audioPlayer.playAudio(filePath);
+    console.log('播放开始:', success);
+    
+    // 5秒后暂停
+    setTimeout(() => {
+      audioPlayer.pauseAudio();
+      console.log('已暂停播放');
+      
+      // 2秒后恢复播放
+      setTimeout(() => {
+        audioPlayer.resumeAudio();
+        console.log('已恢复播放');
+        
+        // 3秒后停止
+        setTimeout(() => {
+          audioPlayer.stopAudio();
+          console.log('已停止播放');
+        }, 3000);
+      }, 2000);
+    }, 5000);
+    
+  } catch (error) {
+    console.error('音频测试失败:', error);
+  }
+};
+
+/**
+ * 快速验证音频文件
+ */
+export const quickValidateAudio = async (filePath: string) => {
+  try {
+    console.log('=== 快速验证音频文件 ===');
+    console.log('文件路径:', filePath);
+    
+    // 1. 路径清理
+    const cleanPath = cleanAudioPath(filePath);
+    console.log('清理后路径:', cleanPath);
+    
+    // 2. 检查文件是否存在
+    const exists = await RNFS.exists(cleanPath);
+    console.log('文件是否存在:', exists);
+    
+    if (!exists) {
+      console.log('❌ 文件不存在');
+      return false;
+    }
+    
+    // 3. 获取文件信息
+    const stats = await RNFS.stat(cleanPath);
+    console.log('文件大小:', stats.size, '字节');
+    
+    if (stats.size === 0) {
+      console.log('❌ 文件大小为0');
+      return false;
+    }
+    
+    // 4. 尝试获取时长
+    const duration = await getAudioDuration(filePath);
+    console.log('音频时长:', duration, '秒');
+    
+    if (duration > 0) {
+      console.log('✅ 音频文件验证成功');
+      return true;
+    } else {
+      console.log('❌ 无法获取音频时长');
+      return false;
+    }
+    
+  } catch (error) {
+    console.error('快速验证失败:', error);
+    return false;
+  }
 };

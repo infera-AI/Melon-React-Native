@@ -5,8 +5,7 @@ import CustomTabBar from '../screens/Home/CustomTabBar'
 
 // 首页-翻译
 import TranslateScreen from '../screens/Home/TranslateScreen';
-// 首页-音乐
-import MusicScreen from '../screens/Home/MusicScreen';
+import MusicStackNavigator from '../screens/Home/MusicScreen/navigator';
 // 首页-个人资料
 import ProfileNavigator from '../screens/Home/ProfileScreen/ProfileNavigator';
 
@@ -32,7 +31,7 @@ const MainAppNavigator: React.FC = () => (
     }}
   >
     <Tab.Screen name="Translate" component={TranslateScreen} />
-    <Tab.Screen name="Music" component={MusicScreen} />
+    <Tab.Screen name="Music" component={MusicStackNavigator} />
     <Tab.Screen name="Profile" component={ProfileNavigator} />
   </Tab.Navigator>
 );
