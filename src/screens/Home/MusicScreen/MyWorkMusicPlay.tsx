@@ -18,8 +18,18 @@ import { saveMusicWork } from "@/api/music";
 import Sound from "react-native-sound";
 import { useMessageModal } from "@/contexts/MessageModalContext";
 import { AudioDurationManager } from '@/utils/AudioPlayerController';
+import theme from "@/utils/theme";
+import { deleteMusicWork, getMusicWorkInfo, modifyMusicTitle } from "@/api/music/music";
 import { useLanguage } from '@/contexts/LanguageContext';
-import { theme } from "@/utils/theme";
+
+type Music = {
+  id: number;
+  url: string;
+  cover: string;
+  title: string;
+  lyrics: string;
+  genres: string[];
+}
 
 // 控制按钮图片资源
 const img_last_song = require("../../../../assets/images/last_song.png");
@@ -28,7 +38,9 @@ const img_play_btn = require("../../../../assets/images/music_play.png");
 const img_pause_btn = require("../../../../assets/images/music_pause.png");
 const img_music_share = require("../../../../assets/images/music_share.png");
 const img_music_back_btn = require("../../../../assets/images/music_back_btn.png");
-const img_music_save = require("@/assets/music/music_save_icon.png");
+const img_music_edit = require("@/assets/music/music_edit_icon.png");
+const img_music_delete = require("@/assets/music/music_delete_icon.png");
+const img_music_save = require("@/assets/music/music_reload_icon.png");
 
 const { width } = Dimensions.get("window");
 
@@ -44,7 +56,7 @@ const normalizeFontSize = (size: number) => {
   return Math.min(Math.round(size * scale), size);
 };
 
-const MusicPlayScreen = ({ navigation, route }: any) => {
+const MyWorkMusicPlay = ({ navigation, route }: any) => {
   const { music={} } = route.params;
   const [sound, setSound] = useState<Sound | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -54,6 +66,7 @@ const MusicPlayScreen = ({ navigation, route }: any) => {
   const { show } = useMessageModal();
   const lyricScrollRef = useRef<FlatList<any>>(null);
   const progressInterval = useRef<NodeJS.Timeout | null>(null);
+  const [musicInfo, setMusicInfo] = useState<Music>({} as Music);
   const { t } = useLanguage();
 
   // 清理音频相关数据
@@ -83,10 +96,15 @@ const MusicPlayScreen = ({ navigation, route }: any) => {
     }
   }, [sound]);
 
+
   // 删除弹窗
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   // 分享弹窗
   const [showShareModal, setShowShareModal] = useState(false);
+  // 编辑歌曲名弹窗
+  const [showEditModal, setShowEditModal] = useState(false);
+  // 编辑歌曲名输入
+  const [editTitle, setEditTitle] = useState('');
 
    // 秒数转换
    const timeToSec = (t: string) => {
@@ -102,9 +120,8 @@ const MusicPlayScreen = ({ navigation, route }: any) => {
 
   // 解析歌词数据 - 支持新的work_lyrics格式
   const lyricArr = React.useMemo(() => {
-    // 如果music.lyrics是work_lyrics格式
-    if (music.lyrics && Array.isArray(music.lyrics)) {
-      const lyricsData = music.lyrics; // 取第一个语言版本
+    if (musicInfo.lyrics && Array.isArray(musicInfo.lyrics)) {
+      const lyricsData = musicInfo.lyrics; // 取第一个语言版本
       return lyricsData.map((item: any) => {
 
         const [startTime, endTime, text] = item;
@@ -116,11 +133,11 @@ const MusicPlayScreen = ({ navigation, route }: any) => {
       });
     }
     return []
-  }, [music.lyrics]);
+  }, [musicInfo.lyrics]);
 
   // 播放音乐
   const handlePlayAudio = () => {
-    if (!music.url) {
+    if (!musicInfo.url) {
       show({ message: t('music.no_audio_available') });
       return;
     }
@@ -133,7 +150,7 @@ const MusicPlayScreen = ({ navigation, route }: any) => {
     }
 
     // 创建新的音频实例
-    const newSound = new (Sound as any)(music.url, (error: any) => {
+    const newSound = new (Sound as any)(musicInfo.url, (error: any) => {
       if (error) {
         console.log('Failed to load audio:', error);
         show({ message: t('music.failed_to_load_audio') });
@@ -167,19 +184,18 @@ const MusicPlayScreen = ({ navigation, route }: any) => {
   };
 
   const fetchDuration = useCallback(async () => {
-    console.log('开始获取音频时长，URI:', music.url);
+    console.log('开始获取音频时长，URI:', musicInfo.url);
     try {
-      const durationTime = await AudioDurationManager.getDuration(music.url);
+      const durationTime = await AudioDurationManager.getDuration(musicInfo.url);
       console.log(durationTime,'durationTime')
       setDuration(durationTime);
     } catch (error) {
       console.log(error,'error')
     }
-  }, [music.url]);
+  }, [musicInfo.url]);
 
   // 播放/暂停
   const handlePlayPause = () => {
-    // 如果没有音频实例或音频已播放完成，重新创建并播放
     if (!sound) {
       handlePlayAudio();
       return;
@@ -263,26 +279,69 @@ const MusicPlayScreen = ({ navigation, route }: any) => {
         console.log('页面失去焦点，清理音频数据');
         cleanupAudioData();
       };
-    }, [])
+    }, [cleanupAudioData])
   );
 
   useEffect(() => {
     fetchDuration();
   }, []);
 
-  // 保存歌曲
-  const handleSaveMusic = async () => {
+ 
+  // 编辑歌曲名
+  const handleEditTitle = async () => {
+    if (!editTitle.trim()) {
+      show({ message: t('music.please_enter_song_name') });
+      return;
+    }
     try {
-      const res = await saveMusicWork({
-        task_id: music.taskId,
-        music_index_list: [music.id],
-      });
-      show({message:t('music.save_success')})
-      navigation.navigate('MyWork' as any);
+      const res = await modifyMusicTitle({
+        work_id: music.id,
+        work_title: editTitle,
+      })
+      show({ message: t('music.modify_success') });
+      setShowEditModal(false);
+      setEditTitle('');
+      handleRefreshMusicInfo();
     } catch (error) {
-      show({message:t('music.save_failed')})
+      show({ message: t('music.modify_failed') });
     }
   };
+
+  const handleRefreshMusicInfo = async () => {
+    await getMusicWorkInfoRequest();
+  }
+
+  // 删除歌曲
+  const handleDeleteMusic = async () => {
+    try {
+      const res = await deleteMusicWork({work_ids: [music.id]})
+      show({ message: t('music.delete_success') });
+      setShowDeleteModal(false);
+      navigation.goBack();
+    } catch (error) {
+      show({ message: t('music.delete_failed') });
+    }
+  };
+  // 获取作品信息
+  const getMusicWorkInfoRequest = async () => {
+    try {
+    const res = await getMusicWorkInfo({work_id: music.id})
+    console.log(res,'res');
+    const info ={
+      id: res.work_id,
+      title: res.work_title,
+      url: res.work_url,
+      lyrics: res.work_lyrics,
+      genres: res.work_genres,
+      cover: res.work_cover,
+    }
+    setMusicInfo(info);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+ 
 
   // 监听播放进度
   useEffect(() => {
@@ -325,6 +384,10 @@ const MusicPlayScreen = ({ navigation, route }: any) => {
     }
   }, [currentTime, lyricArr]);
 
+  useEffect(() => { 
+    getMusicWorkInfoRequest();
+  }, [musicInfo.id]);
+
   return (
     <View style={styles.container}>
       {/* Header */}
@@ -343,7 +406,7 @@ const MusicPlayScreen = ({ navigation, route }: any) => {
       {/* Info Card */}
       <View style={styles.infoCard}>
         <View style={styles.avatarBox}>
-          <Image source={{ uri: music.cover }} style={styles.avatar} />
+          <Image source={{ uri: musicInfo.cover }} style={styles.avatar} />
         </View>
         <View style={styles.infoMain}>
           <View style={styles.infoHeaderRow}>
@@ -352,21 +415,32 @@ const MusicPlayScreen = ({ navigation, route }: any) => {
               numberOfLines={1}
               ellipsizeMode="tail"
             >
-              {music.title}
+              {musicInfo.title}
             </Text>
             <Text
               style={styles.tags}
               numberOfLines={1}
               ellipsizeMode="tail"
             >
-              {music.genres?.join(", ")}
+              {musicInfo.genres?.join(", ")}
             </Text>
           </View>
+         <View style={styles.infoHeaderRowRight}>
+          <TouchableOpacity onPress={() => {
+            setEditTitle(musicInfo.title || '');
+            setShowEditModal(true);
+          }}>
+            <Image source={img_music_edit} style={styles.infoIcon} />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => setShowDeleteModal(true)}>
+            <Image source={img_music_delete} style={styles.infoIcon} />
+          </TouchableOpacity>
+        </View>
         </View>
         <View style={styles.infoSideIcons}>
-          {/* <TouchableOpacity onPress={handleSaveMusic}>
+          <TouchableOpacity onPress={()=>{}}>
             <Image source={img_music_save} style={styles.infoIcon} />
-          </TouchableOpacity> */}
+          </TouchableOpacity>
           <TouchableOpacity onPress={() => setShowShareModal(true)}>
             <Image source={img_music_share} style={styles.infoIcon} />
           </TouchableOpacity>
@@ -375,12 +449,12 @@ const MusicPlayScreen = ({ navigation, route }: any) => {
 
       {/* 歌词 */}
       <View style={styles.lyricSection}>
-        {/* <View style={styles.lyricHeader}>
+        <View style={styles.lyricHeader}>
           <Text style={styles.lyricTitle}>{t('music.lyrics')}</Text>
           <Text style={styles.lyricProgress}>
             {getActiveLyricIndex() + 1} / {lyricArr.length}
           </Text>
-        </View> */}
+        </View>
         <FlatList
           style={styles.lyricScroll}
           data={lyricArr}
@@ -472,39 +546,7 @@ const MusicPlayScreen = ({ navigation, route }: any) => {
         </TouchableOpacity>
       </View>
 
-      {/* 删除确认弹窗和模糊遮罩 */}
-      <Modal
-        visible={showDeleteModal}
-        animationType="fade"
-        transparent
-        onRequestClose={() => setShowDeleteModal(false)}
-      >
-        <View style={styles.modalOverlay}>
-          {/* 模糊/半透明遮罩 */}
-          <Pressable style={styles.blurMask} onPress={() => setShowDeleteModal(false)} />
-          {/* 底部弹窗 */}
-          <View style={styles.bottomModal}>
-            <Text style={styles.modalTitle}>{t('music.delete')} {music.title}</Text>
-            <View style={styles.modalBtnRow}>
-              <TouchableOpacity
-                style={styles.cancelBtn}
-                onPress={() => setShowDeleteModal(false)}
-              >
-                      <Text style={styles.cancelBtnText}>{t('music.cancel')}</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.okBtn}
-                onPress={() => {
-                  setShowDeleteModal(false);
-                  // TODO: 删除逻辑
-                }}
-              >
-                                  <Text style={styles.okBtnText}>{t('music.ok')}</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      </Modal>
+      {/* 删除弹窗已移至下方 */}
 
       {/* 分享弹窗 */}
       <Modal
@@ -517,22 +559,90 @@ const MusicPlayScreen = ({ navigation, route }: any) => {
           <Pressable style={styles.blurMask} onPress={() => setShowShareModal(false)} />
           <View style={styles.bottomModal}>
             <Text style={styles.modalTitle}>
-              {t('music.share')} {music.title}
+              Share {musicInfo.title}
             </Text>
-            <Text style={styles.shareLink}>{music.url}</Text>
+            <Text style={styles.shareLink}>{musicInfo.url}</Text>
             <TouchableOpacity
               style={styles.copyBtn}
               onPress={() => {
                 show({
-                  title: '复制成功',
-                  message: '链接已复制到剪贴板',
+                  title: t('music.copy_success'),
+                  message: t('music.link_copied'),
                 });
-                Clipboard.setString(music.url);
+                Clipboard.setString(musicInfo.url);
                 setShowShareModal(false)
               }}
             >
               <Text style={styles.copyBtnText}>{t('music.copy_link')}</Text>
             </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      {/* 编辑歌曲名弹窗 */}
+      <Modal
+        visible={showEditModal}
+        animationType="fade"
+        transparent
+        onRequestClose={() => setShowEditModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <Pressable style={styles.blurMask} onPress={() => setShowEditModal(false)} />
+          <View style={[styles.bottomModal,styles.bottomModalTitle]}>
+            <Text style={styles.modalTitle}>
+              {t('music.edit')}
+            </Text>
+            <TextInput
+              style={styles.editInput}
+              value={editTitle}
+              onChangeText={setEditTitle}
+              placeholder={t('music.enter_new_title')}
+              placeholderTextColor="#888"
+              autoFocus
+            />
+            <View style={styles.modalBtnRow}>
+              <TouchableOpacity
+                style={styles.cancelBtn}
+                onPress={() => setShowEditModal(false)}
+              >
+                <Text style={styles.cancelBtnText}>{t('music.cancel')}</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.okBtn}
+                onPress={handleEditTitle}
+              >
+                <Text style={styles.okBtnText}>{t('music.save')}</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* 删除歌曲弹窗 */}
+      <Modal
+        visible={showDeleteModal}
+        animationType="fade"
+        transparent
+        onRequestClose={() => setShowDeleteModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <Pressable style={styles.blurMask} onPress={() => setShowDeleteModal(false)} />
+          <View style={styles.bottomModal}>
+            <Text style={styles.modalTitle}>{t('music.delete')} {musicInfo.title}</Text>
+            <View style={styles.modalBtnRow}>
+              <TouchableOpacity
+                style={styles.cancelBtn}
+                onPress={() => setShowDeleteModal(false)}
+              >
+                <Text style={styles.cancelBtnText}>{t('music.cancel')}</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.deleteBtn}
+                onPress={handleDeleteMusic}
+              >
+                <Text style={styles.okBtnText}>{t('music.ok')}</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
       </Modal>
@@ -595,7 +705,11 @@ const styles = StyleSheet.create({
   },
   infoMain: {
     flex: 1,
-    minWidth: 0,    marginRight: normalize(10),
+    height: normalize(72),
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+    minWidth: 0,  
   },
   infoHeaderRow: {
     flexDirection: "column",
@@ -603,7 +717,12 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
     justifyContent: "flex-start",
     marginBottom: normalize(2),
-    marginTop: normalize(10),
+  },
+  infoHeaderRowRight: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "flex-end",
+    gap: normalize(8),
   },
   name: {
     color: "#fff",
@@ -775,6 +894,7 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0,0,0,0.4)",
   },
   bottomModal: {
+    height: normalize(197),
     backgroundColor: "#222",
     borderTopLeftRadius: normalize(18),
     borderTopRightRadius: normalize(18),
@@ -782,6 +902,11 @@ const styles = StyleSheet.create({
     paddingBottom: normalize(32),
     paddingHorizontal: normalize(24),
     alignItems: "center",
+    justifyContent: "center",
+  },
+  bottomModalTitle: {
+    height: normalize(197),
+    justifyContent: "flex-start",
   },
   modalTitle: {
     color: "#fff",
@@ -794,6 +919,8 @@ const styles = StyleSheet.create({
     width: "100%",
     justifyContent: "space-between",
     marginTop: normalize(8),
+    position: "absolute",
+    bottom: normalize(32),
   },
   cancelBtn: {
     flex: 1,
@@ -807,6 +934,7 @@ const styles = StyleSheet.create({
   },
   okBtn: {
     flex: 1,
+    backgroundColor: theme.primary,
     borderRadius: normalize(12),
     marginLeft: normalize(8),
     paddingVertical: normalize(12),
@@ -836,13 +964,44 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginTop: 0,
     width: "100%",
+    position: "absolute",
+    bottom: normalize(32),
   },
   copyBtnText: {
-    color: '#111',
+    color: "#111",
     fontSize: normalizeFontSize(18),
     fontWeight: "bold",
     textAlign: "center",
   },
+  editInput: {
+    width: "100%",
+    height: normalize(48),
+    backgroundColor: "#333",
+    borderRadius: normalize(12),
+    paddingHorizontal: normalize(16),
+    color: "#fff",
+    fontSize: normalizeFontSize(16),
+    marginBottom: normalize(24),
+  },
+  deleteWarning: {
+    color: "#bdbdbd",
+    fontSize: normalizeFontSize(14),
+    textAlign: "center",
+    marginBottom: normalize(24),
+  },
+  deleteBtn: {
+    flex: 1,
+    backgroundColor: theme.primary,
+    borderRadius: normalize(12),
+    marginLeft: normalize(8),
+    paddingVertical: normalize(12),
+    alignItems: "center",
+  },
+  deleteBtnText: {
+    color: "#fff",
+    fontSize: normalizeFontSize(16),
+    fontWeight: "bold",
+  },
 });
 
-export default MusicPlayScreen;
+export default MyWorkMusicPlay;

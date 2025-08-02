@@ -19,3 +19,14 @@ export const scaleFont = (size: number) => {
   const scaledSize = (height / baseHeight) * size;
   return Math.round(PixelRatio.roundToNearestPixel(scaledSize));
 };
+
+
+export const normalize = (size: number, based: 'width' | 'height' = 'width') => {
+  const { width, height } = require('react-native').Dimensions.get('window');
+  const scale = based === 'width' ? width / 375 : height / 812;
+  return Math.round(size * scale);
+};
+
+export const normalizeFontSize = (size: number) => {
+  return normalize(size, 'width');
+};

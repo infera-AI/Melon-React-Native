@@ -4,6 +4,7 @@ import { CODE } from './constants'
 import { checkNetwork } from './network'
 import { ToastService } from '@/utils/ToastService';
 import { i18nService } from '@/utils/i18nService';
+import { useStore } from 'zustand';
 
 interface HttpRequestConfig extends AxiosRequestConfig {
     baseURL?: string;
@@ -104,6 +105,8 @@ class HttpRequest {
                     }
                 }
 
+             
+
                 throw {
                     code,
                     message,
@@ -122,6 +125,15 @@ class HttpRequest {
                 } else {
                     console.error('❌ 网络或请求未送达:', error.message);
                 }
+                if (error.response.status === CODE.FORBIDDEN) {
+                    useUserStore.getState().clearLoginInfo()
+                    console.log('Forbidden',useUserStore.getState().token);
+                    throw {
+                     code: CODE.FORBIDDEN,
+                     message: i18nService.t('http_forbidden'),
+                     data: error.response.data,
+                    }
+                 }
                 ToastService.show({
                     message: error?.response?.data?.error || i18nService.t('response_error')
                 });

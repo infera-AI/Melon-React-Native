@@ -1,22 +1,40 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, Image, Dimensions, ScrollView } from 'react-native';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Dimensions, TextInput, Image, ScrollView, Platform } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import MaskedView from '@react-native-masked-view/masked-view';
 import LinearGradient from 'react-native-linear-gradient';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const { width } = Dimensions.get('window');
 
-const CARD_RADIUS = 18;
-const CARD_PADDING = 16;
-const CARD_MARGIN_BOTTOM = 18;
+const normalize = (size: number) => {
+  const scale = width / 375;
+  return Math.round(size * scale);
+};
+
+const normalizeFontSize = (size: number) => {
+  const scale = width / 375;
+  return Math.min(Math.round(size * scale), size);
+};
+
+const CARD_RADIUS = normalize(18);
+const CARD_PADDING = normalize(16);
+const CARD_MARGIN_BOTTOM = normalize(18);
 const BUTTONS = ['R&B', 'Classical', 'Vaporwave', 'Ancient'];
 
 const MusicEditScreen: React.FC = () => {
   const [lyrics, setLyrics] = useState('');
-  const [fromLang, setFromLang] = useState('Chinese');
-  const [toLang, setToLang] = useState('English');
+  const [fromLang, _setFromLang] = useState('Chinese');
+  const [toLang, _setToLang] = useState('English');
   const [selectedStyle, setSelectedStyle] = useState('R&B');
   const navigation = useNavigation();
+  const { t } = useLanguage();
+
+  const handleAiPolish = () => {
+    // Placeholder for AI polishing logic
+    console.log('AI Polishing clicked');
+  };
 
   return (
     <View style={styles.container}>
@@ -29,15 +47,15 @@ const MusicEditScreen: React.FC = () => {
             resizeMode="contain"
           />
         </TouchableOpacity>
-        <View style={{ width: 32 }} />
+        <View style={{ width: normalize(32) }} />
       </View>
       {/* 内容区 */}
       <View style={styles.flexContent}>
         {/* 歌词输入卡片 */}
         <View style={styles.lyricCard}>
           <View style={styles.lyricCardHeader}>
-            <Text style={styles.lyricCardTitle}>Write Lyrics</Text>
-            <View style={styles.aiPolish}>
+            <Text style={styles.lyricCardTitle}>{t('music.write_lyrics')}</Text>
+            <TouchableOpacity style={styles.aiPolish} onPress={handleAiPolish}>
               <Image
                 source={require('../../../../assets/images/ai_polishing_star.png')}
                 style={styles.aiIcon}
@@ -45,7 +63,7 @@ const MusicEditScreen: React.FC = () => {
               />
               <MaskedView
                 maskElement={
-                  <Text style={styles.aiPolishText}>AI Polishing</Text>
+                  <Text style={styles.aiPolishText}>{t('music.ai_polishing')}</Text>
                 }
               >
                 <LinearGradient
@@ -54,11 +72,11 @@ const MusicEditScreen: React.FC = () => {
                   end={{ x: 1, y: 0 }}
                 >
                   <Text style={[styles.aiPolishText, { opacity: 0 }]}>
-                    AI Polishing
+                    {t('music.ai_polishing')}
                   </Text>
                 </LinearGradient>
               </MaskedView>
-            </View>
+            </TouchableOpacity>
           </View>
           <TextInput
             style={styles.lyricInput}
@@ -95,7 +113,7 @@ const MusicEditScreen: React.FC = () => {
           {/* 音乐风格选择卡片 */}
           <View style={styles.styleCard}>
             <View style={styles.lyricCardHeader}>
-              <Text style={styles.lyricCardTitle}>Select Music Style</Text>
+              <Text style={styles.lyricCardTitle}>{t('music.select_music_style')}</Text>
               <View style={styles.aiPolish}>
                 <Image
                   source={require('../../../../assets/images/ai_polishing_star.png')}
@@ -104,7 +122,7 @@ const MusicEditScreen: React.FC = () => {
                 />
                 <MaskedView
                   maskElement={
-                    <Text style={styles.aiPolishText}>AI Polishing</Text>
+                    <Text style={styles.aiPolishText}>{t('music.ai_polishing')}</Text>
                   }
                 >
                   <LinearGradient
@@ -113,14 +131,14 @@ const MusicEditScreen: React.FC = () => {
                     end={{ x: 1, y: 0 }}
                   >
                     <Text style={[styles.aiPolishText, { opacity: 0 }]}>
-                      AI Polishing
+                      {t('music.ai_polishing')}
                     </Text>
                   </LinearGradient>
                 </MaskedView>
               </View>
             </View>
             <Text style={styles.styleSubtitle}>
-              Pre-filled based on user's humming tone
+              {t('music.pre_filled_based_on_humming_tone')}
             </Text>
             <ScrollView
               style={styles.styleBtnRowScroll}
@@ -152,7 +170,7 @@ const MusicEditScreen: React.FC = () => {
         </View>
         {/* Next 按钮 */}
         <TouchableOpacity style={styles.nextBtn}>
-          <Text style={styles.nextBtnText}>Next</Text>
+          <Text style={styles.nextBtnText}>{t('music.next')}</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -163,36 +181,36 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#111',
-    paddingTop: 24,
-    paddingHorizontal: 12,
-    paddingBottom: 24,
+    paddingTop: normalize(24),
+    paddingHorizontal: normalize(12),
+    paddingBottom: normalize(24),
   },
   flexContent: {
     flex: 1,
     flexDirection: 'column',
     justifyContent: 'flex-start',
-    marginTop: 16, // leave space for back button
+    marginTop: normalize(16), // leave space for back button
   },
   bottomBlock: {
-    marginBottom: 24,
+    marginBottom: normalize(24),
   },
   lyricCard: {
     backgroundColor: '#191919',
     borderRadius: CARD_RADIUS,
     padding: CARD_PADDING,
     marginBottom: CARD_MARGIN_BOTTOM,
-    minHeight: 120,
+    minHeight: normalize(120),
     flex: 1,
   },
   lyricCardHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: normalize(8),
   },
   lyricCardTitle: {
     color: '#fff',
-    fontSize: 16,
+    fontSize: normalizeFontSize(16),
     fontWeight: '600',
   },
   aiPolish: {
@@ -200,67 +218,67 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   aiIcon: {
-    width: 18,
-    height: 18,
-    marginRight: 4,
+    width: normalize(18),
+    height: normalize(18),
+    marginRight: normalize(4),
     tintColor: '#85F380',
   },
   aiPolishText: {
     fontWeight: 'bold',
-    fontSize: 15,
+    fontSize: normalizeFontSize(15),
     color: '#85F380',
   },
   lyricInput: {
-    minHeight: 60,
+    minHeight: normalize(60),
     color: '#fff',
-    fontSize: 15,
-    marginTop: 2,
+    fontSize: normalizeFontSize(15),
+    marginTop: normalize(2),
     textAlignVertical: 'top',
   },
   langRow: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: 'transparent',
-    marginBottom: 18,
+    marginBottom: normalize(18),
   },
   langBtn: {
     flex: 1,
     backgroundColor: '#222',
-    borderRadius: 10,
+    borderRadius: normalize(10),
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 10,
-    paddingHorizontal: 14,
-    marginHorizontal: 2,
+    paddingVertical: normalize(10),
+    paddingHorizontal: normalize(14),
+    marginHorizontal: normalize(2),
     justifyContent: 'center',
   },
   langText: {
     color: '#fff',
-    fontSize: 15,
+    fontSize: normalizeFontSize(15),
     fontWeight: '500',
-    marginRight: 4,
+    marginRight: normalize(4),
   },
   langArrow: {
     color: '#888',
-    fontSize: 13,
+    fontSize: normalizeFontSize(13),
   },
   langSwitch: {
     color: '#fff',
-    fontSize: 22,
-    marginHorizontal: 8,
+    fontSize: normalizeFontSize(22),
+    marginHorizontal: normalize(8),
   },
   musicTransBtn: {
-    width: 40,
-    height: 40,
+    width: normalize(40),
+    height: normalize(40),
     backgroundColor: '#222',
-    borderRadius: 10,
+    borderRadius: normalize(10),
     justifyContent: 'center',
     alignItems: 'center',
-    marginLeft: 6,
+    marginLeft: normalize(6),
   },
   musicTransIcon: {
-    width: 32,
-    height: 32,
+    width: normalize(32),
+    height: normalize(32),
   },
   styleCard: {
     backgroundColor: '#191919',
@@ -270,9 +288,9 @@ const styles = StyleSheet.create({
   },
   styleSubtitle: {
     color: '#aaa',
-    fontSize: 14,
-    marginBottom: 12,
-    marginTop: 2,
+    fontSize: normalizeFontSize(14),
+    marginBottom: normalize(12),
+    marginTop: normalize(2),
   },
   styleBtnRowScroll: {
     marginBottom: 0,
@@ -280,23 +298,23 @@ const styles = StyleSheet.create({
   styleBtnRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
-    paddingRight: 8,
+    gap: normalize(8),
+    paddingRight: normalize(8),
   },
   styleBtn: {
     backgroundColor: '#222',
-    borderRadius: 8,
-    paddingVertical: 8,
-    paddingHorizontal: 18,
-    marginRight: 8,
-    marginBottom: 8,
+    borderRadius: normalize(8),
+    paddingVertical: normalize(8),
+    paddingHorizontal: normalize(18),
+    marginRight: normalize(8),
+    marginBottom: normalize(8),
   },
   styleBtnSelected: {
     backgroundColor: '#85F380',
   },
   styleBtnText: {
     color: '#fff',
-    fontSize: 15,
+    fontSize: normalizeFontSize(15),
     fontWeight: '500',
   },
   styleBtnTextSelected: {
@@ -306,8 +324,8 @@ const styles = StyleSheet.create({
   nextBtn: {
     width: '100%',
     backgroundColor: '#85F380',
-    borderRadius: 12,
-    paddingVertical: 16,
+    borderRadius: normalize(12),
+    paddingVertical: normalize(16),
     alignItems: 'center',
     marginBottom: 0,
   },
@@ -317,21 +335,21 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
     paddingHorizontal: 0,
     marginBottom: 0,
-    marginTop: 8,
+    marginTop: normalize(8),
   },
   backBtn: {
-    width: 32,
-    height: 32,
+    width: normalize(32),
+    height: normalize(32),
     justifyContent: 'center',
     alignItems: 'center',
   },
   backBtnIcon: {
-    width: 28,
-    height: 28,
+    width: normalize(28),
+    height: normalize(28),
   },
   nextBtnText: {
     color: '#111',
-    fontSize: 20,
+    fontSize: normalizeFontSize(20),
     fontWeight: '600',
   },
 });

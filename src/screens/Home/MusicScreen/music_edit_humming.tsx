@@ -1,28 +1,264 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, Image, Dimensions, ScrollView } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Image, TextInput, ScrollView, Dimensions, Modal } from 'react-native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import MaskedView from '@react-native-masked-view/masked-view';
 import LinearGradient from 'react-native-linear-gradient';
+import { useMusicStore } from '@/store/modules/music.store';
+import { formatTime } from '@/utils';
+import { AudioDurationManager } from '@/utils/AudioPlayerController';
+import { AudioPlayer, quickValidateAudio } from '@/utils/audioUtils';
+import { polishLyrics } from '@/api/music/music';
+import FullScreenLoader from '@/components/FullScreenLoader';
+import { useMessageModal } from '@/contexts/MessageModalContext';
+import { supportedLanguages } from '@/i18n/languages';
+import { translateText } from '@/api/profile/profile';
+import { useLanguage } from '@/contexts/LanguageContext';
+
 
 const { width } = Dimensions.get('window');
 
-const CARD_RADIUS = 18;
-const CARD_PADDING = 16;
-const CARD_MARGIN_BOTTOM = 18;
-const BUTTONS = ['R&B', 'Classical', 'Vaporwave', 'Ancient'];
+const normalize = (size: number) => {
+  const scale = width / 375;
+  return Math.round(size * scale);
+};
 
-const MusicEditHummingScreen: React.FC = () => {
-  const [lyrics, setLyrics] = useState('');
-  const [fromLang, setFromLang] = useState('Chinese');
-  const [toLang, setToLang] = useState('English');
-  const [selectedStyle, setSelectedStyle] = useState('R&B');
+const normalizeFontSize = (size: number) => {
+  const scale = width / 375;
+  return Math.min(Math.round(size * scale), size);
+};
+
+const CARD_RADIUS = normalize(18);
+const CARD_PADDING = normalize(16);
+const CARD_MARGIN_BOTTOM = normalize(18);
+
+const img_pause_btn = require("../../../../assets/images/music_pause.png");
+
+
+const MusicEditHummingScreen: React.FC<{route: any}> = ({route}) => {
+  const {uri} = route.params;
+  const [duration,setDuration] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
+  const [title, setTitle] = useState('');
+  const {lyrics:lyricsInit,musicStyles} = useMusicStore.getState().musicGenerateInfo;
+  const [lyrics, setLyrics] = useState(lyricsInit);
+  const [showLanguageModal, setShowLanguageModal] = useState(false);
+  const [leftLanguage, setLeftLanguage] = useState<string>("zh");
+  const [rightLanguage, setRightLanguage] = useState<string>("zh");
+  const [selectedStyles, setSelectedStyles] = useState<string[]>([]);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const audioPlayerRef = useRef<AudioPlayer>(null);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [type,setType] = useState<string>("");
+  const {show} = useMessageModal()
+  const {t} = useLanguage();
   const navigation = useNavigation();
+  const currentTimeInterval = useRef<NodeJS.Timeout | null>(null);
+
+  // 清理音频相关数据
+  const cleanupAudioData = useCallback(() => {
+    try {
+      // 停止音频播放
+      if (audioPlayerRef.current && audioPlayerRef.current.stopAudio) {
+        audioPlayerRef.current.stopAudio();
+        audioPlayerRef.current = null;
+      }
+      
+      // 清理定时器
+      clearCurrentTimeInterval();
+      
+      // 重置播放状态
+      setIsPlaying(false);
+      setCurrentTime(0);
+      
+      console.log('音频数据清理完成');
+    } catch (error) {
+      console.error('清理音频数据失败:', error);
+    }
+  }, []);
+
+  useEffect(() => {
+    const fetchDuration = async () => {
+      console.log('开始获取音频时长，URI:', uri);
+      
+      // 先进行快速验证
+      const isValid = await quickValidateAudio(uri);
+      console.log('快速验证结果:', isValid);
+      
+      if (!isValid) {
+        console.error('音频文件验证失败，无法获取时长');
+        setDuration(0);
+        return;
+      }
+      
+      try {
+        const durationValue = await AudioDurationManager.getDuration(uri);
+        console.log('获取到的音频时长:', durationValue);
+        setDuration(durationValue);
+      } catch (error) {
+        console.error('获取音频时长失败:', error);
+        setDuration(0);
+      }
+    };
+    fetchDuration();
+    return () => {
+      cleanupAudioData();
+    }
+  }, [uri, cleanupAudioData]);
+  const handlePlayAudio = async () => {
+
+    // if(!audioPlayerRef.current){
+    //   audioPlayerRef.current = AudioPlayer.getInstance();
+    //   audioPlayerRef.current.onFinishCallback(() => {
+    //     clearCurrentTimeInterval();
+    //     audioPlayerRef.current = null;
+    //     setIsPlaying(false);
+    //     setCurrentTime(0);
+    //   });
+    // }
+
+    // if(isPlaying){
+    //   AudioPlayer.getInstance().pauseAudio();
+    //   setIsPlaying(false);
+    //   return;
+    // }else if(audioPlayerRef.current.sound){
+    //   audioPlayerRef.current.resumeAudio();
+    //   setIsPlaying(true);
+    //   return;
+    // }
+    if(isPlaying){
+      audioPlayerRef.current.stopAudio();
+      setIsPlaying(false);
+      return;
+    }
+    audioPlayerRef.current = AudioPlayer.getInstance();
+    const success = await audioPlayerRef.current.playAudio(uri);
+    audioPlayerRef.current.onFinishCallback = () => {
+        audioPlayerRef.current = null;
+        setIsPlaying(false);
+    };
+    setIsPlaying(true);
+    console.log('success',success);
+  }
+
+  // 定时器获取当前时间
+  const getCurrentTime = async () => {
+    currentTimeInterval.current = setInterval(() => {
+      const currentTime = audioPlayerRef.current?.getPlaybackStatus().currentTime;
+      setCurrentTime(currentTime || 0);
+    }, 1000);
+  }
+
+  const clearCurrentTimeInterval = () => {
+    if(currentTimeInterval.current){
+      clearInterval(currentTimeInterval.current);
+      currentTimeInterval.current = null;
+    }
+  }
+
+   // 选择曲风
+   const handleStyleSelect = (style: string) => {
+    setSelectedStyles(prev => {
+      if (prev.includes(style)) {
+        return prev.filter(item => item !== style);
+      } else {
+        return [...prev, style];
+      }
+    });
+  };
+
+   // 歌词润饰
+   const handleAiPolish = async () => {
+    try {
+      setIsLoading(true);
+      const res = await polishLyrics({
+        work_lyrics: lyrics,
+      });
+      setLyrics(res.work_lyrics)
+      setTitle(res.work_title)
+    } catch (error: any) {
+      console.log(error);
+      show({
+        message: 'Failed to polish lyrics'+error.message || 'Unknown error',
+      });
+    }
+    setIsLoading(false);
+  };
+
+  const handleNext = () => {
+    if(lyrics.trim() === ""){
+      show({
+        message: 'Please enter the lyrics',
+      });
+      return;
+    }
+    if(selectedStyles.length === 0){
+      show({
+        message: 'Please select the music style',
+      });
+      return;
+    }
+    useMusicStore.getState().setMusicGenerateInfo({
+      title: title,
+      lyrics: lyrics,
+      musicStyles: selectedStyles,
+    });
+    navigation.replace('GeneratingMusic' as never);
+  }
+
+  const handleLanguageSelect = (language: string) => {
+    if(type==="left"){
+      setLeftLanguage(language);
+    }else{
+      setRightLanguage(language);
+    }
+    setShowLanguageModal(false);
+  };
+
+  const handleLanguageSwitch = (type:string) => {
+    setType(type);
+    setShowLanguageModal(true);
+  }
+
+  const handleTranslateLyrics = async () => {
+    try {
+      setIsLoading(true);
+      const res = await translateText({
+        source_text: lyrics,
+        source_language: leftLanguage,
+        target_language: rightLanguage,
+        format_type: "text",
+      });
+      setLyrics(res.Translated);
+    } catch (error:any) {
+      console.log(error);
+      show({
+        message: 'Failed to translate lyrics'+error.message || 'Unknown error',
+      });
+    }finally{
+      setIsLoading(false);
+    }
+  }
+
+    // 监听页面焦点变化，当页面重新获得焦点时执行getMyWorks
+    useFocusEffect(
+      React.useCallback(() => {
+        console.log('页面获得焦点');
+        // 页面失去焦点时的清理函数
+        return () => {
+          console.log('页面失去焦点，清理音频数据');
+          cleanupAudioData();
+        };
+      }, [])
+    );
 
   return (
     <View style={styles.container}>
       {/* Header Row (Back Button) */}
       <View style={styles.headerRow}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
+        <TouchableOpacity onPress={() => {
+          cleanupAudioData();
+          navigation.goBack();
+        }} style={styles.backBtn}>
           <Image
             source={require('../../../../assets/images/music_back_btn.png')}
             style={styles.backBtnIcon}
@@ -35,7 +271,7 @@ const MusicEditHummingScreen: React.FC = () => {
       <View style={styles.flexContent}>
         {/* 音频波形条 */}
         <View style={styles.audioBarContainer}>
-          <Text style={styles.audioTime}>0:25</Text>
+          <Text style={styles.audioTime}>{formatTime(currentTime||duration)}</Text>
           <View style={styles.audioWaveform}>
             <Image
               source={require('../../../../assets/images/long_wave.png')}
@@ -43,10 +279,10 @@ const MusicEditHummingScreen: React.FC = () => {
               resizeMode="contain"
             />
           </View>
-          <TouchableOpacity style={styles.audioPlayBtn} activeOpacity={0.7}>
+          <TouchableOpacity style={styles.audioPlayBtn} activeOpacity={0.7} onPress={handlePlayAudio}>
             <View style={styles.audioPlayCircle}>
               <Image
-                source={require('../../../../assets/images/music_play.png')}
+                source={isPlaying ? img_pause_btn : require('../../../../assets/images/music_play.png')}
                 style={styles.audioPlayIcon}
                 // resizeMode="contain"
               />
@@ -56,8 +292,8 @@ const MusicEditHummingScreen: React.FC = () => {
         {/* 歌词输入卡片 */}
         <View style={styles.lyricCard}>
           <View style={styles.lyricCardHeader}>
-            <Text style={styles.lyricCardTitle}>Write Lyrics</Text>
-            <View style={styles.aiPolish}>
+            <Text style={styles.lyricCardTitle}>{t('music.write_lyrics')}</Text>
+            <TouchableOpacity style={styles.aiPolish} onPress={handleAiPolish}>
               <Image
                 source={require('../../../../assets/images/ai_polishing_star.png')}
                 style={styles.aiIcon}
@@ -65,7 +301,7 @@ const MusicEditHummingScreen: React.FC = () => {
               />
               <MaskedView
                 maskElement={
-                  <Text style={styles.aiPolishText}>AI Polishing</Text>
+                  <Text style={styles.aiPolishText}>{t('music.ai_polishing')}</Text>
                 }
               >
                 <LinearGradient
@@ -74,11 +310,11 @@ const MusicEditHummingScreen: React.FC = () => {
                   end={{ x: 1, y: 0 }}
                 >
                   <Text style={[styles.aiPolishText, { opacity: 0 }]}>
-                    AI Polishing
+                    {t('music.ai_polishing')}
                   </Text>
                 </LinearGradient>
               </MaskedView>
-            </View>
+            </TouchableOpacity>
           </View>
           <TextInput
             style={styles.lyricInput}
@@ -94,16 +330,16 @@ const MusicEditHummingScreen: React.FC = () => {
         <View style={styles.bottomBlock}>
           {/* 语言选择与功能按钮 */}
           <View style={styles.langRow}>
-            <TouchableOpacity style={styles.langBtn}>
-              <Text style={styles.langText}>{fromLang}</Text>
+            <TouchableOpacity style={styles.langBtn} onPress={()=>handleLanguageSwitch("left")}>
+              <Text style={styles.langText}>{leftLanguage}</Text>
               <Text style={styles.langArrow}>▼</Text>
             </TouchableOpacity>
             <Text style={styles.langSwitch}>⇄</Text>
-            <TouchableOpacity style={styles.langBtn}>
-              <Text style={styles.langText}>{toLang}</Text>
+            <TouchableOpacity style={styles.langBtn} onPress={()=>handleLanguageSwitch("right")}>
+              <Text style={styles.langText}>{rightLanguage}</Text>
               <Text style={styles.langArrow}>▼</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.musicTransBtn}>
+            <TouchableOpacity style={styles.musicTransBtn} onPress={handleTranslateLyrics}>
               <Image
                 source={require('../../../../assets/images/music_trans.png')}
                 style={styles.musicTransIcon}
@@ -115,8 +351,8 @@ const MusicEditHummingScreen: React.FC = () => {
           {/* 音乐风格选择卡片 */}
           <View style={styles.styleCard}>
             <View style={styles.lyricCardHeader}>
-              <Text style={styles.lyricCardTitle}>Select Music Style</Text>
-              <View style={styles.aiPolish}>
+              <Text style={styles.lyricCardTitle}>{t('music.select_music_style')}</Text>  
+              <TouchableOpacity style={styles.aiPolish} onPress={()=>{}}>
                 <Image
                   source={require('../../../../assets/images/ai_polishing_star.png')}
                   style={styles.aiIcon}
@@ -124,7 +360,7 @@ const MusicEditHummingScreen: React.FC = () => {
                 />
                 <MaskedView
                   maskElement={
-                    <Text style={styles.aiPolishText}>AI Polishing</Text>
+                    <Text style={styles.aiPolishText}>{t('music.ai_polishing')}</Text>
                   }
                 >
                   <LinearGradient
@@ -133,11 +369,11 @@ const MusicEditHummingScreen: React.FC = () => {
                     end={{ x: 1, y: 0 }}
                   >
                     <Text style={[styles.aiPolishText, { opacity: 0 }]}>
-                      AI Polishing
+                      {t('music.ai_polishing')}
                     </Text>
                   </LinearGradient>
                 </MaskedView>
-              </View>
+              </TouchableOpacity>
             </View>
             <Text style={styles.styleSubtitle}>
               Pre-filled based on user's humming tone
@@ -148,19 +384,19 @@ const MusicEditHummingScreen: React.FC = () => {
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={styles.styleBtnRow}
             >
-              {BUTTONS.map((btn) => (
+              {musicStyles.map((btn) => (
                 <TouchableOpacity
                   key={btn}
                   style={[
                     styles.styleBtn,
-                    selectedStyle === btn && styles.styleBtnSelected,
+                    selectedStyles.includes(btn) && styles.styleBtnSelected,
                   ]}
-                  onPress={() => setSelectedStyle(btn)}
+                  onPress={() => handleStyleSelect(btn)}
                 >
                   <Text
                     style={[
                       styles.styleBtnText,
-                      selectedStyle === btn && styles.styleBtnTextSelected,
+                      selectedStyles.includes(btn) && styles.styleBtnTextSelected,
                     ]}
                   >
                     {btn}
@@ -171,13 +407,41 @@ const MusicEditHummingScreen: React.FC = () => {
           </View>
         </View>
         {/* Next 按钮 */}
-        <TouchableOpacity
-          style={styles.nextBtn}
-          onPress={() => navigation.navigate('MusicPreview' as never)}
-        >
-          <Text style={styles.nextBtnText}>Next</Text>
+        <TouchableOpacity style={styles.nextBtn} onPress={handleNext}>
+          <Text style={styles.nextBtnText}>{t('music.next')}</Text>
         </TouchableOpacity>
       </View>
+       {/* 语言选择弹窗 */}
+       <Modal
+          visible={showLanguageModal}
+          transparent={true}
+          animationType="fade"
+          onRequestClose={() => setShowLanguageModal(false)}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContent}>
+              <View style={styles.modalHeader}>
+                <Text style={styles.modalTitle}>{t('voiceprint_management.select_language')}</Text>
+                <TouchableOpacity onPress={() => setShowLanguageModal(false)}>
+                  <Text style={styles.modalClose}>✕</Text>
+                </TouchableOpacity>
+              </View>
+              
+              <ScrollView style={styles.languageList}>
+                {supportedLanguages?.map((language: any, index: number) => (
+                  <TouchableOpacity 
+                    key={index}
+                    style={styles.languageOption} 
+                    onPress={() => handleLanguageSelect(language.code)}
+                  >
+                    <Text style={styles.languageOptionText}>{language.label}</Text>
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+            </View>
+      </View>
+        </Modal>
+      <FullScreenLoader visible={isLoading} />
     </View>
   );
 };
@@ -186,36 +450,38 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#111',
-    paddingTop: 24,
-    paddingHorizontal: 12,
-    paddingBottom: 24,
+    paddingTop: normalize(24),
+    paddingHorizontal: normalize(12),
+    paddingBottom: normalize(24),
   },
   flexContent: {
     flex: 1,
     flexDirection: 'column',
     justifyContent: 'flex-start',
-    marginTop: 16, // leave space for back button
+    marginTop: normalize(16), // leave space for back button
   },
   bottomBlock: {
-    marginBottom: 24,
+    marginBottom: normalize(24),
   },
   lyricCard: {
+    height: normalize(260),
     backgroundColor: '#191919',
     borderRadius: CARD_RADIUS,
     padding: CARD_PADDING,
     marginBottom: CARD_MARGIN_BOTTOM,
-    minHeight: 120,
+    minHeight: normalize(120),
     flex: 1,
+    overflow:'hidden',
   },
   lyricCardHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: normalize(8),
   },
   lyricCardTitle: {
     color: '#fff',
-    fontSize: 16,
+    fontSize: normalizeFontSize(16),
     fontWeight: '600',
   },
   aiPolish: {
@@ -223,67 +489,67 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   aiIcon: {
-    width: 18,
-    height: 18,
-    marginRight: 4,
+    width: normalize(18),
+    height: normalize(18),
+    marginRight: normalize(4),
     tintColor: '#85F380',
   },
   aiPolishText: {
     fontWeight: 'bold',
-    fontSize: 15,
+    fontSize: normalizeFontSize(15),
     color: '#85F380',
   },
   lyricInput: {
-    minHeight: 60,
+    minHeight: normalize(120),
     color: '#fff',
-    fontSize: 15,
-    marginTop: 2,
+    fontSize: normalizeFontSize(15),
+    marginTop: normalize(2),
     textAlignVertical: 'top',
   },
   langRow: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: 'transparent',
-    marginBottom: 18,
+    marginBottom: normalize(18),
   },
   langBtn: {
     flex: 1,
     backgroundColor: '#222',
-    borderRadius: 10,
+    borderRadius: normalize(10),
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 10,
-    paddingHorizontal: 14,
-    marginHorizontal: 2,
+    paddingVertical: normalize(10),
+    paddingHorizontal: normalize(14),
+    marginHorizontal: normalize(2),
     justifyContent: 'center',
   },
   langText: {
     color: '#fff',
-    fontSize: 15,
+    fontSize: normalizeFontSize(15),
     fontWeight: '500',
-    marginRight: 4,
+    marginRight: normalize(4),
   },
   langArrow: {
     color: '#888',
-    fontSize: 13,
+    fontSize: normalizeFontSize(13),
   },
   langSwitch: {
     color: '#fff',
-    fontSize: 22,
-    marginHorizontal: 8,
+    fontSize: normalizeFontSize(22),
+    marginHorizontal: normalize(8),
   },
   musicTransBtn: {
-    width: 40,
-    height: 40,
+    width: normalize(40),
+    height: normalize(40),
     backgroundColor: '#222',
-    borderRadius: 10,
+    borderRadius: normalize(10),
     justifyContent: 'center',
     alignItems: 'center',
-    marginLeft: 6,
+    marginLeft: normalize(6),
   },
   musicTransIcon: {
-    width: 32,
-    height: 32,
+    width: normalize(32),
+    height: normalize(32),
   },
   styleCard: {
     backgroundColor: '#191919',
@@ -293,9 +559,9 @@ const styles = StyleSheet.create({
   },
   styleSubtitle: {
     color: '#aaa',
-    fontSize: 14,
-    marginBottom: 12,
-    marginTop: 2,
+    fontSize: normalizeFontSize(14),
+    marginBottom: normalize(12),
+    marginTop: normalize(2),
   },
   styleBtnRowScroll: {
     marginBottom: 0,
@@ -303,23 +569,23 @@ const styles = StyleSheet.create({
   styleBtnRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
-    paddingRight: 8,
+    gap: normalize(8),
+    paddingRight: normalize(8),
   },
   styleBtn: {
     backgroundColor: '#222',
-    borderRadius: 8,
-    paddingVertical: 8,
-    paddingHorizontal: 18,
-    marginRight: 8,
-    marginBottom: 8,
+    borderRadius: normalize(8),
+    paddingVertical: normalize(8),
+    paddingHorizontal: normalize(18),
+    marginRight: normalize(8),
+    marginBottom: normalize(8),
   },
   styleBtnSelected: {
     backgroundColor: '#85F380',
   },
   styleBtnText: {
     color: '#fff',
-    fontSize: 15,
+    fontSize: normalizeFontSize(15),
     fontWeight: '500',
   },
   styleBtnTextSelected: {
@@ -330,24 +596,24 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#222',
-    borderRadius: 16,
-    paddingHorizontal: 18,
-    paddingVertical: 10,
-    marginBottom: 18,
+    borderRadius: normalize(16),
+    paddingHorizontal: normalize(18),
+    paddingVertical: normalize(10),
+    marginBottom: normalize(18),
     marginTop: 0,
   },
   audioTime: {
     color: '#85F380',
-    fontSize: 18,
+    fontSize: normalizeFontSize(18),
     fontWeight: 'bold',
-    marginRight: 12,
-    width: 44,
+    marginRight: normalize(12),
+    width: normalize(44),
     textAlign: 'left',
   },
   audioWaveform: {
     flex: 1,
-    height: 28,
-    marginRight: 16,
+    height: normalize(28),
+    marginRight: normalize(16),
     marginLeft: 0,
     justifyContent: 'center',
     alignItems: 'center',
@@ -355,13 +621,13 @@ const styles = StyleSheet.create({
   },
   longWaveImg: {
     width: '100%',
-    height: 28,
+    height: normalize(28),
   },
   waveBar: {
-    width: 3,
+    width: normalize(3),
     backgroundColor: '#85F380',
-    marginHorizontal: 1,
-    borderRadius: 2,
+    marginHorizontal: normalize(1),
+    borderRadius: normalize(2),
   },
   audioPlayBtn: {
     marginLeft: 0,
@@ -369,24 +635,24 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   audioPlayCircle: {
-    width: 32,
-    height: 32,
+    width: normalize(32),
+    height: normalize(32),
     // borderRadius: 16,
     // backgroundColor: '#85F380',
     justifyContent: 'center',
     alignItems: 'center',
   },
   audioPlayIcon: {
- width: 32,
-    height: 32,
+    width: normalize(32),
+    height: normalize(32),
     // tintColor: '#111',
-    marginLeft: 2,
+    marginLeft: normalize(2),
   },
   nextBtn: {
     width: '100%',
     backgroundColor: '#85F380',
-    borderRadius: 12,
-    paddingVertical: 16,
+    borderRadius: normalize(12),
+    paddingVertical: normalize(16),
     alignItems: 'center',
     marginBottom: 0,
   },
@@ -396,23 +662,67 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
     paddingHorizontal: 0,
     marginBottom: 0,
-    marginTop: 8,
+    marginTop: normalize(8),
   },
   backBtn: {
-    width: 32,
-    height: 32,
+    width: normalize(32),
+    height: normalize(32),
     justifyContent: 'center',
     alignItems: 'center',
   },
   backBtnIcon: {
-    width: 28,
-    height: 28,
+    width: normalize(28),
+    height: normalize(28),
   },
   nextBtnText: {
     color: '#111',
-    fontSize: 20,
+    fontSize: normalizeFontSize(20),
     fontWeight: '600',
   },
+    // 弹窗样式
+    modalOverlay: {
+      flex: 1,
+      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    modalContent: {
+      backgroundColor: '#262626',
+      borderRadius: normalize(12),
+      width: normalize(300),
+      maxHeight: normalize(400),
+    },
+    modalHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      padding: normalize(16),
+      borderBottomWidth: 1,
+      borderBottomColor: 'rgba(255, 255, 255, 0.1)',
+    },
+    modalTitle: {
+      fontSize: normalizeFontSize(16),
+      fontWeight: '600',
+      color: '#FFFFFF',
+    },
+    modalClose: {
+      fontSize: normalizeFontSize(18),
+      color: '#FFFFFF',
+      fontWeight: 'bold',
+    },
+    languageList: {
+      maxHeight: normalize(300),
+    },
+    languageOption: {
+      padding: normalize(16),
+      borderBottomWidth: 1,
+      borderBottomColor: 'rgba(255, 255, 255, 0.1)',
+    },
+    languageOptionText: {
+      fontSize: normalizeFontSize(14),
+      color: '#FFFFFF',
+      textAlign: 'center',
+    },
 });
 
 export default MusicEditHummingScreen;
