@@ -26,6 +26,9 @@ type Props = {
   beforeLanguage?: string; // 主语言
   afterLanguage?: string; // 翻译成什么语言
   textSize?: number,
+  paddingTopBottom?: number,
+  marginRight?: number,
+  disabled?: boolean,
   // backgroundColor?: string;
   // spinnerSize?: 'small' | 'large';
   // customIndicator?: React.ReactNode;
@@ -45,6 +48,9 @@ const LangSelectCard: React.FC<Props> = ({
   beforeLanguage = 'en',
   afterLanguage = 'en',
   textSize = 14,
+  paddingTopBottom = 8,
+  marginRight = 20,
+  disabled = false,
   beforeSelectBack = null,
   afterSelectBack = null
 }) => {
@@ -81,7 +87,16 @@ const LangSelectCard: React.FC<Props> = ({
 
   return (
     <>
-      <View style={styles.langSelectCard}>
+      <View
+        style={[
+          styles.langSelectCard,
+          disabled && styles.disabledDom,
+          {
+            paddingVertical: scaleSize(paddingTopBottom),
+            marginRight: scaleSize(marginRight)
+          }
+        ]}
+      >
         <TouchableOpacity style={styles.langSelectItem} onPress={() => openSelectLang('before')}>
           <View style={styles.langSelectTextView}>
             <Text style={[styles.langSelectText, {fontSize: scaleFont(textSize)}]} numberOfLines={1} ellipsizeMode={'tail'}>
@@ -121,7 +136,7 @@ const LangSelectCard: React.FC<Props> = ({
                     numberOfLines={1}
                     ellipsizeMode="tail"
                   >
-                    Language Selection
+                    {t('translate_screen.language_select_title')}
                   </Text>
                 </View>
                 <TouchableOpacity onPress={() => closeModalFun()}>
@@ -196,9 +211,11 @@ const styles = StyleSheet.create({
     backgroundColor: '#232325',
     borderRadius: scaleSize(14),
     // height: scaleSize(64),
-    marginRight: scaleSize(20),
-    paddingVertical: scaleSize(8),
     paddingHorizontal: scaleSize(16),
+  },
+  disabledDom: {
+    pointerEvents: 'none',
+    opacity: 0.5,
   },
   langSelectItem: {
     flex: 1,

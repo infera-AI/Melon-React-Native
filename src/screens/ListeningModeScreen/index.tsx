@@ -17,7 +17,6 @@ import {
 } from 'react-native';
 import { useLanguage } from '@/contexts/LanguageContext';
 import EStyleSheet from 'react-native-extended-stylesheet';
-import Modal from 'react-native-modal';
 import FullScreenLoader from '@/components/FullScreenLoader';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -25,6 +24,30 @@ import type { RootStackParamList } from '@/navigation/AppNavigator'
 import CustomNavigation from '@/components/CustomNavigation';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { KeyboardEvent as RNKeyboardEvent } from 'react-native';
+import LangSelectCard from '@/components/LangSelectCard'
+import type { Language } from '@/i18n/languages';
+import Clipboard from '@react-native-clipboard/clipboard';
+// import TaskQueue from "@/utils/TaskQueue";
+
+import { useMessageModal } from '@/contexts/MessageModalContext';
+
+// import { AudioPlayerController } from '@/utils/AudioPlayerController';
+
+import SpeakBtn, { SpeakBtnRef } from '@/components/SpeakBtn'
+import { StatusEnum } from '@/components/SpeakBtn';
+
+// import { NativeModules, NativeEventEmitter } from 'react-native';
+// const { HeadsetDetection } = NativeModules;
+// const headsetEvents = new NativeEventEmitter(HeadsetDetection);
+
+// export const listenHeadsetState = (cb: (plugged: boolean) => void) => {
+//   HeadsetDetection.startListening();
+//   const sub = headsetEvents.addListener('onHeadsetStateChanged', cb);
+//   return () => {
+//     sub.remove();
+//     HeadsetDetection.stopListening();
+//   };
+// };
 
 const { width } = Dimensions.get('window');
 const pageLR = 16;
@@ -44,9 +67,8 @@ const ListeningModeScreen: React.FC = () => {
 
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { t } = useLanguage();
-  const [langModalVisible, setLangModalVisible] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [isPlay, setIsPlay] = useState(false); // 是否在播放音频
+  // const [isPlay, setIsPlay] = useState(false); // 是否在播放音频
   const [isSlice, setIsSlice] = useState(false); // 是否切割分屏
   const [textSize, setTextSize] = useState(15); // 聊天文本字体大小
   const [inputVisible, setInputVisible] = useState(false);
@@ -54,42 +76,104 @@ const ListeningModeScreen: React.FC = () => {
   const translateY = useRef(new Animated.Value(0)).current;
   const inputRef = useRef<TextInput>(null);
 
+  // const [broadcastSwitch, setBroadcastSwitch] = useState(false) // 播报开关
+
+  const [isListening, setIsListening] = useState(false)
+
+  const speakBtnRef = useRef<SpeakBtnRef>(null);
+
+  const { show } = useMessageModal();
+
+  // 是否连接耳机
+  // const [isConnectHeadset, setIsConnectHeadset] = useState(false)
+
+  const { language } = useLanguage();
+  const [beforeLangSelect, setBeforeLangSelect] = useState(language)
+  const [afterLangSelect, setAfterLangSelect] = useState<Language>('en')
+
+  const scrollRef = useRef<ScrollView>(null);
+  const scroll2Ref = useRef<ScrollView>(null);
+
   const maxTextSize = 25
   const minTextSize = 15
+
+  const [sourceText, setSourceText] = useState('')
+  const [translatedText, setTranslatedText] = useState('')
 
   const [sliceOpacity] = useState(new Animated.Value(0));
 
   const insets = useSafeAreaInsets(); // 获取安全区域距离
 
+  // const taskQueueRef = useRef<TaskQueue | null>(null)
+
   useEffect(() => {
-    const keyboardShow = Keyboard.addListener(
-      Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow',
-      (e: RNKeyboardEvent) => {
-        const keyboardHeight = e.endCoordinates.height;
-        Animated.timing(translateY, {
-          toValue: Platform.OS === 'ios' ? -keyboardHeight : 0,
-          duration: 250,
-          useNativeDriver: true,
-        }).start();
-      }
-    );
+    setTimeout(() => {
+      scroll2Ref.current?.scrollToEnd({animated: true})
+      scrollRef.current?.scrollToEnd({animated: true})
+    }, 50)
+    if (!isSlice && sourceText && translatedText) {
+      sliceBtnClick()
+    }
+    
+    
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sourceText, translatedText])
 
-    const keyboardHide = Keyboard.addListener(
-      Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide',
-      () => {
-        Animated.timing(translateY, {
-          toValue: 100,
-          duration: 250,
-          useNativeDriver: true,
-        }).start(() => setInputVisible(false));
-      }
-    );
-
+  useEffect(() => {
+    // taskQueueRef.current = new TaskQueue();
+    // const stop = listenHeadsetState((plugged) => {
+    //   setIsConnectHeadset(plugged)
+    //   if (!plugged) {
+    //     console.log('未连接耳机');
+    //     taskQueueRef.current?.pause()
+    //     AudioPlayerController.getInstance().release()
+    //     setBroadcastSwitch(false)
+    //     // show({
+    //     //   message: '耳机已断开，请连接耳机后使用'
+    //     // })
+    //   } else {
+    //     console.log('已连接耳机');
+    //   }
+    // });
+    const speakBtnRefInstance = speakBtnRef.current
     return () => {
-      keyboardShow.remove();
-      keyboardHide.remove();
-    };
-  }, [translateY]);
+      // stop();
+      speakBtnRefInstance?.destroy()
+      // taskQueueRef.current?.stop()
+      // AudioPlayerController.getInstance().release()
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  // useEffect(() => {
+  //   // const keyboardShow = Keyboard.addListener(
+  //   //   Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow',
+  //   //   (e: RNKeyboardEvent) => {
+  //   //     const keyboardHeight = e.endCoordinates.height;
+  //   //     Animated.timing(translateY, {
+  //   //       toValue: Platform.OS === 'ios' ? -keyboardHeight : 0,
+  //   //       duration: 250,
+  //   //       useNativeDriver: true,
+  //   //     }).start();
+  //   //   }
+  //   // );
+
+  //   // const keyboardHide = Keyboard.addListener(
+  //   //   Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide',
+  //   //   () => {
+  //   //     Animated.timing(translateY, {
+  //   //       toValue: 100,
+  //   //       duration: 250,
+  //   //       useNativeDriver: true,
+  //   //     }).start(() => setInputVisible(false));
+  //   //   }
+  //   // );
+
+  //   return () => {
+  //     // keyboardShow.remove();
+  //     // keyboardHide.remove();
+  //   };
+  // }, [translateY]);
 
   // 占位点击事件
   const handlePress = (name: string) => () => {
@@ -98,10 +182,49 @@ const ListeningModeScreen: React.FC = () => {
     // setLoading(true)
   };
 
-  const playAudio = () => {
-    console.log('播放音频');
-    setIsPlay(!isPlay)
-  }
+  // const changeBroadcast = () => {
+  //   if (broadcastSwitch) { // 播报已经打开
+  //     // 这是要关闭
+  //     setBroadcastSwitch(false)
+  //     taskQueueRef.current?.pause()
+  //     AudioPlayerController.getInstance().release()
+
+  //   } else { // 播报未打开
+  //     if (!isConnectHeadset) {
+  //       show({
+  //         message: '请先连接耳机'
+  //       })
+  //       return
+  //     }
+  //     setBroadcastSwitch(true)
+  //     taskQueueRef.current?.runLastTaskNow()
+
+  //   }
+  // }
+
+  // const playAudio = () => {
+  //   if (isPlay) {
+
+  //   }
+  //   console.log('播放音频');
+  //   // 先判断是否在聆听状态
+  //   if (!isListening) {
+  //     show({
+  //       message: '请先启动聆听功能'
+  //     })
+  //     return
+  //   }
+
+  //   // 再判断有没有连接耳机
+  //   if (isConnectHeadset) {
+  //     setIsPlay(true)
+  //   } else {
+  //     show({
+  //       message: '请先连接耳机'
+  //     })
+  //   }
+    
+  // }
 
   const changeTextSize = (type: string) => () => {
     console.log('放大缩小字体');
@@ -120,34 +243,160 @@ const ListeningModeScreen: React.FC = () => {
     }
   }
 
-  const sliceBtnClick = () => () => {
+  const sliceBtnClick = () => {
+    
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut); // 动画配置
-    // setIsSlice(!isSlice)
     setIsSlice((prev) => {
-      const next = !prev;
-      if (!prev) {
-        // 显示出来时才播放淡入
-        sliceOpacity.setValue(0);
-        Animated.timing(sliceOpacity, {
-          toValue: 1,
-          duration: 300,
-          useNativeDriver: true,
-        }).start();
-      }
-      return next;
+      // 显示出来时才播放淡入
+      sliceOpacity.setValue(0);
+      Animated.timing(sliceOpacity, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: true,
+      }).start();
+      return true;
     });
   }
 
-  const handleStartInput = () =>{
-    setInputVisible(true);
-    setTimeout(() => {
-      inputRef.current?.focus();
-    }, 50)
-  }
+  // const handleStartInput = () =>{
+  //   setInputVisible(true);
+  //   setTimeout(() => {
+  //     inputRef.current?.focus();
+  //   }, 50)
+  // }
 
   const inputFinish = (value: string) => {
     console.log('确认按钮点击，值为:', value);
     setInputValue('')
+  }
+
+  // 启动聆听服务
+  const startListeningService = () => {
+    if (!isListening) {
+      console.log('启动');
+      setLoading(true)
+      speakBtnRef.current?.start()
+      setIsSlice(false)
+      setSourceText('')
+      setTranslatedText('')
+    } else {
+      stopListeningService()
+    }
+    
+  }
+
+  // 关闭聆听服务
+  const stopListeningService = () => {
+    console.log('停止');
+    setIsListening(false)
+    setLoading(true)
+    speakBtnRef.current?.stop()
+    // taskQueueRef.current?.stop()
+    // AudioPlayerController.getInstance().release()
+  }
+
+  // 播放音频
+  // const startPlayAudio = async (audioUri: string) => {
+  //   setIsPlay(true)
+  //   await AudioPlayerController.getInstance().init(audioUri, {
+  //     onInit: ({ duration, controller }) => {
+  //       console.log('初始化完成，时长:', duration);
+  //       console.log('controller----:', controller);
+  //       controller.play();
+  //     },
+  //     onPlay: () => {
+  //       console.log('播放中');
+
+  //     },
+  //     onPause: () => {
+  //       console.log('暂停播放');
+  //       // setIsPlay(false)
+  //     },
+  //     onStop: () => {
+  //       console.log('停止播放');
+  //     },
+  //     onEnd: () => {
+  //       console.log('播放完成');
+  //       // stopPlayAudio()
+  //     },
+  //     onError: (error) => {
+  //       console.error('错误:', error.message)
+  //       // stopPlayAudio()
+  //     },
+  //   });
+  // }
+
+  // 处理聆听结果
+  const listeningResultHandle = (data: any) => {
+    console.log('聆听结果------', data);
+
+    if (data?.source_text) {
+      setSourceText(data?.source_text)
+    }
+    
+    if (data?.translated_text) {
+      setTranslatedText(data?.translated_text)
+    }
+
+    if (data?.status === 'success') {
+      // 已经挂断后，最后的处理结果
+      speakBtnRef.current?.destroy()
+      setLoading(false)
+
+    } else if (data?.status === 'processing') {
+      // 应该是status='processing'
+      // taskQueueRef.current?.push(() => {
+      //     return new Promise<void>(async(resolve) => {
+      //       try {
+      //         await AudioPlayerController.getInstance().init(data?.translated_audio_url, {
+      //           onInit: ({ duration, controller }) => {
+      //             console.log('初始化完成，时长:', duration);
+      //             console.log('controller----:', controller);
+      //             controller.play();
+      //           },
+      //           onPlay: () => {
+      //             console.log('播放中');
+
+      //           },
+      //           onPause: () => {
+      //             console.log('暂停播放');
+      //             // setIsPlay(false)
+      //           },
+      //           onStop: () => {
+      //             console.log('停止播放');
+      //             resolve()
+      //           },
+      //           onEnd: () => {
+      //             console.log('播放完成');
+      //             // stopPlayAudio()
+      //             resolve()
+      //           },
+      //           onError: (error) => {
+      //             console.error('错误:', error.message)
+      //             // stopPlayAudio()
+      //           },
+      //         });
+      //       } catch (e) {
+
+      //       }
+      //     })
+        
+      // })
+    }
+  }
+
+  const copyText = () => {
+    if (!sourceText && !translatedText) {
+      show({
+        message: t('translate_screen.no_listen_result')
+      })
+      return
+    }
+    let str = `${t('translate_screen.copy_tip_source')}:\n${sourceText}\n----------------------\n${t('translate_screen.copy_tip_translated')}:\n${translatedText}`
+    Clipboard.setString(str);
+    show({
+      message: t('translate_screen.copy_success')
+    })
   }
 
   return (
@@ -158,7 +407,7 @@ const ListeningModeScreen: React.FC = () => {
       }
     ]}>
       <CustomNavigation
-        text="Listening Mode"
+        text={t('translate_screen.listening_mode')}
         backgroundColor="#181819"
         onBack={() => navigation.goBack()}
       />
@@ -166,9 +415,9 @@ const ListeningModeScreen: React.FC = () => {
         {
           isSlice &&
           <Animated.View style={[styles.animatedContainer]}>
-            <ScrollView style={[styles.scroll]} contentContainerStyle={styles.contentContainer} keyboardShouldPersistTaps="handled">
+            <ScrollView ref={scrollRef} style={[styles.scroll]} contentContainerStyle={styles.contentContainer} keyboardShouldPersistTaps="handled">
               <Text style={{fontSize: textSize, color: '#B0B0B0', lineHeight: textSize + 8}}>
-                17 years later, the author went to college, but chose an expensive one, spending, parents' savings. After 6 months, seeing, no value, not knowing life goals or college's help, decided to drop out. It was scary but a great decision. After dropping out, could stop uninteresting required classes and take interesting ones.
+                {sourceText}
               </Text>
             </ScrollView>
           </Animated.View>
@@ -179,19 +428,19 @@ const ListeningModeScreen: React.FC = () => {
         }
 
         {/* 对话滚动区域 */}
-        <ScrollView style={styles.scroll} contentContainerStyle={styles.contentContainer} keyboardShouldPersistTaps="handled">
+        <ScrollView ref={scroll2Ref} style={styles.scroll} contentContainerStyle={styles.contentContainer} keyboardShouldPersistTaps="handled">
           {
             !isSlice &&
             <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
               <Text style={[styles.noDataTipText, {textAlign: 'center'}]}>
-                {`Click the voice button to start listening\nClick Pause again`}
+                {isListening ? t('translate_screen.Oral_Listening') : `${t('translate_screen.listening_tip1')}\n${t('translate_screen.listening_tip2')}`}
               </Text>
             </View>
           }
           {
             isSlice &&
             <Text style={{fontSize: textSize, color: '#B0B0B0', lineHeight: textSize + 8}}>
-              十七岁上大学，选了昂贵学校，花光蓝领父母积蓄。六个月后看不到价值，不知人生目标和大学作用，决定退学。当时害怕，后觉是正确决定。退学后可放弃不感兴趣必修课，选有趣课程。
+              {translatedText}
             </Text>
           }
           
@@ -203,14 +452,14 @@ const ListeningModeScreen: React.FC = () => {
         <View style={styles.contentOption}>
           <View style={styles.leftBtns}>
             {/* 播放音频按钮 */}
-            <TouchableOpacity onPress={playAudio}>
+            {/* <TouchableOpacity onPress={changeBroadcast}>
               {
-                isPlay ?
+                broadcastSwitch ?
                 <Image source={require('../../../assets/images/ChatScreen_PlayAudio_open.png')} style={styles.playAudioImg}/>
                 :
                 <Image source={require('../../../assets/images/ChatScreen_PlayAudio_close.png')} style={styles.playAudioImg}/>
               }
-            </TouchableOpacity>
+            </TouchableOpacity> */}
             {/* 放大字体 */}
             <TouchableOpacity onPress={changeTextSize('big')}>
               <Image source={require('../../../assets/images/ChatScreen_TextSize_Big.png')} style={styles.playAudioImg}/>
@@ -221,55 +470,49 @@ const ListeningModeScreen: React.FC = () => {
             </TouchableOpacity>
           </View>
           {/* 复制按钮 */}
-          <TouchableOpacity onPress={sliceBtnClick()}>
+          <TouchableOpacity onPress={() => copyText()}>
             <Image source={require('../../../assets/images/ListeningScreen_Copy.png')} style={styles.copyImg}/>
           </TouchableOpacity>
         </View>
       </View>
       {/* 语言选择栏 */}
       <View style={styles.langSelectRow}>
-        <View style={styles.langSelectCard}>
-            <TouchableOpacity style={styles.langSelectItem} onPress={() => setLangModalVisible(true)}>
-            <Text style={styles.langSelectText}>Chinese</Text>
-            <Image source={require('../../../assets/images/Home_Translate_arrow.png')} style={styles.langSelectArrow}/>
-            </TouchableOpacity>
-            <View style={styles.langSwitchIconBox}>
-            <Image source={require('../../../assets/images/Home_Translate_switch.png')} style={styles.langSwitchArrow} resizeMode='contain'/>
-            </View>
-            <TouchableOpacity style={styles.langSelectItem} onPress={() => setLangModalVisible(true)}>
-            <Text style={styles.langSelectText}>English</Text>
-            <Image source={require('../../../assets/images/Home_Translate_arrow.png')} style={styles.langSelectArrow}/>
-            </TouchableOpacity>
-        </View>
+        <LangSelectCard
+          beforeLanguage={beforeLangSelect}
+          afterLanguage={afterLangSelect}
+          paddingTopBottom={0}
+          textSize={12}
+          marginRight={16}
+          disabled={isListening}
+          beforeSelectBack={(code) => {
+            console.log('beforeSelectBack---', code);
+            setBeforeLangSelect(code)
+          }}
+          afterSelectBack={(code) => {
+            console.log('afterSelectBack---', code);
+            setAfterLangSelect(code)
+          }}
+        />
         {/* 唤起输入框 */}
-        <TouchableOpacity style={styles.langQuickBtnNew} onPress={handleStartInput}>
+        {/* <TouchableOpacity style={styles.langQuickBtnNew} onPress={handleStartInput}>
             <Image source={require('../../../assets/images/SpeakerMode_Write.png')} style={styles.iconQuickLangNew}/>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
         {/* 语音按钮 */}
-        <TouchableOpacity style={[styles.langQuickBtnNew, {marginLeft: 10}]} onPress={handlePress('QuickLang')}>
+        <TouchableOpacity style={[styles.langQuickBtnNew, {marginLeft: 10}]} onPress={startListeningService}>
+          {
+            isListening ?
+            <Image source={require('../../../assets/images/Audio_Stop.png')}
+              style={{width: 20, height: 20}}
+            />
+            :
             <Image source={require('../../../assets/images/SpeakerMode_Speak.png')} style={styles.iconQuickLangNew}/>
+          }
+            
         </TouchableOpacity>
       </View>
-      {/* 语言选择弹窗：底部弹出，高度400，方便后续自定义 */}
-      <Modal
-        isVisible={langModalVisible}
-        onBackdropPress={() => setLangModalVisible(false)}  // 点击背景关闭
-        animationIn="slideInUp"
-        animationOut="slideOutDown"
-        backdropOpacity={0.4}
-        backdropTransitionOutTiming={0} // 避免关闭时mask闪
-        style={{
-          justifyContent: 'flex-end', // 让 modal 停在底部
-          margin: 0, // 取消默认 margin，不然内容会上浮
-        }}
-      >
-        <View style={styles.modalContent}>
-          <Text>jshjhj</Text>
-        </View>
-      </Modal>
       <FullScreenLoader
         visible={loading}
-        text="请稍后..."
+        text={t('translate_screen.loading_text')}
         timeout={5000}
         onTimeout={() => setLoading(false)}
       />
@@ -284,7 +527,7 @@ const ListeningModeScreen: React.FC = () => {
           <TextInput
             ref={inputRef}
             style={styles.input}
-            placeholder="请输入内容"
+            placeholder={t('translate_screen.input_no_value')}
             value={inputValue}
             onChangeText={setInputValue}
             autoFocus
@@ -300,6 +543,23 @@ const ListeningModeScreen: React.FC = () => {
           />
         </Animated.View>
       )}
+      <SpeakBtn
+        ref={speakBtnRef}
+        key={`speakBtn-${beforeLangSelect}-${afterLangSelect}`}
+        beforeLanguage={beforeLangSelect}
+        afterLanguage={afterLangSelect}
+        hidden={true}
+        mode={'listening'}
+        tellResult={(data) => {
+          listeningResultHandle(data)
+        }}
+        statusChange={(status) => {
+          if (status === StatusEnum.TYPE_OPEN) {
+            setLoading(false)
+            setIsListening(true)
+          }
+        }}
+      />
     </View>
   );
 };
@@ -364,39 +624,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 20,
   },
-  langSelectCard: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#232325',
-    borderRadius: 14,
-    marginRight: 16,
-    paddingVertical: 2,
-    paddingHorizontal: 0,
-  },
-  langSelectItem: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  langSelectText: {
-    color: '#fff',
-    fontSize: 14,
-    marginRight: 8,
-    fontWeight: '500',
-  },
-  langSelectArrow: {
-    width: 10,
-    aspectRatio: 1.67,
-  },
-  langSwitchIconBox: {
-    width: 20,
-    alignItems: 'center',
-  },
-  langSwitchArrow: {
-    width: 16,
-  },
   langQuickBtnNew: {
     width: 44,
     height: 44,
@@ -425,12 +652,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     backgroundColor: '#262626',
   },
-  modalContent: {
-    backgroundColor: '#fff',
-    borderTopLeftRadius: 10,
-    borderTopRightRadius: 10,
-    height: 300,
-  }
 });
 
 export default ListeningModeScreen;

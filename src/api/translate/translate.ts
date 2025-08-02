@@ -1,4 +1,4 @@
-import type { TranslateDocumentRequest, TranslateImageRequest, TranslationTaskResponse, TranslateTextData, TranslateTextRequest, CreateConversationRequest, CreateConversationResponse} from './types'
+import type { TranslateDocumentRequest, TranslateImageRequest, TranslationTaskResponse, TranslateTextData, TranslateTextRequest, CreateConversationRequest, CreateConversationResponse, TranslateAudioRequest} from './types'
 import http from '../../utils/http'
 import { API_ENDPOINTS } from '../apiPath';
 
@@ -52,6 +52,44 @@ export function translateImage(params: TranslateImageRequest){
       );
 
   }
+
+  /**
+   * 翻译音频接口
+   * @param params 翻译参数
+   * @returns Promise<ApifoxModel>
+   */
+export function translateAudio(params: TranslateAudioRequest){
+      // 创建FormData对象用于文件上传
+      const formData = new FormData();
+      formData.append('source_language', params.source_language);
+      formData.append('target_language', params.target_language);
+      
+      // 添加音频文件
+      formData.append('audio_file', {
+        uri: params.audio_file.uri,
+        name: params.audio_file.name, 
+        type: params.audio_file.type,
+      });
+
+      // 使用httpClient的upload方法
+      return http.post<any>(
+        API_ENDPOINTS.TRANSLATE.TRANLATE_AUDIO,
+        formData,
+        { headers: { 'Content-Type': 'multipart/form-data' } }
+      );
+
+  }
+
+/**
+ * 获取翻译音频任务详情
+ * @param taskId 任务ID
+ * @returns Promise<ApifoxModel>
+ */
+export function getTranslationAudioTask(taskId: string){
+  return http.get<any>(
+    `${API_ENDPOINTS.TRANSLATE.GET_TRANLATE_AUDIO_TASK}/${taskId}`
+  );   
+}
 
   
   /**
@@ -121,6 +159,16 @@ export function createConversation(params: CreateConversationRequest){
 export function sendMsgToAI(params: any){
     return http.post<any>(
     API_ENDPOINTS.TRANSLATE.SEND_MSG_TO_AI,
+      params
+    );
+}
+
+/**
+ * 发送消息给语音助手
+ */
+export function translationText(params: any){
+    return http.post<any>(
+    API_ENDPOINTS.TRANSLATE.TRANSLATION_TEXT,
       params
     );
 }

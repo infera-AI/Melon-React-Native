@@ -29,7 +29,7 @@ import { scaleSize, scaleFont } from '@/utils/scale';
 import { pick, isKnownType } from '@react-native-documents/picker';
 import {
   translateDocument,
-  getTranslationTask
+  getTranslationTask,
 } from '@/api/translate/translate'
 
 import PublicModal from '@/components/PublicModal'
@@ -110,6 +110,8 @@ const DocumentTranslationScreen: React.FC = () => {
 
   // 选择文件
   const selectFileBtnClick = async () => {
+    setUploadStatus(UploadStatusEnum.TYPE_SUCCESS)
+    return
     try {
       const res = await pick({
         type: fileTypes,
@@ -119,7 +121,7 @@ const DocumentTranslationScreen: React.FC = () => {
         console.log('文件格式正确');
       } else {
         show({
-          message: '文件类型不支持，请重新选择'
+          message: t('translate_screen.document_filetype_error')
         })
         return
       }
@@ -133,7 +135,7 @@ const DocumentTranslationScreen: React.FC = () => {
       const totalSizeMB = totalSizeBytes / (1024 * 1024);
 
       if (totalSizeMB  > MAX_FILE_SIZE_MB) {
-        console.warn(`文件大小不能超过 ${MAX_FILE_SIZE_MB}MB，请重新选择`);
+        console.warn(`${t('translate_screen.document_filesize_max1')} ${MAX_FILE_SIZE_MB}MB, ${t('translate_screen.document_filesize_max2')}`);
         return;
       }
 
@@ -245,7 +247,7 @@ const DocumentTranslationScreen: React.FC = () => {
       }
     ]}>
       <CustomNavigation
-        text="Document Translation"
+        text={t('translate_screen.document_page_title')}
         backgroundColor="#181819"
         onBack={() => navigation.goBack()}
       />
@@ -268,7 +270,7 @@ const DocumentTranslationScreen: React.FC = () => {
                 />
               </View>
               <Text style={styles.uploadTipText}>
-                {`Supports formats like doc/pdf/xls/ppt\n(within 100M)`}
+                {`${t('translate_screen.document_filetype_tip1')}\n(${t('translate_screen.document_filetype_tip2')})`}
               </Text>
             </View>
           }
@@ -285,14 +287,14 @@ const DocumentTranslationScreen: React.FC = () => {
                 />
               </View>
               <Text style={[styles.uploadTipText, { marginTop: 24 }]}>
-                {`Cloud Virtual Machine Rental Contract\n${fileName}`}
+                {fileName}
               </Text>
               <View style={{flex: 1, justifyContent: 'flex-end', marginBottom: 40}}>
                 <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'center'}}>
                   <Text>
                     <Icon name="check-circle-fill" size={17} color={'#36F279'}/>
                   </Text>
-                  <Text style={{fontSize: 16, color: '#85F380', fontWeight: '500', marginLeft: 10}}>Upload Successful !</Text>
+                  <Text style={{fontSize: 16, color: '#85F380', fontWeight: '500', marginLeft: 10}}>{t('translate_screen.document_upload_success')} !</Text>
                 </View>
               </View>
             </View>
@@ -309,12 +311,12 @@ const DocumentTranslationScreen: React.FC = () => {
                 />
               </View>
               <Text style={[styles.uploadTipText, { marginTop: 24 }]}>
-                {`Cloud Virtual Machine Rental Contract\n(Template).docx`}
+                {fileName}
               </Text>
               <View style={{flex: 1, justifyContent: 'flex-end', marginBottom: 40}}>
                 <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'center'}}>
                   <Text style={{fontSize: 16, color: '#85F380', fontWeight: '500', marginLeft: 10}}>
-                    Translating...77%
+                    {t('translate_screen.document_translating')}...77%
                   </Text>
                 </View>
               </View>
@@ -326,7 +328,7 @@ const DocumentTranslationScreen: React.FC = () => {
             <View style={[styles.uploadContent, {justifyContent: 'flex-start'}]}>
               <View style={styles.titleView}>
                 <Text style={styles.titleViewText}>
-                  {`Cloud Virtual Machine Rental Contract\n(Template).docx`}
+                  {fileName}
                 </Text>
               </View>
               <View style={styles.wordContent}>
@@ -349,7 +351,7 @@ const DocumentTranslationScreen: React.FC = () => {
                   color: '#0c0c0dbc',
                   fontWeight: '400'
                 }}>
-                  Upload Document
+                  {t('translate_screen.document_uploadbtn_text')}
                 </Text>
               </View>
             </TouchableOpacity>
@@ -372,7 +374,7 @@ const DocumentTranslationScreen: React.FC = () => {
                   color: '#fff',
                   fontWeight: '400'
                 }}>
-                  Re-upload
+                  {t('translate_screen.document_reUpload')}
                 </Text>
               </View>
             </TouchableOpacity>
@@ -387,7 +389,7 @@ const DocumentTranslationScreen: React.FC = () => {
                   color: '#0c0c0dbc',
                   fontWeight: '400'
                 }}>
-                  Start Translation
+                  {t('translate_screen.document_start_translated')}
                 </Text>
               </View>
             </TouchableOpacity>
@@ -403,7 +405,7 @@ const DocumentTranslationScreen: React.FC = () => {
                   color: '#0c0c0dbc',
                   fontWeight: '400'
                 }}>
-                  Cancel
+                  {t('translate_screen.document_cancel')}
                 </Text>
               </View>
             </TouchableOpacity>
@@ -423,7 +425,7 @@ const DocumentTranslationScreen: React.FC = () => {
                 onPress={originalSwitchChange(OriginalSwitchEnum.TYPE_ORIGINAL)}
               >
                 <Text style={styles.switchBtnText}>
-                  Original text
+                  {t('translate_screen.document_source')}
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
@@ -434,7 +436,7 @@ const DocumentTranslationScreen: React.FC = () => {
                 onPress={originalSwitchChange(OriginalSwitchEnum.TYPE_TRANSLATION)}
               >
                 <Text style={styles.switchBtnText}>
-                  Translation
+                  {t('translate_screen.document_translated')}
                 </Text>
               </TouchableOpacity>
             </View>
@@ -488,7 +490,7 @@ const DocumentTranslationScreen: React.FC = () => {
                     numberOfLines={1}
                     ellipsizeMode="tail"
                   >
-                    Choose Download Format
+                    {t('translate_screen.document_down_title')}
                   </Text>
                 </View>
                 <TouchableOpacity onPress={() => setDownloadModalShow(false)}>
@@ -544,14 +546,14 @@ const DocumentTranslationScreen: React.FC = () => {
                   onPress={() => setDownloadModalShow(false)}
                 >
                   <Text style={styles.modalBottomBtnText}>
-                    Cancel
+                    {t('translate_screen.document_cancel')}
                   </Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={[styles.modalBottomBtn, styles.modalBottomBtnGreen]}
                 >
                   <Text style={[styles.modalBottomBtnText, styles.modalBottomBtnText2]}>
-                    Download
+                    {t('translate_screen.document_downbtn')}
                   </Text>
                 </TouchableOpacity>
               </View>
@@ -563,7 +565,7 @@ const DocumentTranslationScreen: React.FC = () => {
       {/* loading */}
       <FullScreenLoader
         visible={loading}
-        text="请稍后..."
+        text={t('translate_screen.loading_text')}
         timeout={5000}
         onTimeout={() => setLoading(false)}
       />

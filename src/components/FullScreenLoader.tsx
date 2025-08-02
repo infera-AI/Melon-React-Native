@@ -3,7 +3,7 @@
  * import FullScreenLoader from '@/components/FullScreenLoader';
  * <FullScreenLoader
       visible={loading}
-      text="请稍后..."
+      text="请稍候..."
       timeout={5000}
       onTimeout={() => setLoading(false)}
     />

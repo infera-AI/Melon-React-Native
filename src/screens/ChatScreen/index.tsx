@@ -17,7 +17,6 @@ import {
 } from 'react-native';
 import { useLanguage } from '@/contexts/LanguageContext';
 import EStyleSheet from 'react-native-extended-stylesheet';
-import Modal from 'react-native-modal';
 import FullScreenLoader from '@/components/FullScreenLoader';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -25,6 +24,14 @@ import type { RootStackParamList } from '@/navigation/AppNavigator'
 import CustomNavigation from '@/components/CustomNavigation';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { KeyboardEvent as RNKeyboardEvent } from 'react-native';
+import LangSelectCard from '@/components/LangSelectCard'
+import type { Language } from '@/i18n/languages';
+import { AudioPlayerController } from '@/utils/AudioPlayerController';
+import {
+  translationText
+} from '@/api/translate'
+import { scaleSize } from '@/utils/scale';
+import SelectSpeakBtnModal, { SelectSpeakBtnModalRef } from '@/components/SelectSpeakBtnModal'
 
 const { width } = Dimensions.get('window');
 const pageLR = 16;
@@ -44,8 +51,8 @@ const ChatScreen: React.FC = () => {
 
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { t } = useLanguage();
-  const [langModalVisible, setLangModalVisible] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [broadcastSwitch, setBroadcastSwitch] = useState(true); // 播报开关
   const [isPlay, setIsPlay] = useState(false); // 是否在播放音频
   const [isSlice, setIsSlice] = useState(false); // 是否切割分屏
   const [textSize, setTextSize] = useState(15); // 聊天文本字体大小
@@ -54,12 +61,25 @@ const ChatScreen: React.FC = () => {
   const translateY = useRef(new Animated.Value(0)).current;
   const inputRef = useRef<TextInput>(null);
 
+  const [speakBtnModalVisible, setSpeakBtnModalVisible] = useState(false)
+
+  const scrollRef = useRef<ScrollView>(null);
+  const scroll2Ref = useRef<ScrollView>(null);
+
+  const { language } = useLanguage();
+  const [beforeLangSelect, setBeforeLangSelect] = useState(language)
+  const [afterLangSelect, setAfterLangSelect] = useState<Language>('en')
+
+  const [chatList, setChatList] = useState<any>([])
+
   const maxTextSize = 25
   const minTextSize = 15
 
   const [sliceOpacity] = useState(new Animated.Value(0));
 
   const insets = useSafeAreaInsets(); // 获取安全区域距离
+  
+  const SelectSpeakBtnModalRef = useRef<SelectSpeakBtnModalRef>(null);
 
   useEffect(() => {
     const keyboardShow = Keyboard.addListener(
@@ -91,6 +111,44 @@ const ChatScreen: React.FC = () => {
     };
   }, [translateY]);
 
+  // useEffect(() => {
+  //   if (
+  //     pageStatus === StatusEnum.TYPE_WAIT_TRANSLATION_RESULT ||
+  //     pageStatus === StatusEnum.TYPE_WAIT_ANSWER
+  //   ) {
+  //     // setSpeakBtnModalVisible(false)
+  //     setLoading(true)
+  //   } else {
+  //     setLoading(false)
+  //   }
+  // }, [pageStatus])
+
+  useEffect(() => {
+    setTimeout(() => {
+        scroll2Ref.current?.scrollToEnd({animated: false})
+        scrollRef.current?.scrollToEnd({animated: true})
+      }, 50)
+    
+
+  }, [chatList])
+
+  useEffect(() => {
+    setTimeout(() => {
+        scroll2Ref.current?.scrollToEnd({animated: false})
+        scrollRef.current?.scrollToEnd({animated: true})
+      }, 500)
+    
+
+  }, [isSlice])
+
+  useEffect(() => {
+    const SelectSpeakBtnModalRefInstance = SelectSpeakBtnModalRef.current
+    return () => {
+      stopPlayAudio()
+      SelectSpeakBtnModalRefInstance?.destroy()
+    }
+  }, [])
+
   // 占位点击事件
   const handlePress = (name: string) => () => {
     // TODO: 实现具体功能
@@ -98,9 +156,9 @@ const ChatScreen: React.FC = () => {
     // setLoading(true)
   };
 
-  const playAudio = () => {
-    console.log('播放音频');
-    setIsPlay(!isPlay)
+  // 设置播报开关
+  const setBroadcast = () => {
+    setBroadcastSwitch(!broadcastSwitch)
   }
 
   const changeTextSize = (type: string) => () => {
@@ -145,9 +203,96 @@ const ChatScreen: React.FC = () => {
     }, 50)
   }
 
+  // 发送文本消息
   const inputFinish = (value: string) => {
     console.log('确认按钮点击，值为:', value);
+    setLoading(true)
+    // 先调接口翻译
+    translationText({
+      source_text: value,
+      source_language: beforeLangSelect,
+      target_language: afterLangSelect,
+    }).then((rsp) => {
+      setLoading(false)
+      if (rsp) {
+        // 拿到翻译结果和音频后设置聊天记录
+        changeChatList('user', rsp)
+
+        // 音频链接存在，并且播报开关打开时，自动播放声音
+        if (rsp?.translated_audio_url && broadcastSwitch) {
+          startPlayAudio(rsp?.translated_audio_url)
+        }
+      }
+    }).catch(() => {
+      setLoading(false)
+    })
+    
     setInputValue('')
+  }
+
+  const tellResultHandle = (type: string, data: any) => {
+    console.log('tellResult----', data);
+    if (data?.status === 'success') {
+      // 拿到翻译结果和音频后设置聊天记录, 目前无法区分是用户还是他人
+      changeChatList(type, {
+        source_text: data?.source_text,
+        translated_text: data?.translated_text,
+        translated_audio_url: data?.translated_audio_url
+      })
+
+      // 音频链接存在，并且播报开关打开时，自动播放声音
+      if (data?.translated_audio_url && broadcastSwitch) {
+        startPlayAudio(data?.translated_audio_url)
+      }
+    }
+  }
+
+  const changeChatList = (type: string, msgObj?: any) => {
+    let obj = {
+      role: type,
+      ...msgObj
+    }
+
+    setChatList([
+      ...chatList,
+      obj
+    ])
+  }
+
+  const stopPlayAudio = () => {
+      // 关闭音频
+    AudioPlayerController.getInstance().release()
+    setIsPlay(false)
+  }
+
+  const startPlayAudio = async (audioUri: string) => {
+    setIsPlay(true)
+    await AudioPlayerController.getInstance().init(audioUri, {
+      onInit: ({ duration, controller }) => {
+        console.log('初始化完成，时长:', duration);
+        console.log('controller----:', controller);
+        controller.play();
+      },
+      onPlay: () => {
+        console.log('播放中');
+
+      },
+      onPause: () => {
+        console.log('暂停播放');
+        // setIsPlay(false)
+      },
+      onStop: () => {
+        console.log('停止播放');
+      },
+      onEnd: () => {
+        console.log('播放完成');
+        stopPlayAudio()
+      },
+      onError: (error) => {
+        console.error('错误:', error.message)
+        stopPlayAudio()
+      },
+    });
   }
 
   return (
@@ -158,7 +303,7 @@ const ChatScreen: React.FC = () => {
       }
     ]}>
       <CustomNavigation
-        text="Speaker Mode"
+        text={t('translate_screen.speaker_mode')}
         backgroundColor="#181819"
         onBack={() => navigation.goBack()}
       />
@@ -166,55 +311,90 @@ const ChatScreen: React.FC = () => {
         {
           isSlice &&
           <Animated.View style={[styles.animatedContainer, { opacity: sliceOpacity }]}>
-            <ScrollView style={[styles.scroll, {transform: [{ scaleY: -1 }]}]} contentContainerStyle={styles.contentContainer} keyboardShouldPersistTaps="handled">
-              {/* <Text style={styles.noDataTipText}>
-                Press and hold the voice button to speak, release to send.
-              </Text> */}
-              <View style={styles.msgItems}>
-                {/* 我的消息 */}
-                <View style={[styles.msgItem, styles.msgItemMy]}>
-                  <View style={[styles.msgTextView, styles.msgTextViewMy]}>
-                    <View style={[styles.msgTextViewPop, styles.msgTextViewPopMy]}>
-                      {/* <Text style={[styles.msgText, styles.msgTextMy, {transform: [{ scaleX: -1 }]}]}>
-                        你什么时候回国？
-                      </Text>
-                      <View style={[styles.lineView, styles.lineViewMy]}/> */}
-                      <Text style={[styles.msgText, styles.msgTextMy, {transform: [{ scaleX: -1 }], fontSize: textSize}]}>
-                        いつ帰国しますか？
-                      </Text>
-                    </View>
-                  </View>
-                  <View style={styles.headContent}>
-                    <Image
-                      source={{ uri: 'https://img0.baidu.com/it/u=1972874754,2380280904&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500' }}
-                      style={styles.headImg}
-                      resizeMode='cover'
-                    />
-                  </View>
+            <ScrollView
+              ref={scroll2Ref}
+              key={chatList?.length}
+              style={[styles.scroll, styles.scaleYStyle]}
+              contentContainerStyle={styles.contentContainer}
+              keyboardShouldPersistTaps="handled"
+            >
+              {
+                !chatList.length ?
+                <View style={styles.scaleXStyle}>
+                  <Text style={styles.noDataTipText}>
+                    {t('translate_screen.Speaker_noData_tip')}
+                  </Text>
                 </View>
                 
-                {/* 对方的消息 */}
-                <View style={[styles.msgItem, styles.msgItemOther]}>
-                  <View style={styles.headContent}>
-                    <Image
-                      source={{ uri: 'https://img0.baidu.com/it/u=1972874754,2380280904&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500' }}
-                      style={styles.headImg}
-                      resizeMode='cover'
-                    />
-                  </View>
-                  <View style={[styles.msgTextView, styles.msgTextViewOther]}>
-                    <View style={[styles.msgTextViewPop, styles.msgTextViewPopOther]}>
-                      {/* <Text style={[styles.msgText, styles.msgTextOther, {transform: [{ scaleX: -1 }]}]}>
-                        我下周三回去
-                      </Text>
-                      <View style={[styles.lineView, styles.lineViewOther]}/> */}
-                      <Text style={[styles.msgText, styles.msgTextOther, {transform: [{ scaleX: -1 }], fontSize: textSize}]}>
-                        来週の水曜日に帰ります。
-                      </Text>
-                    </View>
-                  </View>
+                :
+                <View style={styles.msgItems}>
+                  {
+                    chatList.map((item: any, index: number) => {
+                      return (
+                        <React.Fragment key={`again${index}`}>
+                          {
+                            item?.role === 'user' ?
+                            // 我的消息
+                            <View style={[styles.msgItem, styles.msgItemMy]}>
+                              <View style={[styles.msgTextView, styles.msgTextViewMy]}>
+                                <View style={[styles.msgTextViewPop, styles.msgTextViewPopMy]}>
+                                  {/* <Text style={[styles.msgText, styles.msgTextMy, styles.scaleXStyle]}>
+                                    你什么时候回国？
+                                  </Text>
+                                  <View style={[styles.lineView, styles.lineViewMy]}/> */}
+                                  <View style={styles.scaleXStyle}>
+                                    <Text style={[
+                                        styles.msgText,
+                                        styles.msgTextMy,
+                                        {fontSize: textSize}
+                                      ]}
+                                    >
+                                      {item?.translated_text}
+                                    </Text>
+                                  </View>
+                                  
+                                </View>
+                              </View>
+                              <View style={styles.headContent}>
+                                <Image
+                                  source={{ uri: 'https://img0.baidu.com/it/u=1972874754,2380280904&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500' }}
+                                  style={styles.headImg}
+                                  resizeMode='cover'
+                                />
+                              </View>
+                            </View>
+                            :
+                            // 对方的消息
+                            <View style={[styles.msgItem, styles.msgItemOther]}>
+                              <View style={styles.headContent}>
+                                <Image
+                                  source={require('../../../assets/images/Home_card_head.png')}
+                                  style={styles.headImg}
+                                  resizeMode='cover'
+                                />
+                              </View>
+                              <View style={[styles.msgTextView, styles.msgTextViewOther]}>
+                                <View style={[styles.msgTextViewPop, styles.msgTextViewPopOther]}>
+                                  {/* <Text style={[styles.msgText, styles.msgTextOther, styles.scaleXStyle]}>
+                                    我下周三回去
+                                  </Text>
+                                  <View style={[styles.lineView, styles.lineViewOther]}/> */}
+                                  <View style={styles.scaleXStyle}>
+                                    <Text style={[styles.msgText, styles.msgTextOther, {fontSize: textSize}]}>
+                                      {item?.source_text}
+                                    </Text>
+                                  </View>
+                                </View>
+                              </View>
+                            </View>
+                          }
+                        </React.Fragment>
+                      )
+                    })
+                  }
+                  
                 </View>
-              </View>
+              }
             </ScrollView>
           </Animated.View>
         }
@@ -225,70 +405,91 @@ const ChatScreen: React.FC = () => {
         }
 
         {/* 对话滚动区域 */}
-        <ScrollView style={styles.scroll} contentContainerStyle={styles.contentContainer} keyboardShouldPersistTaps="handled">
-          {/* <Text style={styles.noDataTipText}>
-            Press and hold the voice button to speak, release to send.
-          </Text> */}
-          <View style={styles.msgItems}>
-            {/* 我的消息 */}
-            <View style={[styles.msgItem, styles.msgItemMy]}>
-              <View style={[styles.msgTextView, styles.msgTextViewMy]}>
-                <View style={[styles.msgTextViewPop, styles.msgTextViewPopMy]}>
-                  <Text style={[styles.msgText, styles.msgTextMy, {fontSize: textSize}]}>
-                    你什么时候回国？
-                  </Text>
-                  {
-                    isSlice ?
-                    null
-                    :
-                    <>
-                      <View style={[styles.lineView, styles.lineViewMy]}/>
-                      <Text style={[styles.msgText, styles.msgTextMy, {fontSize: textSize}]}>
-                        いつ帰国しますか？
-                      </Text>
-                    </>
-                  }
-                  
-                </View>
-              </View>
-              <View style={styles.headContent}>
-                <Image
-                  source={{ uri: 'https://img0.baidu.com/it/u=1972874754,2380280904&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500' }}
-                  style={styles.headImg}
-                  resizeMode='cover'
-                />
-              </View>
+        <ScrollView
+          ref={scrollRef}
+          style={styles.scroll}
+          contentContainerStyle={styles.contentContainer}
+          keyboardShouldPersistTaps="handled"
+        >
+          {
+            !chatList.length ?
+            <Text style={styles.noDataTipText}>
+              {t('translate_screen.Speaker_noData_tip')}
+            </Text>
+            :
+            <View style={styles.msgItems}>
+              {
+                chatList.map((item: any, index: number) => {
+                  return (
+                    <React.Fragment key={index}>
+                      {
+                        item?.role === 'user' ?
+                        // 我的消息
+                        <View style={[styles.msgItem, styles.msgItemMy]}>
+                          <View style={[styles.msgTextView, styles.msgTextViewMy]}>
+                            <View style={[styles.msgTextViewPop, styles.msgTextViewPopMy]}>
+                              <Text style={[styles.msgText, styles.msgTextMy, {fontSize: textSize}]}>
+                                {item?.source_text}
+                              </Text>
+                              {
+                                isSlice ?
+                                null
+                                :
+                                <>
+                                  <View style={[styles.lineView, styles.lineViewMy]}/>
+                                  <Text style={[styles.msgText, styles.msgTextMy, {fontSize: textSize}]}>
+                                    {item?.translated_text}
+                                  </Text>
+                                </>
+                              }
+                              
+                            </View>
+                          </View>
+                          <View style={styles.headContent}>
+                            <Image
+                              source={{ uri: 'https://img0.baidu.com/it/u=1972874754,2380280904&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500' }}
+                              style={styles.headImg}
+                              resizeMode='cover'
+                            />
+                          </View>
+                        </View>
+                        :
+                        // 对方的消息
+                        <View style={[styles.msgItem, styles.msgItemOther]}>
+                          <View style={styles.headContent}>
+                            <Image
+                              source={require('../../../assets/images/Home_card_head.png')}
+                              style={styles.headImg}
+                              resizeMode='cover'
+                            />
+                          </View>
+                          <View style={[styles.msgTextView, styles.msgTextViewOther]}>
+                            <View style={[styles.msgTextViewPop, styles.msgTextViewPopOther]}>
+                              <Text style={[styles.msgText, styles.msgTextOther, {fontSize: textSize}]}>
+                                {item?.translated_text}
+                              </Text>
+                              {
+                                isSlice ?
+                                null
+                                :
+                                <>
+                                  <View style={[styles.lineView, styles.lineViewOther]}/>
+                                  <Text style={[styles.msgText, styles.msgTextOther, {fontSize: textSize}]}>
+                                    {item?.source_text}
+                                  </Text>
+                                </>
+                              }
+                            </View>
+                          </View>
+                        </View>
+                      }
+                    </React.Fragment>
+                  )
+                })
+              }
+
             </View>
-            
-            {/* 对方的消息 */}
-            <View style={[styles.msgItem, styles.msgItemOther]}>
-              <View style={styles.headContent}>
-                <Image
-                  source={{ uri: 'https://img0.baidu.com/it/u=1972874754,2380280904&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500' }}
-                  style={styles.headImg}
-                  resizeMode='cover'
-                />
-              </View>
-              <View style={[styles.msgTextView, styles.msgTextViewOther]}>
-                <View style={[styles.msgTextViewPop, styles.msgTextViewPopOther]}>
-                  <Text style={[styles.msgText, styles.msgTextOther, {fontSize: textSize}]}>
-                    我下周三回去
-                  </Text>
-                  {
-                    isSlice ?
-                    null
-                    :
-                    <>
-                      <View style={[styles.lineView, styles.lineViewOther]}/>
-                      <Text style={[styles.msgText, styles.msgTextOther, {fontSize: textSize}]}>
-                        来週の水曜日に帰ります。
-                      </Text>
-                    </>
-                  }
-                </View>
-              </View>
-            </View>
-          </View>
+          }
         </ScrollView>
 
 
@@ -296,9 +497,9 @@ const ChatScreen: React.FC = () => {
         <View style={styles.contentOption}>
           <View style={styles.leftBtns}>
             {/* 播放音频按钮 */}
-            <TouchableOpacity onPress={playAudio}>
+            <TouchableOpacity onPress={setBroadcast}>
               {
-                isPlay ?
+                broadcastSwitch ?
                 <Image source={require('../../../assets/images/ChatScreen_PlayAudio_open.png')} style={styles.playAudioImg}/>
                 :
                 <Image source={require('../../../assets/images/ChatScreen_PlayAudio_close.png')} style={styles.playAudioImg}/>
@@ -326,50 +527,51 @@ const ChatScreen: React.FC = () => {
       </View>
       {/* 语言选择栏 */}
       <View style={styles.langSelectRow}>
-        <View style={styles.langSelectCard}>
-          <TouchableOpacity style={styles.langSelectItem} onPress={() => setLangModalVisible(true)}>
-            <Text style={styles.langSelectText}>Chinese</Text>
-            <Image source={require('../../../assets/images/Home_Translate_arrow.png')} style={styles.langSelectArrow}/>
-          </TouchableOpacity>
-          <View style={styles.langSwitchIconBox}>
-            <Image source={require('../../../assets/images/Home_Translate_switch.png')} style={styles.langSwitchArrow} resizeMode='contain'/>
-          </View>
-          <TouchableOpacity style={styles.langSelectItem} onPress={() => setLangModalVisible(true)}>
-            <Text style={styles.langSelectText}>English</Text>
-            <Image source={require('../../../assets/images/Home_Translate_arrow.png')} style={styles.langSelectArrow}/>
-          </TouchableOpacity>
-        </View>
+        <LangSelectCard
+          beforeLanguage={beforeLangSelect}
+          afterLanguage={afterLangSelect}
+          paddingTopBottom={0}
+          textSize={12}
+          marginRight={16}
+          beforeSelectBack={(code) => {
+            console.log('beforeSelectBack---', code);
+            setBeforeLangSelect(code)
+          }}
+          afterSelectBack={(code) => {
+            console.log('afterSelectBack---', code);
+            setAfterLangSelect(code)
+          }}
+        />
         {/* 唤起输入框 */}
         <TouchableOpacity style={styles.langQuickBtnNew} onPress={handleStartInput}>
             <Image source={require('../../../assets/images/SpeakerMode_Write.png')} style={styles.iconQuickLangNew}/>
         </TouchableOpacity>
         {/* 语音按钮 */}
-        <TouchableOpacity style={[styles.langQuickBtnNew, {marginLeft: 10}]} onPress={handlePress('QuickLang')}>
-            <Image source={require('../../../assets/images/SpeakerMode_Speak.png')} style={styles.iconQuickLangNew}/>
+        {/* isPlay时要禁用 */}
+        <TouchableOpacity
+          onPress={() => setSpeakBtnModalVisible(true)}
+          style={isPlay && styles.disabledDom}
+        >
+          <View style={[styles.langQuickBtnNew, {marginLeft: 10}]}>
+              <Image source={require('../../../assets/images/SpeakerMode_Speak.png')} style={styles.iconQuickLangNew}/>
+          </View>
         </TouchableOpacity>
       </View>
-      {/* 语言选择弹窗：底部弹出，高度400，方便后续自定义 */}
-      <Modal
-        isVisible={langModalVisible}
-        onBackdropPress={() => setLangModalVisible(false)}  // 点击背景关闭
-        animationIn="slideInUp"
-        animationOut="slideOutDown"
-        backdropOpacity={0.4}
-        backdropTransitionOutTiming={0} // 避免关闭时mask闪
-        style={{
-          justifyContent: 'flex-end', // 让 modal 停在底部
-          margin: 0, // 取消默认 margin，不然内容会上浮
-        }}
-      >
-        <View style={styles.modalContent}>
-          <Text>jshjhj</Text>
-        </View>
-      </Modal>
       <FullScreenLoader
         visible={loading}
-        text="请稍后..."
-        timeout={5000}
+        text={t('translate_screen.loading_text')}
+        timeout={20000}
         onTimeout={() => setLoading(false)}
+      />
+      {/* 通话按钮弹窗， 区分是本人说话还是对方说话 */}
+      <SelectSpeakBtnModal
+        visible={speakBtnModalVisible}
+        beforeLanguage={beforeLangSelect}
+        afterLanguage={afterLangSelect}
+        onBackdropPress={() => setSpeakBtnModalVisible(false)}
+        tellResult={(type: string, data: any) => {
+          tellResultHandle(type, data)
+        }}
       />
       {/* 输入框区域 */}
       {inputVisible && (
@@ -382,7 +584,7 @@ const ChatScreen: React.FC = () => {
           <TextInput
             ref={inputRef}
             style={styles.input}
-            placeholder="请输入内容"
+            placeholder={t('translate_screen.input_no_value')}
             value={inputValue}
             onChangeText={setInputValue}
             autoFocus
@@ -472,7 +674,7 @@ const styles = StyleSheet.create({
   lineView: {
     alignSelf: 'stretch',
     height: 1,
-    marginVertical: 14,
+    marginVertical: scaleSize(10),
   },
   lineViewMy: {
     backgroundColor: '#b0b0b06a',
@@ -533,38 +735,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 20,
   },
-  langSelectCard: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#232325',
-    borderRadius: 14,
-    marginRight: 16,
-    paddingVertical: 2,
-    paddingHorizontal: 0,
-  },
-  langSelectItem: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  langSelectText: {
-    color: '#fff',
-    fontSize: 14,
-    marginRight: 8,
-    fontWeight: '500',
-  },
-  langSelectArrow: {
-    width: 10,
-    aspectRatio: 1.67,
-  },
-  langSwitchIconBox: {
-    width: 20,
-    alignItems: 'center',
-  },
-  langSwitchArrow: {
-    width: 16,
+  
+  disabledDom: {
+    opacity: 0.5,
+    pointerEvents: 'none',
   },
   langQuickBtnNew: {
     width: 44,
@@ -594,12 +768,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
     backgroundColor: '#262626',
   },
-  modalContent: {
-    backgroundColor: '#fff',
-    borderTopLeftRadius: 10,
-    borderTopRightRadius: 10,
-    height: 300,
-  }
+  scaleXStyle: {
+    transform: [{ scaleX: -1 }]
+  },
+  scaleYStyle: {
+    transform: [{ scaleY: -1 }]
+  },
 });
 
 export default ChatScreen;

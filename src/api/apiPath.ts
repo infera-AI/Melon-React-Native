@@ -29,11 +29,14 @@ export const API_ENDPOINTS = {
     TRANSLATE: {
       TRANLATE_DOCUMENT: '/translations/translate/docs',
       TRANLATE_IMAGE: '/translations/translate/imgs',
+      TRANLATE_AUDIO: '/translations/translate/audio',
+      GET_TRANLATE_AUDIO_TASK: '/translations/translate/audio',
       GET_TRANSLATION_TASK: '/translations/translate/docs',
       GET_TRANSLATION_TASK_IMAGE: '/translations/translate/imgs',
       TRANLATE_TEXT: '/translations/translate/text',
       CREATE_CONVERSATION: '/conversations/new',
       SEND_MSG_TO_AI: '/assistant/send_voice_message',
+      TRANSLATION_TEXT: '/conversations/send_text_message'
     },
             PROFILE: {
           GET_USER_INFO: '/accounts/profile',

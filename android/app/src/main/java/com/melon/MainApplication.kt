@@ -10,6 +10,7 @@ import com.facebook.react.ReactPackage
 import com.facebook.react.defaults.DefaultReactHost.getDefaultReactHost
 import com.facebook.react.defaults.DefaultReactNativeHost
 import com.zmxv.RNSound.SoundPackage
+import com.melon.modules.FileSaverPackage
 
 class MainApplication : Application(), ReactApplication {
 
@@ -20,6 +21,8 @@ class MainApplication : Application(), ReactApplication {
               // Packages that cannot be autolinked yet can be added manually here, for example:
               // add(MyReactNativePackage())
               add(SoundPackage())
+              add(HeadsetDetectionPackage())
+              add(FileSaverPackage())
             }
 
         override fun getJSMainModuleName(): String = "index"

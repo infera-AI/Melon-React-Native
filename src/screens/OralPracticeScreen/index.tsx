@@ -73,7 +73,7 @@ const OralPracticeScreen: React.FC = () => {
   const rotateAnimRef = useRef<Animated.CompositeAnimation | null>(null);
 
   useEffect(() => {
-    if (pageStatus === StatusEnum.TYPE_WAIT_ANSWER) {
+    if (pageStatus === StatusEnum.TYPE_WAIT_ANSWER || pageStatus === StatusEnum.TYPE_TRANSLATION_OVER) {
       
       msgLoadRotateAnim.setValue(0)
       const loopAnim = Animated.loop(
@@ -304,20 +304,16 @@ const OralPracticeScreen: React.FC = () => {
         ...chatList, 
         {
           role: 'user',
-          msg: data?.translated_text
+          msg: data?.source_text
         },
         {
           role: 'wait',
         }
       ])
-      let params: any = {}
-      if (data?.translated_audio_url) {
-        params.audio_url = data?.translated_audio_url
-      } else if (data?.translated_text) {
-        params.text_message = data?.translated_text
-      }
       // 发送消息
-      sendMsgToAI(params).then((rsp) => {
+      sendMsgToAI({
+        text_message: data?.source_text
+      }).then((rsp) => {
         console.log('rsp------', rsp);
         if (rsp) {
           if (rsp?.assistant_reply_audio_url) {
@@ -334,7 +330,7 @@ const OralPracticeScreen: React.FC = () => {
           // 响应失败
           setPageStatus(StatusEnum.TYPE_NORMAL)
           show({
-            message: '处理失败，请重试'
+            message: t('translate_screen.failed_again')
           })
           changeChatList('error')
         }
@@ -343,7 +339,7 @@ const OralPracticeScreen: React.FC = () => {
         // 响应失败
         setPageStatus(StatusEnum.TYPE_NORMAL)
         show({
-          message: '处理失败，请重试'
+          message: t('translate_screen.failed_again')
         })
         changeChatList('error')
       })
@@ -382,7 +378,7 @@ const OralPracticeScreen: React.FC = () => {
         />
       </Animated.View>
       <CustomNavigation
-        rightBtnText='Captions'
+        rightBtnText={nowPageIndex === 0 ? t('translate_screen.Oral_page1_switch') : t('translate_screen.Oral_page2_switch')}
         rightBtnClick={() => switchPage()}
         backgroundColor="transparent"
         useTopSafeArea={false}
@@ -490,7 +486,7 @@ const OralPracticeScreen: React.FC = () => {
                                   />
                                   :
                                   <Text style={[styles.msgText, styles.msgTextOther, {fontSize: textSize, lineHeight: textLineHeight}]}>
-                                    {item?.role === 'error' ? '处理失败，请重试' : item?.msg}
+                                    {item?.role === 'error' ? t('translate_screen.failed_again') : item?.msg}
                                   </Text>
                                 }
                               </View>
@@ -528,21 +524,21 @@ const OralPracticeScreen: React.FC = () => {
           <Text style={styles.statusText}>
             {
                 pageStatus === StatusEnum.TYPE_NORMAL ?
-                  'Listening...'
+                  t('translate_screen.Oral_Listening')
                   :
                   pageStatus === StatusEnum.TYPE_INIT ?
-                    '等待麦克风启动完成...'
+                    t('translate_screen.Oral_wait_mic')
                     :
                     pageStatus === StatusEnum.TYPE_OPEN ?
-                      'Listening...'
+                      t('translate_screen.Oral_Listening')
                       :
                       pageStatus === StatusEnum.TYPE_WAIT_TRANSLATION_RESULT ||
                       pageStatus === StatusEnum.TYPE_WAIT_ANSWER ||
                       pageStatus === StatusEnum.TYPE_TRANSLATION_OVER ?
-                        '处理中，请稍后...'
+                        t('translate_screen.Oral_handle_wait')
                         :
                         pageStatus === StatusEnum.TYPE_PLAY_ANSWER_AUDIO ?
-                          'Speak or click Interrupt'
+                          t('translate_screen.Oral_cut_tip')
                           :
                           ''
               }
@@ -571,8 +567,7 @@ const OralPracticeScreen: React.FC = () => {
         {/* 语音按钮 */}
         <SpeakBtn
           ref={speakBtnRef}
-          beforeLanguage="zh"
-          afterLanguage="en"
+          onlyRecognition={true}
           disabled={
             pageStatus === StatusEnum.TYPE_WAIT_ANSWER ||
             pageStatus === StatusEnum.TYPE_TRANSLATION_OVER ||
@@ -613,7 +608,7 @@ const OralPracticeScreen: React.FC = () => {
       
       <FullScreenLoader
         visible={loading}
-        text="请稍后..."
+        text={t('translate_screen.loading_text')}
         timeout={5000}
         onTimeout={() => setLoading(false)}
       />

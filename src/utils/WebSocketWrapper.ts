@@ -87,7 +87,7 @@ export class WebSocketWrapper {
     };
 
     this.ws.onmessage = (event: any) => {
-      console.log('收到消息:', event.data);
+      console.log('socket收到消息:', event.data);
       try {
         const data = JSON.parse(event.data);
         this.config.onMessage?.(data);
