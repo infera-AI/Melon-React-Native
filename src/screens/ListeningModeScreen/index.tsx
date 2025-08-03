@@ -28,6 +28,7 @@ import LangSelectCard from '@/components/LangSelectCard'
 import type { Language } from '@/i18n/languages';
 import Clipboard from '@react-native-clipboard/clipboard';
 // import TaskQueue from "@/utils/TaskQueue";
+import { scaleSize, scaleFont } from '@/utils/scale';
 
 import { useMessageModal } from '@/contexts/MessageModalContext';
 
@@ -480,8 +481,6 @@ const ListeningModeScreen: React.FC = () => {
         <LangSelectCard
           beforeLanguage={beforeLangSelect}
           afterLanguage={afterLangSelect}
-          paddingTopBottom={0}
-          textSize={12}
           marginRight={16}
           disabled={isListening}
           beforeSelectBack={(code) => {
@@ -625,16 +624,16 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   langQuickBtnNew: {
-    width: 44,
-    height: 44,
+    width: scaleSize(44),
+    height: scaleSize(44),
     backgroundColor: '#333333',
     borderRadius: '50%',
     alignItems: 'center',
     justifyContent: 'center',
   },
   iconQuickLangNew: {
-    width: 40,
-    height: 40,
+    width: '80%',
+    height: '80%',
   },
   inputWrapper: {
     position: 'absolute',

@@ -118,8 +118,8 @@ const ImageTranslationScreen: React.FC = () => {
     const arr = imgList.map((item: string, index: number) => {
       return {
         uri: item,
-        name: `${Math.floor(performance.now())}-${index}`,
-        type: item.split(/\.(?=[^\.]+$)/)[1]
+        name: `${Math.floor(performance.now())}-${index}.${item.split(/\.(?=[^\.]+$)/)[1]}`,
+        type: 'image/' + item.split(/\.(?=[^\.]+$)/)[1]
       }
     })
     console.log('arr----', arr);
@@ -344,7 +344,7 @@ const ImageTranslationScreen: React.FC = () => {
                       <TouchableOpacity onPress={pickImageFromGallery}>
                         <View style={[styles.imgItem, styles.addItem]}>
                           <Text>
-                            <Ionicons name='add-outline' size={scaleFont(50)} color={'#4e4c4cff'}/>
+                            <Ionicons name='add-outline' size={scaleFont(20)} color={'#4e4c4cff'}/>
                           </Text>
                         </View>
                       </TouchableOpacity>
@@ -521,9 +521,7 @@ const ImageTranslationScreen: React.FC = () => {
               <LangSelectCard
                 beforeLanguage={beforeLangSelect}
                 afterLanguage={afterLangSelect}
-                paddingTopBottom={0}
-                textSize={12}
-                marginRight={16}
+                marginRight={scaleSize(60)}
                 beforeSelectBack={(code) => {
                   console.log('beforeSelectBack---', code);
                   setBeforeLangSelect(code)

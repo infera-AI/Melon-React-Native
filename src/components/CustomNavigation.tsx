@@ -22,6 +22,7 @@ import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '@/navigation/AppNavigator'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'; // 安全区
+import { scaleSize, scaleFont } from '@/utils/scale';
 
 type Props = {
   text?: string;
@@ -92,11 +93,11 @@ const CustomNavigation: React.FC<Props> = ({
 
 const styles = StyleSheet.create({
   container: {
-    height: 56,
+    height: scaleSize(56),
     width: '100%',
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 12,
+    paddingHorizontal: scaleSize(12),
     justifyContent: 'center',
     elevation: 4, // Android 阴影
     shadowColor: '#000', // iOS 阴影
@@ -105,12 +106,12 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
   },
   backButton: {
-    width: 40,
-    height: 40,
+    width: scaleSize(40),
+    height: scaleSize(40),
     backgroundColor: '#3E3E3E',
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 12,
+    borderRadius: scaleSize(12),
     position: 'absolute',
     left: 16,
   },
@@ -123,11 +124,11 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     position: 'absolute',
     right: 16,
-    paddingVertical: 6,
-    paddingHorizontal: 22
+    paddingVertical: scaleSize(5),
+    paddingHorizontal: scaleSize(22)
   },
   rightBtnText: {
-    fontSize: 14,
+    fontSize: scaleFont(4.2),
     color: '#fff',
     fontWeight: '500',
   },
@@ -135,7 +136,7 @@ const styles = StyleSheet.create({
     flex: 1,
     textAlign: 'center',
     color: '#fff',
-    fontSize: 18,
+    fontSize: scaleFont(6),
     fontWeight: '600',
   },
 });
