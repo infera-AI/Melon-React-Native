@@ -88,6 +88,8 @@ export enum StatusEnum {
 
 let ws: any = null
 
+let isSendedAudioData = false // 是否发送过音频数据  （防止没发送音频数据就抬起）
+
 const SpeakBtn = forwardRef<SpeakBtnRef, Props>(({
   beforeLanguage = 'en',
   afterLanguage = 'en',
@@ -148,6 +150,8 @@ const SpeakBtn = forwardRef<SpeakBtnRef, Props>(({
     } else {
       wsUri = `ws://218.244.147.232:80/ws/conversations/send_audio_message?token=${token}`
     }
+    ws && ws.close()
+    ws = null
     ws = new WebSocketWrapper({
       url: wsUri,
       // 连接成功回调
@@ -193,10 +197,16 @@ const SpeakBtn = forwardRef<SpeakBtnRef, Props>(({
               show({
                 message: data?.error_msg
               })
-            } else {
+              setVoiceStatus(StatusEnum.TYPE_NORMAL)
+            } else if (data?.source_text) {
               tellResult(data)
+              setVoiceStatus(StatusEnum.TYPE_TRANSLATION_OVER)
+            } else {
+              show({
+                message: t('translate_screen.mic_result_error')
+              })
+              setVoiceStatus(StatusEnum.TYPE_NORMAL)
             }
-            setVoiceStatus(StatusEnum.TYPE_TRANSLATION_OVER)
             
           } else {
             setVoiceStatus(StatusEnum.TYPE_NORMAL)
@@ -265,6 +275,7 @@ const SpeakBtn = forwardRef<SpeakBtnRef, Props>(({
           
           // 发送音频数据
           ws && ws.send(sendBuffer)
+          isSendedAudioData = true
 
           // 剩余数据保留
           const remaining = chunk.slice(CHUNK_SIZE);
@@ -300,7 +311,14 @@ const SpeakBtn = forwardRef<SpeakBtnRef, Props>(({
     try {
       AudioRecord.stop();
       // setAudioCategory('playback')
-      ws && ws.send({finish: true})
+      if (ws && isSendedAudioData) {
+        ws && ws.send({finish: true})
+      } else {
+        console.log('socket--ws不存在 或 没有发送过音频');
+        setVoiceStatus(StatusEnum.TYPE_NORMAL)
+        destroy()
+      }
+      
     } catch (error) {
       
     }
@@ -318,6 +336,7 @@ const SpeakBtn = forwardRef<SpeakBtnRef, Props>(({
 
   const downClick = async () => {
     console.log('按下');
+    isSendedAudioData = false
     const permission =
       Platform.OS === 'ios'
         ? PERMISSIONS.IOS.MICROPHONE
@@ -370,8 +389,14 @@ const SpeakBtn = forwardRef<SpeakBtnRef, Props>(({
     if (result !== RESULTS.GRANTED) { // 未授权时
       return
     }
+    // console.log('11112222----', isSendedAudioData);
+    
     socketStatusRef.current = WSStatus.CLOSED
-    setVoiceStatus(StatusEnum.TYPE_WAIT_TRANSLATION_RESULT)
+    if (!isSendedAudioData) {
+      setVoiceStatus(StatusEnum.TYPE_NORMAL)
+    } else {
+      setVoiceStatus(StatusEnum.TYPE_WAIT_TRANSLATION_RESULT)
+    }
     stopMic()
     setIsDown(false)
     setPcmData('');

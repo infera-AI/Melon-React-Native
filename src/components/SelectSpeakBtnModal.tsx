@@ -109,6 +109,9 @@ const SelectSpeakBtnModal = forwardRef<SelectSpeakBtnModalRef, Props>(({
               tellResult={(data) => {
                 tellResult('user', data)
                 onBackdropPress && onBackdropPress()
+                if (data?.status === 'success' && !data?.source_text) {
+                  setLoading(false)
+                }
               }}
               disabled={speakBtn2IsDown}
               isDownCallBack={(isDown) => {
