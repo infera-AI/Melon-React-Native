@@ -26,7 +26,7 @@ type Props = {
   beforeLanguage?: string; // 主语言
   afterLanguage?: string; // 翻译成什么语言
   textSize?: number,
-  paddingTopBottom?: number,
+  heightOffset?: number,
   marginRight?: number,
   disabled?: boolean,
   // backgroundColor?: string;
@@ -47,8 +47,8 @@ const pageLR = 16;
 const LangSelectCard: React.FC<Props> = ({
   beforeLanguage = 'en',
   afterLanguage = 'en',
-  textSize = 14,
-  paddingTopBottom = 8,
+  textSize = 5.2,
+  heightOffset = 0,
   marginRight = 20,
   disabled = false,
   beforeSelectBack = null,
@@ -92,8 +92,8 @@ const LangSelectCard: React.FC<Props> = ({
           styles.langSelectCard,
           disabled && styles.disabledDom,
           {
-            paddingVertical: scaleSize(paddingTopBottom),
-            marginRight: scaleSize(marginRight)
+            marginRight: scaleSize(marginRight),
+            height: scaleSize(52 + heightOffset)
           }
         ]}
       >
@@ -141,7 +141,7 @@ const LangSelectCard: React.FC<Props> = ({
                 </View>
                 <TouchableOpacity onPress={() => closeModalFun()}>
                   <Text>
-                    <Ionicons name='close-outline' size={scaleFont(24)} color={'#ffffff'}/>
+                    <Ionicons name='close-outline' size={scaleFont(9)} color={'#ffffff'}/>
                   </Text>
                 </TouchableOpacity>
               </View>
@@ -179,7 +179,7 @@ const LangSelectCard: React.FC<Props> = ({
                               {
                                 ((selectType === 'before' && beforeLanguage === item.code) || (selectType === 'after' && afterLanguage === item.code)) &&
                                 <Text>
-                                  <FontAwesome6 name='check' size={scaleFont(16)} color={'#85F380'}/>
+                                  <FontAwesome6 name='check' size={scaleFont(6)} color={'#85F380'}/>
                                 </Text>
                               }
                               
@@ -210,7 +210,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#232325',
     borderRadius: scaleSize(14),
-    // height: scaleSize(64),
     paddingHorizontal: scaleSize(16),
   },
   disabledDom: {
@@ -267,7 +266,7 @@ const styles = StyleSheet.create({
     marginRight: scaleSize(10),
   },
   titleText: {
-    fontSize: scaleFont(15),
+    fontSize: scaleFont(6),
     color: '#ffffff',
   },
   modalContentView: {
@@ -309,7 +308,7 @@ const styles = StyleSheet.create({
   },
   languageText: {
     width: '100%',
-    fontSize: scaleFont(14),
+    fontSize: scaleFont(6),
     color: '#ffffff',
     marginLeft: scaleSize(10),
   },

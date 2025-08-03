@@ -34,11 +34,14 @@ import { useMessageModal } from '@/contexts/MessageModalContext';
 import { AudioPlayerController } from '@/utils/AudioPlayerController';
 
 import { StatusEnum } from '@/components/SpeakBtn';
-import { scaleSize } from '@/utils/scale';
+import { scaleSize, scaleFont } from '@/utils/scale';
 
 const { width, height } = Dimensions.get('window');
 const pageLR = 16;
 const contentWidth = width
+
+const ringWH = scaleSize(176)
+const headWH = scaleSize(160)
 
 // 启用 Android 支持
 if (
@@ -524,7 +527,7 @@ const OralPracticeScreen: React.FC = () => {
           <Text style={styles.statusText}>
             {
                 pageStatus === StatusEnum.TYPE_NORMAL ?
-                  t('translate_screen.Oral_Listening')
+                  t('translate_screen.Oral_wait_speak')
                   :
                   pageStatus === StatusEnum.TYPE_INIT ?
                     t('translate_screen.Oral_wait_mic')
@@ -598,7 +601,7 @@ const OralPracticeScreen: React.FC = () => {
           // onPress={() => setIsAnimating(!isAnimating)}
         >
             <Text>
-              <Ionicons name='close-outline' size={46} color={'#EA4335'}/>
+              <Ionicons name='close-outline' size={scaleFont(14)} color={'#EA4335'}/>
             </Text>
         </TouchableOpacity>
       </View>
@@ -714,19 +717,19 @@ const styles = StyleSheet.create({
   },
 
   ring: {
-    width: 190,
-    height: 190,
+    width: ringWH,
+    height: ringWH,
     justifyContent: 'center',
     alignItems: 'center',
   },
   ringImage: {
-    width: 190,
-    height: 190,
+    width: ringWH,
+    height: ringWH,
     resizeMode: 'contain',
   },
   avatarPlaceholder: {
-    width: 170,
-    height: 170,
+    width: headWH,
+    height: headWH,
     borderRadius: '50%',
     backgroundColor: '#C1E3D6',
     marginRight: 10,
@@ -747,7 +750,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   statusText: {
-    fontSize: 15,
+    fontSize: scaleFont(5.2),
     color: '#85F380',
     marginTop: 10,
     marginLeft: 10,
@@ -773,16 +776,16 @@ const styles = StyleSheet.create({
     marginBottom: 20
   },
   btnNew: {
-    width: 70,
-    height: 70,
+    width: scaleSize(66),
+    height: scaleSize(66),
     backgroundColor: '#3E3E3E',
     borderRadius: '50%',
     alignItems: 'center',
     justifyContent: 'center',
   },
   btnImg: {
-    width: 60,
-    height: 60,
+    width: '80%',
+    height: '80%',
   },
   // content: {
   //   flex: 1,

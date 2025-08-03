@@ -460,7 +460,6 @@ const DocumentTranslationScreen: React.FC = () => {
           <LangSelectCard
             beforeLanguage={beforeLangSelect}
             afterLanguage={afterLangSelect}
-            textSize={14}
             beforeSelectBack={(code) => {
               console.log('beforeSelectBack---', code);
               setBeforeLangSelect(code)

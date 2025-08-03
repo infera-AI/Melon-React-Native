@@ -30,7 +30,7 @@ import { AudioPlayerController } from '@/utils/AudioPlayerController';
 import {
   translationText
 } from '@/api/translate'
-import { scaleSize } from '@/utils/scale';
+import { scaleSize, scaleFont } from '@/utils/scale';
 import SelectSpeakBtnModal, { SelectSpeakBtnModalRef } from '@/components/SelectSpeakBtnModal'
 import { useMessageModal } from '@/contexts/MessageModalContext';
 
@@ -576,8 +576,6 @@ const HeadphoneModeScreen: React.FC = () => {
         <LangSelectCard
           beforeLanguage={beforeLangSelect}
           afterLanguage={afterLangSelect}
-          paddingTopBottom={0}
-          textSize={12}
           marginRight={16}
           beforeSelectBack={(code) => {
             console.log('beforeSelectBack---', code);
@@ -787,16 +785,16 @@ const styles = StyleSheet.create({
     pointerEvents: 'none',
   },
   langQuickBtnNew: {
-    width: 44,
-    height: 44,
+    width: scaleSize(44),
+    height: scaleSize(44),
     backgroundColor: '#333333',
     borderRadius: '50%',
     alignItems: 'center',
     justifyContent: 'center',
   },
   iconQuickLangNew: {
-    width: 40,
-    height: 40,
+    width: '80%',
+    height: '80%',
   },
   inputWrapper: {
     position: 'absolute',

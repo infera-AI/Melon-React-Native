@@ -733,8 +733,6 @@ const AudioTranslationScreen: React.FC = () => {
           <LangSelectCard
             beforeLanguage={beforeLangSelect}
             afterLanguage={afterLangSelect}
-            paddingTopBottom={0}
-            textSize={12}
             marginRight={16}
             beforeSelectBack={(code) => {
               console.log('beforeSelectBack---', code);

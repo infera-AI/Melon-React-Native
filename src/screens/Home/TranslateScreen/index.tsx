@@ -68,7 +68,7 @@ const TranslateScreen: React.FC = () => {
           navigation.navigate('HeadphoneMode')
         } else {
           show({
-            message: '请连接您的耳机'
+            message: t('translate_screen.link_headset')
           })
         }
       });
@@ -76,7 +76,7 @@ const TranslateScreen: React.FC = () => {
       navigation.navigate('ListeningMode')
     } else if (name === 'DocumentTranslation') {
       show({
-        message: '即将上线'
+        message: t('translate_screen.coming_soon')
       })
       return
       navigation.navigate('DocumentTranslation')
@@ -88,7 +88,7 @@ const TranslateScreen: React.FC = () => {
       navigation.navigate('OralPractice')
     } else if (name === 'OnlineCall') {
       show({
-        message: '即将上线'
+        message: t('translate_screen.coming_soon')
       })
     }
     // setLoading(true)
@@ -277,7 +277,19 @@ const TranslateScreen: React.FC = () => {
               scrollRef.current?.scrollToFocusedInput(textInputRef.current!);
             }}
           />
-          <View style={{alignItems: 'flex-end'}}>
+          <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end'}}>
+            {
+              inputValue &&
+              <TouchableOpacity
+                style={styles.cleanInputBtn}
+                onPress={() => setInputValue('')}
+              >
+                <Text style={styles.cleanInputBtnText}>
+                  {t('translate_screen.input_clean_btn')}
+                </Text>
+              </TouchableOpacity>
+            }
+            
             <TouchableOpacity onPress={copyText} style={!inputValue && styles.disabledCopy}>
               <Image source={require('../../../../assets/images/ListeningScreen_Copy.png')} style={styles.copyImg}/>
             </TouchableOpacity>
@@ -348,12 +360,12 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   headerTitle: {
-    fontSize: 23,
+    fontSize: scaleFont(6.5),
     fontWeight: 'bold',
     color: '#222',
   },
   headerDesc: {
-    fontSize: scaleFont(10),
+    fontSize: scaleFont(3.8),
     color: '#222',
     marginTop: scaleSize(6),
     lineHeight: scaleSize(18),
@@ -363,7 +375,7 @@ const styles = StyleSheet.create({
     height: 22,
   },
   sectionTitle: {
-    fontSize: 18,
+    fontSize: scaleFont(5.2),
     fontWeight: '500',
     color: '#fff',
     marginTop: 24,
@@ -391,8 +403,8 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   iconSpeaker: {
-    width: 50,
-    height: 50,
+    width: '96%',
+    height: '96%',
   },
   toolsRowNoBg: {
     flexDirection: 'row',
@@ -424,14 +436,14 @@ const styles = StyleSheet.create({
   },
   toolTextNoBg: {
     color: '#999999',
-    fontSize: 16,
+    fontSize: scaleFont(4.6),
     textAlign: 'center',
     marginTop: 6,
     fontWeight: '500',
   },
   iconDocNoBg: {
-    width: 48,
-    height: 48,
+    width: scaleSize(40),
+    height: scaleSize(40),
   },
   langRow: {
     flexDirection: 'row',
@@ -482,21 +494,33 @@ const styles = StyleSheet.create({
   },
   voiceInputTextInput: {
     color: '#ccc',
-    height: 100,
-    fontSize: 15,
-    minHeight: 40,
+    height: scaleSize(90),
+    fontSize: scaleFont(4.7),
+    minHeight: scaleSize(40),
     padding: 0,
     margin: 0,
     backgroundColor: 'transparent',
     textAlignVertical: 'top',
+  },
+  cleanInputBtn: {
+    backgroundColor: '#a9a9aeff',
+    paddingHorizontal: scaleSize(8),
+    borderRadius: scaleSize(6),
+    marginRight: scaleSize(16),
+    height: scaleSize(20),
+  },
+  cleanInputBtnText: {
+    color: '#232325',
+    fontSize: scaleFont(4),
+    lineHeight: scaleSize(20),
   },
   disabledCopy: {
     opacity: 0.5,
     pointerEvents: 'none',
   },
   copyImg: {
-    width: 20,
-    height: 20,
+    width: scaleSize(20),
+    height: scaleSize(20),
   },
   modeGridBox: {
     flexDirection: 'row',
@@ -517,9 +541,9 @@ const styles = StyleSheet.create({
     padding: 12,
   },
   modeIconBox: {
-    width: 56,
-    height: 56,
-    borderRadius: 16,
+    width: scaleSize(40),
+    height: scaleSize(40),
+    borderRadius: scaleSize(12),
     backgroundColor: '#333333',
     alignItems: 'center',
     justifyContent: 'center',
@@ -527,7 +551,7 @@ const styles = StyleSheet.create({
   },
   modeCardText: {
     color: '#fff',
-    fontSize: 16,
+    fontSize: scaleFont(5),
     fontWeight: '500',
     // textAlign: 'center',
     marginBottom: 2,
@@ -539,16 +563,16 @@ const styles = StyleSheet.create({
   },
   
   langQuickBtnNew: {
-    width: 64,
-    height: 64,
+    width: scaleSize(52),
+    height: scaleSize(52),
     backgroundColor: '#333333',
     borderRadius: 14,
     alignItems: 'center',
     justifyContent: 'center',
   },
   iconQuickLangNew: {
-    width: 32,
-    height: 32,
+    width: '56%',
+    height: '56%',
   },
 });
 

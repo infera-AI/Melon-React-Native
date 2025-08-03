@@ -3,6 +3,7 @@ import { View, TouchableOpacity, Image, StyleSheet, Keyboard } from 'react-nativ
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import EStyleSheet from 'react-native-extended-stylesheet';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { scaleSize, scaleFont } from '@/utils/scale';
 
 const tabMenuData: any = {
   Translate: {
@@ -90,7 +91,7 @@ const CustomTabBar = ({
 };
 
 const menuImgSize = 28
-const containerPaddLR = 38
+const containerPaddLR = 50
 
 const styles = EStyleSheet.create({
   outContainer: {
@@ -101,13 +102,13 @@ const styles = EStyleSheet.create({
     marginTop: 16,
     marginLeft: 16,
     flexDirection: 'row',
-    height: 56,
+    height: scaleSize(56),
     backgroundColor: '#262626',
-    borderRadius: 12,
+    borderRadius: scaleSize(12),
     alignItems: 'center',
     justifyContent: 'center',
-    paddingLeft: containerPaddLR,
-    paddingRight: containerPaddLR,
+    paddingLeft: scaleSize(containerPaddLR),
+    paddingRight: scaleSize(containerPaddLR),
   },
   tab: {
     flex: 1,
@@ -115,8 +116,8 @@ const styles = EStyleSheet.create({
     alignItems: 'center',
   },
   menuImg: {
-    width: menuImgSize,
-    height: menuImgSize,
+    width: scaleSize(menuImgSize),
+    height: scaleSize(menuImgSize),
     resizeMode: 'contain',
   },
 });
