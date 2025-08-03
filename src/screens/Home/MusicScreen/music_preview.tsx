@@ -111,7 +111,7 @@ const MusicPreviewScreen: React.FC<{route: RouteProp<MusicStackParamList, 'Music
       console.log(music,'music')
       setSelectedMusic(music);
       // handlePlayAudio(music.url);
-      navigation.navigate('MusicPlay',{music:music});
+      navigation.navigate('MusicPlay',{music:music,songs:songs});
     }
 
     const getDuration = async (url:string) => {
@@ -150,6 +150,14 @@ const MusicPreviewScreen: React.FC<{route: RouteProp<MusicStackParamList, 'Music
         show({message:t('music.save_failed')})
       }finally{
         setIsLoading(false);
+      }
+    }
+    //切换歌曲
+    const handleSwitchMusic = (type:string) => {
+      if(type==='prev'){
+        setSelectedMusic(songs[selectedMusic.id-1]);
+      }else{
+        setSelectedMusic(songs[selectedMusic.id+1]);
       }
     }
 
@@ -220,7 +228,7 @@ const MusicPreviewScreen: React.FC<{route: RouteProp<MusicStackParamList, 'Music
         onPress={handleSaveMusic}
         activeOpacity={0.7}
       >
-        <Text style={styles.okBtnText}>{t('music.ok')}</Text>
+        <Text style={styles.okBtnText}>{t('music.save_all')}</Text>
       </TouchableOpacity>
       </ScrollView>
       <FullScreenLoader visible={isLoading} />

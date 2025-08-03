@@ -33,6 +33,7 @@
   "music": {
     "my_works": "My Works",
     "search_placeholder": "Search....",
+    "search_results": "Search results",
     "no_works_found": "No works found",
     "lyrics": "Lyrics",
     "write_lyrics": "Write Lyrics",
@@ -167,7 +168,8 @@
     "click_to_start_recording": "Click to start recording",
     "the_band_is_playing": "The band is playing",
     "back_to_homepage": "Back to homepage",
-    "pre_filled_based_on_humming_tone": "Pre-filled based on user's humming tone"
+    "pre_filled_based_on_humming_tone": "Pre-filled based on user's humming tone",
+    "save_all": "Save All"
   },
   "profile_screen": "Profile Screen",
   "select_language": "Select Language",

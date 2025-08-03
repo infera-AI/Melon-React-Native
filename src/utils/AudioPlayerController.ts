@@ -20,41 +20,61 @@ export class AudioDurationManager {
       console.log('音频时长获取成功:', duration, '秒');
       return duration;
     } catch (error) {
-      console.error('获取音频时长失败:', error);
-      return 0;
+      console.error('FFmpeg获取音频时长失败，尝试使用Sound:', error);
+      try {
+        const duration = await this.getDurationWithSound(audioUrl);
+        this.cache.set(audioUrl, duration);
+        console.log('Sound音频时长获取成功:', duration, '秒');
+        return duration;
+      } catch (soundError) {
+        console.error('Sound获取音频时长也失败:', soundError);
+        return 0;
+      }
     }
   }
   
   private static async getDurationWithFFmpeg(audioUrl: string): Promise<number> {
     try {
-      const result = await FFmpegKit.execute(`-i "${audioUrl}" -f null - 2>&1`);
-      const output = await result.getOutput();
+      // 清理文件路径，移除多余的斜杠
+      const cleanUrl = audioUrl.replace(/\/+/g, '/');
+      console.log('清理后的文件路径:', cleanUrl);
       
+      // 使用更简单的FFmpeg命令来获取时长
+      const command = `-i "${cleanUrl}" -show_entries format=duration -v quiet -of csv="p=0"`;
+      console.log('FFmpeg命令:', command);
+      
+      const result = await FFmpegKit.execute(command);
+      const output = await result.getOutput();
+      const returnCode = await result.getReturnCode();
+      
+      console.log('FFmpeg返回码:', returnCode);
       console.log('FFmpeg输出:', output);
       
-      // 尝试多种时长格式匹配
-      const durationMatch = output.match(/Duration: (\d{2}):(\d{2}):(\d{2})\.(\d{2})/);
-      if (durationMatch) {
-        const hours = parseInt(durationMatch[1]);
-        const minutes = parseInt(durationMatch[2]);
-        const seconds = parseInt(durationMatch[3]);
-        const centiseconds = parseInt(durationMatch[4]);
-        
-        const duration = hours * 3600 + minutes * 60 + seconds + centiseconds / 100;
-        console.log('解析到的时长:', duration, '秒');
-        return duration;
+      // 检查是否成功
+      if (returnCode.isValueSuccess() && output.trim()) {
+        const duration = parseFloat(output.trim());
+        if (!isNaN(duration) && duration > 0) {
+          console.log('解析到的时长:', duration, '秒');
+          return duration;
+        }
       }
       
-      // 尝试其他格式
-      const durationMatch2 = output.match(/Duration: (\d{2}):(\d{2}):(\d{2})/);
-      if (durationMatch2) {
-        const hours = parseInt(durationMatch2[1]);
-        const minutes = parseInt(durationMatch2[2]);
-        const seconds = parseInt(durationMatch2[3]);
-        
-        const duration = hours * 3600 + minutes * 60 + seconds;
-        console.log('解析到的时长(无毫秒):', duration, '秒');
-        return duration;
+      // 如果上面的方法失败，尝试使用probe命令
+      console.log('尝试使用probe命令...');
+      const probeCommand = `-i "${cleanUrl}" -show_entries format=duration -v quiet -of csv="p=0"`;
+      const probeResult = await FFmpegKit.execute(probeCommand);
+      const probeOutput = await probeResult.getOutput();
+      const probeReturnCode = await probeResult.getReturnCode();
+      
+      console.log('Probe返回码:', probeReturnCode);
+      console.log('Probe输出:', probeOutput);
+      
+      if (probeReturnCode.isValueSuccess() && probeOutput.trim()) {
+        const duration = parseFloat(probeOutput.trim());
+        if (!isNaN(duration) && duration > 0) {
+          console.log('Probe解析到的时长:', duration, '秒');
+          return duration;
+        }
       }
       
       console.error('无法从FFmpeg输出中解析时长，输出内容:', output);
@@ -64,9 +84,41 @@ export class AudioDurationManager {
       throw error;
     }
   }
+
+  private static async getDurationWithSound(audioUrl: string): Promise<number> {
+    return new Promise((resolve, reject) => {
+      const sound = new Sound(audioUrl, (error) => {
+        if (error) {
+          console.error('Sound加载失败:', error);
+          reject(error);
+          return;
+        }
+        
+        const duration = sound.getDuration();
+        console.log('Sound获取到的时长:', duration, '秒');
+        sound.release();
+        resolve(duration);
+      });
+    });
+  }
   
   static clearCache() {
     this.cache.clear();
+  }
+  
+  // 测试音频时长获取功能
+  static async testGetDuration(audioUrl: string): Promise<void> {
+    console.log('=== 测试音频时长获取功能 ===');
+    console.log('音频URL:', audioUrl);
+    
+    try {
+      const duration = await this.getDuration(audioUrl);
+      console.log('✅ 音频时长获取成功:', duration, '秒');
+    } catch (error) {
+      console.error('❌ 音频时长获取失败:', error);
+    }
+    
+    console.log('=== 测试结束 ===');
   }
 }
 

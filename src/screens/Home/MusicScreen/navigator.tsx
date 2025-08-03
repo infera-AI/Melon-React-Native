@@ -13,13 +13,13 @@ import MyWorkMusicPlay from './MyWorkMusicPlay';
 export type MusicStackParamList = {
   MusicMain: undefined;
   MyWork: undefined;
-  MusicPlay: {music: any};
+  MusicPlay: {music: any,songs:any};
   HummingMusic: undefined;
   MusicEdit: undefined;
   MusicEditHumming: {uri: string,duration: number};
   MusicPreview: {music: any};
   GeneratingMusic: undefined;
-  MyWorkMusicPlay: {music: any};
+  MyWorkMusicPlay: {music: any,myWorkIds:number[]};
 };
 
 const Stack = createNativeStackNavigator<MusicStackParamList>();

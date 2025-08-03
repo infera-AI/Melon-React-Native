@@ -178,7 +178,7 @@ const MusicEditHummingScreen: React.FC<{route: any}> = ({route}) => {
     } catch (error: any) {
       console.log(error);
       show({
-        message: 'Failed to polish lyrics'+error.message || 'Unknown error',
+        message: t('music.polish_lyrics_failed') + (error.message || t('common.unknown_error')),
       });
     }
     setIsLoading(false);
@@ -187,13 +187,13 @@ const MusicEditHummingScreen: React.FC<{route: any}> = ({route}) => {
   const handleNext = () => {
     if(lyrics.trim() === ""){
       show({
-        message: 'Please enter the lyrics',
+        message: t('music.lyrics_empty'),
       });
       return;
     }
     if(selectedStyles.length === 0){
       show({
-        message: 'Please select the music style',
+        message: t('music.select_music_style_empty'),
       });
       return;
     }
@@ -232,7 +232,7 @@ const MusicEditHummingScreen: React.FC<{route: any}> = ({route}) => {
     } catch (error:any) {
       console.log(error);
       show({
-        message: 'Failed to translate lyrics'+error.message || 'Unknown error',
+        message: t('music.translate_lyrics_failed') + (error.message || t('common.unknown_error')),
       });
     }finally{
       setIsLoading(false);

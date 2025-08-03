@@ -33,6 +33,7 @@
   "music": {
     "my_works": "我的作品",
     "search_placeholder": "搜索....",
+    "search_results": "搜索结果",
     "no_works_found": "未找到作品",
     "lyrics": "歌词",
     "write_lyrics": "写歌词",
@@ -167,7 +168,8 @@
     "click_to_start_recording": "点击开始录制",
     "the_band_is_playing": "乐队正在演奏",
     "back_to_homepage": "返回首页",
-    "pre_filled_based_on_humming_tone": "根据用户哼唱音调预填充"
+    "pre_filled_based_on_humming_tone": "根据用户哼唱音调预填充",
+    "save_all": "保存全部"
   },
   "profile_screen": "个人资料页面",
   "select_language": "选择语言",
