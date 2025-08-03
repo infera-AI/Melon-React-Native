@@ -46,6 +46,8 @@ interface Music {
 
 const MyWorkScreen = ({ navigation }: any) => {
   const [myWorks, setMyWorks] = useState<Music[]>([]);
+  const [filteredWorks, setFilteredWorks] = useState<Music[]>([]);
+  const [searchText, setSearchText] = useState('');
   const [isPlaying, setIsPlaying] = useState(false);
   const [duration, setDuration] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
@@ -90,6 +92,7 @@ const MyWorkScreen = ({ navigation }: any) => {
     try {
       const response = await getMusicWorks();
       setMyWorks(transformMyWorks(response.works));
+      setFilteredWorks(transformMyWorks(response.works)); // 初始化过滤后的作品
     } catch (error) {
       console.error('Error fetching my works:', error);
       return [];
@@ -110,6 +113,50 @@ const MyWorkScreen = ({ navigation }: any) => {
       playing: false,
     }));
   }
+
+  // 搜索功能
+  const handleSearch = (text: string) => {
+    setSearchText(text);
+    if (text.trim() === '') {
+      setFilteredWorks(myWorks);
+    } else {
+      const filtered = myWorks.filter((work: Music) => {
+        const searchLower = text.toLowerCase();
+        return (
+          work.title?.toLowerCase().includes(searchLower) ||
+          (Array.isArray(work.genres) && work.genres.some((genre: string) => 
+            genre.toLowerCase().includes(searchLower)
+          ))
+        );
+      });
+      setFilteredWorks(filtered);
+    }
+  };
+
+  // 清除搜索
+  const clearSearch = () => {
+    setSearchText('');
+    setFilteredWorks(myWorks);
+  };
+
+  // 当 myWorks 更新时，同步更新 filteredWorks
+  useEffect(() => {
+    if (searchText.trim() === '') {
+      setFilteredWorks(myWorks);
+    } else {
+      const filtered = myWorks.filter((work: Music) => {
+        const searchLower = searchText.toLowerCase();
+        return (
+          work.title.toLowerCase().includes(searchLower) ||
+          (Array.isArray(work.genres) && work.genres.some((genre: string) => 
+            genre.toLowerCase().includes(searchLower)
+          ))
+        );
+      });
+      setFilteredWorks(filtered);
+    }
+  }, [myWorks, searchText]);
+
   // 播放音乐
   const handlePlayAudio = async (music: Music) => {
     if (!music.url) {
@@ -287,6 +334,17 @@ const MyWorkScreen = ({ navigation }: any) => {
         return item;
       });
       setMyWorks([...playWors]);
+      
+      // 同时更新 filteredWorks
+      const filteredPlayWorks = filteredWorks.map((item: Music) => {
+        if (item.url === isPlayMusic) {
+          item.playing = true;
+        } else {
+          item.playing = false;
+        }
+        return item;
+      });
+      setFilteredWorks([...filteredPlayWorks]);
     }
   }, [isPlayMusic,sound]);
 
@@ -315,21 +373,37 @@ const MyWorkScreen = ({ navigation }: any) => {
       <View style={styles.searchBox}>
         <Image source={require('@/assets/music/music_search_icon.png')} style={styles.searchIcon} resizeMode="contain" />
         <TextInput
-  
           style={styles.searchInput}
           placeholder={t('music.search_placeholder')}
           placeholderTextColor="#888"
+          value={searchText}
+          onChangeText={handleSearch}
+          onSubmitEditing={clearSearch}
         />
+        {searchText.length > 0 && (
+          <TouchableOpacity onPress={clearSearch} style={styles.clearSearchBtn}>
+            <Text style={styles.clearSearchText}>✕</Text>
+          </TouchableOpacity>
+        )}
       </View>
+
+      {/* Search Results Info */}
+      {/* {searchText.length > 0 && (
+        <View style={styles.searchInfo}>
+          <Text style={styles.searchInfoText}>
+            {`${t('music.search_results')} ${filteredWorks.length}/${myWorks.length}`}
+          </Text>
+        </View>
+      )} */}
 
       {/* List */}
       <FlatList
-        data={myWorks}
+        data={filteredWorks}
         keyExtractor={item => item.id.toString()}
         renderItem={({ item }: { item: Music }) => (
           <TouchableOpacity
             style={styles.itemCard}
-            onPress={() => navigation.navigate('MyWorkMusicPlay', { music: item })}
+            onPress={() => navigation.navigate('MyWorkMusicPlay', { music: item ,myWorkIds:myWorks.map((item:Music)=>item.id)})}
           >
             <Image source={{ uri: item.cover }} style={styles.avatar} />
             <View style={styles.itemInfo}>
@@ -408,22 +482,41 @@ const styles = StyleSheet.create({
     paddingHorizontal: normalize(12),
     paddingVertical: normalize(6),
     justifyContent:'center',
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   searchIcon: {
     width: normalize(20),
     height: normalize(20),
     marginRight: normalize(10),
-    position:'absolute',
-    left:normalize(12),
-    top:normalize(12),
   },
   searchInput: {
     color: '#fff',
     height:normalize(48),
     paddingVertical:normalize(4),
     fontSize: normalizeFontSize(15),
-    marginLeft:normalize(26),
-    backgroundColor:'#222',
+    backgroundColor:'transparent',
+    flex: 1,
+  },
+  clearSearchBtn: {
+    padding: normalize(8),
+    marginLeft: normalize(8),
+  },
+  clearSearchText: {
+    color: '#888',
+    fontSize: normalizeFontSize(18),
+  },
+  searchInfo: {
+    backgroundColor: '#222',
+    paddingVertical: normalize(8),
+    paddingHorizontal: normalize(16),
+    marginHorizontal: normalize(16),
+    marginBottom: normalize(14),
+    borderRadius: normalize(12),
+  },
+  searchInfoText: {
+    color: '#aaa',
+    fontSize: normalizeFontSize(13),
   },
   itemCard: {
     flexDirection: 'row',

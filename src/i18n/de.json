@@ -13,6 +13,7 @@
   "music": {
     "my_works": "Meine Werke",
     "search_placeholder": "Suchen....",
+    "search_results": "Suchergebnisse",
     "no_works_found": "Keine Werke gefunden",
     "lyrics": "Liedtexte",
     "write_lyrics": "Liedtexte schreiben",
@@ -147,7 +148,8 @@
     "click_to_start_recording": "Klicken Sie zum Starten der Aufnahme",
     "the_band_is_playing": "Die Band spielt",
     "back_to_homepage": "Zurück zur Startseite",
-    "pre_filled_based_on_humming_tone": "Vorausgefüllt basierend auf dem Summton des Benutzers"
+    "pre_filled_based_on_humming_tone": "Vorausgefüllt basierend auf dem Summton des Benutzers",
+    "save_all": "Alle speichern"
   },
   "profile_screen": "Profilseite",
   "select_language": "Sprache auswählen",

@@ -9,17 +9,15 @@ import {
   FlatList,
   Modal,
   Pressable,
-  TextInput,
 } from "react-native";
 import { useFocusEffect } from '@react-navigation/native';
-import Slider from "@react-native-community/slider";
-import Clipboard from "@react-native-clipboard/clipboard";
-import { saveMusicWork } from "@/api/music";
 import Sound from "react-native-sound";
 import { useMessageModal } from "@/contexts/MessageModalContext";
 import { AudioDurationManager } from '@/utils/AudioPlayerController';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { theme } from "@/utils/theme";
+import Slider from "@react-native-community/slider";
+import Clipboard from "@react-native-clipboard/clipboard";
+import theme from "@/utils/theme";
 
 // 控制按钮图片资源
 const img_last_song = require("../../../../assets/images/last_song.png");
@@ -28,7 +26,6 @@ const img_play_btn = require("../../../../assets/images/music_play.png");
 const img_pause_btn = require("../../../../assets/images/music_pause.png");
 const img_music_share = require("../../../../assets/images/music_share.png");
 const img_music_back_btn = require("../../../../assets/images/music_back_btn.png");
-const img_music_save = require("@/assets/music/music_save_icon.png");
 
 const { width } = Dimensions.get("window");
 
@@ -45,7 +42,7 @@ const normalizeFontSize = (size: number) => {
 };
 
 const MusicPlayScreen = ({ navigation, route }: any) => {
-  const { music={} } = route.params;
+  const { music={} ,songs=[]} = route.params;
   const [sound, setSound] = useState<Sound | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -54,6 +51,7 @@ const MusicPlayScreen = ({ navigation, route }: any) => {
   const { show } = useMessageModal();
   const lyricScrollRef = useRef<FlatList<any>>(null);
   const progressInterval = useRef<NodeJS.Timeout | null>(null);
+  const [currentMusic, setCurrentMusic] = useState<any>(music);
   const { t } = useLanguage();
 
   // 清理音频相关数据
@@ -103,8 +101,8 @@ const MusicPlayScreen = ({ navigation, route }: any) => {
   // 解析歌词数据 - 支持新的work_lyrics格式
   const lyricArr = React.useMemo(() => {
     // 如果music.lyrics是work_lyrics格式
-    if (music.lyrics && Array.isArray(music.lyrics)) {
-      const lyricsData = music.lyrics; // 取第一个语言版本
+    if (currentMusic.lyrics && Array.isArray(currentMusic.lyrics)) {
+      const lyricsData = currentMusic.lyrics; // 取第一个语言版本
       return lyricsData.map((item: any) => {
 
         const [startTime, endTime, text] = item;
@@ -116,11 +114,11 @@ const MusicPlayScreen = ({ navigation, route }: any) => {
       });
     }
     return []
-  }, [music.lyrics]);
+  }, [currentMusic.lyrics]);
 
   // 播放音乐
   const handlePlayAudio = () => {
-    if (!music.url) {
+    if (!currentMusic.url) {
       show({ message: t('music.no_audio_available') });
       return;
     }
@@ -133,7 +131,7 @@ const MusicPlayScreen = ({ navigation, route }: any) => {
     }
 
     // 创建新的音频实例
-    const newSound = new (Sound as any)(music.url, (error: any) => {
+    const newSound = new (Sound as any)(currentMusic.url, (error: any) => {
       if (error) {
         console.log('Failed to load audio:', error);
         show({ message: t('music.failed_to_load_audio') });
@@ -167,15 +165,19 @@ const MusicPlayScreen = ({ navigation, route }: any) => {
   };
 
   const fetchDuration = useCallback(async () => {
-    console.log('开始获取音频时长，URI:', music.url);
+    console.log('开始获取音频时长，URI:', currentMusic.url);
     try {
-      const durationTime = await AudioDurationManager.getDuration(music.url);
+      const durationTime = await AudioDurationManager.getDuration(currentMusic.url);
       console.log(durationTime,'durationTime')
       setDuration(durationTime);
     } catch (error) {
       console.log(error,'error')
     }
-  }, [music.url]);
+  }, [currentMusic.url]);
+
+  useEffect(() => {
+    fetchDuration();
+  }, [fetchDuration]);
 
   // 播放/暂停
   const handlePlayPause = () => {
@@ -266,64 +268,44 @@ const MusicPlayScreen = ({ navigation, route }: any) => {
     }, [])
   );
 
-  useEffect(() => {
-    fetchDuration();
-  }, []);
-
-  // 保存歌曲
-  const handleSaveMusic = async () => {
-    try {
-      const res = await saveMusicWork({
-        task_id: music.taskId,
-        music_index_list: [music.id],
-      });
-      show({message:t('music.save_success')})
-      navigation.navigate('MyWork' as any);
-    } catch (error) {
-      show({message:t('music.save_failed')})
-    }
-  };
-
-  // 监听播放进度
-  useEffect(() => {
-    if (isPlaying && sound && !isSliding) {
-      progressInterval.current = setInterval(() => {
-        sound.getCurrentTime((seconds) => {
-          setCurrentTime(seconds);
-        });
-      }, 100);
-    } else {
-      if (progressInterval.current) {
-        clearInterval(progressInterval.current);
-      }
-    }
-
-    return () => {
-      if (progressInterval.current) {
-        clearInterval(progressInterval.current);
-      }
-    };
-  }, [isPlaying, sound, isSliding]);
-
-  // 自动滚动歌词
-  useEffect(() => {
-    if (lyricScrollRef.current && lyricArr.length > 0) {
-      // 找到当前应该高亮的歌词行
-      let activeIndex = 0;
-      for (let i = 0; i < lyricArr.length; i++) {
-        if (currentTime >= lyricArr[i].startTime) {
-          activeIndex = i;
-        }
-      }
-
-      // 滚动到当前歌词行
-      lyricScrollRef.current.scrollToIndex({
-        index: Math.max(0, activeIndex - 2), // 提前2行显示
-        animated: true,
-        viewPosition: 0.3, // 在屏幕30%位置显示
-      });
-    }
-  }, [currentTime, lyricArr]);
+  //切换歌曲
+ const handleSwitchMusic = (type:string) => {
+  // 记录当前是否正在播放
+  const wasPlaying = isPlaying;
+  
+  // 停止当前播放
+  if (sound) {
+    sound.stop();
+    sound.release();
+    setSound(null);
+  }
+  setIsPlaying(false);
+  setCurrentTime(0);
+  
+  // 清除进度监听
+  if (progressInterval.current) {
+    clearInterval(progressInterval.current);
+  }
+  
+  // 切换歌曲
+  if(type==='prev'){
+    const index = songs.findIndex((item:any)=>item.id===currentMusic.id);
+    const newIndex = index-1<0?songs.length-1:index-1;
+    setCurrentMusic(songs[newIndex]);
+  }else{
+    const index = songs.findIndex((item:any)=>item.id===currentMusic.id);
+    const newIndex = index+1>songs.length-1?0:index+1;
+    setCurrentMusic(songs[newIndex]);
+  }
+  
+  // 如果之前正在播放，则自动播放新歌曲
+  if (wasPlaying) {
+    // 等待一下让新的音乐信息加载完成
+    setTimeout(() => {
+      handlePlayAudio();
+    }, 100);
+  }
+}
 
   return (
     <View style={styles.container}>
@@ -343,7 +325,7 @@ const MusicPlayScreen = ({ navigation, route }: any) => {
       {/* Info Card */}
       <View style={styles.infoCard}>
         <View style={styles.avatarBox}>
-          <Image source={{ uri: music.cover }} style={styles.avatar} />
+          <Image source={{ uri: currentMusic.cover }} style={styles.avatar} />
         </View>
         <View style={styles.infoMain}>
           <View style={styles.infoHeaderRow}>
@@ -352,14 +334,14 @@ const MusicPlayScreen = ({ navigation, route }: any) => {
               numberOfLines={1}
               ellipsizeMode="tail"
             >
-              {music.title}
+              {currentMusic.title}
             </Text>
             <Text
               style={styles.tags}
               numberOfLines={1}
               ellipsizeMode="tail"
             >
-              {music.genres?.join(", ")}
+              {currentMusic.genres?.join(", ")}
             </Text>
           </View>
         </View>
@@ -458,7 +440,7 @@ const MusicPlayScreen = ({ navigation, route }: any) => {
 
       {/* 播放控制 */}
       <View style={styles.controlRow}>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={()=>handleSwitchMusic('prev')}>
           <Image source={img_last_song} style={styles.controlImg} />
         </TouchableOpacity>
         <TouchableOpacity onPress={handlePlayPause}>
@@ -467,7 +449,7 @@ const MusicPlayScreen = ({ navigation, route }: any) => {
             style={styles.playImg}
           />
         </TouchableOpacity>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={()=>handleSwitchMusic('next')}>
           <Image source={img_next_song} style={styles.controlImg} />
         </TouchableOpacity>
       </View>
@@ -484,7 +466,7 @@ const MusicPlayScreen = ({ navigation, route }: any) => {
           <Pressable style={styles.blurMask} onPress={() => setShowDeleteModal(false)} />
           {/* 底部弹窗 */}
           <View style={styles.bottomModal}>
-            <Text style={styles.modalTitle}>{t('music.delete')} {music.title}</Text>
+            <Text style={styles.modalTitle}>{t('music.delete')} {currentMusic.title}</Text>
             <View style={styles.modalBtnRow}>
               <TouchableOpacity
                 style={styles.cancelBtn}
@@ -517,17 +499,17 @@ const MusicPlayScreen = ({ navigation, route }: any) => {
           <Pressable style={styles.blurMask} onPress={() => setShowShareModal(false)} />
           <View style={styles.bottomModal}>
             <Text style={styles.modalTitle}>
-              {t('music.share')} {music.title}
+              {t('music.share')} {currentMusic.title}
             </Text>
-            <Text style={styles.shareLink}>{music.url}</Text>
+            <Text style={styles.shareLink}>{currentMusic.url}</Text>
             <TouchableOpacity
               style={styles.copyBtn}
               onPress={() => {
                 show({
-                  title: '复制成功',
-                  message: '链接已复制到剪贴板',
+                  title: t('common.copy_success'),
+                  message: t('common.link_copied_to_clipboard'),
                 });
-                Clipboard.setString(music.url);
+                Clipboard.setString(currentMusic.url);
                 setShowShareModal(false)
               }}
             >

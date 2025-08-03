@@ -52,7 +52,7 @@ const MusicScreen: React.FC = () => {
     } catch (error: any) {
       console.log(error);
       show({
-        message: t('music.polish_lyrics_failed') + (error.message || 'Unknown error'),
+        message: t('music.polish_lyrics_failed') + (error.message || t('common.unknown_error')),
       });
     }
     setIsLoading(false);
@@ -68,7 +68,7 @@ const MusicScreen: React.FC = () => {
       setMusicStyles(res.work_genres)
     } catch (error: any) {
       show({
-        message: t('music.get_recommend_styles_failed') + (error.message || 'Unknown error'),
+        message: t('music.get_recommend_styles_failed') + (error.message || t('common.unknown_error')),
       });
     }
   };

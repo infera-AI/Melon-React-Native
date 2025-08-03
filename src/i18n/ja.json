@@ -13,6 +13,7 @@
   "music": {
     "my_works": "マイ作品",
     "search_placeholder": "検索....",
+    "search_results": "検索結果",
     "no_works_found": "作品が見つかりません",
     "lyrics": "歌詞",
     "write_lyrics": "歌詞を書く",
@@ -147,7 +148,8 @@
     "click_to_start_recording": "クリックして録音開始",
     "the_band_is_playing": "バンドが演奏中",
     "back_to_homepage": "ホームページに戻る",
-    "pre_filled_based_on_humming_tone": "ユーザーのハミングトーンに基づいて事前入力"
+    "pre_filled_based_on_humming_tone": "ユーザーのハミングトーンに基づいて事前入力",
+    "save_all": "すべて保存"
   },
   "profile_screen": "プロフィール画面",
   "select_language": "言語を選択",

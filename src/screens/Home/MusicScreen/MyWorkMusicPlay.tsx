@@ -12,15 +12,14 @@ import {
   TextInput,
 } from "react-native";
 import { useFocusEffect } from '@react-navigation/native';
-import Slider from "@react-native-community/slider";
-import Clipboard from "@react-native-clipboard/clipboard";
-import { saveMusicWork } from "@/api/music";
 import Sound from "react-native-sound";
 import { useMessageModal } from "@/contexts/MessageModalContext";
 import { AudioDurationManager } from '@/utils/AudioPlayerController';
-import theme from "@/utils/theme";
 import { deleteMusicWork, getMusicWorkInfo, modifyMusicTitle } from "@/api/music/music";
 import { useLanguage } from '@/contexts/LanguageContext';
+import Slider from "@react-native-community/slider";
+import Clipboard from "@react-native-clipboard/clipboard";
+import theme from "@/utils/theme";
 
 type Music = {
   id: number;
@@ -57,7 +56,7 @@ const normalizeFontSize = (size: number) => {
 };
 
 const MyWorkMusicPlay = ({ navigation, route }: any) => {
-  const { music={} } = route.params;
+  const { music={},myWorkIds=[] } = route.params;
   const [sound, setSound] = useState<Sound | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -66,8 +65,12 @@ const MyWorkMusicPlay = ({ navigation, route }: any) => {
   const { show } = useMessageModal();
   const lyricScrollRef = useRef<FlatList<any>>(null);
   const progressInterval = useRef<NodeJS.Timeout | null>(null);
-  const [musicInfo, setMusicInfo] = useState<Music>({} as Music);
+  const [musicInfo, setMusicInfo] = useState<Music>(music as Music);
+  const [currentMusicIndex, setCurrentMusicIndex] = useState(myWorkIds.indexOf(music.id));
   const { t } = useLanguage();
+  
+  // 防抖状态
+  const [isSwitching, setIsSwitching] = useState(false);
 
   // 清理音频相关数据
   const cleanupAudioData = useCallback(() => {
@@ -142,6 +145,8 @@ const MyWorkMusicPlay = ({ navigation, route }: any) => {
       return;
     }
 
+    console.log('开始播放音乐:', musicInfo.title, 'URL:', musicInfo.url);
+
     // 停止当前播放的音频
     if (sound) {
       sound.stop();
@@ -170,6 +175,7 @@ const MyWorkMusicPlay = ({ navigation, route }: any) => {
         } else {
           console.log('Audio playback failed');
         }
+        // 播放完成后重置状态
         setIsPlaying(false);
         setCurrentTime(0);
         // 播放完成后释放音频实例
@@ -184,15 +190,26 @@ const MyWorkMusicPlay = ({ navigation, route }: any) => {
   };
 
   const fetchDuration = useCallback(async () => {
+    if (!musicInfo.url) {
+      console.log('musicInfo.url 为空，跳过获取时长');
+      return;
+    }
     console.log('开始获取音频时长，URI:', musicInfo.url);
     try {
       const durationTime = await AudioDurationManager.getDuration(musicInfo.url);
-      console.log(durationTime,'durationTime')
+      console.log('获取到的时长:', durationTime, '秒');
       setDuration(durationTime);
     } catch (error) {
-      console.log(error,'error')
+      console.log('获取音频时长失败:', error);
     }
   }, [musicInfo.url]);
+
+  // 当musicInfo更新时获取时长
+  useEffect(() => {
+    if (musicInfo.url) {
+      fetchDuration();
+    }
+  }, [musicInfo.url, fetchDuration]);
 
   // 播放/暂停
   const handlePlayPause = () => {
@@ -216,6 +233,16 @@ const MyWorkMusicPlay = ({ navigation, route }: any) => {
       progressInterval.current = setInterval(() => {
         sound.getCurrentTime((seconds) => {
           setCurrentTime(seconds);
+          
+          // 检查是否播放完成
+          if (seconds >= duration && duration > 0) {
+            console.log('检测到播放完成，重置状态');
+            setIsPlaying(false);
+            setCurrentTime(0);
+            if (progressInterval.current) {
+              clearInterval(progressInterval.current);
+            }
+          }
         });
       }, 100);
     } else {
@@ -229,7 +256,7 @@ const MyWorkMusicPlay = ({ navigation, route }: any) => {
         clearInterval(progressInterval.current);
       }
     };
-  }, [isPlaying, sound, isSliding]);
+  }, [isPlaying, sound, isSliding, duration]);
 
   // 获取当前高亮的歌词索引
   const getActiveLyricIndex = useCallback(() => {
@@ -282,10 +309,6 @@ const MyWorkMusicPlay = ({ navigation, route }: any) => {
     }, [cleanupAudioData])
   );
 
-  useEffect(() => {
-    fetchDuration();
-  }, []);
-
  
   // 编辑歌曲名
   const handleEditTitle = async () => {
@@ -294,7 +317,7 @@ const MyWorkMusicPlay = ({ navigation, route }: any) => {
       return;
     }
     try {
-      const res = await modifyMusicTitle({
+      await modifyMusicTitle({
         work_id: music.id,
         work_title: editTitle,
       })
@@ -307,14 +330,91 @@ const MyWorkMusicPlay = ({ navigation, route }: any) => {
     }
   };
 
+  // 切换歌曲
+  const handleSwitchMusic = async (type:string) => {
+    // 防抖：如果正在切换中，则忽略此次点击
+    if (isSwitching) {
+      console.log('正在切换歌曲中，忽略此次点击');
+      return;
+    }
+    
+    console.log(currentMusicIndex,'currentMusicIndex',myWorkIds);
+    
+    // 设置切换状态
+    setIsSwitching(true);
+    
+    // 记录当前是否正在播放
+    const wasPlaying = isPlaying;
+    
+    // 停止当前播放
+    if (sound) {
+      sound.stop();
+      sound.release();
+      setSound(null);
+    }
+    setIsPlaying(false);
+    setCurrentTime(0);
+    
+    // 清除进度监听
+    if (progressInterval.current) {
+      clearInterval(progressInterval.current);
+    }
+    
+    // 计算新的索引
+    let newIndex = currentMusicIndex;
+    if(type === 'next'){
+      if(currentMusicIndex === myWorkIds.length - 1){
+        newIndex = 0;
+      }else{
+        newIndex = currentMusicIndex + 1;
+      }
+    }else{
+      if(currentMusicIndex === 0){
+        newIndex = myWorkIds.length - 1;
+      }else{
+        newIndex = currentMusicIndex - 1;
+      }
+    }
+    
+    // 先更新索引，确保状态同步
+    setCurrentMusicIndex(newIndex);
+    
+    // 获取新的音乐信息
+    try {
+      const newMusicInfo = await getMusicWorkInfoRequest(myWorkIds[newIndex]);
+      
+      // 如果之前正在播放，则自动播放新歌曲
+      if (wasPlaying && newMusicInfo) {
+        // 等待一下让新的音乐信息加载完成
+        setTimeout(() => {
+          // 再次检查当前索引是否还是我们期望的索引
+          if (currentMusicIndex === newIndex && musicInfo.id === newMusicInfo.id) {
+            console.log('确认播放正确的音乐:', newMusicInfo.title);
+            handlePlayAudio();
+          } else {
+            console.log('音乐信息不匹配，跳过播放');
+          }
+          // 重置切换状态
+          setIsSwitching(false);
+        }, 200);
+      } else {
+        // 如果没有自动播放，也要重置切换状态
+        setIsSwitching(false);
+      }
+    } catch (error) {
+      console.log('获取音乐信息失败:', error);
+      setIsSwitching(false);
+    }
+  }
+
   const handleRefreshMusicInfo = async () => {
-    await getMusicWorkInfoRequest();
+    await getMusicWorkInfoRequest(musicInfo.id);
   }
 
   // 删除歌曲
   const handleDeleteMusic = async () => {
     try {
-      const res = await deleteMusicWork({work_ids: [music.id]})
+      await deleteMusicWork({work_ids: [music.id]})
       show({ message: t('music.delete_success') });
       setShowDeleteModal(false);
       navigation.goBack();
@@ -323,9 +423,12 @@ const MyWorkMusicPlay = ({ navigation, route }: any) => {
     }
   };
   // 获取作品信息
-  const getMusicWorkInfoRequest = async () => {
+  const getMusicWorkInfoRequest = useCallback(async (id?:number) => {
     try {
-    const res = await getMusicWorkInfo({work_id: music.id})
+    const workId = id || musicInfo.id;
+    if (!workId) return;
+    
+    const res = await getMusicWorkInfo({work_id: workId.toString()})
     console.log(res,'res');
     const info ={
       id: res.work_id,
@@ -336,57 +439,18 @@ const MyWorkMusicPlay = ({ navigation, route }: any) => {
       cover: res.work_cover,
     }
     setMusicInfo(info);
+    return info; // 返回获取到的音乐信息
     } catch (error) {
       console.log(error);
+      return null;
     }
-  }
-
- 
-
-  // 监听播放进度
-  useEffect(() => {
-    if (isPlaying && sound && !isSliding) {
-      progressInterval.current = setInterval(() => {
-        sound.getCurrentTime((seconds) => {
-          setCurrentTime(seconds);
-        });
-      }, 100);
-    } else {
-      if (progressInterval.current) {
-        clearInterval(progressInterval.current);
-      }
-    }
-
-    return () => {
-      if (progressInterval.current) {
-        clearInterval(progressInterval.current);
-      }
-    };
-  }, [isPlaying, sound, isSliding]);
-
-  // 自动滚动歌词
-  useEffect(() => {
-    if (lyricScrollRef.current && lyricArr.length > 0) {
-      // 找到当前应该高亮的歌词行
-      let activeIndex = 0;
-      for (let i = 0; i < lyricArr.length; i++) {
-        if (currentTime >= lyricArr[i].startTime) {
-          activeIndex = i;
-        }
-      }
-
-      // 滚动到当前歌词行
-      lyricScrollRef.current.scrollToIndex({
-        index: Math.max(0, activeIndex - 2), // 提前2行显示
-        animated: true,
-        viewPosition: 0.3, // 在屏幕30%位置显示
-      });
-    }
-  }, [currentTime, lyricArr]);
+  }, [musicInfo.id]);
 
   useEffect(() => { 
-    getMusicWorkInfoRequest();
-  }, [musicInfo.id]);
+    if (music.id) {
+      getMusicWorkInfoRequest(music.id);
+    }
+  }, [music.id, getMusicWorkInfoRequest]);
 
   return (
     <View style={styles.container}>
@@ -502,15 +566,19 @@ const MyWorkMusicPlay = ({ navigation, route }: any) => {
       {/* 播放进度条 */}
       <View style={styles.progressRow}>
         <Slider
-          style={{ width: "100%", height: normalize(24) }}
+          style={{ width: "100%", height: normalize(40) }}
           minimumValue={0}
-          maximumValue={duration}
+          maximumValue={duration || 1}
           value={currentTime}
           minimumTrackTintColor="#3cff8f"
           maximumTrackTintColor="#333"
           thumbTintColor="#3cff8f"
-          onSlidingStart={() => setIsSliding(true)}
+          onSlidingStart={() => {
+            console.log('开始拖动进度条');
+            setIsSliding(true);
+          }}
           onSlidingComplete={(value) => {
+            console.log('完成拖动进度条，值:', value);
             if (sound) {
               sound.setCurrentTime(value);
             }
@@ -518,11 +586,10 @@ const MyWorkMusicPlay = ({ navigation, route }: any) => {
             setIsSliding(false);
           }}
           onValueChange={(value) => {
-            if (isSliding) {
-              setCurrentTime(value);
-            }
+            console.log('进度条值变化:', value);
+            setCurrentTime(value);
           }}
-          step={0.1} // 更精确的控制
+          step={0.1}
         />
         <View style={styles.progressTimeRow}>
           <Text style={styles.progressTime}>{secToTime(Math.floor(currentTime))}</Text>
@@ -532,7 +599,7 @@ const MyWorkMusicPlay = ({ navigation, route }: any) => {
 
       {/* 播放控制 */}
       <View style={styles.controlRow}>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={()=>handleSwitchMusic('prev')}>
           <Image source={img_last_song} style={styles.controlImg} />
         </TouchableOpacity>
         <TouchableOpacity onPress={handlePlayPause}>
@@ -541,7 +608,7 @@ const MyWorkMusicPlay = ({ navigation, route }: any) => {
             style={styles.playImg}
           />
         </TouchableOpacity>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={()=>handleSwitchMusic('next')}>
           <Image source={img_next_song} style={styles.controlImg} />
         </TouchableOpacity>
       </View>
@@ -998,6 +1065,26 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   deleteBtnText: {
+    color: "#fff",
+    fontSize: normalizeFontSize(16),
+    fontWeight: "bold",
+  },
+  debugText: {
+    color: "#fff",
+    fontSize: normalizeFontSize(12),
+    marginBottom: normalize(8),
+    textAlign: "center",
+  },
+  debugBtn: {
+    backgroundColor: "#444",
+    borderRadius: normalize(12),
+    paddingVertical: normalize(12),
+    paddingHorizontal: normalize(32),
+    alignItems: "center",
+    marginTop: normalize(16),
+    width: "100%",
+  },
+  debugBtnText: {
     color: "#fff",
     fontSize: normalizeFontSize(16),
     fontWeight: "bold",
