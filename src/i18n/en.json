@@ -88,7 +88,8 @@
     "camera_permission_ok": "Allow",
     "camera_permission_no": "Deny",
     "no_camera_permission": "Insufficient permission. Camera access not granted.",
-    "select_img_max_count": "Number of images exceeds the maximum limit."
+    "select_img_max_count": "Number of images exceeds the maximum limit.",
+    "mic_permission_error": "No mic access. Enable it in settings to record."
   },
   "auth_screen": "Auth Screen",
   "music_screen": "Music Screen",
