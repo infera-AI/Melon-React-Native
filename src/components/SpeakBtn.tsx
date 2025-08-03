@@ -45,6 +45,7 @@ import VoiceWave from '@/components/VoiceWave';
 import { NativeModules } from 'react-native';
 const { AudioSessionManager } = NativeModules;
 import { AudioPlayerController } from '@/utils/AudioPlayerController';
+import { check, request, PERMISSIONS, RESULTS } from 'react-native-permissions';
 
 export type SpeakBtnRef = {
   destroy: () => void;
@@ -124,20 +125,20 @@ const SpeakBtn = forwardRef<SpeakBtnRef, Props>(({
     console.log('openMic1111-------', beforeLanguage);
     console.log('openMic22222-------', afterLanguage);
     
-    if (Platform.OS === 'android') {
-      let hasPermission = await checkMicrophone();
-      if (!hasPermission) {
-        console.log('无权限');
-        hasPermission = await requestMicrophonePermission();
-      }
-      if (!hasPermission) {
-        console.warn('录音权限未授权');
-        show({
-          message: '录音权限未授权, 请重试'
-        })
-        return;
-      }
-    }
+    // if (Platform.OS === 'android') {
+    //   let hasPermission = await checkMicrophone();
+    //   if (!hasPermission) {
+    //     console.log('无权限');
+    //     hasPermission = await requestMicrophonePermission();
+    //   }
+    //   if (!hasPermission) {
+    //     console.warn('录音权限未授权');
+    //     show({
+    //       message: '录音权限未授权, 请重试'
+    //     })
+    //     return;
+    //   }
+    // }
     setVoiceStatus(StatusEnum.TYPE_INIT)
     socketStatusRef.current = WSStatus.INIT
     setSocketStatus(WSStatus.INIT)
@@ -275,25 +276,25 @@ const SpeakBtn = forwardRef<SpeakBtnRef, Props>(({
 
   }
 
-  const checkMicrophone = async () => {
-    const result = await PermissionsAndroid.check(
-      PermissionsAndroid.PERMISSIONS.RECORD_AUDIO
-    );
-    return result;
-  };
+  // const checkMicrophone = async () => {
+  //   const result = await PermissionsAndroid.check(
+  //     PermissionsAndroid.PERMISSIONS.RECORD_AUDIO
+  //   );
+  //   return result;
+  // };
 
-  const requestMicrophonePermission = async () => {
-    const granted = await PermissionsAndroid.request(
-      PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
-      {
-        title: t('translate_screen.permission_title'),
-        message: t('translate_screen.permission_desc'),
-        buttonPositive: t('translate_screen.permission_confirm'),
-        buttonNegative: t('translate_screen.document_cancel'),
-      }
-    );
-    return granted === PermissionsAndroid.RESULTS.GRANTED;
-  };
+  // const requestMicrophonePermission = async () => {
+  //   const granted = await PermissionsAndroid.request(
+  //     PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
+  //     {
+  //       title: t('translate_screen.permission_title'),
+  //       message: t('translate_screen.permission_desc'),
+  //       buttonPositive: t('translate_screen.permission_confirm'),
+  //       buttonNegative: t('translate_screen.document_cancel'),
+  //     }
+  //   );
+  //   return granted === PermissionsAndroid.RESULTS.GRANTED;
+  // };
 
   const stopMic = () => {
     try {
@@ -315,15 +316,60 @@ const SpeakBtn = forwardRef<SpeakBtnRef, Props>(({
     }
   }
 
-  const downClick = () => {
+  const downClick = async () => {
     console.log('按下');
-    AudioPlayerController.getInstance().release()
-    setIsDown(true)
-    openMic()
+    const permission =
+      Platform.OS === 'ios'
+        ? PERMISSIONS.IOS.MICROPHONE
+        : PERMISSIONS.ANDROID.RECORD_AUDIO;
+
+    const result = await check(permission);
+    if (result === RESULTS.GRANTED) {
+      // 权限已通过，开始录音
+      console.log('权限已通过');
+      AudioPlayerController.getInstance().release()
+      setIsDown(true)
+      openMic()
+      return;
+    }
+
+    if (result === RESULTS.DENIED) {
+      const newResult = await request(permission);
+
+      if (newResult === RESULTS.GRANTED) {
+        // 首次获取权限成功
+        console.log('获得麦克风权限');
+        
+      } else {
+        console.log('未授权麦克风');
+        show({
+          message: t('translate_screen.mic_permission_error')
+        })
+      }
+      return;
+    }
+
+    if (result === RESULTS.BLOCKED) {
+      show({
+        message: t('translate_screen.mic_permission_error')
+      })
+      return;
+    }
+
+    
   }
 
-  const upClick = () => {
+  const upClick = async () => {
     console.log('抬起');
+    const permission =
+      Platform.OS === 'ios'
+        ? PERMISSIONS.IOS.MICROPHONE
+        : PERMISSIONS.ANDROID.RECORD_AUDIO;
+
+    const result = await check(permission);
+    if (result !== RESULTS.GRANTED) { // 未授权时
+      return
+    }
     socketStatusRef.current = WSStatus.CLOSED
     setVoiceStatus(StatusEnum.TYPE_WAIT_TRANSLATION_RESULT)
     stopMic()

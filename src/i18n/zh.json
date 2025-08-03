@@ -88,7 +88,8 @@
     "camera_permission_ok": "允许",
     "camera_permission_no": "拒绝",
     "no_camera_permission": "权限不足, 您未授权相机权限",
-    "select_img_max_count": "图片数量超出最大限制"
+    "select_img_max_count": "图片数量超出最大限制",
+    "mic_permission_error": "权限不足, 请在设置中开启麦克风权限以使用录音功能"
   },
   "auth_screen": "登录页面",
   "music_screen": "音乐页面",
