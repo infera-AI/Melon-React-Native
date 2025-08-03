@@ -347,6 +347,11 @@ const OralPracticeScreen: React.FC = () => {
           })
           changeChatList('error')
         })
+      } else {
+        setPageStatus(StatusEnum.TYPE_NORMAL)
+        show({
+          message: t('translate_screen.mic_result_error')
+        })
       }
     }
     

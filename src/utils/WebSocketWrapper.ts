@@ -42,11 +42,12 @@ export interface WSConfig {
 export class WebSocketWrapper {
   private ws: WebSocket | null = null;
   private config: WSConfig;
-  private heartbeatTimer: NodeJS.Timeout | null = null;
+  private heartbeatTimer: any = null;
   private reconnectTimer: NodeJS.Timeout | null = null;
   private reconnectAttempts = 0;
   private status: WSStatus = WSStatus.INIT;
   private manuallyClosed = false;
+  private isUserClose = false;
 
   constructor(config: WSConfig) {
     this.config = {
@@ -55,6 +56,7 @@ export class WebSocketWrapper {
       maxReconnectAttempts: 3,
       ...config,
     };
+    this.isUserClose = false
   }
 
   private updateStatus(status: WSStatus) {
@@ -80,6 +82,14 @@ export class WebSocketWrapper {
     // console.log('socket url--', this.config.url);
 
     this.ws.onopen = () => {
+      if (this.isUserClose) {
+        this.updateStatus(WSStatus.CLOSED);
+        this.stopHeartbeat();
+        this.clearReconnect();
+        this.ws?.close();
+        this.ws = null;
+        return
+      }
       this.reconnectAttempts = 0;
       this.updateStatus(WSStatus.OPEN);
       this.startHeartbeat();
@@ -113,7 +123,7 @@ export class WebSocketWrapper {
   }
 
   send(data: string | ArrayBuffer | Blob | object | Uint8Array) {
-    // console.log('send data----', data);
+    console.log('[WebSocketWrapper] send data----', data);
 
     if (this.manuallyClosed) {
       console.warn('[WebSocketWrapper] 已手动关闭，禁止发送消息');
@@ -141,6 +151,8 @@ export class WebSocketWrapper {
   }
 
   close() {
+    console.log('[WebSocketWrapper] socket----close-外部调用关闭socket');
+    this.isUserClose = true
     this.manuallyClosed = true;
     this.updateStatus(WSStatus.CLOSING);
     this.stopHeartbeat();
@@ -153,9 +165,17 @@ export class WebSocketWrapper {
     this.stopHeartbeat();
     const interval = this.config.heartbeatInterval!;
     this.heartbeatTimer = setInterval(() => {
+      if (this.isUserClose) {
+        this.updateStatus(WSStatus.CLOSED);
+        this.stopHeartbeat();
+        this.clearReconnect();
+        this.ws?.close();
+        this.ws = null;
+        return
+      }
       if (this.status === WSStatus.OPEN) {
         try {
-          console.log('发送心跳---');
+          console.log('[WebSocketWrapper]发送心跳---this.isUserClose--', this.isUserClose);
           this.ws?.send('ping'); // 可替换为实际心跳格式
         } catch (err) {
           console.error('[WebSocketWrapper] 心跳发送失败:', err);
@@ -165,10 +185,8 @@ export class WebSocketWrapper {
   }
 
   private stopHeartbeat() {
-    if (this.heartbeatTimer) {
-      clearInterval(this.heartbeatTimer);
-      this.heartbeatTimer = null;
-    }
+    clearInterval(this.heartbeatTimer);
+    this.heartbeatTimer = null;
   }
 
   private tryReconnect() {
