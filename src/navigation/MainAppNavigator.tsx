@@ -19,7 +19,7 @@ const Tab = createBottomTabNavigator<MainAppStackParamList>();
 
 const MainAppNavigator: React.FC = () => (
   <Tab.Navigator
-    initialRouteName="Translate"
+    initialRouteName="Music"
     tabBar={props => <CustomTabBar {...props} />}
     screenOptions={{
       headerShown: false,
