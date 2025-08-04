@@ -285,7 +285,6 @@
     "write_lyrics": "写歌词",
     "enter_lyrics_placeholder": "输入你心中的歌词。",
     "select_music_style": "选择音乐风格",
-    "select_music_style_empty": "请选择音乐风格",
     "lyrics_empty": "请输入歌词",
     "polish_lyrics_failed": "歌词润色失败",
     "get_recommend_styles_failed": "获取推荐风格失败",

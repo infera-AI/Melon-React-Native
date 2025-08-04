@@ -181,7 +181,7 @@ const MusicEditHummingScreen: React.FC<{route: any}> = ({route}) => {
     }
     if(selectedStyles.length === 0){
       show({
-        message: t('music.select_music_style_empty'),
+        message: t('music.select_music_style'),
       });
       return;
     }
