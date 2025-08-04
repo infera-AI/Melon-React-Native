@@ -109,13 +109,14 @@ const GeneratingMusicScreen: React.FC = () => {
       // 开始模拟进度更新
       startProgressSimulation();
       
-      // 设置超时，5分钟后自动停止轮询
+      // 设置超时，3分钟后自动停止轮询
       timeoutRef.current = setTimeout(() => {
         console.log('轮询超时，自动停止');
         cleanupPolling();
         setIsGenerating(false);
         show({message: t('music.generation_timeout')});
-      }, 5 * 60 * 1000); // 5分钟
+        navigation.goBack();
+      }, 3 * 60 * 1000); // 3分
       
     } catch (error) {
       console.log(error,'error')
