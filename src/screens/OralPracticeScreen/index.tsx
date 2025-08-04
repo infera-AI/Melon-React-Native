@@ -301,51 +301,58 @@ const OralPracticeScreen: React.FC = () => {
   const tellResultHandle = (data: any) => {
     console.log('tellResult----', data);
     if (data?.status === 'success') { // 只处理成功即可，失败时，在内部弹窗显示
-      setPageStatus(StatusEnum.TYPE_WAIT_ANSWER)
-      // 先push到聊天记录
-      setChatList([
-        ...chatList, 
-        {
-          role: 'user',
-          msg: data?.source_text
-        },
-        {
-          role: 'wait',
-        }
-      ])
-      // 发送消息
-      sendMsgToAI({
-        text_message: data?.source_text
-      }).then((rsp) => {
-        console.log('rsp------', rsp);
-        if (rsp) {
-          if (rsp?.assistant_reply_audio_url) {
-            setPageStatus(StatusEnum.TYPE_PLAY_ANSWER_AUDIO)
-            startPlayAudio(rsp?.assistant_reply_audio_url)
-          } else {
-            setPageStatus(StatusEnum.TYPE_NORMAL)
+      if (data?.source_text) {
+        setPageStatus(StatusEnum.TYPE_WAIT_ANSWER)
+        // 先push到聊天记录
+        setChatList([
+          ...chatList, 
+          {
+            role: 'user',
+            msg: data?.source_text
+          },
+          {
+            role: 'wait',
           }
+        ])
+        // 发送消息
+        sendMsgToAI({
+          text_message: data?.source_text
+        }).then((rsp) => {
+          console.log('rsp------', rsp);
+          if (rsp) {
+            if (rsp?.assistant_reply_audio_url) {
+              setPageStatus(StatusEnum.TYPE_PLAY_ANSWER_AUDIO)
+              startPlayAudio(rsp?.assistant_reply_audio_url)
+            } else {
+              setPageStatus(StatusEnum.TYPE_NORMAL)
+            }
 
-          changeChatList('success', rsp?.assistant_reply)
+            changeChatList('success', rsp?.assistant_reply)
+            
+
+          } else {
+            // 响应失败
+            setPageStatus(StatusEnum.TYPE_NORMAL)
+            show({
+              message: t('translate_screen.failed_again')
+            })
+            changeChatList('error')
+          }
           
-
-        } else {
+        }).catch(() => {
           // 响应失败
           setPageStatus(StatusEnum.TYPE_NORMAL)
           show({
             message: t('translate_screen.failed_again')
           })
           changeChatList('error')
-        }
-        
-      }).catch(() => {
-        // 响应失败
+        })
+      } else {
         setPageStatus(StatusEnum.TYPE_NORMAL)
         show({
-          message: t('translate_screen.failed_again')
+          message: t('translate_screen.mic_result_error')
         })
-        changeChatList('error')
-      })
+      }
     }
     
   }
