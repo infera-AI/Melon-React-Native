@@ -12,7 +12,7 @@ import {
 import { useFocusEffect } from '@react-navigation/native';
 import Sound from "react-native-sound";
 import { useMessageModal } from "@/contexts/MessageModalContext";
-import { AudioDurationManager } from '@/utils/AudioPlayerController';
+import { AudioDurationManager } from '@/utils/AudioPlayerUtils';
 import { useLanguage } from '@/contexts/LanguageContext';
 import Slider from "@react-native-community/slider";
 import Clipboard from "@react-native-clipboard/clipboard";

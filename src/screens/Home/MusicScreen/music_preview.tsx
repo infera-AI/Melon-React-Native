@@ -8,7 +8,7 @@ import { MusicStackParamList } from './navigator';
 import theme from '@/utils/theme';
 import { useMessageModal } from '@/contexts/MessageModalContext';
 import Sound from 'react-native-sound';
-import { AudioDurationManager } from '@/utils/AudioPlayerController';
+import { AudioDurationManager } from '@/utils/AudioPlayerUtils';
 import { saveMusicWork } from '@/api/music/music';
 import FullScreenLoader from '@/components/FullScreenLoader';
 import { useLanguage } from '@/contexts/LanguageContext';

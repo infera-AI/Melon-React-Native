@@ -13,7 +13,6 @@
 import RNFS from 'react-native-fs';
 import { Platform } from 'react-native';
 import { FFmpegKit, ReturnCode } from 'ffmpeg-kit-react-native';
-import { AudioDurationManager } from './AudioPlayerController';
 
 /**
  * 音频文件接口定义
