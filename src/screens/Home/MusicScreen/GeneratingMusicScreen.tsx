@@ -79,6 +79,14 @@ const GeneratingMusicScreen: React.FC = () => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const generRationFailed = () => {
+    setIsGenerating(false);
+    show({message: t('music.generation_failed')});
+    navigation.goBack();
+    // 发生错误时清理轮询
+    cleanupPolling();
+  }
+
   const generateMusicRequest = async () => {
     console.log(lyrics, musicStyles, title, 'lyrics, musicStyles');
     try {
@@ -89,6 +97,10 @@ const GeneratingMusicScreen: React.FC = () => {
         work_genres: musicStyles,
       });
       console.log(res, 'res');
+      if(!res.task_id){
+        generRationFailed()
+        return
+      }
       taskIdRef.current = res.task_id;
       
       // 开始轮询查询状态
@@ -106,17 +118,17 @@ const GeneratingMusicScreen: React.FC = () => {
       }, 5 * 60 * 1000); // 5分钟
       
     } catch (error) {
-      show({message: t('music.generation_failed')});
-      console.log(error, 'error');
-      setIsGenerating(false);
-      navigation.goBack();
-      // 发生错误时清理轮询
-      cleanupPolling();
+      console.log(error,'error')
+      generRationFailed()
     }
   };
 
   // 开始轮询查询状态
   const startStatusPolling = (id: string) => {
+    if(!id){
+      generRationFailed()
+      return
+    }
     statusInterval.current = setInterval(async () => {
       await getMusicTaskStatusRequest(id);
     }, 3500); // 每2秒查询一次
