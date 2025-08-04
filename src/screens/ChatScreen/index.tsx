@@ -564,6 +564,7 @@ const ChatScreen: React.FC = () => {
       {/* 通话按钮弹窗， 区分是本人说话还是对方说话 */}
       <SelectSpeakBtnModal
         visible={speakBtnModalVisible}
+        key={`speakBtnModal-${beforeLangSelect}-${afterLangSelect}`}
         beforeLanguage={beforeLangSelect}
         afterLanguage={afterLangSelect}
         onBackdropPress={() => setSpeakBtnModalVisible(false)}
