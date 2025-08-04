@@ -32,7 +32,7 @@ import { scaleSize, scaleFont } from '@/utils/scale';
 
 import { useMessageModal } from '@/contexts/MessageModalContext';
 
-// import { AudioPlayerController } from '@/utils/AudioPlayerUtils';
+// import { AudioPlayerController } from '@/utils/AudioPlayerController';
 
 import SpeakBtn, { SpeakBtnRef } from '@/components/SpeakBtn'
 import { StatusEnum } from '@/components/SpeakBtn';
@@ -143,7 +143,7 @@ const ListeningModeScreen: React.FC = () => {
       // taskQueueRef.current?.stop()
       // AudioPlayerController.getInstance().release()
     }
-   
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   // useEffect(() => {
@@ -425,7 +425,7 @@ const ListeningModeScreen: React.FC = () => {
         }
         {
           isSlice &&
-          <View style={{height: 1, backgroundColor: '#B0B0B080', marginHorizontal: pageLR, marginVertical: pageLR}} />
+          <View style={{height: 1, backgroundColor: '#B0B0B080', marginHorizontal: pageLR, marginVertical: pageLR}}></View>
         }
 
         {/* 对话滚动区域 */}
