@@ -19,6 +19,7 @@
     "write_lyrics": "Escribir letras",
     "enter_lyrics_placeholder": "Ingresa las letras en tu mente.",
     "select_music_style": "Seleccionar estilo de música",
+    "select_music_style_empty": "Por favor selecciona un estilo de música",
     "lyrics_empty": "Por favor ingresa las letras",
     "polish_lyrics_failed": "Error al pulir las letras",
     "get_recommend_styles_failed": "Error al obtener estilos recomendados",

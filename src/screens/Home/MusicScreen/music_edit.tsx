@@ -1,22 +1,11 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Dimensions, TextInput, Image, ScrollView, Platform } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, Image, ScrollView, Platform } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import MaskedView from '@react-native-masked-view/masked-view';
 import LinearGradient from 'react-native-linear-gradient';
 import { useLanguage } from '@/contexts/LanguageContext';
-
-const { width } = Dimensions.get('window');
-
-const normalize = (size: number) => {
-  const scale = width / 375;
-  return Math.round(size * scale);
-};
-
-const normalizeFontSize = (size: number) => {
-  const scale = width / 375;
-  return Math.min(Math.round(size * scale), size);
-};
+import { normalize, normalizeFontSize } from '@/utils/stylesUtil';
 
 const CARD_RADIUS = normalize(18);
 const CARD_PADDING = normalize(16);

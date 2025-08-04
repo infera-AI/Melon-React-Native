@@ -11,7 +11,6 @@ import {
   Image,
   ScrollView,
   Modal,
-  Dimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { polishLyrics, recommendGenres } from '@/api/music/music';
@@ -23,22 +22,9 @@ import { useMusicStore } from '@/store/modules/music.store';
 import { supportedLanguages } from '@/i18n/languages';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { translateText } from '@/api/profile/profile';
+import { normalize, normalizeFontSize } from '@/utils/stylesUtil';
 
 type MusicScreenNavigationProp = NativeStackNavigationProp<MusicStackParamList, 'MusicMain'>;
-
-const { width } = Dimensions.get("window");
-
-// normalize函数
-const normalize = (size: number) => {
-  const scale = width / 375;
-  return Math.round(size * scale);
-};
-
-// normalizeFontSize函数
-const normalizeFontSize = (size: number) => {
-  const scale = width / 375;
-  return Math.min(Math.round(size * scale), size);
-};
 
 const MusicScreen: React.FC = () => {
   const navigation = useNavigation<MusicScreenNavigationProp>();

@@ -4,7 +4,6 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
-  Dimensions,
   Image,
   ScrollView,
   Modal,
@@ -20,18 +19,7 @@ import { useMusicStore } from '@/store/modules/music.store';
 import { useVoiceStore } from '@/store/modules/voice.store';
 import { useMessageModal } from '@/contexts/MessageModalContext';
 import { useLanguage } from '../../../contexts/LanguageContext';
-
-const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
-
-const normalize = (size: number, based: 'width' | 'height' = 'width') => {
-  const newSize = based === 'height' ? size * screenHeight / 812 : size * screenWidth / 375;
-  return Math.round(newSize);
-};
-
-const normalizeFontSize = (size: number) => {
-  const newSize = size * screenWidth / 375;
-  return Math.min(Math.round(newSize), size);
-};
+import { normalize, normalizeFontSize } from '@/utils/stylesUtil';
 
 type GeneratingMusicScreenNavigationProp = NativeStackNavigationProp<MusicStackParamList, 'GeneratingMusic'>;
 
@@ -41,11 +29,11 @@ const GeneratingMusicScreen: React.FC = () => {
   navigationRef.current = navigation;
   const [progress, setProgress] = useState(0);
   const [showCompletionModal, setShowCompletionModal] = useState(false);
-  const [_taskId, setTaskId] = useState<string>('');
   const [_isGenerating, setIsGenerating] = useState(false);
   const progressInterval = useRef<NodeJS.Timeout | null>(null);
   const statusInterval = useRef<NodeJS.Timeout | null>(null);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const taskIdRef = useRef<string>('');
   const { show } = useMessageModal();
   const { t } = useLanguage();
   const { lyrics, musicStyles, title } = useMusicStore.getState().musicGenerateInfo;
@@ -75,6 +63,10 @@ const GeneratingMusicScreen: React.FC = () => {
       if (nextAppState === 'background' || nextAppState === 'inactive') {
         console.log('应用进入后台，清理轮询');
         cleanupPolling();
+      }else{
+        console.log('应用进入前台，恢复轮询',taskIdRef.current);
+        startStatusPolling(taskIdRef.current);
+        startProgressSimulation();
       }
     };
 
@@ -97,7 +89,7 @@ const GeneratingMusicScreen: React.FC = () => {
         work_genres: musicStyles,
       });
       console.log(res, 'res');
-      setTaskId(res.task_id);
+      taskIdRef.current = res.task_id;
       
       // 开始轮询查询状态
       startStatusPolling(res.task_id);
@@ -117,6 +109,7 @@ const GeneratingMusicScreen: React.FC = () => {
       show({message: t('music.generation_failed')});
       console.log(error, 'error');
       setIsGenerating(false);
+      navigation.goBack();
       // 发生错误时清理轮询
       cleanupPolling();
     }
@@ -178,16 +171,10 @@ const GeneratingMusicScreen: React.FC = () => {
         //   }
         // }, 1000);
       }
-    } catch (error) {
+    } catch (error:any) {
+      show({message: t('music.generation_failed')+error.message||''});
       console.log('Status check error:', error);
     }
-  };
-
-
-  const handleBack = () => {
-    // 清理轮询
-    cleanupPolling();
-    navigation.goBack();
   };
 
   const handleReRecording = () => {

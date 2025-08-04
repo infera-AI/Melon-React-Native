@@ -16,16 +16,7 @@ import theme from '../../../utils/theme';
 import { getLoginCodeApi, verifyCode } from '@/api/login';
 import { useMessageModal } from '@/contexts/MessageModalContext';
 import { useLanguage } from '../../../contexts/LanguageContext';
-
-const normalize = (size: number, based: 'width' | 'height' = 'width') => {
-  const { width, height } = require('react-native').Dimensions.get('window');
-  const scale = based === 'width' ? width / 375 : height / 812;
-  return Math.round(size * scale);
-};
-
-const normalizeFontSize = (size: number) => {
-  return normalize(size, 'width');
-};
+import { normalize, normalizeFontSize } from '@/utils/stylesUtil';
 
 type DeregisterCodeVerificationScreenNavigationProp = NativeStackNavigationProp<ProfileStackParamList, 'DeregisterCodeVerification'>;
 

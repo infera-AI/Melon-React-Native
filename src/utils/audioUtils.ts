@@ -1,16 +1,35 @@
+/**
+ * audioUtils.ts
+ * 
+ * 音频工具类文件
+ * 主要用于本地音频文件的处理、合成和播放
+ * 
+ * 包含以下主要功能：
+ * 1. AudioMerger - 音频文件合成工具类
+ * 2. AudioPlayer - 音频播放器类
+ * 3. 各种音频处理工具函数
+ */
+
 import RNFS from 'react-native-fs';
 import { Platform } from 'react-native';
 import { FFmpegKit, ReturnCode } from 'ffmpeg-kit-react-native';
 import { AudioDurationManager } from './AudioPlayerController';
 
+/**
+ * 音频文件接口定义
+ */
 interface AudioFile {
-  uri: string;
-  name: string;
-  type: string;
+  uri: string;    // 文件路径
+  name: string;   // 文件名
+  type: string;   // 文件类型
 }
 
 /**
  * 清理音频文件路径
+ * 统一处理各种格式的音频文件路径，确保格式正确
+ * 
+ * @param filePath 原始文件路径
+ * @returns 清理后的标准路径
  */
 const cleanAudioPath = (filePath: string): string => {
   let cleanPath = filePath;
@@ -34,12 +53,15 @@ const cleanAudioPath = (filePath: string): string => {
 
 /**
  * 音频文件合成工具类
+ * 用于将多个音频文件合成为一个文件
+ * 支持 FFmpeg 合成和备用合成方法
  */
 export class AudioMerger {
   /**
    * 将多个音频文件合成为一个文件
+   * 
    * @param audioFiles 音频文件数组
-   * @param outputFileName 输出文件名
+   * @param outputFileName 输出文件名，默认为 'merged_audio.m4a'
    * @returns 合成后的文件路径
    */
   static async mergeAudioFiles(audioFiles: AudioFile[], outputFileName: string = 'merged_audio.m4a'): Promise<string> {
@@ -49,8 +71,8 @@ export class AudioMerger {
         throw new Error('没有音频文件需要合成');
       }
 
+      // 如果只有一个文件，直接返回原文件路径
       if (audioFiles.length === 1) {
-        // 如果只有一个文件，直接返回原文件路径
         return audioFiles[0].uri;
       }
 
@@ -83,6 +105,10 @@ export class AudioMerger {
 
   /**
    * 使用 FFmpeg 合成音频文件
+   * 
+   * @param audioFiles 音频文件数组
+   * @param outputPath 输出文件路径
+   * @returns 合成后的文件路径
    */
   private static async mergeWithFFmpeg(audioFiles: AudioFile[], outputPath: string): Promise<string> {
     try {
@@ -149,34 +175,32 @@ export class AudioMerger {
   }
 
   /**
-   * 备用音频合成方法（简单的文件复制）
+   * 备用音频合成方法
+   * 当 FFmpeg 合成失败时使用
+   * 
+   * @param audioFiles 音频文件数组
+   * @param outputPath 输出文件路径
+   * @returns 合成后的文件路径
    */
   private static async mergeWithFallback(audioFiles: AudioFile[], outputPath: string): Promise<string> {
     try {
-      console.log('使用备用方法合成音频...');
+      console.log('使用备用方法合成音频文件');
       
-      // 如果只有一个文件，直接复制
-      if (audioFiles.length === 1) {
-        await RNFS.copyFile(audioFiles[0].uri, outputPath);
-        console.log('单文件复制完成:', outputPath);
-        return outputPath;
-      }
-
-      // 对于多个文件，我们暂时只使用第一个文件
-      // 这是一个简化的实现，实际项目中可能需要更复杂的处理
-      console.warn('备用方法：只使用第一个音频文件');
-      await RNFS.copyFile(audioFiles[0].uri, outputPath);
-      console.log('备用合成完成（使用第一个文件）:', outputPath);
-      return outputPath;
-      
+      // 这里可以实现其他合成方法
+      // 目前暂时抛出错误，提示使用 FFmpeg
+      throw new Error('备用合成方法暂未实现，请确保 FFmpeg 可用');
     } catch (error) {
       console.error('备用合成方法失败:', error);
-      throw new Error('音频合成失败，所有方法都尝试过了');
+      throw error;
     }
   }
 
   /**
-   * 创建文件列表
+   * 创建 FFmpeg 文件列表
+   * 用于 FFmpeg concat 命令
+   * 
+   * @param audioFiles 音频文件数组
+   * @returns 文件列表路径
    */
   private static async createFileList(audioFiles: AudioFile[]): Promise<string> {
     const timestamp = Date.now();
@@ -205,6 +229,9 @@ export class AudioMerger {
 
   /**
    * 检查音频文件是否有效
+   * 
+   * @param filePath 文件路径
+   * @returns 文件是否有效
    */
   static async validateAudioFile(filePath: string): Promise<boolean> {
     try {
@@ -229,6 +256,9 @@ export class AudioMerger {
 
   /**
    * 获取音频文件信息
+   * 
+   * @param filePath 文件路径
+   * @returns 文件信息（大小和存在性）
    */
   static async getAudioFileInfo(filePath: string): Promise<{ size: number; exists: boolean }> {
     try {
@@ -247,6 +277,9 @@ export class AudioMerger {
 
   /**
    * 获取音频文件时长（使用 FFmpeg）
+   * 
+   * @param filePath 文件路径
+   * @returns 音频时长（秒）
    */
   static async getAudioDuration(filePath: string): Promise<number> {
     try {
@@ -284,10 +317,10 @@ export class AudioMerger {
       } else {
         const logs = await session.getLogs();
         const output = await session.getOutput();
-        console.error('FFmpeg 执行失败');
-        console.error('返回码:', returnCode);
-        console.error('输出:', output);
-        console.error('日志:', logs.map(log => log.getMessage()));
+        console.warn('FFmpeg 执行失败');
+        console.warn('返回码:', returnCode);
+        console.warn('输出:', output);
+        console.warn('日志:', logs.map(log => log.getMessage()));
         
         // 尝试备用方法
         console.log('尝试备用方法获取时长...');
@@ -308,6 +341,10 @@ export class AudioMerger {
 
   /**
    * 备用的音频时长获取方法
+   * 使用 react-native-sound 获取时长
+   * 
+   * @param filePath 文件路径
+   * @returns 音频时长（秒）
    */
   private static async getAudioDurationFallback(filePath: string): Promise<number> {
     try {
@@ -340,6 +377,10 @@ export class AudioMerger {
 
 /**
  * 简化的音频合成函数
+ * 导出 AudioMerger.mergeAudioFiles 方法
+ * 
+ * @param audioFiles 音频文件数组
+ * @returns 合成后的文件路径
  */
 export const mergeAudioFiles = async (audioFiles: AudioFile[]): Promise<string> => {
   return await AudioMerger.mergeAudioFiles(audioFiles);
@@ -347,6 +388,9 @@ export const mergeAudioFiles = async (audioFiles: AudioFile[]): Promise<string> 
 
 /**
  * 验证音频文件列表
+ * 
+ * @param audioFiles 音频文件数组
+ * @returns 验证结果和无效文件列表
  */
 export const validateAudioFiles = async (audioFiles: AudioFile[]): Promise<{ valid: boolean; invalidFiles: string[] }> => {
   const invalidFiles: string[] = [];
@@ -366,6 +410,9 @@ export const validateAudioFiles = async (audioFiles: AudioFile[]): Promise<{ val
 
 /**
  * 获取音频文件总时长
+ * 
+ * @param audioFiles 音频文件数组
+ * @returns 总时长（秒）
  */
 export const getTotalAudioDuration = async (audioFiles: AudioFile[]): Promise<number> => {
   let totalDuration = 0;
@@ -379,17 +426,36 @@ export const getTotalAudioDuration = async (audioFiles: AudioFile[]): Promise<nu
 };
 
 /**
- * 音频播放工具类
+ * 音频播放器类
+ * 提供基本的音频播放功能
+ * 主要用于本地音频文件的播放
  */
 export class AudioPlayer {
+  // 单例实例
   private static instance: AudioPlayer;
+  
+  // 音频播放器实例
   private sound: any = null;
+  
+  // 播放状态
   private isPlaying: boolean = false;
+  
+  // 当前播放时间
   private currentTime: number = 0;
+  
+  // 音频总时长
   private duration: number = 0;
+  
+  // 进度回调函数
   private onProgressCallback?: (currentTime: number, duration: number) => void;
+  
+  // 播放完成回调函数
   public onFinishCallback?: () => void;
 
+  /**
+   * 获取单例实例
+   * @returns AudioPlayer 实例
+   */
   static getInstance(): AudioPlayer {
     if (!AudioPlayer.instance) {
       AudioPlayer.instance = new AudioPlayer();
@@ -399,6 +465,9 @@ export class AudioPlayer {
 
   /**
    * 播放音频文件
+   * 
+   * @param filePath 音频文件路径
+   * @returns 播放是否成功
    */
   async playAudio(filePath: string): Promise<boolean> {
     try {
@@ -488,6 +557,8 @@ export class AudioPlayer {
 
   /**
    * 跳转到指定时间
+   * 
+   * @param time 目标时间（秒）
    */
   seekTo(time: number): void {
     if (this.sound) {
@@ -499,15 +570,19 @@ export class AudioPlayer {
 
   /**
    * 设置音量
+   * 
+   * @param volume 音量值（0-1）
    */
   setVolume(volume: number): void {
     if (this.sound) {
       this.sound.setVolume(volume);
+      console.log('设置音量:', volume);
     }
   }
 
   /**
-   * 获取当前播放状态
+   * 获取播放状态
+   * @returns 播放状态信息
    */
   getPlaybackStatus(): { isPlaying: boolean; currentTime: number; duration: number } {
     return {
@@ -518,14 +593,18 @@ export class AudioPlayer {
   }
 
   /**
-   * 设置进度回调
+   * 设置进度回调函数
+   * 
+   * @param callback 进度回调函数
    */
   setProgressCallback(callback: (currentTime: number, duration: number) => void): void {
     this.onProgressCallback = callback;
   }
 
   /**
-   * 设置播放完成回调
+   * 设置播放完成回调函数
+   * 
+   * @param callback 播放完成回调函数
    */
   setFinishCallback(callback: () => void): void {
     this.onFinishCallback = callback;
@@ -533,21 +612,27 @@ export class AudioPlayer {
 
   /**
    * 开始进度跟踪
+   * 定期更新播放进度并调用回调
    */
   private startProgressTracking(): void {
-    if (!this.onProgressCallback) return;
-
-    const updateProgress = () => {
+    this.stopProgressTracking();
+    
+    this.progressInterval = setInterval(() => {
       if (this.sound && this.isPlaying) {
-        this.sound.getCurrentTime((seconds: number) => {
+        this.sound.getCurrentTime((seconds) => {
           this.currentTime = seconds;
           this.onProgressCallback?.(seconds, this.duration);
+          
+          // 检查是否播放完成
+          if (seconds >= this.duration) {
+            this.isPlaying = false;
+            this.stopProgressTracking();
+            this.onFinishCallback?.();
+            console.log('音频播放完成');
+          }
         });
       }
-    };
-
-    // 每秒更新一次进度
-    this.progressInterval = setInterval(updateProgress, 1000);
+    }, 1000); // 每秒更新一次进度
   }
 
   /**
@@ -560,139 +645,84 @@ export class AudioPlayer {
     }
   }
 
+  // 进度跟踪定时器
   private progressInterval: NodeJS.Timeout | null = null;
 }
 
 /**
- * 获取音频文件时长（支持本地和网络音频）
+ * 获取音频时长（简化接口）
+ * 
+ * @param filePath 文件路径
+ * @returns 音频时长（秒）
  */
 export const getAudioDuration = async (filePath: string): Promise<number> => {
-  // 如果是网络音频，使用AudioDurationManager
-  if (filePath.startsWith('http://') || filePath.startsWith('https://')) {
-    return await AudioDurationManager.getDuration(filePath);
-  }
-  
-  // 本地文件使用AudioMerger
   return await AudioMerger.getAudioDuration(filePath);
 };
 
 /**
- * 播放音频文件（简化版本）
+ * 播放音频（简化接口）
+ * 
+ * @param filePath 文件路径
+ * @returns 播放是否成功
  */
 export const playAudio = async (filePath: string): Promise<boolean> => {
-  return await AudioPlayer.getInstance().playAudio(filePath);
+  const player = AudioPlayer.getInstance();
+  return await player.playAudio(filePath);
 };
 
-/*
-使用示例：
-
-// 1. 获取音频时长
-const duration = await getAudioDuration('file:////data/user/0/com.melon/cache/recording_1754071756609.m4a');
-console.log('音频时长:', duration);
-
-// 2. 播放音频
-const audioPlayer = AudioPlayer.getInstance();
-const success = await audioPlayer.playAudio('file:////data/user/0/com.melon/cache/recording_1754071756609.m4a');
-
-// 3. 设置进度回调
-audioPlayer.setProgressCallback((currentTime, duration) => {
-  console.log(`播放进度: ${currentTime}/${duration}`);
-});
-
-// 4. 设置播放完成回调
-audioPlayer.setFinishCallback(() => {
-  console.log('播放完成');
-});
-
-// 5. 控制播放
-audioPlayer.pauseAudio();  // 暂停
-audioPlayer.resumeAudio(); // 恢复
-audioPlayer.seekTo(30);    // 跳转到30秒
-audioPlayer.stopAudio();   // 停止
-
-// 6. 获取播放状态
-const status = audioPlayer.getPlaybackStatus();
-console.log('播放状态:', status);
-*/
-
 /**
- * 测试音频文件功能
+ * 测试音频文件
+ * 用于调试和验证音频文件
+ * 
+ * @param filePath 文件路径
  */
 export const testAudioFile = async (filePath: string) => {
+  console.log('=== 测试音频文件 ===');
+  console.log('文件路径:', filePath);
+  
   try {
-    console.log('=== 音频文件测试 ===');
-    console.log('文件路径:', filePath);
-    
-    // 1. 验证文件
+    // 验证文件
     const isValid = await AudioMerger.validateAudioFile(filePath);
     console.log('文件验证结果:', isValid);
     
-    if (!isValid) {
-      console.log('文件无效，跳过测试');
-      return;
-    }
-    
-    // 2. 获取文件信息
-    const fileInfo = await AudioMerger.getAudioFileInfo(filePath);
-    console.log('文件信息:', fileInfo);
-    
-    // 3. 获取音频时长
-    const duration = await getAudioDuration(filePath);
-    console.log('音频时长:', duration, '秒');
-    
-    // 4. 播放音频
-    const audioPlayer = AudioPlayer.getInstance();
-    
-    // 设置进度回调
-    audioPlayer.setProgressCallback((currentTime, totalDuration) => {
-      console.log(`播放进度: ${currentTime.toFixed(1)}/${totalDuration.toFixed(1)}秒`);
-    });
-    
-    // 设置完成回调
-    audioPlayer.setFinishCallback(() => {
-      console.log('播放完成');
-    });
-    
-    // 开始播放
-    const success = await audioPlayer.playAudio(filePath);
-    console.log('播放开始:', success);
-    
-    // 5秒后暂停
-    setTimeout(() => {
-      audioPlayer.pauseAudio();
-      console.log('已暂停播放');
+    if (isValid) {
+      // 获取文件信息
+      const info = await AudioMerger.getAudioFileInfo(filePath);
+      console.log('文件信息:', info);
       
-      // 2秒后恢复播放
-      setTimeout(() => {
-        audioPlayer.resumeAudio();
-        console.log('已恢复播放');
-        
-        // 3秒后停止
-        setTimeout(() => {
-          audioPlayer.stopAudio();
-          console.log('已停止播放');
-        }, 3000);
-      }, 2000);
-    }, 5000);
-    
+      // 获取时长
+      const duration = await AudioMerger.getAudioDuration(filePath);
+      console.log('音频时长:', duration, '秒');
+      
+      // 尝试播放
+      const player = AudioPlayer.getInstance();
+      const playSuccess = await player.playAudio(filePath);
+      console.log('播放测试结果:', playSuccess);
+      
+      // 停止播放
+      await player.stopAudio();
+    }
   } catch (error) {
-    console.error('音频测试失败:', error);
+    console.error('测试音频文件失败:', error);
   }
 };
 
 /**
  * 快速验证音频文件
+ * 用于快速检查音频文件是否可用
+ * 
+ * @param filePath 文件路径
+ * @returns 验证结果
  */
 export const quickValidateAudio = async (filePath: string) => {
+  console.log('=== 快速验证音频文件 ===');
+  console.log('文件路径:', filePath);
+  
   try {
-    console.log('=== 快速验证音频文件 ===');
-    console.log('文件路径:', filePath);
-    
-    // 1. 路径清理
     const cleanPath = cleanAudioPath(filePath);
     console.log('清理后路径:', cleanPath);
     
-    // 2. 检查文件是否存在
+    // 检查文件是否存在
     const exists = await RNFS.exists(cleanPath);
     console.log('文件是否存在:', exists);
     
@@ -701,7 +731,7 @@ export const quickValidateAudio = async (filePath: string) => {
       return false;
     }
     
-    // 3. 获取文件信息
+    // 获取文件大小
     const stats = await RNFS.stat(cleanPath);
     console.log('文件大小:', stats.size, '字节');
     
@@ -710,18 +740,17 @@ export const quickValidateAudio = async (filePath: string) => {
       return false;
     }
     
-    // 4. 尝试获取时长
-    const duration = await getAudioDuration(filePath);
+    // 尝试获取时长
+    const duration = await AudioMerger.getAudioDuration(filePath);
     console.log('音频时长:', duration, '秒');
     
-    if (duration > 0) {
-      console.log('✅ 音频文件验证成功');
-      return true;
-    } else {
+    if (duration === 0) {
       console.log('❌ 无法获取音频时长');
       return false;
     }
     
+    console.log('✅ 音频文件验证通过');
+    return true;
   } catch (error) {
     console.error('快速验证失败:', error);
     return false;

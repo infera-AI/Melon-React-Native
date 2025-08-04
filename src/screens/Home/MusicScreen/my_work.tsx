@@ -16,20 +16,7 @@ import Sound from "react-native-sound";
 import { useMessageModal } from '@/contexts/MessageModalContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { formatTime } from '@/utils/helpers';
-
-// normalize函数
-const normalize = (size: number) => {
-  const { width } = Dimensions.get('window');
-  const scale = width / 375;
-  return Math.round(size * scale);
-};
-
-// normalizeFontSize函数
-const normalizeFontSize = (size: number) => {
-  const { width } = Dimensions.get('window');
-  const scale = width / 375;
-  return Math.round(size * scale);
-};
+import { normalize, normalizeFontSize } from '@/utils/stylesUtil';
 
 interface Music {
   id: number;

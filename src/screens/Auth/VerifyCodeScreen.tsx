@@ -22,16 +22,7 @@ import { useUserStore } from '../../store';
 import { getDeviceInfo } from '../../utils/helpers';
 import FullScreenLoader from '../../components/FullScreenLoader';
 import { SafeAreaView } from 'react-native-safe-area-context';
-
-const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
-const normalize = (size: number, based: 'width' | 'height' = 'width') => {
-  const newSize = based === 'height' ? size * screenHeight / 812 : size * screenWidth / 375;
-  return Math.round(newSize);
-};
-const normalizeFontSize = (size: number) => {
-  const newSize = size * screenWidth / 375;
-  return Math.min(Math.round(newSize), size);
-};
+import { normalize, normalizeFontSize } from '../../utils/stylesUtil';
 
 type VerifyCodeScreenRouteProp = RouteProp<AuthStackParamList, 'VerifyCode'>;
 type VerifyCodeScreenNavigationProp = StackNavigationProp<AuthStackParamList, 'VerifyCode'>;
@@ -338,7 +329,6 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: theme.textPrimary,
     textAlign: 'center',
-    marginLeft: -normalize(40),
   },
   subtitle: {
     paddingHorizontal: normalize(10),

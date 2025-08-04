@@ -79,7 +79,6 @@ const TranslateScreen: React.FC = () => {
         message: t('translate_screen.coming_soon')
       })
       return
-      navigation.navigate('DocumentTranslation')
     } else if (name === 'AudioTranslation') {
       navigation.navigate('AudioTranslation')
     } else if (name === 'ImageTranslation') {
@@ -137,7 +136,7 @@ const TranslateScreen: React.FC = () => {
 
   useEffect(() => {
     
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   }, [])
 
   return (
@@ -165,7 +164,7 @@ const TranslateScreen: React.FC = () => {
               start={{ x: 0.145, y: 0.2 }}
               end={{ x: 0.18, y: 1 }}
               style={styles.linearGradientBg}
-            ></LinearGradient>
+             />
             <View style={styles.headerCardContent}>
               {/* 头像 */}
               <View style={styles.avatarPlaceholder}>

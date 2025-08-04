@@ -5,7 +5,6 @@ import {
   StyleSheet,
   TouchableOpacity,
   Image,
-  Dimensions,
   FlatList,
   Modal,
   Pressable,
@@ -18,6 +17,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import Slider from "@react-native-community/slider";
 import Clipboard from "@react-native-clipboard/clipboard";
 import theme from "@/utils/theme";
+import { normalize, normalizeFontSize } from '@/utils/stylesUtil';
 
 // 控制按钮图片资源
 const img_last_song = require("../../../../assets/images/last_song.png");
@@ -27,19 +27,7 @@ const img_pause_btn = require("../../../../assets/images/music_pause.png");
 const img_music_share = require("../../../../assets/images/music_share.png");
 const img_music_back_btn = require("../../../../assets/images/music_back_btn.png");
 
-const { width } = Dimensions.get("window");
-
-// normalize函数
-const normalize = (size: number) => {
-  const scale = width / 375;
-  return Math.round(size * scale);
-};
-
-// normalizeFontSize函数
-const normalizeFontSize = (size: number) => {
-  const scale = width / 375;
-  return Math.min(Math.round(size * scale), size);
-};
+// const { width } = Dimensions.get("window");
 
 const MusicPlayScreen = ({ navigation, route }: any) => {
   const { music={} ,songs=[]} = route.params;
@@ -265,7 +253,7 @@ const MusicPlayScreen = ({ navigation, route }: any) => {
         console.log('页面失去焦点，清理音频数据');
         cleanupAudioData();
       };
-    }, [])
+    }, [cleanupAudioData])
   );
 
   //切换歌曲
@@ -507,7 +495,7 @@ const MusicPlayScreen = ({ navigation, route }: any) => {
               onPress={() => {
                 show({
                   title: t('common.copy_success'),
-                  message: t('common.link_copied_to_clipboard'),
+                  message: t('music.link_copied'),
                 });
                 Clipboard.setString(currentMusic.url);
                 setShowShareModal(false)

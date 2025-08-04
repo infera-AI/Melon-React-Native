@@ -21,16 +21,8 @@ import { useUserStore } from '../../store';
 import { useMessageModal } from '../../contexts/MessageModalContext';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { getUserInfo } from '../../api/profile/profile';
+import { normalize,normalizeFontSize } from '@/utils/stylesUtil';
 
-const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
-const normalize = (size: number, based: 'width' | 'height' = 'width') => {
-  const newSize = based === 'height' ? size * screenHeight / 812 : size * screenWidth / 375;
-  return Math.round(newSize);
-};
-const normalizeFontSize = (size: number) => {
-  const newSize = size * screenWidth / 375;
-  return Math.min(Math.round(newSize), size);
-};
 
 // type LoginPhoneScreenNavigationProp = StackNavigationProp<any, 'MainApp'>;
 
@@ -113,10 +105,8 @@ const LoginPhoneScreen: React.FC = () => {
        // 保存token到zustand
        useUserStore.getState().setToken(loginResult.token);
        getUserInfoRequest();
-        // 跳转到密码设置页面
-        navigation.navigate('MainApp', {
-          screen: 'Translate',
-        });
+        // 跳转到首页
+        navigation.reset({index: 0, routes: [{name: 'MainApp'}]})
       } else {
         show({
          message: t('verify_code.login_failed'),
@@ -330,7 +320,6 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: theme.textPrimary,
     textAlign: 'center',
-    marginLeft: -normalize(40),
   },
   tabContainer: {
     flexDirection: 'row',

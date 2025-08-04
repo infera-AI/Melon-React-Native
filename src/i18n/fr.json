@@ -19,6 +19,7 @@
     "write_lyrics": "Écrire les paroles",
     "enter_lyrics_placeholder": "Entrez les paroles dans votre esprit.",
     "select_music_style": "Sélectionner le style de musique",
+    "select_music_style_empty": "Veuillez sélectionner un style de musique",
     "lyrics_empty": "Veuillez saisir les paroles",
     "polish_lyrics_failed": "Échec du polissage des paroles",
     "get_recommend_styles_failed": "Échec de l'obtention des styles recommandés",

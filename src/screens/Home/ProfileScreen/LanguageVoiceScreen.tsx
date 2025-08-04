@@ -17,16 +17,7 @@ import Sound from 'react-native-sound';
 import FullScreenLoader from '@/components/FullScreenLoader';
 import { useMessageModal } from '@/contexts/MessageModalContext';
 import { useLanguage } from '../../../contexts/LanguageContext';
-
-const normalize = (size: number, based: 'width' | 'height' = 'width') => {
-  const { width, height } = require('react-native').Dimensions.get('window');
-  const scale = based === 'width' ? width / 375 : height / 812;
-  return Math.round(size * scale);
-};
-
-const normalizeFontSize = (size: number) => {
-  return normalize(size, 'width');
-};
+import { normalize, normalizeFontSize } from '@/utils/stylesUtil';
 
 type LanguageVoiceScreenNavigationProp = NativeStackNavigationProp<ProfileStackParamList, 'LanguageVoice'>;
 

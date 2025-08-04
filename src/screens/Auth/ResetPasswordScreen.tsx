@@ -19,15 +19,7 @@ import { modifyPassword } from '../../api/login';
 import { useMessageModal } from '../../contexts/MessageModalContext';
 import { RootStackParamList } from '../../navigation/AppNavigator';
 import { SafeAreaView } from 'react-native-safe-area-context';
-const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
-const normalize = (size: number, based: 'width' | 'height' = 'width') => {
-  const newSize = based === 'height' ? size * screenHeight / 812 : size * screenWidth / 375;
-  return Math.round(newSize);
-};
-const normalizeFontSize = (size: number) => {
-  const newSize = size * screenWidth / 375;
-  return Math.min(Math.round(newSize), size);
-};
+import { normalize, normalizeFontSize } from '../../utils/stylesUtil';
 
 type ResetPasswordScreenNavigationProp = StackNavigationProp<RootStackParamList, 'MainApp'>;
 
@@ -69,9 +61,7 @@ const ResetPasswordScreen: React.FC = () => {
         confirm_password: confirmPassword,
       });
       console.log('resetPassword', response);
-      navigation.navigate('MainApp', {
-        screen: 'Translate',
-      });
+      navigation.reset({index: 0, routes: [{name: 'MainApp'}]})
     } catch (error: any) {
       show({
         message: error.message,
@@ -185,7 +175,6 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: theme.textPrimary,
     textAlign: 'center',
-    marginLeft: -normalize(40),
   },
   subtitle: {
     fontSize: normalizeFontSize(16),

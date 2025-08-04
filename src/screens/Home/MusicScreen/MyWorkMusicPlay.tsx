@@ -20,6 +20,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import Slider from "@react-native-community/slider";
 import Clipboard from "@react-native-clipboard/clipboard";
 import theme from "@/utils/theme";
+import { normalize, normalizeFontSize } from '@/utils/stylesUtil';
 
 type Music = {
   id: number;
@@ -42,18 +43,6 @@ const img_music_delete = require("@/assets/music/music_delete_icon.png");
 const img_music_save = require("@/assets/music/music_reload_icon.png");
 
 const { width } = Dimensions.get("window");
-
-// normalize函数
-const normalize = (size: number) => {
-  const scale = width / 375;
-  return Math.round(size * scale);
-};
-
-// normalizeFontSize函数
-const normalizeFontSize = (size: number) => {
-  const scale = width / 375;
-  return Math.min(Math.round(size * scale), size);
-};
 
 const MyWorkMusicPlay = ({ navigation, route }: any) => {
   const { music={},myWorkIds=[] } = route.params;

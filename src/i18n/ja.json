@@ -19,6 +19,7 @@
     "write_lyrics": "歌詞を書く",
     "enter_lyrics_placeholder": "心の中の歌詞を入力してください。",
     "select_music_style": "音楽スタイルを選択",
+    "select_music_style_empty": "音楽スタイルを選択してください",
     "lyrics_empty": "歌詞を入力してください",
     "polish_lyrics_failed": "歌詞の磨きに失敗しました",
     "get_recommend_styles_failed": "推奨スタイルの取得に失敗しました",

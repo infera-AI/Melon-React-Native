@@ -18,16 +18,7 @@ import { submitFeedback, getFeedbackTypeChoices } from '../../../api/profile/pro
 import { launchImageLibrary } from 'react-native-image-picker';
 import { useMessageModal } from '@/contexts/MessageModalContext';
 import { useLanguage } from '../../../contexts/LanguageContext';
-
-const normalize = (size: number, based: 'width' | 'height' = 'width') => {
-  const { width, height } = require('react-native').Dimensions.get('window');
-  const scale = based === 'width' ? width / 375 : height / 812;
-  return Math.round(size * scale);
-};
-
-const normalizeFontSize = (size: number) => {
-  return normalize(size, 'width');
-};
+import { normalize, normalizeFontSize } from '@/utils/stylesUtil';
 
 type ProductFeedbackScreenNavigationProp = NativeStackNavigationProp<ProfileStackParamList, 'ProductFeedback'>;
 
