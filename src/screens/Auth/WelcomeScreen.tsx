@@ -8,6 +8,7 @@ import {
   Platform,
   Dimensions,
   Image,
+  ScrollView,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
@@ -17,19 +18,10 @@ import { useLanguage } from '../../contexts/LanguageContext';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import CountryFlag from 'react-native-country-flag';
 import { languageToCountryCode, supportedLanguages } from "@/i18n/languages"
+import { normalize, normalizeFontSize, wrapTextByLetters } from '../../utils/stylesUtil';
 
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '@/navigation/AppNavigator'
-
-const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
-const normalize = (size: number, based: 'width' | 'height' = 'width') => {
-  const newSize = based === 'height' ? size * screenHeight / 812 : size * screenWidth / 375;
-  return Math.round(newSize);
-};
-const normalizeFontSize = (size: number) => {
-  const newSize = size * screenWidth / 375;
-  return Math.min(Math.round(newSize), size);
-};
 
 type WelcomeScreenNavigationProp = StackNavigationProp<AuthStackParamList, 'Initial'>;
 
@@ -186,14 +178,14 @@ const WelcomeScreen: React.FC = () => {
                 <View style={styles.agreementTextContainer}>
                   <Text style={styles.agreementText}>
                     {t('welcome.agreement_text')}{' '}
+                    <Text style={styles.agreementLink} onPress={handleUserServiceAgreement}>
+                      {t('welcome.user_service_agreement')}
+                    </Text>
+                    {' '}{t('welcome.and')}{' '}
+                    <Text style={styles.agreementLink} onPress={handlePrivacyPolicy}>
+                      {t('welcome.privacy_policy')}
+                    </Text>
                   </Text>
-                  <TouchableOpacity onPress={handleUserServiceAgreement}>
-                     <Text style={styles.agreementLink}>{t('welcome.user_service_agreement')}</Text>
-                   </TouchableOpacity>
-                   <Text style={styles.agreementText}> {t('welcome.and')} </Text>
-                   <TouchableOpacity onPress={handlePrivacyPolicy}>
-                     <Text style={styles.agreementLink}>{t('welcome.privacy_policy')}</Text>
-                   </TouchableOpacity>
                 </View>
               </View>
           </View>
@@ -210,7 +202,7 @@ const WelcomeScreen: React.FC = () => {
                 <Text style={styles.modalClose}>✕</Text>
               </TouchableOpacity>
             </View>
-            <View style={styles.languageList}>
+            <ScrollView style={styles.languageList}>
               {supportedLanguages.map((lang, index) => (
                 <TouchableOpacity
                   key={index}
@@ -235,7 +227,7 @@ const WelcomeScreen: React.FC = () => {
                   )}
                 </TouchableOpacity>
               ))}
-            </View>
+            </ScrollView>
           </View>
         </View>
       )}
@@ -397,7 +389,6 @@ const styles = StyleSheet.create({
       alignItems: 'center',
       backgroundColor: theme.backgroundSecondary,
       borderRadius: normalize(12),
-      paddingVertical: normalize(16, 'height'),
       paddingHorizontal: normalize(16),
       width: normalize(213),
       height: normalize(48, 'height'),
@@ -423,6 +414,7 @@ const styles = StyleSheet.create({
       fontWeight: '500',
       color: theme.textPrimary,
       flex: 1,
+      textAlign:'left',
     },
     dropdownIcon: {
       width: normalize(11),
@@ -465,8 +457,6 @@ const styles = StyleSheet.create({
        fontWeight: 'bold',
      },
     agreementTextContainer: {
-      flexDirection: 'row',
-      flexWrap: 'wrap',
       alignItems: 'center',
       justifyContent: 'center',
     },
@@ -484,6 +474,11 @@ const styles = StyleSheet.create({
       lineHeight: normalize(18, 'height'),
       letterSpacing: -0.4,
       textDecorationLine: 'underline',
+    },
+    letterBreak: {
+      // 强制在任何字符处换行
+      wordBreak: 'break-all' as any,
+      overflowWrap: 'break-word' as any,
     },
     // 语言选择模态框样式
     modalOverlay: {

@@ -1,5 +1,5 @@
 import React, { useEffect ,useState,useCallback} from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -12,22 +12,9 @@ import { AudioDurationManager } from '@/utils/AudioPlayerController';
 import { saveMusicWork } from '@/api/music/music';
 import FullScreenLoader from '@/components/FullScreenLoader';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { normalize, normalizeFontSize } from '@/utils/stylesUtil';
 
 type MusicPreviewScreenNavigationProp = NativeStackNavigationProp<MusicStackParamList, 'MusicPreview'>;
-
-const { width } = Dimensions.get("window");
-
-// normalize函数
-const normalize = (size: number) => {
-  const scale = width / 375;
-  return Math.round(size * scale);
-};
-
-// normalizeFontSize函数
-const normalizeFontSize = (size: number) => {
-  const scale = width / 375;
-  return Math.min(Math.round(size * scale), size);
-};
 
 // 定义音乐类型
 interface Music {

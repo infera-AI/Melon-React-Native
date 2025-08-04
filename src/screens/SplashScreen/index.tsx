@@ -6,8 +6,6 @@ import { useUserStore } from '../../store';
 import { RootStackParamList } from '../../navigation/AppNavigator';
 
 const { width, height } = Dimensions.get('window');
-const IMAGE_SIZE = Math.min(width, height);
-
 const SplashScreen: React.FC = () => {
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
   const fadeAnim = useRef(new Animated.Value(1)).current;
@@ -24,13 +22,13 @@ const SplashScreen: React.FC = () => {
       });
       return unsub;
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   }, []);
 
   useEffect(() => {
     if (!hydrated) return;
     const token = useUserStore.getState().token;
-    // console.log('hydrated token ==>', token);
+    console.log('hydrated token ==>', token);
     setTimeout(() => {
       Animated.timing(fadeAnim, {
         toValue: 0,
@@ -49,7 +47,7 @@ const SplashScreen: React.FC = () => {
       });
     }, 1500)
     
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   }, [hydrated])
 
   return (
@@ -59,7 +57,7 @@ const SplashScreen: React.FC = () => {
         <Image
           source={require('../../../assets/images/splash.png')}
           style={styles.image}
-          resizeMode="contain"
+          resizeMode="stretch"
         />
       </Animated.View>
     </SafeAreaView>
@@ -78,8 +76,13 @@ const styles = StyleSheet.create({
     backgroundColor: '#000',
   },
   image: {
-    width: IMAGE_SIZE,
-    height: IMAGE_SIZE,
+    width: width,
+    height: height,
+    position:'absolute',
+    top:0,
+    left:0,
+    right:0,
+    bottom:0,
   },
 });
 

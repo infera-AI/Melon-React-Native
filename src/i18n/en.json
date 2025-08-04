@@ -286,6 +286,7 @@
     "write_lyrics": "Write Lyrics",
     "enter_lyrics_placeholder": "Enter the lyrics in your mind.",
     "select_music_style": "Select Music Style",
+    "select_music_style_empty": "Please select music style",
     "lyrics_empty": "Please enter lyrics",
     "polish_lyrics_failed": "Failed to polish lyrics",
     "get_recommend_styles_failed": "Failed to get recommend styles",

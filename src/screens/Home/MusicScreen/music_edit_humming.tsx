@@ -1,31 +1,19 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, TextInput, ScrollView, Dimensions, Modal } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image, TextInput, ScrollView, Modal } from 'react-native';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import MaskedView from '@react-native-masked-view/masked-view';
 import LinearGradient from 'react-native-linear-gradient';
 import { useMusicStore } from '@/store/modules/music.store';
 import { formatTime } from '@/utils';
-import { AudioDurationManager } from '@/utils/AudioPlayerController';
-import { AudioPlayer, quickValidateAudio } from '@/utils/audioUtils';
+import { AudioPlayer, quickValidateAudio ,getAudioDuration} from '@/utils/audioUtils';
 import { polishLyrics } from '@/api/music/music';
 import FullScreenLoader from '@/components/FullScreenLoader';
 import { useMessageModal } from '@/contexts/MessageModalContext';
 import { supportedLanguages } from '@/i18n/languages';
 import { translateText } from '@/api/profile/profile';
 import { useLanguage } from '@/contexts/LanguageContext';
-
-
-const { width } = Dimensions.get('window');
-
-const normalize = (size: number) => {
-  const scale = width / 375;
-  return Math.round(size * scale);
-};
-
-const normalizeFontSize = (size: number) => {
-  const scale = width / 375;
-  return Math.min(Math.round(size * scale), size);
-};
+import { normalize, normalizeFontSize } from '@/utils/stylesUtil';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const CARD_RADIUS = normalize(18);
 const CARD_PADDING = normalize(16);
@@ -91,7 +79,7 @@ const MusicEditHummingScreen: React.FC<{route: any}> = ({route}) => {
       }
       
       try {
-        const durationValue = await AudioDurationManager.getDuration(uri);
+        const durationValue = await getAudioDuration(uri);
         console.log('获取到的音频时长:', durationValue);
         setDuration(durationValue);
       } catch (error) {
@@ -252,8 +240,9 @@ const MusicEditHummingScreen: React.FC<{route: any}> = ({route}) => {
     );
 
   return (
-    <View style={styles.container}>
-      {/* Header Row (Back Button) */}
+    <SafeAreaView style={styles.container} edges={['top','bottom']}>
+      <ScrollView>
+        {/* Header Row (Back Button) */}
       <View style={styles.headerRow}>
         <TouchableOpacity onPress={() => {
           cleanupAudioData();
@@ -352,7 +341,7 @@ const MusicEditHummingScreen: React.FC<{route: any}> = ({route}) => {
           <View style={styles.styleCard}>
             <View style={styles.lyricCardHeader}>
               <Text style={styles.lyricCardTitle}>{t('music.select_music_style')}</Text>  
-              <TouchableOpacity style={styles.aiPolish} onPress={()=>{}}>
+              <TouchableOpacity style={styles.aiPolish} onPress={handleAiPolish}>
                 <Image
                   source={require('../../../../assets/images/ai_polishing_star.png')}
                   style={styles.aiIcon}
@@ -441,8 +430,9 @@ const MusicEditHummingScreen: React.FC<{route: any}> = ({route}) => {
             </View>
       </View>
         </Modal>
+      </ScrollView>
       <FullScreenLoader visible={isLoading} />
-    </View>
+    </SafeAreaView>
   );
 };
 

@@ -247,7 +247,6 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: theme.textPrimary,
     textAlign: 'center',
-    marginLeft: -normalize(40),
   },
   subtitle: {
     fontSize: normalizeFontSize(14),

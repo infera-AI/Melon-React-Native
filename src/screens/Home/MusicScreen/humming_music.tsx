@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Dimensions, Animated ,Image,ScrollView,Platform,PermissionsAndroid
+import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView, Platform, PermissionsAndroid, Alert, Animated, Easing, Pressable, FlatList
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useFocusEffect } from '@react-navigation/native';
@@ -19,18 +19,8 @@ import { singToMusic } from '@/api/music/music';
 import { mergeAudioFiles, validateAudioFiles, getTotalAudioDuration } from '../../../utils/audioUtils';
 import FullScreenLoader from '@/components/FullScreenLoader';
 import { useMusicStore } from '@/store/modules/music.store';
+import { normalize, normalizeFontSize } from '@/utils/stylesUtil';
 
-const { width } = Dimensions.get('window');
-
-const normalize = (size: number) => {
-  const scale = width / 375;
-  return Math.round(size * scale);
-};
-
-const normalizeFontSize = (size: number) => {
-  const scale = width / 375;
-  return Math.min(Math.round(size * scale), size);
-};
 
 const MAXDURATION = 1000;
 
@@ -49,7 +39,6 @@ const HummingMusicScreen: React.FC = () => {
   const accumulatedTime = useRef<number>(0); // 累计录音时间
   const isPaused = useRef<boolean>(false); // 是否暂停状态
   const mergedAudioPathRef = useRef<string>('');
-  const mergedAudioTimeRef = useRef<number>(0);
   const [isLoading, setIsLoading] = useState(false);
 
 
@@ -103,7 +92,6 @@ const HummingMusicScreen: React.FC = () => {
       
       // 清理合并的音频路径
       mergedAudioPathRef.current = '';
-      mergedAudioTimeRef.current = 0;
       
       console.log('录音数据清理完成');
     } catch (error) {
@@ -274,11 +262,11 @@ const HummingMusicScreen: React.FC = () => {
   
   const handleStartRecording = async () => {
      // 如果是第一次录音，重置时间
-     if (!isPaused.current) {
+    //  if (!isPaused.current) {
        setRealRecordingTime(0);
        realRecordingTimeRef.current = 0;
        accumulatedTime.current = 0;
-     }
+    //  }
      
      // 开始真实录音
      const success = await startRecording();
@@ -336,10 +324,10 @@ const HummingMusicScreen: React.FC = () => {
            name: `recording_music_${recordFileList.length}.m4a`,
            type: 'audio/m4a',
          }
-         const newRecordFileList = [...recordFileList];
-         newRecordFileList.push(recordFile);
-         setRecordFileList(newRecordFileList);
-         console.log('录音片段列表:', newRecordFileList);
+        //  const newRecordFileList = [...recordFileList];
+        //  newRecordFileList.push(recordFile);
+         setRecordFileList([recordFile]);
+         console.log('录音片段列表:', [recordFile]);
          
        } catch (error) {
          console.error('保存录音文件失败:', error);
@@ -350,11 +338,13 @@ const HummingMusicScreen: React.FC = () => {
 
    //哼唱成曲
    const handleHummingMusic = async() => {
-    console.log('mergedAudioPathRef.current', mergedAudioPathRef.current);
+    // console.log('mergedAudioPathRef.current', mergedAudioPathRef.current);
+    const uri = recordFileList[0].uri
+    console.log('uri', uri);
     try{
         setIsLoading(true);
         const res = await singToMusic({
-            uri: mergedAudioPathRef.current,
+            uri: uri,
             name:'merged_music.m4a',
             type:'audio/m4a'
         });
@@ -364,7 +354,7 @@ const HummingMusicScreen: React.FC = () => {
             lyrics: res.work_lyrics,
             musicStyles: res.work_genres
         });
-        navigation.navigate('MusicEditHumming' as any,{uri: mergedAudioPathRef.current, duration: mergedAudioTimeRef.current});
+        navigation.navigate('MusicEditHumming' as any,{uri: uri});
     }catch(error){
         console.error('哼唱成曲失败:', error);
         show({message: t('recording.humming_music_failed')});  
@@ -399,7 +389,7 @@ const HummingMusicScreen: React.FC = () => {
       }
 
       // 获取总时长
-      const duration = await getTotalAudioDuration(validFiles);
+      // const duration = await getTotalAudioDuration(validFiles);
 
       // 合成音频文件
       const mergedPath = await mergeAudioFiles(validFiles);
@@ -408,16 +398,15 @@ const HummingMusicScreen: React.FC = () => {
       // 处理路径格式 - 修复多余的斜杠
       let finalPath = mergedPath;
       if (recordFileList.length > 1) {
-        // 如果是合并的文件，需要添加 file:// 前缀，但不要多余的斜杠
-        finalPath = `file://${mergedPath}`;
+        // 如果是合并的文件，需要添加 file:/// 前缀，但不要多余的斜杠
+        finalPath = `file:///${mergedPath}`;
       }
       
       mergedAudioPathRef.current = finalPath;
-      mergedAudioTimeRef.current = duration;
 
       console.log('最终音频路径:', finalPath);
       console.log('音频合成成功:', mergedPath);
-      console.log('总时长:', duration, '秒');
+      // console.log('总时长:', duration, '秒');
 
       return true
     } catch (error) {
@@ -430,10 +419,10 @@ const HummingMusicScreen: React.FC = () => {
 
    //下一步
    const handleNext = async () => {
-    const success = await handleMergeAudio();
-    if (success) {
+    // const success = await handleMergeAudio();
+    // if (success) {
       handleHummingMusic();
-    }
+    // }
    }
 
    const handleBack = async () => {
@@ -636,37 +625,23 @@ const styles = StyleSheet.create({
   mainCard: {
     backgroundColor: '#262626',
     borderRadius: normalize(12),
-    height: normalize(574),
+    height: normalize(400),
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'flex-end',
     position: 'relative',
     marginBottom: normalize(61),
     marginTop: normalize(14),
-  },
-  gradientCircle: {
-    position: 'absolute',
-    left: normalize(-119),
-    top: normalize(472),
-    width: normalize(621),
-    height: normalize(559),
-    borderRadius: normalize(310.5),
-    backgroundColor: '#85F380',
-    opacity: 0.6,
+    paddingBottom: normalize(30),
   },
   animationContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    height: normalize(300),
-    marginTop: normalize(0),
-    backgroundColor: 'red',
+    width: "100%",
+    height: normalize(500),
+    position: 'absolute',
+    top:normalize(-120),
+    right:normalize(0),
   },
   lottieAnimation: {
-    width: normalize(450),
-    height: normalize(517),
-    // backgroundColor: 'blue',
-    position: 'absolute',
-    top: "-60%",
-    right: "-70%",
+    flex:1,
   },
   starIcon: {
     position: 'absolute',
@@ -683,7 +658,6 @@ const styles = StyleSheet.create({
   },
   recordButton: {
     marginBottom: normalize(20),
-    marginTop: normalize(10),
   },
   recordCircle: {
     width: normalize(56),
@@ -767,6 +741,8 @@ const styles = StyleSheet.create({
      flexDirection: 'row',
      gap: normalize(12),
      marginTop: normalize(20),
+     position:'absolute',
+     bottom:normalize(-10),
    },
    mergeButton: {
      backgroundColor: '#FF6B35',

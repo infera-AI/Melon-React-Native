@@ -6,7 +6,6 @@ import {
   TouchableOpacity,
   TextInput,
   StatusBar,
-  Dimensions,
   Platform,
   KeyboardAvoidingView,
   Image,
@@ -20,17 +19,7 @@ import { useLanguage } from '../../contexts/LanguageContext';
 import { getLoginCodeApi } from '../../api/login/auth';
 import { useMessageModal } from '../../contexts/MessageModalContext';
 import { SafeAreaView } from 'react-native-safe-area-context';
-
-const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
-
-const normalize = (size: number, based: 'width' | 'height' = 'width') => {
-  const newSize = based === 'height' ? size * screenHeight / 812 : size * screenWidth / 375;
-  return Math.round(newSize);
-};
-const normalizeFontSize = (size: number) => {
-  const newSize = size * screenWidth / 375;
-  return Math.min(Math.round(newSize), size);
-};
+import { normalize, normalizeFontSize } from '../../utils/stylesUtil';
 
 type RegisterEmailScreenNavigationProp = StackNavigationProp<AuthStackParamList, 'RegisterEmail'>;
 
@@ -185,7 +174,7 @@ const RegisterEmailScreen: React.FC = () => {
             <TouchableOpacity style={styles.backButton} onPress={handleBack}>
               <Image source={require('../../../src/assets/main/page_return_icon.png')} style={styles.backArrow} />
             </TouchableOpacity>
-                      <Text style={styles.headerTitle}>{t('register.register_melon_account')}</Text>
+              <Text style={styles.headerTitle}>{t('register.register_melon_account')}</Text>
             <View style={{ width: normalize(40) }} />
           </View>
 
@@ -269,15 +258,13 @@ const RegisterEmailScreen: React.FC = () => {
               </View>
             </TouchableOpacity>
             <View style={styles.agreementTextContainer}>
-                <Text style={styles.agreementText}>{t('register.agreement_text')} </Text>
-                <TouchableOpacity onPress={handleUserAgreement}>
-                  <Text style={styles.agreementLink}>{t('register.user_service_agreement')}</Text>
-                </TouchableOpacity>
+                <Text style={styles.agreementText}>{t('register.agreement_text')} 
+                <Text style={styles.agreementLink} onPress={handleUserAgreement}>{t('register.user_service_agreement')}</Text>
                 <Text style={styles.agreementText}> {t('register.and')} </Text>
-                <TouchableOpacity onPress={handlePrivacyPolicy}>
-                  <Text style={styles.agreementLink}>{t('register.privacy_policy')}</Text>
-                </TouchableOpacity>
+                  <Text style={styles.agreementLink} onPress={handlePrivacyPolicy}>{t('register.privacy_policy')}</Text>
                 <Text style={styles.agreementText}>.</Text>
+                </Text>
+                
               </View>
           </View>
 
@@ -363,7 +350,6 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: theme.textPrimary,
     textAlign: 'center',
-    marginLeft: -normalize(40), // 保证标题居中
   },
   // === 新增Tab切换相关样式 ===
   tabRow: {

@@ -13,20 +13,9 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { AuthStackParamList } from './AuthNavigator';
+import { normalize, normalizeFontSize } from '../../utils/stylesUtil';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
-
-// 响应式工具函数
-const normalize = (size: number, based: 'width' | 'height' = 'width') => {
-  const newSize = based === 'height' ? size * screenHeight / 812 : size * screenWidth / 375;
-  return Math.round(newSize);
-};
-
-// 字体大小响应式函数
-const normalizeFontSize = (size: number) => {
-  const newSize = size * screenWidth / 375;
-  return Math.min(Math.round(newSize), size);
-};
 
 type PrivacyPolicyScreenNavigationProp = StackNavigationProp<AuthStackParamList, 'PrivacyPolicy'>;
 

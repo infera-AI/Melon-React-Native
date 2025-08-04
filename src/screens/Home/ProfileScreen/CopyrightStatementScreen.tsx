@@ -12,16 +12,7 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ProfileStackParamList } from './ProfileNavigator';
 import { useLanguage } from '../../../contexts/LanguageContext';
-
-const normalize = (size: number, based: 'width' | 'height' = 'width') => {
-  const { width, height } = require('react-native').Dimensions.get('window');
-  const scale = based === 'width' ? width / 375 : height / 812;
-  return Math.round(size * scale);
-};
-
-const normalizeFontSize = (size: number) => {
-  return normalize(size, 'width');
-};
+import { normalize, normalizeFontSize } from '@/utils/stylesUtil';
 
 type CopyrightStatementScreenNavigationProp = NativeStackNavigationProp<ProfileStackParamList, 'CopyrightStatement'>;
 

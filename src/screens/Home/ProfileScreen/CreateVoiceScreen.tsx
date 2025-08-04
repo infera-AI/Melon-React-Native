@@ -19,18 +19,9 @@ import { getVoiceprintDemoConfig } from '../../../api/profile';
 import { useVoiceStore } from '@/store';
 import { VoiceType } from '@/store/modules/voice.store';
 import { useLanguage } from '../../../contexts/LanguageContext';
+import { normalize, normalizeFontSize } from '@/utils/stylesUtil';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
-
-const normalize = (size: number, based: 'width' | 'height' = 'width') => {
-  const newSize = based === 'height' ? size * screenHeight / 812 : size * screenWidth / 375;
-  return Math.round(newSize);
-};
-
-const normalizeFontSize = (size: number) => {
-  const newSize = size * screenWidth / 375;
-  return Math.min(Math.round(newSize), size);
-};
 
 const langs={
   zh:'中文简体',
