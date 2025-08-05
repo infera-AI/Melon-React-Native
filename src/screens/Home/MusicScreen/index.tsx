@@ -13,7 +13,7 @@ import {
   Modal,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { polishLyrics, recommendGenres } from '@/api/music/music';
+import { polishLyrics, recommendGenres, generateMusic } from '@/api/music/music';
 import { useMessageModal } from '@/contexts/MessageModalContext';
 import FullScreenLoader from '@/components/FullScreenLoader';
 import { MusicStackParamList } from './navigator';
@@ -39,6 +39,7 @@ const MusicScreen: React.FC = () => {
   const [rightLanguage, setRightLanguage] = useState<string>("zh");
   const [type,setType] = useState<string>("");
   const {t} = useLanguage();
+  const [loading, setLoading] = useState(false);
 
   // 歌词润饰
   const handleAiPolish = async () => {
@@ -107,7 +108,30 @@ const MusicScreen: React.FC = () => {
       lyrics: lyrics,
       musicStyles: selectedStyles,
     });
-    navigation.navigate('GeneratingMusic' as never);
+    setLoading(true);
+    generateMusic({ 
+      work_title: title,
+      work_lyrics: lyrics,
+      work_genres: selectedStyles,
+    }).then((rsp) => {
+      setLoading(false);
+      if(!rsp.task_id){
+        show({
+          message: t('translate_screen.failed_again')
+        })
+        return
+      }
+      navigation.navigate('GeneratingMusic', {
+        taskId: rsp.task_id,
+        createTaskTime: Math.floor(performance.now())
+      });
+    }).catch(() => {
+      setLoading(false);
+      show({
+        message: t('http_service_error')
+      })
+    });
+    // navigation.navigate('GeneratingMusic' as never);
   }
 
   const handleLanguageSwitch = (type:string) => {
@@ -344,6 +368,10 @@ const MusicScreen: React.FC = () => {
       </View>
         </Modal>
     <FullScreenLoader visible={isLoading} />
+    <FullScreenLoader
+      visible={loading}
+      text={t('translate_screen.loading_text')}
+    />
     </SafeAreaView>
   );
 };

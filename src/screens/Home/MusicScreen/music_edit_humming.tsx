@@ -6,7 +6,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import { useMusicStore } from '@/store/modules/music.store';
 import { formatTime } from '@/utils';
 import { AudioPlayer, quickValidateAudio ,getAudioDuration} from '@/utils/audioUtils';
-import { polishLyrics } from '@/api/music/music';
+import { polishLyrics, generateMusic } from '@/api/music/music';
 import FullScreenLoader from '@/components/FullScreenLoader';
 import { useMessageModal } from '@/contexts/MessageModalContext';
 import { supportedLanguages } from '@/i18n/languages';
@@ -41,6 +41,8 @@ const MusicEditHummingScreen: React.FC<{route: any}> = ({route}) => {
   const {t} = useLanguage();
   const navigation = useNavigation();
   const currentTimeInterval = useRef<NodeJS.Timeout | null>(null);
+
+  const [loading, setLoading] = useState(false);
 
   // 清理音频相关数据
   const cleanupAudioData = useCallback(() => {
@@ -172,7 +174,7 @@ const MusicEditHummingScreen: React.FC<{route: any}> = ({route}) => {
     setIsLoading(false);
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if(lyrics.trim() === ""){
       show({
         message: t('music.lyrics_empty'),
@@ -190,7 +192,30 @@ const MusicEditHummingScreen: React.FC<{route: any}> = ({route}) => {
       lyrics: lyrics,
       musicStyles: selectedStyles,
     });
-    navigation.replace('GeneratingMusic' as never);
+    setLoading(true);
+    generateMusic({ 
+      work_title: title,
+      work_lyrics: lyrics,
+      work_genres: selectedStyles,
+    }).then((rsp) => {
+      setLoading(false);
+      if(!rsp.task_id){
+        show({
+          message: t('translate_screen.failed_again')
+        })
+        return
+      }
+      navigation.replace('GeneratingMusic' as never, {
+        taskId: rsp.task_id,
+        createTaskTime: Math.floor(performance.now())
+      });
+    }).catch(() => {
+      setLoading(false);
+      show({
+        message: t('http_service_error')
+      })
+    });
+    
   }
 
   const handleLanguageSelect = (language: string) => {
@@ -432,6 +457,10 @@ const MusicEditHummingScreen: React.FC<{route: any}> = ({route}) => {
         </Modal>
       </ScrollView>
       <FullScreenLoader visible={isLoading} />
+      <FullScreenLoader
+        visible={loading}
+        text={t('translate_screen.loading_text')}
+      />
     </SafeAreaView>
   );
 };

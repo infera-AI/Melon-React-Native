@@ -9,7 +9,7 @@ import {
   Modal,
   AppState,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { MusicStackParamList } from './navigator';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -23,7 +23,12 @@ import { normalize, normalizeFontSize } from '@/utils/stylesUtil';
 
 type GeneratingMusicScreenNavigationProp = NativeStackNavigationProp<MusicStackParamList, 'GeneratingMusic'>;
 
+const TRANSLATION_MAX_TIME = 120000 // 任务最大时长 (2分钟)，伪进度
+
+let getTaskInfoTimer:any = null
+
 const GeneratingMusicScreen: React.FC = () => {
+  const route = useRoute<any>();
   const navigation = useNavigation<GeneratingMusicScreenNavigationProp>();
   const navigationRef = useRef(navigation);
   navigationRef.current = navigation;
@@ -37,6 +42,8 @@ const GeneratingMusicScreen: React.FC = () => {
   const { show } = useMessageModal();
   const { t } = useLanguage();
   const { lyrics, musicStyles, title } = useMusicStore.getState().musicGenerateInfo;
+
+  const { taskId, createTaskTime } = route.params;
 
   // 清理所有轮询
   const cleanupPolling = () => {
@@ -56,25 +63,32 @@ const GeneratingMusicScreen: React.FC = () => {
   };
 
   useEffect(() => {
-    generateMusicRequest();
+    
+    console.log('接收taskId-----', taskId);
+    setProgress(0)
+    taskIdRef.current = taskId
+    startStatusPolling();
+    
+    // generateMusicRequest();
 
-    // 监听应用状态变化
-    const handleAppStateChange = (nextAppState: string) => {
-      if (nextAppState === 'background' || nextAppState === 'inactive') {
-        console.log('应用进入后台，清理轮询');
-        cleanupPolling();
-      }else{
-        console.log('应用进入前台，恢复轮询',taskIdRef.current);
-        startStatusPolling(taskIdRef.current);
-        startProgressSimulation();
-      }
-    };
+    // // 监听应用状态变化
+    // const handleAppStateChange = (nextAppState: string) => {
+    //   if (nextAppState === 'background' || nextAppState === 'inactive') {
+    //     console.log('应用进入后台，清理轮询');
+    //     cleanupPolling();
+    //   }else{
+    //     console.log('应用进入前台，恢复轮询',taskIdRef.current);
+    //     startStatusPolling(taskIdRef.current);
+    //     startProgressSimulation();
+    //   }
+    // };
 
-    const subscription = AppState.addEventListener('change', handleAppStateChange);
+    // const subscription = AppState.addEventListener('change', handleAppStateChange);
 
     return () => {
-      cleanupPolling();
-      subscription?.remove();
+      // cleanupPolling();
+      // subscription?.remove();
+      clearTimeout(getTaskInfoTimer)
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -85,55 +99,87 @@ const GeneratingMusicScreen: React.FC = () => {
     navigation.goBack();
     // 发生错误时清理轮询
     cleanupPolling();
+    clearTimeout(getTaskInfoTimer);
   }
 
   const generateMusicRequest = async () => {
     console.log(lyrics, musicStyles, title, 'lyrics, musicStyles');
     try {
-      setIsGenerating(true);
-      const res = await generateMusic({ 
-        work_title: title,
-        work_lyrics: lyrics,
-        work_genres: musicStyles,
-      });
-      console.log(res, 'res');
-      if(!res.task_id){
-        generRationFailed()
-        return
-      }
-      taskIdRef.current = res.task_id;
+      // setIsGenerating(true);
+      // const res = await generateMusic({ 
+      //   work_title: title,
+      //   work_lyrics: lyrics,
+      //   work_genres: musicStyles,
+      // });
+      // console.log(res, 'res');
+      // if(!res.task_id){
+      //   generRationFailed()
+      //   return
+      // }
+      // taskIdRef.current = res.task_id;
       
       // 开始轮询查询状态
-      startStatusPolling(res.task_id);
+      // startStatusPolling(taskIdRef.current);
       
-      // 开始模拟进度更新
-      startProgressSimulation();
+      // // 开始模拟进度更新
+      // startProgressSimulation();
       
       // 设置超时，3分钟后自动停止轮询
-      timeoutRef.current = setTimeout(() => {
-        console.log('轮询超时，自动停止');
-        cleanupPolling();
-        setIsGenerating(false);
-        show({message: t('music.generation_timeout')});
-        navigation.goBack();
-      }, 3 * 60 * 1000); // 3分
+      // timeoutRef.current = setTimeout(() => {
+      //   console.log('轮询超时，自动停止');
+      //   cleanupPolling();
+      //   setIsGenerating(false);
+      //   show({message: t('music.generation_timeout')});
+      //   navigation.goBack();
+      // }, 3 * 60 * 1000); // 3分
       
     } catch (error) {
-      console.log(error,'error')
-      generRationFailed()
+      // console.log(error,'error')
+      // generRationFailed()
     }
   };
 
   // 开始轮询查询状态
-  const startStatusPolling = (id: string) => {
-    if(!id){
-      generRationFailed()
-      return
-    }
-    statusInterval.current = setInterval(async () => {
-      await getMusicTaskStatusRequest(id);
-    }, 3500); // 每2秒查询一次
+  const startStatusPolling = () => {
+    // if(!id){
+    //   generRationFailed()
+    //   return
+    // }
+    // statusInterval.current = setInterval(async () => {
+    //   await getMusicTaskStatusRequest(id);
+    // }, 3500); // 每2秒查询一次
+    getTaskInfoTimer = setTimeout(async () => {
+      // await getMusicTaskStatusRequest(id);
+      getMusicTaskStatus({
+        task_id: taskIdRef.current,
+      }).then((rsp) => {
+        console.log('轮询状态------', rsp);
+        
+        if (!rsp) { // 说明在生成中
+          startStatusPolling()
+          let percent = toPercent(Math.floor(performance.now()) - createTaskTime)
+          setProgress(percent === 100 ? 99 : percent)
+          
+        } else { // 生成成功
+          setProgress(100)
+          
+          setTimeout(() => {
+            clearTimeout(getTaskInfoTimer)
+            navigation.replace('MusicPreview',{music:rsp});
+          }, 1000)
+          
+        }
+      }).catch(() => {
+        generRationFailed()
+      })
+
+    }, 3000); // 每2秒查询一次
   };
+
+  const toPercent = (num: number) => {
+    const percent = (num / TRANSLATION_MAX_TIME) * 100;
+    return Math.min(Math.round(percent), 100); // 四舍五入并确保最大值为 100
+  }
 
   // 开始模拟进度更新
   const startProgressSimulation = () => {

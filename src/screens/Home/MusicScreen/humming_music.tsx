@@ -21,6 +21,8 @@ import FullScreenLoader from '@/components/FullScreenLoader';
 import { useMusicStore } from '@/store/modules/music.store';
 import { normalize, normalizeFontSize } from '@/utils/stylesUtil';
 
+import { check, request, PERMISSIONS, RESULTS } from 'react-native-permissions';
+
 
 const MAXDURATION = 1000;
 
@@ -193,11 +195,11 @@ const HummingMusicScreen: React.FC = () => {
      // 开始录音
    const startRecording = async () => {
      try {
-       const hasPermission = await requestRecordingPermission();
-       if (!hasPermission) {
-         show({message: t('recording.permission_denied')});  
-         return false;
-       }
+      //  const hasPermission = await requestRecordingPermission();
+      //  if (!hasPermission) {
+      //    show({message: t('recording.permission_denied')});  
+      //    return false;
+      //  }
 
        // 检查是否已经在录音，如果是则先停止
        try {
@@ -261,7 +263,17 @@ const HummingMusicScreen: React.FC = () => {
 
   
   const handleStartRecording = async () => {
-     // 如果是第一次录音，重置时间
+    const permission =
+      Platform.OS === 'ios'
+        ? PERMISSIONS.IOS.MICROPHONE
+        : PERMISSIONS.ANDROID.RECORD_AUDIO;
+
+    const result = await check(permission);
+    if (result === RESULTS.GRANTED) {
+      // 权限已通过，开始录音
+      console.log('权限已通过');
+
+      // 如果是第一次录音，重置时间
     //  if (!isPaused.current) {
        setRealRecordingTime(0);
        realRecordingTimeRef.current = 0;
@@ -275,6 +287,34 @@ const HummingMusicScreen: React.FC = () => {
        setIsRecordingValid(false);
        isPaused.current = false;
      }
+      
+      return;
+    }
+
+    if (result === RESULTS.DENIED) {
+      const newResult = await request(permission);
+
+      if (newResult === RESULTS.GRANTED) {
+        // 首次获取权限成功
+        console.log('获得麦克风权限');
+        
+      } else {
+        console.log('未授权麦克风');
+        show({
+          message: t('translate_screen.mic_permission_error')
+        })
+      }
+      return;
+    }
+
+    if (result === RESULTS.BLOCKED) {
+      show({
+        message: t('translate_screen.mic_permission_error')
+      })
+      return;
+    }
+
+
    };
 
    // 停止录音

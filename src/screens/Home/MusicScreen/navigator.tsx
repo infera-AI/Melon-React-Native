@@ -18,7 +18,7 @@ export type MusicStackParamList = {
   MusicEdit: undefined;
   MusicEditHumming: {uri: string};
   MusicPreview: {music: any};
-  GeneratingMusic: undefined;
+  GeneratingMusic: { taskId: string; createTaskTime: number };
   MyWorkMusicPlay: {music: any,myWorkIds:number[]};
 };
 
