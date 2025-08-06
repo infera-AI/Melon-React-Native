@@ -7,7 +7,6 @@ import {
   TextInput,
   StatusBar,
   Platform,
-  Dimensions,
   KeyboardAvoidingView,
   Image,
 } from 'react-native';
@@ -271,7 +270,7 @@ const VerifyCodeScreen: React.FC = () => {
             style={[
               styles.confirmButton,
               countdown === 0 ? styles.confirmButtonActive : null,
-              { marginTop: 0, marginBottom: normalize(32, 'height') }
+              { marginTop: 0, marginBottom: normalize(32) }
             ]}
             onPress={handleResend}
             disabled={countdown > 0 || isResending}
@@ -308,8 +307,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginTop: Platform.OS === 'ios' ? normalize(44, 'height') : normalize(24, 'height'),
-    marginBottom: normalize(32, 'height'),
+    marginTop: Platform.OS === 'ios' ? normalize(44) : normalize(24),
+    marginBottom: normalize(32),
   },
   backButton: {
     width: normalize(40),
@@ -331,14 +330,16 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   subtitle: {
+    width: normalize(221),
     paddingHorizontal: normalize(10),
     fontSize: normalizeFontSize(24),
     fontWeight: '700',
     color: theme.textPrimary,
     textAlign: 'left',
     flexWrap: 'wrap',
-    marginTop: normalize(73, 'height'),
-    marginBottom: normalize(6, 'height'),
+    marginTop: normalize(73),
+    marginBottom: normalize(6),
+    letterSpacing: normalize(-0.4),
   },
   accountText: {
     paddingHorizontal: normalize(10),
@@ -349,18 +350,19 @@ const styles = StyleSheet.create({
   codeInputRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: normalize(32, 'height'),
+    marginBottom: normalize(32),
     paddingHorizontal: normalize(10),
-    marginTop: normalize(41, 'height'),
+    marginTop: normalize(41),
   },
   codeInput: {
     width: normalize(44),
-    height: normalize(56, 'height'),
+    height: normalize(56),
     borderRadius: normalize(12),
     backgroundColor: theme.backgroundSecondary,
     color: theme.textPrimary,
     fontSize: normalizeFontSize(24),
     textAlign: 'center',
+    textAlignVertical: 'center',
     marginHorizontal: normalize(4),
     borderWidth: 1,
     borderColor: theme.backgroundTertiary,
@@ -368,29 +370,16 @@ const styles = StyleSheet.create({
   codeInputFilled: {
     borderColor: theme.primary,
   },
-  resendRow: {
-    alignItems: 'center',
-    marginBottom: normalize(32, 'height'),
-  },
-  resendText: {
-    fontSize: normalizeFontSize(14),
-    color: theme.textSecondary,
-  },
-  resendActive: {
-    color: theme.primary,
-    textDecorationLine: 'underline',
-    fontWeight: '600',
-  },
   confirmButton: {
     width: '100%',
-    height: normalize(56, 'height'),
+    height: normalize(56),
     backgroundColor: theme.backgroundTertiary,
     borderRadius: 50,
     borderColor: theme.primary,
     borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: normalize(24, 'height'),
+    marginBottom: normalize(24),
   },
   disableButtonText: {
     color: theme.textPrimary,
@@ -398,36 +387,11 @@ const styles = StyleSheet.create({
   confirmButtonActive: {
     backgroundColor: theme.primary,
   },
-  getCodeButtonActive: {
-    backgroundColor: theme.backgroundSecondary,
-  },
   confirmButtonText: {
     fontSize: normalizeFontSize(18),
     fontWeight: '700',
     color: theme.backgroundTertiary,
     textAlign: 'center',
-  },
-  getCodeButtonText: {
-    fontSize: normalizeFontSize(18),
-    fontWeight: '700',
-    color: theme.textPrimary,
-    textAlign: 'center',
-  },
-  bottomRow: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: normalize(8, 'height'),
-  },
-  bottomText: {
-    fontSize: normalizeFontSize(13),
-    color: theme.textSecondary,
-  },
-  changeAccountText: {
-    fontSize: normalizeFontSize(13),
-    color: theme.primary,
-    fontWeight: '600',
-    textDecorationLine: 'underline',
   },
 });
 

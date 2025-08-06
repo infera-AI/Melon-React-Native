@@ -329,8 +329,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginTop: Platform.OS === 'ios' ? normalize(44, 'height') : normalize(24, 'height'),
-    marginBottom: normalize(32, 'height'),
+    marginTop: Platform.OS === 'ios' ? normalize(44) : normalize(24),
+    marginBottom: normalize(32),
   },
   backButton: {
     width: normalize(40),
@@ -355,8 +355,8 @@ const styles = StyleSheet.create({
   tabRow: {
     flexDirection: 'row',
     alignItems: 'flex-end',
-    marginBottom: normalize(24, 'height'),
-    marginTop: normalize(109, 'height'),
+    marginBottom: normalize(24),
+    marginTop: normalize(109),
   },
   tabItem: {
     marginRight: normalize(32), // Tab间距
@@ -375,10 +375,10 @@ const styles = StyleSheet.create({
     height: normalize(8),
     borderRadius: normalize(4),
     backgroundColor: theme.primary,
-    marginTop: normalize(8, 'height'),
+    marginTop: normalize(8),
   },
   inputArea: {
-    marginBottom: normalize(32, 'height'),
+    marginBottom: normalize(32),
   },
   inputBox: {
     flexDirection: 'row',
@@ -386,8 +386,8 @@ const styles = StyleSheet.create({
     backgroundColor: theme.backgroundSecondary,
     borderRadius: normalize(12),
     paddingHorizontal: normalize(16),
-    marginBottom: normalize(16, 'height'),
-    height: normalize(56, 'height'),
+    marginBottom: normalize(16),
+    height: normalize(56),
   },
   inputIcon: {
     width: normalize(24),
@@ -399,16 +399,16 @@ const styles = StyleSheet.create({
     color: theme.textPrimary,
     fontSize: normalizeFontSize(15),
     fontWeight: '400',
-    height: normalize(56, 'height'),
+    height: normalize(56),
   },
   registerButton: {
     width: '100%',
-    height: normalize(56, 'height'),
+    height: normalize(56),
     backgroundColor: theme.primary,
     borderRadius: 50,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: normalize(24, 'height'),
+    marginBottom: normalize(24),
   },
   registerButtonText: {
     fontSize: normalizeFontSize(18),
@@ -420,12 +420,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: normalize(16, 'height'),
+    marginBottom: normalize(16),
     paddingHorizontal: normalize(20),
   },
   checkboxContainer: {
     marginRight: normalize(8),
-    marginTop: normalize(2, 'height'),
+    marginTop: normalize(2),
   },
   checkbox: {
     width: normalize(12),
@@ -469,7 +469,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flex: 1,
     color: theme.textPrimary,
-    height: normalize(56, 'height'),
+    height: normalize(56),
   },
   locationIcon: {
     width: normalize(24),
@@ -507,7 +507,7 @@ const styles = StyleSheet.create({
   },
   modalContainer: {
     width: '100%',
-    maxHeight: normalize(400, 'height'),
+    maxHeight: normalize(400),
     backgroundColor: theme.backgroundSecondary,
     borderTopLeftRadius: normalize(20),
     borderTopRightRadius: normalize(20),
@@ -533,7 +533,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   countryList: {
-    maxHeight: normalize(300, 'height'),
+    maxHeight: normalize(300),
   },
   countryItem: {
     flexDirection: 'row',
@@ -558,7 +558,7 @@ const styles = StyleSheet.create({
     fontSize: normalizeFontSize(16),
     fontWeight: '400',
     color: theme.textPrimary,
-    marginBottom: normalize(2, 'height'),
+    marginBottom: normalize(2),
   },
   countryItemNameSelected: {
     fontWeight: '600',

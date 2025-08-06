@@ -286,7 +286,8 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     color: '#FFFFFF',
     textAlign: 'center',
-    marginBottom: normalize(20),
+    marginBottom: normalize(48),
+    marginTop:normalize(10)
   },
   content: {
     flex: 1,

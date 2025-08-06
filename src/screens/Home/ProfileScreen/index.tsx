@@ -177,7 +177,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: normalize(24),
   },
   userCard: {
-    width: normalize(327),
+    width: "100%",
     height: normalize(108),
     backgroundColor: '#262626',
     borderRadius: normalize(12),
@@ -243,7 +243,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   menuCard: {
-    width: normalize(327),
+    width: "100%",
     height: normalize(52),
     backgroundColor: '#262626',
     borderRadius: normalize(12),

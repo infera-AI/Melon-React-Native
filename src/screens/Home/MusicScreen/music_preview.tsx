@@ -174,7 +174,7 @@ const MusicPreviewScreen: React.FC<{route: RouteProp<MusicStackParamList, 'Music
     },[])
   return (
     <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
-      <ScrollView>
+      <ScrollView style={{width:'100%'}}>
         {/* 风格标签 */}
       <View style={styles.styleTag}>
         <Text style={styles.styleTagText}>{t('music.classical')}</Text>
@@ -242,7 +242,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#111',
     alignItems: 'center',
     paddingTop: normalize(32),
-    paddingHorizontal: normalize(12),
+    paddingHorizontal: normalize(24),
     paddingBottom: normalize(24),
     marginTop: normalize(24),
   },
@@ -262,9 +262,9 @@ const styles = StyleSheet.create({
     // fontWeight: 'bold',
   },
   lyricCard: {
-    width: normalize(327),
+    width: "100%",
     backgroundColor: '#222',
-    borderRadius: normalize(18),
+    borderRadius: normalize(12),
     padding: normalize(16),
     marginBottom: normalize(18),
     height: normalize(406), // 固定高度，让ScrollView可以滚动
@@ -356,7 +356,8 @@ const styles = StyleSheet.create({
     marginBottom: normalize(2),
   },
   homeBtn: {
-    width: normalize(327),
+    width: "100%",
+    height:normalize(48),
     backgroundColor: '#111',
     borderRadius: normalize(12),
     borderWidth: 2,
@@ -372,7 +373,8 @@ const styles = StyleSheet.create({
     textAlign:'center',
   },
   okBtn: {
-    width: normalize(327),
+    width: "100%",
+    height:normalize(48),
     backgroundColor: '#85F380',
     borderRadius: normalize(12),
     paddingVertical: normalize(16),
