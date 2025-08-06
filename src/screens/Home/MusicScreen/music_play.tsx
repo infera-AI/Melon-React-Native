@@ -494,7 +494,6 @@ const MusicPlayScreen = ({ navigation, route }: any) => {
               style={styles.copyBtn}
               onPress={() => {
                 show({
-                  title: t('common.copy_success'),
                   message: t('music.link_copied'),
                 });
                 Clipboard.setString(currentMusic.url);

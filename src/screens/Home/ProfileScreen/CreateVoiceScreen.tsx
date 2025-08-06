@@ -143,7 +143,7 @@ const CreateVoiceScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
-      <ScrollView>
+      <ScrollView style={{flex:1}}>
       {/* 顶部导航栏 */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={handleBack}>
@@ -390,12 +390,13 @@ const styles = StyleSheet.create({
     color: theme.primary,
    },
   languageSelector: {
-    marginHorizontal:normalize(44),
-    width: normalize(244),
+    alignItems:'center',
+    width: "100%",
     marginBottom: normalize(100),
     marginTop: normalize(26),
   },
   languageContainer: {
+    width:normalize(244),
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#262626',

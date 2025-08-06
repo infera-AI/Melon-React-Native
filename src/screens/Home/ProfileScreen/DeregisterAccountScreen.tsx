@@ -169,22 +169,22 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     paddingBottom: normalize(20),
     alignItems: 'center',
-    gap:normalize(20)
+    gap:normalize(11)
   },
   confirmButton: {
+    flex:1,
     backgroundColor: '#FF86D3',
     borderRadius: normalize(12),
     paddingVertical: normalize(12),
     paddingHorizontal: normalize(16),
-    minWidth: normalize(155),
     alignItems: 'center',
   },
   cancelButton:{
+    flex:1,
     backgroundColor: theme.backgroundTertiary,
     borderRadius: normalize(12),
     paddingVertical: normalize(12),
     paddingHorizontal: normalize(16),
-    minWidth: normalize(155),
     alignItems: 'center',
   },
   confirmButtonText: {

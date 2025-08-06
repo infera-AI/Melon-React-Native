@@ -227,15 +227,13 @@ const styles = StyleSheet.create({
     height: normalize(20),
   },
   submitButton: {
-    width: normalize(327),
     height: normalize(48),
     backgroundColor: '#85F380',
     borderRadius: normalize(12),
-    paddingVertical: normalize(12),
-    paddingHorizontal: normalize(16),
     marginHorizontal: normalize(24),
+    justifyContent:'center',
     alignItems: 'center',
-    marginTop: normalize(50),
+    marginTop: normalize(150),
     
   },
   submitButtonText: {

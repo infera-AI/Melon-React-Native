@@ -36,7 +36,7 @@ const GeneratingVoiceScreen: React.FC = () => {
   const { t } = useLanguage();
   useEffect(() => {
 
-      generateVoiceIdRequest();
+    generateVoiceIdRequest();
 
     // 模拟进度更新
     progressInterval.current = setInterval(() => {
@@ -78,6 +78,10 @@ const GeneratingVoiceScreen: React.FC = () => {
         console.log(res,'res')
         // show({message: 'Voice ID generated successfully'});
       } catch (error) {
+        if (progressInterval.current) {
+          clearInterval(progressInterval.current);
+        }
+        navigation.goBack();
         show({message: t('generating_voice.failed_to_generate_voice_id')});
         console.log(error,'error')
       }

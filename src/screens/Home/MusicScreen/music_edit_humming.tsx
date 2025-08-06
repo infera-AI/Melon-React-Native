@@ -558,8 +558,8 @@ const styles = StyleSheet.create({
     marginHorizontal: normalize(8),
   },
   musicTransBtn: {
-    width: normalize(40),
-    height: normalize(40),
+    width: normalize(32),
+    height: normalize(32),
     backgroundColor: '#222',
     borderRadius: normalize(10),
     justifyContent: 'center',

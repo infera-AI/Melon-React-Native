@@ -1,16 +1,24 @@
 import {Dimensions,PixelRatio} from 'react-native';
-
+import { scaleSize,scaleFont } from './scale';
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
 
-export const normalize = (size: number, based: 'width' | 'height' = 'width') => {
-  const newSize = based === 'height' ? size * screenHeight / 812 : size * screenWidth / 375;
-  return Math.round(newSize);
-};
+// export const normalize = (size: number, based: 'width' | 'height' = 'width') => {
+//   const newSize = based === 'height' ? size * screenHeight / 812 : size * screenWidth / 375;
+//   return Math.round(newSize);
+// };
+// export const normalizeFontSize = (size: number) => {
+//   const newSize = (size) * screenWidth / 375;
+//   return Math.min(Math.round(newSize), size);
+// };
+
+export const normalize = (size: number) => {
+  return scaleSize(size);
+}
+
 export const normalizeFontSize = (size: number) => {
-  const newSize = (size) * screenWidth / 375;
-  return Math.min(Math.round(newSize), size);
-};
+  return scaleFont(size/3);
+}
 
 // export const normalizeFontSize = (size: number) => {
 //   const newSize = size * screenWidth / 375;

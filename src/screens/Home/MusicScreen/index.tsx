@@ -30,7 +30,7 @@ const MusicScreen: React.FC = () => {
   const navigation = useNavigation<MusicScreenNavigationProp>();
   const [title, setTitle] = useState('');
   const [lyrics, setLyrics] = useState('');
-  const [selectedStyles, setSelectedStyles] = useState([]);
+  const [selectedStyles, setSelectedStyles] = useState<string[]>([]);
   const [musicStyles, setMusicStyles] = useState<string[]>([]);
   const {show} = useMessageModal()
   const [isLoading, setIsLoading] = useState(false);
@@ -169,7 +169,7 @@ const MusicScreen: React.FC = () => {
 
   return (
     <SafeAreaView edges={['top','bottom']} style={styles.container}>
-    <ScrollView >
+    <ScrollView>
       {/* 顶部卡片区 */}
       <View style={styles.topRow}>
         <TouchableOpacity style={styles.topCard} onPress={() => navigation.navigate('MyWork')}>
@@ -387,13 +387,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginBottom: normalize(18),
+    gap: normalize(12),
   },
   topCard: {
+    flex:1,
     marginTop: normalize(8),
     width: normalize(157.5),
     height: normalize(100),
     backgroundColor: '#191919',
-    borderRadius: normalize(16),
+    borderRadius: normalize(12),
     padding: normalize(14),
     justifyContent: 'center',
     alignItems: 'flex-start',
@@ -431,8 +433,9 @@ const styles = StyleSheet.create({
     marginTop: normalize(2),
   },
   lyricCard: {
+    height: normalize(260),
     backgroundColor: '#191919',
-    borderRadius: normalize(18),
+    borderRadius: normalize(12),
     padding: normalize(16),
     marginBottom: normalize(18),
     flex: 1,
@@ -492,22 +495,6 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     letterSpacing: -0.4,
   },
-  aiPolishSmall: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  aiIconSmall: {
-    width: normalize(18),
-    height: normalize(18),
-    marginRight: normalize(4),
-    tintColor: '#85F380',
-  },
-  aiPolishTextSmall: {
-    fontWeight: '400',
-    fontSize: normalizeFontSize(13),
-    color: '#00FF1E', // fallback color
-    textAlign:'center',
-  },
   // 音频可视化样式
   audioVisualization: {
     marginBottom: normalize(16),
@@ -519,25 +506,6 @@ const styles = StyleSheet.create({
     lineHeight: normalize(20),
     letterSpacing: -0.4,
     marginBottom: normalize(8),
-  },
-  audioBars: {
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-    justifyContent: 'center',
-    height: normalize(20),
-    marginBottom: normalize(8),
-  },
-  audioBar: {
-    width: normalize(3),
-    backgroundColor: '#B0B0B0',
-    marginHorizontal: normalize(1),
-    borderRadius: normalize(1.5),
-  },
-  volumeIcon: {
-    width: normalize(24),
-    height: normalize(24),
-    alignSelf: 'center',
-    tintColor: '#FFFFFF',
   },
   // 曲风选择芯片样式
   styleChipsContainer: {
@@ -605,8 +573,8 @@ const styles = StyleSheet.create({
     marginHorizontal: normalize(8),
   },
   musicTransBtn: {
-    width: normalize(40),
-    height: normalize(40),
+    width: normalize(32),
+    height: normalize(32),
     backgroundColor: '#222',
     borderRadius: normalize(10),
     justifyContent: 'center',
@@ -679,32 +647,6 @@ const styles = StyleSheet.create({
     fontSize: normalizeFontSize(14),
     color: '#FFFFFF',
     textAlign: 'center',
-  },
-  styleScroll: {
-    marginTop: normalize(8),
-    marginBottom: normalize(8),
-  },
-  styleTag: {
-    backgroundColor: '#262626',
-    borderRadius: normalize(8),
-    paddingVertical: normalize(8),
-    paddingHorizontal: normalize(12),
-    marginRight: normalize(8),
-    borderWidth: 1,
-    borderColor: '#454545',
-  },
-  selectedStyleTag: {
-    backgroundColor: '#85F380',
-    borderColor: '#85F380',
-  },
-  styleTagText: {
-    color: '#FFFFFF',
-    fontSize: normalizeFontSize(15),
-    fontWeight: '400',
-    textAlign: 'center',
-  },
-  selectedStyleTagText: {
-    color: '#333333',
   },
 });
 

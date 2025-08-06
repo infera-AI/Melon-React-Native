@@ -191,10 +191,9 @@ const styles = StyleSheet.create({
     height: normalize(20),
   },
   divider: {
+    flex:1,
     height: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.4)',
-    marginLeft: normalize(16),
-    marginRight: normalize(16),
   },
   infoContainer: {
     position: 'absolute',

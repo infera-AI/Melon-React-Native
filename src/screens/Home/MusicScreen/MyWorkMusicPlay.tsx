@@ -502,12 +502,12 @@ const MyWorkMusicPlay = ({ navigation, route }: any) => {
 
       {/* 歌词 */}
       <View style={styles.lyricSection}>
-        <View style={styles.lyricHeader}>
+        {/* <View style={styles.lyricHeader}>
           <Text style={styles.lyricTitle}>{t('music.lyrics')}</Text>
           <Text style={styles.lyricProgress}>
             {getActiveLyricIndex() + 1} / {lyricArr.length}
           </Text>
-        </View>
+        </View> */}
         <FlatList
           style={styles.lyricScroll}
           data={lyricArr}
@@ -1009,8 +1009,8 @@ const styles = StyleSheet.create({
   shareLink: {
     color: "#fff",
     fontSize: normalizeFontSize(16),
-    marginBottom: normalize(24),
     textAlign: "center",
+    marginBottom:normalize(55)
   },
   copyBtn: {
     backgroundColor: theme.primary,
@@ -1037,7 +1037,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: normalize(16),
     color: "#fff",
     fontSize: normalizeFontSize(16),
-    marginBottom: normalize(24),
+    bottom:normalize(5)
   },
   deleteWarning: {
     color: "#bdbdbd",

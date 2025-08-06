@@ -18,7 +18,7 @@ import { useLanguage } from '../../contexts/LanguageContext';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import CountryFlag from 'react-native-country-flag';
 import { languageToCountryCode, supportedLanguages } from "@/i18n/languages"
-import { normalize, normalizeFontSize, wrapTextByLetters } from '../../utils/stylesUtil';
+import { scaleSize,scaleFont } from '../../utils/scale';
 
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '@/navigation/AppNavigator'
@@ -74,12 +74,9 @@ const WelcomeScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={{flex: 1}} edges={['top','bottom','left','right']}>
-      <View style={styles.container}>
+      <ScrollView style={styles.container}>
         <StatusBar barStyle="light-content" backgroundColor={theme.background} />
         
-        {/* 背景装饰圆圈 */}
-        {/* <View style={styles.backgroundCircle1} />
-        <View style={styles.backgroundCircle2} /> */}
         <Image
           source={require('../../../src/assets/main/page_top_bg.png')}
           style={styles.backgroundCircle1}
@@ -93,8 +90,6 @@ const WelcomeScreen: React.FC = () => {
         
         {/* 主要内容容器 */}
         <View style={styles.contentContainer}>
-          {/* 状态栏占位 */}
-          <View style={styles.statusBarPlaceholder} />
           
           {/* 内容包装器 */}
           <View style={styles.contentWrapper}>
@@ -107,15 +102,7 @@ const WelcomeScreen: React.FC = () => {
                   resizeMode="contain"
                 />
             </View>
-            {/* <View style={styles.logoContainer} >
-                <Image
-                  source={require('../../../src/assets/login/welcome_logo.png')}
-                  style={styles.logo}
-                  resizeMode="contain"
-                />
-            </View> */}
-            
-                       {/* Melon 标题 - 渐变色文字 */}
+              {/* Melon 标题 - 渐变色文字 */}
              <View style={styles.titleContainer}>
                <Image source={require('../../../src/assets/login/login_title_icon.png')} resizeMode="contain" style={styles.titleIcon} />
              </View>
@@ -190,7 +177,7 @@ const WelcomeScreen: React.FC = () => {
               </View>
           </View>
         </View>
-      </View>
+      </ScrollView>
 
             {/* 语言选择模态框 - 完整版本 */}
       {showLanguageModal && (
@@ -236,126 +223,106 @@ const WelcomeScreen: React.FC = () => {
  };
 
 const styles = StyleSheet.create({
-      container: {
+  container: {
     flex: 1,
     backgroundColor: theme.background,
   },
     backgroundCircle1: {
       position: 'absolute',
-      width: normalize(399),
-      height: normalize(359, 'height'),
-      left: -normalize(0),
-      top: -normalize(0, 'height'),
+      width: scaleSize(399),
+      height: scaleSize(359),
+      left: -scaleSize(0),
+      top: -scaleSize(0),
     },
     backgroundCircle2: {
       position: 'absolute',
-      width: normalize(377),
-      height: normalize(339, 'height'),
-      right: normalize(-140),
-      bottom: normalize(0, 'height'),
+      width: scaleSize(377),
+      height: scaleSize(339),
+      right: scaleSize(-60),
+      bottom: scaleSize(0),
     },
     contentContainer: {
       flex: 1,
-      paddingHorizontal: normalize(24),
+      paddingHorizontal: scaleSize(24),
       alignItems: 'center',
       justifyContent: 'center',
     },
     contentWrapper: {
       width: '100%',
-      maxWidth: normalize(327),
       alignItems: 'center',
-    },
-    statusBarPlaceholder: {
-      height: Platform.OS === 'ios' ? 44 : 24,
     },
     logoContainer: {
       alignItems: 'center',
-      marginTop: normalize(20, 'height'),
-      marginBottom: normalize(29, 'height'),
+      marginTop: scaleSize(178),
+      marginBottom: scaleSize(20),
     },
     logoPlaceholder: {
-      width: normalize(85),
-      height: normalize(87, 'height'),
-      borderRadius: normalize(16),
+      width: scaleSize(85),
+      height: scaleSize(87),
+      borderRadius: scaleSize(16),
       backgroundColor: '#262626',
       alignItems: 'center',
       justifyContent: 'center',
     },
     logo: {
-      width: normalize(85),
-      height: normalize(87, 'height'),
-    },
-    logoText: {
-      fontSize: normalizeFontSize(48),
-      fontWeight: '700',
-      color: '#85F380',
+      width: scaleSize(85),
+      height: scaleSize(87),
     },
     titleContainer: {
       alignItems: 'center',
       justifyContent: 'center',
-      marginBottom: normalize(24, 'height'),
-    },
-    titleGradient: {
-      flex: 1,
-      width: '100%',
-      height: '100%',
-    },
-    titleText: {
-      fontSize: normalizeFontSize(48),
-      fontWeight: '700',
-      textAlign: 'center',
-      color: theme.textPrimary,
+      marginBottom: scaleSize(14),
     },
     titleIcon: {
-      width: normalize(132),
-      height: normalize(32),
+      width: scaleSize(132),
+      height: scaleSize(32),
     },
     title: {
-      fontSize: normalizeFontSize(48),
+      fontSize: scaleFont(48),
       fontWeight: '600',
       textAlign: 'center',
       color: theme.primary,
       textShadowColor: theme.info,
       textShadowOffset: { width: 0, height: 0 },
-      textShadowRadius: normalize(10),
+      textShadowRadius: scaleSize(10),
     },
     sloganContainer: {
       alignItems: 'center',
-      marginBottom: normalize(107, 'height'),
+      marginBottom: scaleSize(107),
     },
     sloganGradient: {
       alignItems: 'center',
       justifyContent: 'center',
-      paddingHorizontal: normalize(10),
-      borderRadius: normalize(8),
+      paddingHorizontal: scaleSize(10),
+      borderRadius: scaleSize(8),
     },
     sloganText: {
-      fontSize: normalizeFontSize(15),
+      fontSize: scaleFont(6),
       fontWeight: '400',
       textAlign: 'center',
       color: theme.textSecondary,
       letterSpacing: -0.4,
     },
     slogan: {
-      fontSize: normalizeFontSize(15),
+      fontSize: scaleFont(15),
       fontWeight: '400',
       textAlign: 'center',
       color: theme.textSecondary,
       letterSpacing: -0.4,
     },
     registerButton: {
-      width: normalize(327),
-      height: normalize(74, 'height'),
+      width: "100%",
+      height: scaleSize(74),
       backgroundColor: theme.primary,
-      borderRadius: 50,
-      paddingVertical: normalize(12, 'height'),
-      paddingHorizontal: normalize(16),
+      borderRadius:scaleSize(50),
+      paddingVertical: scaleSize(12),
+      paddingHorizontal: scaleSize(16),
       alignItems: 'center',
       justifyContent: 'center',
-      marginBottom: normalize(16, 'height'),
+      marginBottom: scaleSize(12)
     },
     registerButtonText: {
-      fontSize: normalizeFontSize(18),
+      fontSize: scaleFont(8),
       fontWeight: '700',
       color: theme.backgroundTertiary,
       textAlign: 'center',
@@ -364,17 +331,17 @@ const styles = StyleSheet.create({
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'center',
-      marginBottom: normalize(40, 'height'),
+      marginBottom: scaleSize(50),
     },
     loginLinkText: {
-      fontSize: normalizeFontSize(13),
+      fontSize: scaleFont(5),
       fontWeight: '400',
       color: theme.textSecondary,
       textAlign: 'center',
       letterSpacing: -0.4,
     },
     loginLinkButton: {
-      fontSize: normalizeFontSize(13),
+      fontSize: scaleFont(5),
       fontWeight: '600',
       color: theme.primary,
       textAlign: 'center',
@@ -382,21 +349,21 @@ const styles = StyleSheet.create({
     },
     languageSelector: {
       alignItems: 'center',
-      marginBottom: normalize(30, 'height'),
+      marginBottom: scaleSize(30),
     },
     languageContainer: {
       flexDirection: 'row',
       alignItems: 'center',
       backgroundColor: theme.backgroundSecondary,
-      borderRadius: normalize(12),
-      paddingHorizontal: normalize(16),
-      width: normalize(213),
-      height: normalize(48, 'height'),
+      borderRadius: scaleSize(12),
+      paddingHorizontal: scaleSize(16),
+      width: scaleSize(213),
+      height: scaleSize(48),
     },
     flagContainer: {
-      width: normalize(20),
-      height: normalize(20),
-      marginRight: normalize(12),
+      width: scaleSize(20),
+      height: scaleSize(20),
+      marginRight: scaleSize(12),
     },
     flagOutView: {
       width: '100%',
@@ -410,21 +377,21 @@ const styles = StyleSheet.create({
       height: '100%',
     },
     languageText: {
-      fontSize: normalizeFontSize(14),
+      fontSize: scaleFont(6),
       fontWeight: '500',
       color: theme.textPrimary,
       flex: 1,
       textAlign:'left',
     },
     dropdownIcon: {
-      width: normalize(11),
-      height: normalize(6),
+      width: scaleSize(11),
+      height: scaleSize(6),
       alignItems: 'center',
       justifyContent: 'center',
     },
     dropdownText: {
-      width: normalize(10.67),
-      height: normalize(6, 'height'),
+      width: scaleSize(10.67),
+      height: scaleSize(6),
       alignItems: 'center',
       justifyContent: 'center',
     },
@@ -432,17 +399,18 @@ const styles = StyleSheet.create({
       flexDirection: 'row',
       justifyContent: 'center',
       alignItems: 'flex-start',
-      paddingHorizontal: normalize(20),
+      paddingHorizontal: scaleSize(20),
+      marginBottom: scaleSize(50)
     },
     checkboxContainer: {
-      marginRight: normalize(8),
+      marginRight: scaleSize(8),
     },
     checkbox: {
-       width: normalize(17),
-       height: normalize(17),
+       width: scaleSize(17),
+       height: scaleSize(17),
        borderWidth: 1,
        borderColor: theme.textSecondary,
-       borderRadius: normalize(12),
+       borderRadius: scaleSize(12),
        backgroundColor: 'transparent',
        alignItems: 'center',
        justifyContent: 'center',
@@ -453,27 +421,28 @@ const styles = StyleSheet.create({
      },
      checkboxCheckmark: {
        color: theme.backgroundTertiary,
-       fontSize: normalizeFontSize(12),
+       fontSize: scaleFont(5),
        fontWeight: 'bold',
      },
     agreementTextContainer: {
       alignItems: 'center',
       justifyContent: 'center',
+      paddingBottom: scaleSize(10)  
     },
     agreementText: {
-      fontSize: normalizeFontSize(12),
+      fontSize: scaleFont(6),
       fontWeight: '400',
+      textAlign: 'center',
       color: theme.textSecondary,
-      lineHeight: normalize(18, 'height'),
+      lineHeight: scaleSize(18),
       letterSpacing: -0.4,
     },
     agreementLink: {
-      fontSize: normalizeFontSize(12),
+      fontSize: scaleFont(6),
       fontWeight: '600',
       color: theme.primary,
-      lineHeight: normalize(18, 'height'),
+      lineHeight: scaleSize(18),
       letterSpacing: -0.4,
-      textDecorationLine: 'underline',
     },
     letterBreak: {
       // 强制在任何字符处换行
@@ -493,36 +462,36 @@ const styles = StyleSheet.create({
     },
     modalContent: {
       backgroundColor: theme.backgroundSecondary,
-      borderTopLeftRadius: normalize(20),
-      borderTopRightRadius: normalize(20),
-      maxHeight: '70%',
+      borderTopLeftRadius: scaleSize(20),
+      borderTopRightRadius: scaleSize(20),
+      maxHeight: '60%',
     },
     modalHeader: {
       flexDirection: 'row',
       justifyContent: 'space-between',
       alignItems: 'center',
-      paddingHorizontal: normalize(20),
-      paddingVertical: normalize(16),
+      paddingHorizontal: scaleSize(20),
+      paddingVertical: scaleSize(16),
       borderBottomWidth: 1,
       borderBottomColor: theme.backgroundTertiary,
     },
     modalTitle: {
-      fontSize: normalizeFontSize(18),
+      fontSize: scaleFont(8),
       fontWeight: '600',
       color: theme.textPrimary,
     },
     modalClose: {
-      fontSize: normalizeFontSize(20),
+      fontSize: scaleFont(8),
       color: theme.textSecondary,
     },
     languageList: {
-      maxHeight: normalize(400, 'height'),
+      maxHeight: scaleSize(400),
     },
     languageItem: {
       flexDirection: 'row',
       alignItems: 'center',
-      paddingHorizontal: normalize(20),
-      paddingVertical: normalize(16),
+      paddingHorizontal: scaleSize(20),
+      paddingVertical: scaleSize(16),
       borderBottomWidth: 1,
       borderBottomColor: theme.backgroundTertiary,
     },
@@ -530,20 +499,20 @@ const styles = StyleSheet.create({
       backgroundColor: theme.backgroundTertiary,
     },
     languageItemFlagView: {
-      width: normalize(24),
-      height: normalize(24),
-      marginRight: normalize(12),
+      width: scaleSize(24),
+      height: scaleSize(24),
+      marginRight: scaleSize(12),
       borderRadius: '50%',
       position: 'relative',
       overflow: 'hidden',
     },
     languageItemFlag: {
-      width: normalize(24),
-      height: normalize(24),
+      width: scaleSize(24),
+      height: scaleSize(24),
     },
     languageItemText: {
       flex: 1,
-      fontSize: normalizeFontSize(16),
+      fontSize: scaleFont(5),
       color: theme.textPrimary,
     },
     languageItemTextActive: {
@@ -551,7 +520,7 @@ const styles = StyleSheet.create({
       fontWeight: '600',
     },
     languageItemCheck: {
-      fontSize: normalizeFontSize(16),
+      fontSize: scaleFont(8),
       color: theme.primary,
       fontWeight: '600',
     },

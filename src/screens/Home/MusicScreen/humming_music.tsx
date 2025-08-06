@@ -665,7 +665,7 @@ const styles = StyleSheet.create({
   mainCard: {
     backgroundColor: '#262626',
     borderRadius: normalize(12),
-    height: normalize(400),
+    height: normalize(460),
     alignItems: 'center',
     justifyContent: 'flex-end',
     position: 'relative',
