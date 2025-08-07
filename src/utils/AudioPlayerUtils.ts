@@ -12,6 +12,7 @@
 import Sound from 'react-native-sound';
 import { useAppStore } from '@/store';
 import { FFmpegKit } from 'ffmpeg-kit-react-native';
+import { Platform } from 'react-native';
 
 /**
  * 音频时长管理器
@@ -35,6 +36,12 @@ export class AudioDurationManager {
     }
     
     try {
+      if (Platform.OS === 'ios') {
+        const duration = await this.getDurationWithSound(audioUrl);
+        this.cache.set(audioUrl, duration);
+        console.log('Sound音频时长获取成功:', duration, '秒');
+        return duration;
+      }
       console.log('开始获取音频时长:', audioUrl);
       // 优先使用 FFmpeg 获取时长
       const duration = await this.getDurationWithFFmpeg(audioUrl);

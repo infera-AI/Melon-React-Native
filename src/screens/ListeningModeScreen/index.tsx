@@ -331,12 +331,18 @@ const ListeningModeScreen: React.FC = () => {
   const listeningResultHandle = (data: any) => {
     console.log('聆听结果------', data);
 
-    if (data?.source_text) {
-      setSourceText(data?.source_text)
+    if (data?.source_text && data?.status === 'processing') {
+      // setSourceText(sourceText + data?.source_text)
+      setSourceText((prev) => {
+        return prev + data?.source_text
+      })
     }
     
-    if (data?.translated_text) {
-      setTranslatedText(data?.translated_text)
+    if (data?.translated_text && data?.status === 'processing') {
+      // setTranslatedText(translatedText + data?.translated_text)
+      setTranslatedText((prev) => {
+        return prev + data?.translated_text
+      })
     }
 
     if (data?.status === 'success') {
@@ -556,6 +562,9 @@ const ListeningModeScreen: React.FC = () => {
           if (status === StatusEnum.TYPE_OPEN) {
             setLoading(false)
             setIsListening(true)
+          } else if (status === StatusEnum.TYPE_NORMAL && isListening) { // 关闭
+            stopListeningService()
+            
           }
         }}
       />

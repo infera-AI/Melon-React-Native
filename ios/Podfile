@@ -17,7 +17,7 @@ end
 
 target 'Melon' do
   config = use_native_modules!
-
+  pod 'ffmpeg-kit-react-native', :path => '../node_modules/ffmpeg-kit-react-native' # 或者你的 fork 路径
   use_react_native!(
     :path => config[:reactNativePath],
     # An absolute path to your application root.

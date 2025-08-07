@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0439C6802E4512B300353460 /* AudioConcatModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0439C67F2E4512B300353460 /* AudioConcatModule.swift */; };
+		0439C6822E45146200353460 /* AudioConcatBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = 0439C6812E45146200353460 /* AudioConcatBridge.m */; };
 		048DA7642E3BFF9E00FA95BE /* HeadsetDetection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 048DA7632E3BFF9E00FA95BE /* HeadsetDetection.swift */; };
 		048DA7662E3C000000FA95BE /* HeadsetDetectionBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = 048DA7652E3C000000FA95BE /* HeadsetDetectionBridge.m */; };
 		04F414372E3B1F5E00D77B0A /* AudioSessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04F414362E3B1F5E00D77B0A /* AudioSessionManager.swift */; };
@@ -18,7 +20,22 @@
 		FE2AF26877C59EF9567DB704 /* libPods-Melon.a in Frameworks */ = {isa = PBXBuildFile; fileRef = EE6839BDB548094B9E089AAB /* libPods-Melon.a */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		04D67A3B2E44F9DE00660DFC /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
+		0439C67F2E4512B300353460 /* AudioConcatModule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioConcatModule.swift; sourceTree = "<group>"; };
+		0439C6812E45146200353460 /* AudioConcatBridge.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AudioConcatBridge.m; sourceTree = "<group>"; };
 		048DA7632E3BFF9E00FA95BE /* HeadsetDetection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeadsetDetection.swift; sourceTree = "<group>"; };
 		048DA7652E3C000000FA95BE /* HeadsetDetectionBridge.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HeadsetDetectionBridge.m; sourceTree = "<group>"; };
 		04F414362E3B1F5E00D77B0A /* AudioSessionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioSessionManager.swift; sourceTree = "<group>"; };
@@ -61,6 +78,8 @@
 				04F414382E3B206500D77B0A /* Melon-Bridging-Header.h */,
 				048DA7632E3BFF9E00FA95BE /* HeadsetDetection.swift */,
 				048DA7652E3C000000FA95BE /* HeadsetDetectionBridge.m */,
+				0439C67F2E4512B300353460 /* AudioConcatModule.swift */,
+				0439C6812E45146200353460 /* AudioConcatBridge.m */,
 			);
 			name = Melon;
 			sourceTree = "<group>";
@@ -126,6 +145,7 @@
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
 				CED77D9CFD857C8AF67F4775 /* [CP] Embed Pods Frameworks */,
 				D66E361633828A064761FA76 /* [CP] Copy Pods Resources */,
+				04D67A3B2E44F9DE00660DFC /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -270,9 +290,11 @@
 			files = (
 				761780ED2CA45674006654EE /* AppDelegate.swift in Sources */,
 				04F414372E3B1F5E00D77B0A /* AudioSessionManager.swift in Sources */,
+				0439C6802E4512B300353460 /* AudioConcatModule.swift in Sources */,
 				048DA7642E3BFF9E00FA95BE /* HeadsetDetection.swift in Sources */,
 				04F4143A2E3B206500D77B0A /* AudioSessionManager.m in Sources */,
 				048DA7662E3C000000FA95BE /* HeadsetDetectionBridge.m in Sources */,
+				0439C6822E45146200353460 /* AudioConcatBridge.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

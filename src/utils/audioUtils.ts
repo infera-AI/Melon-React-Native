@@ -13,6 +13,9 @@
 import RNFS from 'react-native-fs';
 import { Platform } from 'react-native';
 import { FFmpegKit, ReturnCode } from 'ffmpeg-kit-react-native';
+import { NativeModules } from 'react-native';
+
+const { AudioConcatModule } = NativeModules;
 
 /**
  * 音频文件接口定义
@@ -31,6 +34,9 @@ interface AudioFile {
  * @returns 清理后的标准路径
  */
 const cleanAudioPath = (filePath: string): string => {
+  if (Platform.OS === 'ios') {
+    return filePath; // iOS 不需要处理
+  }
   let cleanPath = filePath;
   
   // 处理多余的斜杠
@@ -77,7 +83,7 @@ export class AudioMerger {
 
       // 生成输出文件路径
       const outputPath = Platform.select({
-        ios: `${RNFS.DocumentDirectoryPath}/${outputFileName}`,
+        ios: `${RNFS.CachesDirectoryPath}/${performance.now()}-${outputFileName}`,
         android: `${RNFS.CachesDirectoryPath}/${outputFileName}`,
       });
 
@@ -89,13 +95,28 @@ export class AudioMerger {
       console.log('输入文件数量:', audioFiles.length);
       console.log('输出路径:', outputPath);
 
-      // 尝试 FFmpeg 合成，如果失败则使用备用方法
-      try {
-        return await this.mergeWithFFmpeg(audioFiles, outputPath);
-      } catch (ffmpegError) {
-        console.error('FFmpeg 合成失败，尝试备用方法:', ffmpegError);
-        return await this.mergeWithFallback(audioFiles, outputPath);
+      if (Platform.OS === 'ios') {
+          // iOS 直接使用 FFmpegKit
+        let arr = audioFiles.map(file => file.uri);
+        try {
+          await AudioConcatModule.concatAudios(arr, outputPath)
+          console.log('=======拼接成功');
+          return outputPath;
+        } catch (error) {
+          console.error('======拼接失败');
+          throw error
+        }
+      } else {
+        // 尝试 FFmpeg 合成，如果失败则使用备用方法
+        try {
+          return await this.mergeWithFFmpeg(audioFiles, outputPath);
+        } catch (ffmpegError) {
+          console.error('FFmpeg 合成失败，尝试备用方法:', ffmpegError);
+          return await this.mergeWithFallback(audioFiles, outputPath);
+        }
       }
+
+      
     } catch (error) {
       console.error('音频合成失败:', error);
       throw error;
@@ -282,6 +303,9 @@ export class AudioMerger {
    */
   static async getAudioDuration(filePath: string): Promise<number> {
     try {
+      if (Platform.OS === 'ios') {
+        return await this.getAudioDurationFallback(filePath);
+      }
       console.log('=== 开始获取音频时长 ===');
       console.log('原始路径:', filePath);
       

@@ -95,7 +95,7 @@ const RecordingScreen: React.FC = () => {
       const timestamp = Date.now();
       const fileName = `recording_${timestamp}.m4a`;
       const path = Platform.select({
-        ios: `${RNFS.DocumentDirectoryPath}/${fileName}`,
+        ios: `file://${RNFS.CachesDirectoryPath}/${fileName}`,
         android: `${RNFS.CachesDirectoryPath}/${fileName}`,
       });
 
