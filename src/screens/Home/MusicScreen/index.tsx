@@ -238,12 +238,12 @@ const MusicScreen: React.FC = () => {
         {/* 语言选择与功能按钮 */}
         <View style={styles.langRow}>
           <TouchableOpacity style={styles.langBtn} onPress={()=>handleLanguageSwitch("left")}>
-            <Text style={styles.langText}>{leftLanguage}</Text>
+            <Text style={styles.langText}>{t(`languageNames.${leftLanguage}`)}</Text>
             <Text style={styles.langArrow}>▼</Text>
           </TouchableOpacity>
           <Text style={styles.langSwitch}>⇄</Text>
           <TouchableOpacity style={styles.langBtn} onPress={()=>handleLanguageSwitch("right")}>
-            <Text style={styles.langText}>{rightLanguage}</Text>
+            <Text style={styles.langText}>{t(`languageNames.${rightLanguage}`)}</Text>
             <Text style={styles.langArrow}>▼</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.musicTransBtn} onPress={handleTranslateLyrics}>
@@ -360,16 +360,15 @@ const MusicScreen: React.FC = () => {
                     style={styles.languageOption} 
                     onPress={() => handleLanguageSelect(language.code)}
                   >
-                    <Text style={styles.languageOptionText}>{language.label}</Text>
+                    <Text style={styles.languageOptionText}>{t(`languageNames.${language.code}`)}</Text>
                   </TouchableOpacity>
                 ))}
               </ScrollView>
             </View>
       </View>
         </Modal>
-    <FullScreenLoader visible={isLoading} />
     <FullScreenLoader
-      visible={loading}
+      visible={loading || isLoading}
       text={t('translate_screen.loading_text')}
     />
     </SafeAreaView>

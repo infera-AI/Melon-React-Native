@@ -90,7 +90,7 @@ const SystemLanguageScreen: React.FC = () => {
                 <Text style={[
                   styles.languageText,
                 ]}>
-                  {language.label}
+                   {t(`languageNames.${language.code}`)}
                 </Text>
                 {currentLanguage.code === language.code && (
                   <View style={styles.checkIcon}>
@@ -101,7 +101,7 @@ const SystemLanguageScreen: React.FC = () => {
                   </View>
                 )}
               </View>
-              {index < languages.length - 1 && <View style={styles.divider} />}
+              {index < supportedLanguages.length - 1 && <View style={styles.divider} />}
             </TouchableOpacity>
           ))}
         </ScrollView>

@@ -18,6 +18,9 @@ import Slider from "@react-native-community/slider";
 import Clipboard from "@react-native-clipboard/clipboard";
 import theme from "@/utils/theme";
 import { normalize, normalizeFontSize } from '@/utils/stylesUtil';
+import { MusicDownloader } from '@/utils/MusicDownloader';
+import FullScreenLoading from "@/components/FullScreenLoader";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 // 控制按钮图片资源
 const img_last_song = require("../../../../assets/images/last_song.png");
@@ -41,6 +44,9 @@ const MusicPlayScreen = ({ navigation, route }: any) => {
   const progressInterval = useRef<NodeJS.Timeout | null>(null);
   const [currentMusic, setCurrentMusic] = useState<any>(music);
   const { t } = useLanguage();
+  const [downloading, setDownloading] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const downloader = MusicDownloader.getInstance();
 
   // 清理音频相关数据
   const cleanupAudioData = useCallback(() => {
@@ -256,6 +262,35 @@ const MusicPlayScreen = ({ navigation, route }: any) => {
     }, [cleanupAudioData])
   );
 
+  const handleDownload = async () => {
+    setDownloading(true);
+    setProgress(0);
+
+    try {
+      await downloader.downloadMusic(
+        currentMusic.url,
+        currentMusic.title,
+        {
+          onProgress: (progress) => {
+            setProgress(progress);
+          },
+          onComplete: (result) => {
+            setDownloading(false);
+            console.log('下载完成:', result.localPath);
+            show({ message: t('music.download_success')});
+          },
+          onError: (error) => {
+            setDownloading(false);
+            console.log('下载失败:', error);
+          }
+        }
+      );
+    } catch (error) {
+      setDownloading(false);
+      console.error('下载出错:', error);
+    }
+  };
+
   //切换歌曲
  const handleSwitchMusic = (type:string) => {
   // 记录当前是否正在播放
@@ -274,6 +309,8 @@ const MusicPlayScreen = ({ navigation, route }: any) => {
   if (progressInterval.current) {
     clearInterval(progressInterval.current);
   }
+
+
   
   // 切换歌曲
   if(type==='prev'){
@@ -296,7 +333,7 @@ const MusicPlayScreen = ({ navigation, route }: any) => {
 }
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top','bottom']}>
       {/* Header */}
       <View style={styles.headerRow}>
         <TouchableOpacity
@@ -469,7 +506,7 @@ const MusicPlayScreen = ({ navigation, route }: any) => {
                   // TODO: 删除逻辑
                 }}
               >
-                                  <Text style={styles.okBtnText}>{t('music.ok')}</Text>
+               <Text style={styles.okBtnText}>{t('music.ok')}</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -490,22 +527,31 @@ const MusicPlayScreen = ({ navigation, route }: any) => {
               {t('music.share')} {currentMusic.title}
             </Text>
             <Text style={styles.shareLink}>{currentMusic.url}</Text>
-            <TouchableOpacity
-              style={styles.copyBtn}
-              onPress={() => {
-                show({
-                  message: t('music.link_copied'),
-                });
-                Clipboard.setString(currentMusic.url);
-                setShowShareModal(false)
-              }}
-            >
-              <Text style={styles.copyBtnText}>{t('music.copy_link')}</Text>
-            </TouchableOpacity>
+            <View style={styles.modalBtnRow}>
+              <TouchableOpacity
+                style={styles.cancelBtn}
+                onPress={handleDownload}
+              >
+                <Text style={styles.cancelBtnText}>{t('music.download')}</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.okBtn}
+                onPress={() => {
+                  show({
+                    message: t('music.link_copied'),
+                  });
+                  Clipboard.setString(currentMusic.url);
+                  setShowShareModal(false)
+                }}
+              >
+               <Text style={styles.copyBtnText}>{t('music.copy_link')}</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
       </Modal>
-    </View>
+      <FullScreenLoading visible={downloading} progress={progress}/>
+    </SafeAreaView>
   );
 };
 
@@ -776,15 +822,19 @@ const styles = StyleSheet.create({
   },
   okBtn: {
     flex: 1,
-    borderRadius: normalize(12),
     marginLeft: normalize(8),
-    paddingVertical: normalize(12),
     alignItems: "center",
+    backgroundColor: theme.primary,
+    borderRadius: normalize(12),
+    paddingVertical: normalize(12),
+    paddingHorizontal: normalize(32),
+    marginTop: 0,
   },
   cancelBtnText: {
     color: "#fff",
     fontSize: normalizeFontSize(16),
     fontWeight: "bold",
+    textAlign:'center'
   },
   okBtnText: {
     color: "#111",
