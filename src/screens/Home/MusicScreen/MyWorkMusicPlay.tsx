@@ -21,6 +21,8 @@ import Slider from "@react-native-community/slider";
 import Clipboard from "@react-native-clipboard/clipboard";
 import theme from "@/utils/theme";
 import { normalize, normalizeFontSize } from '@/utils/stylesUtil';
+import { MusicDownloader } from '@/utils/MusicDownloader';
+import FullScreenLoading from "@/components/FullScreenLoader";
 
 type Music = {
   id: number;
@@ -57,6 +59,10 @@ const MyWorkMusicPlay = ({ navigation, route }: any) => {
   const [musicInfo, setMusicInfo] = useState<Music>(music as Music);
   const [currentMusicIndex, setCurrentMusicIndex] = useState(myWorkIds.indexOf(music.id));
   const { t } = useLanguage();
+  const [downloading, setDownloading] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const downloader = MusicDownloader.getInstance();
+
   
   // 防抖状态
   const [isSwitching, setIsSwitching] = useState(false);
@@ -435,6 +441,35 @@ const MyWorkMusicPlay = ({ navigation, route }: any) => {
     }
   }, [musicInfo.id]);
 
+  const handleDownload = async () => {
+    setDownloading(true);
+    setProgress(0);
+
+    try {
+      await downloader.downloadMusic(
+        musicInfo.url,
+        musicInfo.title,
+        {
+          onProgress: (progress) => {
+            setProgress(progress);
+          },
+          onComplete: (result) => {
+            setDownloading(false);
+            console.log('下载完成:', result.localPath);
+            show({ message: t('music.download_success')});
+          },
+          onError: (error) => {
+            setDownloading(false);
+            console.log('下载失败:', error);
+          }
+        }
+      );
+    } catch (error) {
+      setDownloading(false);
+      console.error('下载出错:', error);
+    }
+  };
+
   useEffect(() => { 
     if (music.id) {
       getMusicWorkInfoRequest(music.id);
@@ -618,19 +653,28 @@ const MyWorkMusicPlay = ({ navigation, route }: any) => {
               Share {musicInfo.title}
             </Text>
             <Text style={styles.shareLink}>{musicInfo.url}</Text>
-            <TouchableOpacity
-              style={styles.copyBtn}
-              onPress={() => {
-                show({
-                  title: t('music.copy_success'),
-                  message: t('music.link_copied'),
-                });
-                Clipboard.setString(musicInfo.url);
-                setShowShareModal(false)
-              }}
-            >
-              <Text style={styles.copyBtnText}>{t('music.copy_link')}</Text>
-            </TouchableOpacity>
+            <View style={styles.modalBtnRow}>
+              <TouchableOpacity
+                style={styles.cancelBtn}
+                onPress={handleDownload}
+              >
+                <Text style={styles.cancelBtnText}>{t('music.download')}</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.okBtn}
+                onPress={() => {
+                  show({
+                    title: t('music.copy_success'),
+                    message: t('music.link_copied'),
+                  });
+                  Clipboard.setString(musicInfo.url);
+                  setShowShareModal(false)
+                }}
+              >
+                 <Text style={styles.copyBtnText}>{t('music.copy_link')}</Text>
+              </TouchableOpacity>
+            </View>
+
           </View>
         </View>
       </Modal>
@@ -702,6 +746,7 @@ const MyWorkMusicPlay = ({ navigation, route }: any) => {
           </View>
         </View>
       </Modal>
+      <FullScreenLoading visible={downloading} progress={progress}/>
     </View>
   );
 };
@@ -1000,6 +1045,7 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: normalizeFontSize(16),
     fontWeight: "bold",
+    textAlign:'center'
   },
   okBtnText: {
     color: "#111",

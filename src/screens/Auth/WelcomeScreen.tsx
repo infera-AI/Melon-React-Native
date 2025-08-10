@@ -207,7 +207,7 @@ const WelcomeScreen: React.FC = () => {
                     styles.languageItemText,
                     lang.code === language && styles.languageItemTextActive
                   ]}>
-                    {lang.label}
+                    {t(`languageNames.${lang.code}`)}
                   </Text>
                   {lang.code === language && (
                     <Text style={styles.languageItemCheck}>✓</Text>

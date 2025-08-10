@@ -25,14 +25,106 @@ type RegisterEmailScreenNavigationProp = StackNavigationProp<AuthStackParamList,
 
 // 国家数据
 const countries = [
-  { id: 'us', name: 'United States', code: '+1', flag: '🇺🇸' },
-  { id: 'cn', name: 'China', code: '+86', flag: '🇨🇳' },
-  { id: 'de', name: 'Germany', code: '+49', flag: '🇩🇪' },
-  { id: 'es', name: 'Spain', code: '+34', flag: '🇪🇸' },
-  { id: 'fr', name: 'France', code: '+33', flag: '🇫🇷' },
-  { id: 'jp', name: 'Japan', code: '+81', flag: '🇯🇵' },
-  { id: 'kr', name: 'South Korea', code: '+82', flag: '🇰🇷' },
-  { id: 'uk', name: 'United Kingdom', code: '+44', flag: '🇬🇧' },
+  { id: 'en', name: 'English', code: '+1', flag: '🇺🇸' },
+  { id: 'zh', name: 'Chinese', code: '+86', flag: '🇨🇳' },
+  { id: 'es', name: 'Spanish', code: '+34', flag: '🇪🇸' },
+  { id: 'fr', name: 'French', code: '+33', flag: '🇫🇷' },
+  { id: 'ar', name: 'Arabic', code: '+966', flag: '🇸🇦' },
+  { id: 'ru', name: 'Russian', code: '+7', flag: '🇷🇺' },
+  { id: 'de', name: 'German', code: '+49', flag: '🇩🇪' },
+  { id: 'ja', name: 'Japanese', code: '+81', flag: '🇯🇵' },
+  { id: 'pt', name: 'Portuguese', code: '+351', flag: '🇵🇹' },
+  { id: 'hi', name: 'Hindi', code: '+91', flag: '🇮🇳' },
+  { id: 'bn', name: 'Bengali', code: '+880', flag: '🇧🇩' },
+  { id: 'ur', name: 'Urdu', code: '+92', flag: '🇵🇰' },
+  { id: 'id', name: 'Indonesian', code: '+62', flag: '🇮🇩' },
+  { id: 'pa', name: 'Punjabi', code: '+91', flag: '🇮🇳' },
+  { id: 'ms', name: 'Malay', code: '+60', flag: '🇲🇾' },
+  { id: 'ko', name: 'Korean', code: '+82', flag: '🇰🇷' },
+  { id: 'it', name: 'Italian', code: '+39', flag: '🇮🇹' },
+  { id: 'nl', name: 'Dutch', code: '+31', flag: '🇳🇱' },
+  { id: 'tr', name: 'Turkish', code: '+90', flag: '🇹🇷' },
+  { id: 'vi', name: 'Vietnamese', code: '+84', flag: '🇻🇳' },
+  { id: 'th', name: 'Thai', code: '+66', flag: '🇹🇭' },
+  { id: 'pl', name: 'Polish', code: '+48', flag: '🇵🇱' },
+  { id: 'uk', name: 'Ukrainian', code: '+380', flag: '🇺🇦' },
+  { id: 'fa', name: 'Persian', code: '+98', flag: '🇮🇷' },
+  { id: 'sw', name: 'Swahili', code: '+255', flag: '🇹🇿' },
+  { id: 'el', name: 'Greek', code: '+30', flag: '🇬🇷' },
+  { id: 'hu', name: 'Hungarian', code: '+36', flag: '🇭🇺' },
+  { id: 'sv', name: 'Swedish', code: '+46', flag: '🇸🇪' },
+  { id: 'da', name: 'Danish', code: '+45', flag: '🇩🇰' },
+  { id: 'no', name: 'Norwegian', code: '+47', flag: '🇳🇴' },
+  { id: 'fi', name: 'Finnish', code: '+358', flag: '🇫🇮' },
+  { id: 'cs', name: 'Czech', code: '+420', flag: '🇨🇿' },
+  { id: 'ro', name: 'Romanian', code: '+40', flag: '🇷🇴' },
+  { id: 'he', name: 'Hebrew', code: '+972', flag: '🇮🇱' },
+  { id: 'af', name: 'Afrikaans', code: '+27', flag: '🇿🇦' },
+  { id: 'sq', name: 'Albanian', code: '+355', flag: '🇦🇱' },
+  { id: 'am', name: 'Amharic', code: '+251', flag: '🇪🇹' },
+  { id: 'hy', name: 'Armenian', code: '+374', flag: '🇦🇲' },
+  { id: 'az', name: 'Azerbaijani', code: '+994', flag: '🇦🇿' },
+  { id: 'eu', name: 'Basque', code: '+34', flag: '🇪🇸' },
+  { id: 'be', name: 'Belarusian', code: '+375', flag: '🇧🇾' },
+  { id: 'bs', name: 'Bosnian', code: '+387', flag: '🇧🇦' },
+  { id: 'bg', name: 'Bulgarian', code: '+359', flag: '🇧🇬' },
+  { id: 'ca', name: 'Catalan', code: '+34', flag: '🇪🇸' },
+  { id: 'hr', name: 'Croatian', code: '+385', flag: '🇭🇷' },
+  { id: 'et', name: 'Estonian', code: '+372', flag: '🇪🇪' },
+  { id: 'fo', name: 'Faroese', code: '+298', flag: '🇫🇴' },
+  { id: 'fy', name: 'Frisian', code: '+31', flag: '🇳🇱' },
+  { id: 'gl', name: 'Galician', code: '+34', flag: '🇪🇸' },
+  { id: 'ka', name: 'Georgian', code: '+995', flag: '🇬🇪' },
+  { id: 'gu', name: 'Gujarati', code: '+91', flag: '🇮🇳' },
+  { id: 'ht', name: 'Haitian Creole', code: '+509', flag: '🇭🇹' },
+  { id: 'ha', name: 'Hausa', code: '+234', flag: '����' },
+  { id: 'haw', name: 'Hawaiian', code: '+1', flag: '🇺🇸' },
+  { id: 'is', name: 'Icelandic', code: '+354', flag: '🇮🇸' },
+  { id: 'ig', name: 'Igbo', code: '+234', flag: '🇳🇬' },
+  { id: 'ga', name: 'Irish', code: '+353', flag: '🇮🇪' },
+  { id: 'jw', name: 'Javanese', code: '+62', flag: '🇮🇩' },
+  { id: 'kn', name: 'Kannada', code: '+91', flag: '🇮🇳' },
+  { id: 'kk', name: 'Kazakh', code: '+7', flag: '🇰🇿' },
+  { id: 'km', name: 'Khmer', code: '+855', flag: '🇰🇭' },
+  { id: 'rw', name: 'Kinyarwanda', code: '+250', flag: '🇷🇼' },
+  { id: 'ku', name: 'Kurdish', code: '+964', flag: '🇮🇶' },
+  { id: 'ky', name: 'Kyrgyz', code: '+996', flag: '🇰🇬' },
+  { id: 'lo', name: 'Lao', code: '+856', flag: '🇱🇦' },
+  { id: 'la', name: 'Latin', code: '+39', flag: '🇻🇦' },
+  { id: 'lv', name: 'Latvian', code: '+371', flag: '🇱🇻' },
+  { id: 'lt', name: 'Lithuanian', code: '+370', flag: '🇱🇹' },
+  { id: 'lb', name: 'Luxembourgish', code: '+352', flag: '🇱🇺' },
+  { id: 'mk', name: 'Macedonian', code: '+389', flag: '🇲🇰' },
+  { id: 'mg', name: 'Malagasy', code: '+261', flag: '🇲🇬' },
+  { id: 'ml', name: 'Malayalam', code: '+91', flag: '🇮🇳' },
+  { id: 'mt', name: 'Maltese', code: '+356', flag: '🇲🇹' },
+  { id: 'mi', name: 'Maori', code: '+64', flag: '🇳🇿' },
+  { id: 'mr', name: 'Marathi', code: '+91', flag: '🇮🇳' },
+  { id: 'mn', name: 'Mongolian', code: '+976', flag: '🇲🇳' },
+  { id: 'my', name: 'Burmese', code: '+95', flag: '🇲🇲' },
+  { id: 'ne', name: 'Nepali', code: '+977', flag: '🇳🇵' },
+  { id: 'or', name: 'Odia', code: '+91', flag: '🇮🇳' },
+  { id: 'ps', name: 'Pashto', code: '+93', flag: '🇦🇫' },
+  { id: 'sm', name: 'Samoan', code: '+685', flag: '🇼🇸' },
+  { id: 'gd', name: 'Scottish Gaelic', code: '+44', flag: '🇬🇧' },
+  { id: 'sr', name: 'Serbian', code: '+381', flag: '🇷🇸' },
+  { id: 'st', name: 'Sesotho', code: '+266', flag: '🇱🇸' },
+  { id: 'sn', name: 'Shona', code: '+263', flag: '🇿🇼' },
+  { id: 'sd', name: 'Sindhi', code: '+92', flag: '🇵🇰' },
+  { id: 'si', name: 'Sinhala', code: '+94', flag: '🇱🇰' },
+  { id: 'sk', name: 'Slovak', code: '+421', flag: '🇸🇰' },
+  { id: 'sl', name: 'Slovenian', code: '+386', flag: '🇸🇮' },
+  { id: 'so', name: 'Somali', code: '+252', flag: '🇸🇴' },
+  { id: 'su', name: 'Sundanese', code: '+62', flag: '🇮🇩' },
+  { id: 'tg', name: 'Tajik', code: '+992', flag: '🇹🇯' },
+  { id: 'ta', name: 'Tamil', code: '+91', flag: '🇮🇳' },
+  { id: 'te', name: 'Telugu', code: '+91', flag: '🇮🇳' },
+  { id: 'uz', name: 'Uzbek', code: '+998', flag: '🇺🇿' },
+  { id: 'cy', name: 'Welsh', code: '+44', flag: '🇬🇧' },
+  { id: 'xh', name: 'Xhosa', code: '+27', flag: '🇿🇦' },
+  { id: 'yi', name: 'Yiddish', code: '+972', flag: '🇮🇱' },
+  { id: 'yo', name: 'Yoruba', code: '+234', flag: '🇳🇬' },
+  { id: 'zu', name: 'Zulu', code: '+27', flag: '����' }
 ];
 
 const RegisterEmailScreen: React.FC = () => {
@@ -205,7 +297,7 @@ const RegisterEmailScreen: React.FC = () => {
                 {/* 邮箱输入框 */}
                 <View style={styles.inputBox}>
                   <Image source={require('../../../src/assets/login/login_email_icon.png')} style={styles.inputIcon} />
-                                  <TextInput
+                  <TextInput
                     style={styles.input}
                     placeholder={t('register.email_placeholder')}
                     placeholderTextColor={theme.textSecondary}
@@ -225,7 +317,7 @@ const RegisterEmailScreen: React.FC = () => {
                       <Image source={require('../../../src/assets/login/login_area_icon.png')} style={styles.locationIcon} />
                     </View>
                     <Text style={styles.areaText}>
-                      {selectedCountry.name} ({selectedCountry.code})
+                      {t(`languageNames.${selectedCountry.id}`)} ({selectedCountry.code})
                     </Text>
                   </TouchableOpacity>
                 </View>
@@ -246,7 +338,7 @@ const RegisterEmailScreen: React.FC = () => {
           </View>
 
           {/* 注册按钮 */}
-                  <TouchableOpacity style={styles.registerButton} onPress={handleRegister}>
+          <TouchableOpacity style={styles.registerButton} onPress={handleRegister}>
             <Text style={styles.registerButtonText}>{t('register.send_verification_code')}</Text>
           </TouchableOpacity>
 
@@ -294,7 +386,7 @@ const RegisterEmailScreen: React.FC = () => {
                           styles.countryItemName,
                           selectedCountry.id === country.id && styles.countryItemNameSelected
                         ]}>
-                          {country.name}
+                          {t(`languageNames.${country.id}`)}
                         </Text>
                         <Text style={[
                           styles.countryItemCode,
