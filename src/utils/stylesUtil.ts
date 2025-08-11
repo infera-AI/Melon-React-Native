@@ -2,7 +2,7 @@ import {Dimensions,PixelRatio} from 'react-native';
 import { scaleSize,scaleFont } from './scale';
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
-
+const pixelRatio = PixelRatio.get();
 // export const normalize = (size: number, based: 'width' | 'height' = 'width') => {
 //   const newSize = based === 'height' ? size * screenHeight / 812 : size * screenWidth / 375;
 //   return Math.round(newSize);
@@ -17,7 +17,11 @@ export const normalize = (size: number) => {
 }
 
 export const normalizeFontSize = (size: number) => {
-  return scaleFont(size/3);
+  // 确保最小字体大小
+  const minSize = 12;
+  const maxSize = size * 1.5; // 最大不超过原尺寸的1.5倍
+  const pixelAlignedSize = scaleFont(size)/pixelRatio
+  return Math.max(minSize, Math.min(maxSize, pixelAlignedSize));
 }
 
 // export const normalizeFontSize = (size: number) => {
