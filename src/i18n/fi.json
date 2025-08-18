@@ -235,7 +235,7 @@
         "document_filesize_max1": "Tiedostokoko ei saa ylittää",
         "document_filesize_max2": "Valitse uudelleen",
         "document_page_title": "Dokumentin kääntäminen",
-        "document_filetype_tip1": "Tukee muodollisia kuten doc/pdf",
+        "document_filetype_tip1": "PDF-muotoa tuetaan vain",
         "document_filetype_tip2": "100 M:n sisällä",
         "document_upload_success": "Lataus onnistui",
         "document_translating": "Käännetään",

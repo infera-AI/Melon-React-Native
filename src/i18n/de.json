@@ -235,7 +235,7 @@
         "document_filesize_max1": "Dateigröße darf nicht überschreiten",
         "document_filesize_max2": "Bitte wählen Sie erneut",
         "document_page_title": "Dokumentübersetzung",
-        "document_filetype_tip1": "Unterstützt Formate wie doc/pdf",
+        "document_filetype_tip1": "Nur PDF-Format wird unterstützt",
         "document_filetype_tip2": "bis 100M",
         "document_upload_success": "Upload erfolgreich",
         "document_translating": "Übersetzen",

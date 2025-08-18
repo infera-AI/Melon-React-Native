@@ -236,7 +236,7 @@
         "document_filesize_max1": "Fayl həcmi aşmamalıdır",
         "document_filesize_max2": "Zəhmət olmasa yenidən seçin",
         "document_page_title": "Sənəd Tərcümə",
-        "document_filetype_tip1": "doc/pdf kimi formatları dəstəkləyir",
+        "document_filetype_tip1": "Yalnız PDF formatı dəstəklənir",
         "document_filetype_tip2": "100M-dən az",
         "document_upload_success": "Yükləmə uğurla tamamlandı",
         "document_translating": "Tərcümə olunur",

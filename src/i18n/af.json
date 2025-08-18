@@ -235,7 +235,7 @@
         "document_filesize_max1": "Lêergrootte mag nie oorskry nie",
         "document_filesize_max2": "Kies asseblief weer",
         "document_page_title": "Dokumentvertaling",
-        "document_filetype_tip1": "Ondersteun formate soos doc/pdf",
+        "document_filetype_tip1": "Slegs PDF-formaat word ondersteun",
         "document_filetype_tip2": "binne 100M",
         "document_upload_success": "Oplaai suksesvol",
         "document_translating": "Vertaling",

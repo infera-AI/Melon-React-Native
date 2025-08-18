@@ -34,7 +34,7 @@ import { useMessageModal } from '@/contexts/MessageModalContext';
 import { AudioPlayerController } from '@/utils/AudioPlayerController';
 
 import { StatusEnum } from '@/components/SpeakBtn';
-import { scaleSize, scaleFont } from '@/utils/scale';
+import { scaleSize, scaleFont, scaleIcon } from '@/utils/scale';
 
 const { width, height } = Dimensions.get('window');
 const pageLR = 16;
@@ -608,7 +608,7 @@ const OralPracticeScreen: React.FC = () => {
           // onPress={() => setIsAnimating(!isAnimating)}
         >
             <Text>
-              <Ionicons name='close-outline' size={scaleFont(14)} color={'#EA4335'}/>
+              <Ionicons name='close-outline' size={scaleIcon(34)} color={'#EA4335'}/>
             </Text>
         </TouchableOpacity>
       </View>
@@ -757,10 +757,10 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   statusText: {
-    fontSize: scaleFont(5.2),
+    fontSize: scaleFont(14),
     color: '#85F380',
     marginTop: 10,
-    marginLeft: 10,
+    // marginLeft: 10,
   },
   voiceAnimate: {
     flexDirection: 'row',

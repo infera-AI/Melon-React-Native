@@ -244,11 +244,11 @@ const styles = StyleSheet.create({
   },
   btnText: {
     paddingHorizontal: scaleSize(6),
-    fontSize: scaleFont(5),
+    fontSize: scaleFont(14),
     fontWeight: 500
   },
   btnTipText: {
-    fontSize: scaleFont(5.4),
+    fontSize: scaleFont(16),
     fontWeight: 'bold',
     marginTop: scaleSize(10),
   },

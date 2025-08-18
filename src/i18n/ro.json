@@ -235,7 +235,7 @@
         "document_filesize_max1": "Dimensiunea fișierului nu trebuie să depășească",
         "document_filesize_max2": "Vă rugăm să alegeți din nou",
         "document_page_title": "Traducere documente",
-        "document_filetype_tip1": "Suportă formate precum doc/pdf",
+        "document_filetype_tip1": "Este acceptat doar formatul PDF",
         "document_filetype_tip2": "în limita de 100M",
         "document_upload_success": "Încărcare reușită",
         "document_translating": "Se traduce",

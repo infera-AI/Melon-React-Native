@@ -235,7 +235,7 @@
         "document_filesize_max1": "גודל הקובץ לא יעבור",
         "document_filesize_max2": "נא לבחור שוב",
         "document_page_title": "תרגום מסמכים",
-        "document_filetype_tip1": "תומך בפורמטים כמו doc/pdf",
+        "document_filetype_tip1": "רק פורמט PDF נתמך",
         "document_filetype_tip2": "בתוך 100M",
         "document_upload_success": "העלאה הצליחה",
         "document_translating": "מתרגם",

@@ -10,7 +10,7 @@ import {
   Image,
   ScrollView,
   Animated,
-  Platform
+  Platform,
 } from 'react-native';
 import { useLanguage } from '@/contexts/LanguageContext';
 import EStyleSheet from 'react-native-extended-stylesheet';
@@ -31,6 +31,8 @@ import {
   translateDocument,
   getTranslationTask,
 } from '@/api/translate/translate'
+
+import Pdf from 'react-native-pdf';
 
 import PublicModal from '@/components/PublicModal'
 import LangSelectCard from '@/components/LangSelectCard'
@@ -57,28 +59,32 @@ const MAX_FILE_SIZE_MB = 100; // 文件大小限制（M）
 
 const iosTypes = [
   'com.adobe.pdf',
-  'com.microsoft.word.doc',
-  'org.openxmlformats.wordprocessingml.document',
-  'com.microsoft.excel.xls',
-  'org.openxmlformats.spreadsheetml.sheet',
-  'com.microsoft.powerpoint.ppt',
-  'org.openxmlformats.presentationml.presentation',
+  // 'com.microsoft.word.doc',
+  // 'org.openxmlformats.wordprocessingml.document',
+  // 'com.microsoft.excel.xls',
+  // 'org.openxmlformats.spreadsheetml.sheet',
+  // 'com.microsoft.powerpoint.ppt',
+  // 'org.openxmlformats.presentationml.presentation',
 ];
 
 const androidTypes = [
   'application/pdf',
-  'application/msword', // .doc
-  'application/vnd.openxmlformats-officedocument.wordprocessingml.document', // .docx
-  'application/vnd.ms-excel', // .xls
-  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // .xlsx
-  'application/vnd.ms-powerpoint', // .ppt
-  'application/vnd.openxmlformats-officedocument.presentationml.presentation', // .pptx
+  // 'application/msword', // .doc
+  // 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', // .docx
+  // 'application/vnd.ms-excel', // .xls
+  // 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // .xlsx
+  // 'application/vnd.ms-powerpoint', // .ppt
+  // 'application/vnd.openxmlformats-officedocument.presentationml.presentation', // .pptx
 ]
 
 const fileTypes = Platform.select({
   ios: iosTypes,
   android: androidTypes,
 });
+
+let getTaskInfoTimer:any = null
+
+const TRANSLATION_MAX_TIME = 5 * 60 * 1000 // 翻译任务最大时长 (1分钟)，伪进度
 
 const DocumentTranslationScreen: React.FC = () => {
 
@@ -91,6 +97,9 @@ const DocumentTranslationScreen: React.FC = () => {
 
   const [downloadModalShow, setDownloadModalShow] = useState(false)
 
+  const [allPageNum, setAllPageNum] = useState<any>('--');
+  const [currntPageNum, setCurrntPageNum] = useState<any>('--');
+
   const insets = useSafeAreaInsets(); // 获取安全区域距离
 
   const { language } = useLanguage();
@@ -98,8 +107,12 @@ const DocumentTranslationScreen: React.FC = () => {
 
   const [beforeLangSelect, setBeforeLangSelect] = useState(language)
   const [afterLangSelect, setAfterLangSelect] = useState<Language>('en')
-  const [fileName, setFileName] = useState<string>('')
+  const [selectFileInfo, setSelectFileInfo] = useState<any>(null)
   const [taskId, setTaskId] = useState<string>('')
+  const [taskInfo, setTaskInfo] = useState<any>(null)
+  const createTaskTime = useRef(0)
+
+  const [translationProgress, setTranslationProgress] = useState(0)
 
   // 占位点击事件
   const handlePress = (name: string) => () => {
@@ -110,8 +123,8 @@ const DocumentTranslationScreen: React.FC = () => {
 
   // 选择文件
   const selectFileBtnClick = async () => {
-    setUploadStatus(UploadStatusEnum.TYPE_SUCCESS)
-    return
+    // setUploadStatus(UploadStatusEnum.TYPE_SUCCESS)
+    // return
     try {
       const res = await pick({
         type: fileTypes,
@@ -140,6 +153,7 @@ const DocumentTranslationScreen: React.FC = () => {
       }
 
       console.log('✅ 选中的文件:', res);
+
       // 每个文件结构：
       // {
       //   name: 'example.pdf',
@@ -154,8 +168,8 @@ const DocumentTranslationScreen: React.FC = () => {
         setLoading(true)
         const file = res[0];
         translateDocument({
-          source_language: 'en',
-          target_language: 'zh',
+          source_language: beforeLangSelect,
+          target_language: afterLangSelect,
           file: {
             uri: file.uri,
             name: file.name ?? Date.now() + '',
@@ -163,9 +177,11 @@ const DocumentTranslationScreen: React.FC = () => {
           },
         }).then(response => {
           console.log('上传成功', response);
-          setLoading(false)
-          setFileName(file.name ?? Date.now() + '')
           setTaskId(response.task_id)
+          createTaskTime.current = Math.floor(performance.now())
+
+          setLoading(false)
+          setSelectFileInfo(res[0])
           setUploadStatus(UploadStatusEnum.TYPE_SUCCESS)
         }).catch(err => {
           setLoading(false)
@@ -179,28 +195,56 @@ const DocumentTranslationScreen: React.FC = () => {
     }
   }
 
+  const getTaskInfo = () => {
+    getTaskInfoTimer = setTimeout(() => {
+      getTranslationTask(taskId).then((rsp) => {
+        if (rsp?.status !== 'translated' && rsp?.status !== 'failed') {
+          getTaskInfo()
+          let percent = toPercent(Math.floor(performance.now()) - createTaskTime.current)
+          setTranslationProgress(percent === 100 ? 99 : percent)
+          
+        } else {
+          setTranslationProgress(100)
+          console.log('翻译任务完成:', rsp);
+          setTimeout(() => {
+            setTaskInfo(rsp)
+            clearTimeout(getTaskInfoTimer)
+            setUploadStatus(UploadStatusEnum.TYPE_TRANSLATION_SUCCESS)
+          }, 1000)
+          
+        }
+      }).catch(() => {
+        cancelTranslationBtnClick()
+        show({
+          message: t('translate_screen.translation_fail')
+        })
+        
+        
+      })
+    }, 3000)
+  }
+
+  const toPercent = (num: number) => {
+    const percent = (num / TRANSLATION_MAX_TIME) * 100;
+    return Math.min(Math.round(percent), 100); // 四舍五入并确保最大值为 100
+  }
+
   // 开始翻译按钮
   const startTranslationBtnClick = () => {
+    setTranslationProgress(0)
+    getTaskInfo()
     setUploadStatus(UploadStatusEnum.TYPE_TRANSLATING)
-    getTranslationTask(taskId).then((rsp) => {
-      console.log('rsp----', rsp);
-      
-      }).catch(() => {
-
-      })
     
   }
 
-  // 轮询获取翻译文档结果
-  const loopGetTranslationResultByTaskId = () => {
-    // setTimeout(() => {
-      
-    // }, 3000)
-  }
-
   const cancelTranslationBtnClick = () => {
-    // setUploadStatus(UploadStatusEnum.TYPE_NORMAL)
-    setUploadStatus(UploadStatusEnum.TYPE_TRANSLATION_SUCCESS)
+    setUploadStatus(UploadStatusEnum.TYPE_NORMAL)
+    setSelectFileInfo(null)
+    createTaskTime.current = 0
+    setTaskId('')
+    setTaskInfo(null)
+    clearTimeout(getTaskInfoTimer)
+    setTranslationProgress(0)
   }
 
   const originalSwitchChange = (type: string) => () => {
@@ -256,6 +300,7 @@ const DocumentTranslationScreen: React.FC = () => {
           style={styles.scroll}
           contentContainerStyle={styles.contentContainer}
           keyboardShouldPersistTaps="handled"
+          scrollEnabled={uploadStatus !== UploadStatusEnum.TYPE_TRANSLATION_SUCCESS}
         >
           {/* 主内容----------------------------------------- */}
           {/* 未上传状态界面 */}
@@ -287,7 +332,7 @@ const DocumentTranslationScreen: React.FC = () => {
                 />
               </View>
               <Text style={[styles.uploadTipText, { marginTop: 24 }]}>
-                {fileName}
+                {selectFileInfo?.name}
               </Text>
               <View style={{flex: 1, justifyContent: 'flex-end', marginBottom: 40}}>
                 <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'center'}}>
@@ -311,12 +356,12 @@ const DocumentTranslationScreen: React.FC = () => {
                 />
               </View>
               <Text style={[styles.uploadTipText, { marginTop: 24 }]}>
-                {fileName}
+                {selectFileInfo?.name}
               </Text>
               <View style={{flex: 1, justifyContent: 'flex-end', marginBottom: 40}}>
                 <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'center'}}>
-                  <Text style={{fontSize: 16, color: '#85F380', fontWeight: '500', marginLeft: 10}}>
-                    {t('translate_screen.document_translating')}...77%
+                  <Text style={{fontSize: 16, color: '#85F380', fontWeight: '500', marginLeft: translationProgress ? 10 : 0}}>
+                    {t('translate_screen.document_translating')}{translationProgress ? `...${translationProgress}%` : ''}
                   </Text>
                 </View>
               </View>
@@ -328,13 +373,35 @@ const DocumentTranslationScreen: React.FC = () => {
             <View style={[styles.uploadContent, {justifyContent: 'flex-start'}]}>
               <View style={styles.titleView}>
                 <Text style={styles.titleViewText}>
-                  {fileName}
+                  {selectFileInfo?.name}
                 </Text>
               </View>
               <View style={styles.wordContent}>
-                <Text style={styles.wordContentText}>
-                  liability, and Party B agrees that Party A will directly seek compensation from Microsoft. Contract Changes and Termination Any changes or supplements to this contract must be agreed upon in writing by both parties and signed in a written agreement. 2 During the performance of the contract, if one party proposes to terminate the contract, it shall notify the other party in writing 30 days in advance: If the contract cannot be continued due to force majeure or other reasons stipulated by laws and regulations, this contract may be terminated in advance, and both parties shall not bear liability for breach of contract. Force majeure Force majeure refers to events that cannot be foreseen, avoided, or overcome. Due to force majeure
-                </Text>
+                
+                {
+                  selectFileInfo?.uri &&
+                  <Pdf
+                    source={{uri: selectFileInfo?.uri}}
+                    onLoadComplete={(numberOfPages,filePath) => {
+                      setAllPageNum(numberOfPages);
+                        // console.log(`Number of pages: ${numberOfPages}`);
+                    }}
+                    onPageChanged={(page,numberOfPages) => {
+                      setCurrntPageNum(page)
+                        // console.log(`Current page: ${page}`);
+                    }}
+                    onError={(error) => {
+                        console.log(error);
+                    }}
+                    onPressLink={(uri) => {
+                        // console.log(`Link pressed: ${uri}`);
+                    }}
+                    style={{flex: 1}}/>
+                }
+                
+                {/* <Text style={styles.wordContentText}>
+                  {decodeURIComponent(selectFileInfo?.uri)}
+                </Text> */}
               </View>
             </View>
           }
@@ -441,7 +508,7 @@ const DocumentTranslationScreen: React.FC = () => {
               </TouchableOpacity>
             </View>
             <Text style={styles.pageNumText}>
-              3/4
+              {currntPageNum}/{allPageNum}
             </Text>
             <TouchableOpacity style={styles.downloadBtn} onPress={() => setDownloadModalShow(true)}>
               <Text>
@@ -650,6 +717,9 @@ const styles = StyleSheet.create({
   },
   wordContent: {
     marginTop: 20,
+    flex: 1,
+    width: '100%',
+    marginBottom: 20,
   },
   wordContentText: {
     color: '#B0B0B0',

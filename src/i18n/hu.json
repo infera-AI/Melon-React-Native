@@ -235,7 +235,7 @@
         "document_filesize_max1": "A fájlméret nem haladhatja meg a",
         "document_filesize_max2": "Kérjük, válasszon újra",
         "document_page_title": "Dokumentum fordítás",
-        "document_filetype_tip1": "Támogatja formátumokat például doc/pdf",
+        "document_filetype_tip1": "Csak a PDF-formátum támogatott",
         "document_filetype_tip2": "100M-ig",
         "document_upload_success": "Feltöltés sikeres",
         "document_translating": "Fordítás",

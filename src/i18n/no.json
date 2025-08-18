@@ -235,7 +235,7 @@
         "document_filesize_max1": "Filstørrelsen må ikke overstige",
         "document_filesize_max2": "Vennligst velg igjen",
         "document_page_title": "Dokumentoversettelse",
-        "document_filetype_tip1": "Støtter formater som doc/pdf",
+        "document_filetype_tip1": "Kun PDF-format støttes",
         "document_filetype_tip2": "innenfor 100M",
         "document_upload_success": "Lastet opp vellykket",
         "document_translating": "Oversetter",

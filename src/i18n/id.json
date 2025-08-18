@@ -235,7 +235,7 @@
         "document_filesize_max1": "Ukuran file tidak boleh melebihi",
         "document_filesize_max2": "Silakan pilih lagi",
         "document_page_title": "Terjemahan Dokumen",
-        "document_filetype_tip1": "Dukungan format seperti doc/pdf",
+        "document_filetype_tip1": "Hanya format PDF yang didukung",
         "document_filetype_tip2": "dalam 100M",
         "document_upload_success": "Unggah Berhasil",
         "document_translating": "Menterjemahkan",

@@ -235,7 +235,7 @@
         "document_filesize_max1": "Madhësia e skedarit nuk duhet të tejkalojë",
         "document_filesize_max2": "Ju lutem zgjidhni përsëri",
         "document_page_title": "Përkthimi i dokumentit",
-        "document_filetype_tip1": "Përshkruan formate si doc/pdf",
+        "document_filetype_tip1": "Mbështetet vetëm formati PDF",
         "document_filetype_tip2": "brenda 100M",
         "document_upload_success": "Ngarkimi i suksesshëm",
         "document_translating": "Po përkthej",

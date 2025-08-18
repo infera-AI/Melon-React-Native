@@ -128,7 +128,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: scaleSize(22)
   },
   rightBtnText: {
-    fontSize: scaleFont(4.2),
+    fontSize: scaleFont(12),
     color: '#fff',
     fontWeight: '500',
   },
@@ -136,7 +136,7 @@ const styles = StyleSheet.create({
     flex: 1,
     textAlign: 'center',
     color: '#fff',
-    fontSize: scaleFont(6),
+    fontSize: scaleFont(16),
     fontWeight: '600',
   },
 });

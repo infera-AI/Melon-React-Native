@@ -235,7 +235,7 @@
         "document_filesize_max1": "파일 크기는 다음을 초과할 수 없습니다",
         "document_filesize_max2": "다시 선택해 주세요",
         "document_page_title": "문서 번역",
-        "document_filetype_tip1": "doc/pdf 등의 형식을 지원합니다",
+        "document_filetype_tip1": "PDF 형식만 지원됩니다",
         "document_filetype_tip2": "100M 이내",
         "document_upload_success": "업로드 성공",
         "document_translating": "번역 중",

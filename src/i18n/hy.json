@@ -235,7 +235,7 @@
         "document_filesize_max1": "Ֆայլի չափը չպետք է գերազանցի",
         "document_filesize_max2": "Խնդրում ենք կրկին ընտրել",
         "document_page_title": "Փաստաթղթի թարգմանություն",
-        "document_filetype_tip1": "Հաջակցում է doc/pdf պես ձևաչափները",
+        "document_filetype_tip1": "Միայն PDF ֆորմատն է աջակցվում",
         "document_filetype_tip2": "100M-ի ներքո",
         "document_upload_success": "Վերբեռնումը հաջողությամբ կատարվեց",
         "document_translating": "Թարգմանում",

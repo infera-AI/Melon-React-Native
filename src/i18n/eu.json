@@ -235,7 +235,7 @@
         "document_filesize_max1": "Fitxategiaren tamaina ezin da handiagoa izan",
         "document_filesize_max2": "Aukeratu berriro mesedez",
         "document_page_title": "Dokumentu itzulpena",
-        "document_filetype_tip1": "doc/pdf bezalako formatuak onartzen ditu",
+        "document_filetype_tip1": "PDF formatua bakarrik onartzen da",
         "document_filetype_tip2": "100M barru",
         "document_upload_success": "Kargatze ondoa",
         "document_translating": "Itzultzen",

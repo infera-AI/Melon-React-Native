@@ -235,7 +235,7 @@
         "document_filesize_max1": "Veličina datoteke ne smije premašiti",
         "document_filesize_max2": "Molimo izaberite ponovo",
         "document_page_title": "Prevod dokumenata",
-        "document_filetype_tip1": "Podržava formate kao doc/pdf",
+        "document_filetype_tip1": "Samo PDF format je podržan",
         "document_filetype_tip2": "unutar 100M",
         "document_upload_success": "Učitavanje uspješno",
         "document_translating": "Prevod",

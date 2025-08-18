@@ -235,7 +235,7 @@
         "document_filesize_max1": "Памер файла не можа перавышаць",
         "document_filesize_max2": "Калі ласка, выберыце зноў",
         "document_page_title": "Пераклад дакументаў",
-        "document_filetype_tip1": "Падтрымліваюцца фарматы, такія як doc/pdf",
+        "document_filetype_tip1": "Падтрымліваецца толькі фармат PDF",
         "document_filetype_tip2": "да 100M",
         "document_upload_success": "Загрузка паспяхова завершена",
         "document_translating": "Перакладаю",

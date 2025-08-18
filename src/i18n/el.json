@@ -235,7 +235,7 @@
         "document_filesize_max1": "Το μέγεθος του αρχείου δεν πρέπει να υπερβαίνει το",
         "document_filesize_max2": "Παρακαλώ επιλέξτε ξανά",
         "document_page_title": "Μετάφραση Έγγραφων",
-        "document_filetype_tip1": "Υποστηρίζει μορφές όπως doc/pdf",
+        "document_filetype_tip1": "Υποστηρίζεται μόνο η μορφή PDF",
         "document_filetype_tip2": "μέχρι 100M",
         "document_upload_success": "Επιτυχής ανέβασις",
         "document_translating": "Μεταφράζει",

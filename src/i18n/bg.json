@@ -235,7 +235,7 @@
         "document_filesize_max1": "Големината на файла не трябва да надхвърля",
         "document_filesize_max2": "Моля изберете отново",
         "document_page_title": "Превод на документи",
-        "document_filetype_tip1": "Поддържа формати като doc/pdf",
+        "document_filetype_tip1": "Поддържат се само PDF файлове",
         "document_filetype_tip2": "в рамките на 100M",
         "document_upload_success": "Качването е успешно",
         "document_translating": "Превеждане",

@@ -235,7 +235,7 @@
         "document_filesize_max1": "ਫਾਈਲ ਆਕਾਰ ਇਹਨਾਂ ਤੋਂ ਵੱਧ ਨਹੀਂ ਹੋ ਸਕਦਾ",
         "document_filesize_max2": "ਕਿਰਪਾ ਕਰਕੇ ਦੁਬਾਰਾ ਚੁਣੋ",
         "document_page_title": "ਦਸਤਾਵੇਜ਼ ਅਨੁਵਾਦ",
-        "document_filetype_tip1": "ਡੌਕ/ਪੀਡੀਐਫ ਵਰਗੇ ਫਾਰਮੈਟਾਂ ਦਾ ਸਮਰਥਨ ਕਰਦਾ ਹੈ",
+        "document_filetype_tip1": "ਕੇਵਲ PDF ਫਾਰਮੈਟ ਦਾ ਸਮਰਥਨ ਕੀਤਾ ਜਾਂਦਾ ਹੈ",
         "document_filetype_tip2": "100M ਦੇ ਅੰਦਰ",
         "document_upload_success": "ਅਪਲੋਡ ਸਫਲ ਹੋਇਆ",
         "document_translating": "ਅਨੁਵਾਦ ਕਰ ਰਿਹਾ ਹੈ",

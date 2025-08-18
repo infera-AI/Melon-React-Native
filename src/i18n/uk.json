@@ -235,7 +235,7 @@
         "document_filesize_max1": "Розмір файлу не повинен перевищувати",
         "document_filesize_max2": "Оберіть знову",
         "document_page_title": "Переклад документів",
-        "document_filetype_tip1": "Підтримує формати, такі як doc/pdf",
+        "document_filetype_tip1": "Підтримується лише формат PDF",
         "document_filetype_tip2": "до 100МБ",
         "document_upload_success": "Завантаження успішне",
         "document_translating": "Перекладення",

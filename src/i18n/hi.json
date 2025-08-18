@@ -235,7 +235,7 @@
         "document_filesize_max1": "फ़ाइल का आकार नहीं बढ़ा सकता",
         "document_filesize_max2": "फिर से चुनें",
         "document_page_title": "दस्तावेज़ अनुवाद",
-        "document_filetype_tip1": "डॉक/पीडीएफ जैसे प्रारूपों का समर्थन करता है",
+        "document_filetype_tip1": "केवल PDF फ़ॉर्मेट समर्थित है",
         "document_filetype_tip2": "अधिकतम 100एम",
         "document_upload_success": "अपलोड सफल हुआ",
         "document_translating": "अनुवाद हो रहा है",

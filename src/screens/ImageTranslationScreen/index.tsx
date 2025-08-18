@@ -29,7 +29,7 @@ import type { Language } from '@/i18n/languages';
 import LangSelectCard from '@/components/LangSelectCard'
 
 import PublicModal from '@/components/PublicModal'
-import { scaleFont, scaleSize } from '@/utils/scale';
+import { scaleIcon, scaleSize } from '@/utils/scale';
 
 import Clipboard from '@react-native-clipboard/clipboard';
 
@@ -344,7 +344,7 @@ const ImageTranslationScreen: React.FC = () => {
                       <TouchableOpacity onPress={pickImageFromGallery}>
                         <View style={[styles.imgItem, styles.addItem]}>
                           <Text>
-                            <Ionicons name='add-outline' size={scaleFont(20)} color={'#4e4c4cff'}/>
+                            <Ionicons name='add-outline' size={scaleIcon(50)} color={'#4e4c4cff'}/>
                           </Text>
                         </View>
                       </TouchableOpacity>

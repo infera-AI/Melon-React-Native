@@ -15,7 +15,7 @@ import {
 import PublicModal from '@/components/PublicModal'
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { scaleSize, scaleFont } from '@/utils/scale';
+import { scaleSize, scaleFont, scaleIcon } from '@/utils/scale';
 import { languageToCountryCode, supportedLanguages } from '@/i18n/languages';
 import type { LanguageOption, Language } from '@/i18n/languages';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -47,7 +47,7 @@ const pageLR = 16;
 const LangSelectCard: React.FC<Props> = ({
   beforeLanguage = 'en',
   afterLanguage = 'en',
-  textSize = 5.2,
+  textSize = 14,
   heightOffset = 0,
   marginRight = 20,
   disabled = false,
@@ -141,7 +141,7 @@ const LangSelectCard: React.FC<Props> = ({
                 </View>
                 <TouchableOpacity onPress={() => closeModalFun()}>
                   <Text>
-                    <Ionicons name='close-outline' size={scaleFont(9)} color={'#ffffff'}/>
+                    <Ionicons name='close-outline' size={scaleIcon(24)} color={'#ffffff'}/>
                   </Text>
                 </TouchableOpacity>
               </View>
@@ -179,7 +179,7 @@ const LangSelectCard: React.FC<Props> = ({
                               {
                                 ((selectType === 'before' && beforeLanguage === item.code) || (selectType === 'after' && afterLanguage === item.code)) &&
                                 <Text>
-                                  <FontAwesome6 name='check' size={scaleFont(6)} color={'#85F380'}/>
+                                  <FontAwesome6 name='check' size={scaleIcon(18)} color={'#85F380'}/>
                                 </Text>
                               }
                               
@@ -266,7 +266,7 @@ const styles = StyleSheet.create({
     marginRight: scaleSize(10),
   },
   titleText: {
-    fontSize: scaleFont(6),
+    fontSize: scaleFont(16),
     color: '#ffffff',
   },
   modalContentView: {
@@ -308,7 +308,7 @@ const styles = StyleSheet.create({
   },
   languageText: {
     width: '100%',
-    fontSize: scaleFont(6),
+    fontSize: scaleFont(14),
     color: '#ffffff',
     marginLeft: scaleSize(10),
   },

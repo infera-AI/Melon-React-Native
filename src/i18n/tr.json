@@ -235,7 +235,7 @@
         "document_filesize_max1": "Dosya boyutu aşamaz",
         "document_filesize_max2": "Lütfen tekrar seçin",
         "document_page_title": "Doküman Çeviri",
-        "document_filetype_tip1": "doc/pdf gibi formatları destekler",
+        "document_filetype_tip1": "Sadece PDF formatı desteklenir",
         "document_filetype_tip2": "100M içindeki",
         "document_upload_success": "Yükleme Başarılı",
         "document_translating": "Çevriliyor",

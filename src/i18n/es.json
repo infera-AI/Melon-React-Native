@@ -235,7 +235,7 @@
     "document_filesize_max1": "El tamaño del archivo no debe exceder",
     "document_filesize_max2": "Por favor elija nuevamente",
     "document_page_title": "Traducción de documentos",
-    "document_filetype_tip1": "Soporta formatos como doc/pdf",
+    "document_filetype_tip1": "Solo se admite el formato PDF",
     "document_filetype_tip2": "hasta 100M",
     "document_upload_success": "Carga exitosa",
     "document_translating": "Traducriendo",

@@ -235,7 +235,7 @@
         "document_filesize_max1": "فائل کا سائز اس سے زیادہ نہیں ہوسکتا",
         "document_filesize_max2": "براہ کرم دوبارہ چुनیں",
         "document_page_title": "دستاویز ترجمہ",
-        "document_filetype_tip1": "doc/pdf جیسی فارمیٹس کو سپورٹ کرتا ہے",
+        "document_filetype_tip1": "صرف PDF فارمیٹ کی حمایت کی جاتی ہے",
         "document_filetype_tip2": "100M کے اندر",
         "document_upload_success": "اپ لوڈ کامیاب ہوا",
         "document_translating": "ترجمہ ہو رہا ہے",

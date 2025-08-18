@@ -234,7 +234,7 @@
     "document_filesize_max1": "文件大小不能超过",
     "document_filesize_max2": "请重新选择",
     "document_page_title": "文档翻译",
-    "document_filetype_tip1": "支持 doc/pdf 格式",
+    "document_filetype_tip1": "仅支持 pdf 格式",
     "document_filetype_tip2": "100M 以内",
     "document_upload_success": "上传成功",
     "document_translating": "翻译中",

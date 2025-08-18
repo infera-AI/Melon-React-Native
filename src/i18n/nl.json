@@ -235,7 +235,7 @@
         "document_filesize_max1": "Bestandsgrootte mag niet meer dan",
         "document_filesize_max2": "Kies opnieuw",
         "document_page_title": "Documentvertaling",
-        "document_filetype_tip1": "Ondersteunt formaten zoals doc/pdf",
+        "document_filetype_tip1": "Alleen PDF-formaat wordt ondersteund",
         "document_filetype_tip2": "maximaal 100M",
         "document_upload_success": "Upload succesvol",
         "document_translating": "Vertalen",

@@ -235,7 +235,7 @@
         "document_filesize_max1": "Kích thước tệp không được vượt quá",
         "document_filesize_max2": "Vui lòng chọn lại",
         "document_page_title": "Dịch tài liệu",
-        "document_filetype_tip1": "Hỗ trợ định dạng như doc/pdf",
+        "document_filetype_tip1": "Chỉ hỗ trợ định dạng PDF",
         "document_filetype_tip2": "trong 100M",
         "document_upload_success": "Tải lên thành công",
         "document_translating": "Đang dịch",

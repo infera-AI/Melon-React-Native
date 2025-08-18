@@ -235,7 +235,7 @@
     "document_filesize_max1": "File size must not exceed",
     "document_filesize_max2": "Please choose again",
     "document_page_title": "Document Translation",
-    "document_filetype_tip1": "Supports formats like doc/pdf",
+    "document_filetype_tip1": "Only PDF format is supported",
     "document_filetype_tip2": "within 100M",
     "document_upload_success": "Upload Successful",
     "document_translating": "Translating",

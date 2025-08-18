@@ -75,11 +75,11 @@ const TranslateScreen: React.FC = () => {
     } else if (name === 'ListeningMode') {
       navigation.navigate('ListeningMode')
     } else if (name === 'DocumentTranslation') {
-      show({
-        message: t('translate_screen.coming_soon')
-      })
-      return
-      // navigation.navigate('DocumentTranslation')
+      // show({
+      //   message: t('translate_screen.coming_soon')
+      // })
+      // return
+      navigation.navigate('DocumentTranslation')
     } else if (name === 'AudioTranslation') {
       navigation.navigate('AudioTranslation')
     } else if (name === 'ImageTranslation') {
@@ -360,12 +360,12 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   headerTitle: {
-    fontSize: scaleFont(6.5),
+    fontSize: scaleFont(18),
     fontWeight: 'bold',
     color: '#222',
   },
   headerDesc: {
-    fontSize: scaleFont(3.8),
+    fontSize: scaleFont(11),
     color: '#222',
     marginTop: scaleSize(6),
     lineHeight: scaleSize(18),
@@ -375,7 +375,7 @@ const styles = StyleSheet.create({
     height: 22,
   },
   sectionTitle: {
-    fontSize: scaleFont(5.2),
+    fontSize: scaleFont(15),
     fontWeight: '500',
     color: '#fff',
     marginTop: 24,
@@ -436,7 +436,7 @@ const styles = StyleSheet.create({
   },
   toolTextNoBg: {
     color: '#999999',
-    fontSize: scaleFont(4.6),
+    fontSize: scaleFont(14),
     textAlign: 'center',
     marginTop: 6,
     fontWeight: '500',
@@ -495,7 +495,7 @@ const styles = StyleSheet.create({
   voiceInputTextInput: {
     color: '#ccc',
     height: scaleSize(90),
-    fontSize: scaleFont(4.7),
+    fontSize: scaleFont(14),
     minHeight: scaleSize(40),
     padding: 0,
     margin: 0,
@@ -511,7 +511,7 @@ const styles = StyleSheet.create({
   },
   cleanInputBtnText: {
     color: '#232325',
-    fontSize: scaleFont(4),
+    fontSize: scaleFont(10),
     lineHeight: scaleSize(20),
   },
   disabledCopy: {
@@ -551,7 +551,7 @@ const styles = StyleSheet.create({
   },
   modeCardText: {
     color: '#fff',
-    fontSize: scaleFont(5),
+    fontSize: scaleFont(15),
     fontWeight: '500',
     // textAlign: 'center',
     marginBottom: 2,
