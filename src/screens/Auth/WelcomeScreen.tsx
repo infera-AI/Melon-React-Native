@@ -297,7 +297,7 @@ const styles = StyleSheet.create({
       borderRadius: scaleSize(8),
     },
     sloganText: {
-      fontSize: scaleFont(6),
+      fontSize: scaleFont(12),
       fontWeight: '400',
       textAlign: 'center',
       color: theme.textSecondary,
@@ -322,7 +322,7 @@ const styles = StyleSheet.create({
       marginBottom: scaleSize(12)
     },
     registerButtonText: {
-      fontSize: scaleFont(8),
+      fontSize: scaleFont(18),
       fontWeight: '700',
       color: theme.backgroundTertiary,
       textAlign: 'center',
@@ -334,14 +334,14 @@ const styles = StyleSheet.create({
       marginBottom: scaleSize(50),
     },
     loginLinkText: {
-      fontSize: scaleFont(5),
+      fontSize: scaleFont(13),
       fontWeight: '400',
       color: theme.textSecondary,
       textAlign: 'center',
       letterSpacing: -0.4,
     },
     loginLinkButton: {
-      fontSize: scaleFont(5),
+      fontSize: scaleFont(13),
       fontWeight: '600',
       color: theme.primary,
       textAlign: 'center',
@@ -377,7 +377,7 @@ const styles = StyleSheet.create({
       height: '100%',
     },
     languageText: {
-      fontSize: scaleFont(6),
+      fontSize: scaleFont(14),
       fontWeight: '500',
       color: theme.textPrimary,
       flex: 1,
@@ -421,7 +421,7 @@ const styles = StyleSheet.create({
      },
      checkboxCheckmark: {
        color: theme.backgroundTertiary,
-       fontSize: scaleFont(5),
+       fontSize: scaleFont(12),
        fontWeight: 'bold',
      },
     agreementTextContainer: {
@@ -430,7 +430,7 @@ const styles = StyleSheet.create({
       paddingBottom: scaleSize(10)  
     },
     agreementText: {
-      fontSize: scaleFont(6),
+      fontSize: scaleFont(12),
       fontWeight: '400',
       textAlign: 'center',
       color: theme.textSecondary,
@@ -438,7 +438,7 @@ const styles = StyleSheet.create({
       letterSpacing: -0.4,
     },
     agreementLink: {
-      fontSize: scaleFont(6),
+      fontSize: scaleFont(12),
       fontWeight: '600',
       color: theme.primary,
       lineHeight: scaleSize(18),
@@ -476,12 +476,12 @@ const styles = StyleSheet.create({
       borderBottomColor: theme.backgroundTertiary,
     },
     modalTitle: {
-      fontSize: scaleFont(8),
+      fontSize: scaleFont(18),
       fontWeight: '600',
       color: theme.textPrimary,
     },
     modalClose: {
-      fontSize: scaleFont(8),
+      fontSize: scaleFont(20),
       color: theme.textSecondary,
     },
     languageList: {
@@ -512,7 +512,7 @@ const styles = StyleSheet.create({
     },
     languageItemText: {
       flex: 1,
-      fontSize: scaleFont(5),
+      fontSize: scaleFont(16),
       color: theme.textPrimary,
     },
     languageItemTextActive: {
@@ -520,7 +520,7 @@ const styles = StyleSheet.create({
       fontWeight: '600',
     },
     languageItemCheck: {
-      fontSize: scaleFont(8),
+      fontSize: scaleFont(16),
       color: theme.primary,
       fontWeight: '600',
     },

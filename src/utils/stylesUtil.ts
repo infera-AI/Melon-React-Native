@@ -17,11 +17,7 @@ export const normalize = (size: number) => {
 }
 
 export const normalizeFontSize = (size: number) => {
-  // 确保最小字体大小
-  const minSize = 12;
-  const maxSize = size * 1.5; // 最大不超过原尺寸的1.5倍
-  const pixelAlignedSize = scaleFont(size)/pixelRatio
-  return Math.max(minSize, Math.min(maxSize, pixelAlignedSize));
+  return scaleFont(size)
 }
 
 // export const normalizeFontSize = (size: number) => {
