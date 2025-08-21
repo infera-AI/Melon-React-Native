@@ -11,3 +11,9 @@ export const CODE = {
   NETWORK_ERROR: 1002,    // 网络错误
   UNKNOWN_ERROR: 9999,    // 未知错误
 } as const
+
+// TODO: APP标识
+export const APP_SIGN_ENUM = {
+  TYPE_MELON: 'melon',         // 收费国内版
+  TYPE_MELONS: 'melons',       // 收费海外版
+} as const
