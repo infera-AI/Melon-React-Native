@@ -6,7 +6,7 @@
  * const x = useStore(state => state.x);
  * 
  * 外部使用示例：
- * import { useUserStore } from '../../store';
+ * import { useUserStore } from '@/store';
  * const token = useUserStore(s => s.token);
  * const userInfo = useUserStore(s => s.userInfo);
  * const setToken = useUserStore(s => s.setToken);
@@ -21,6 +21,9 @@ export interface APPState {
     audioDurationCache: Record<string, number>; // 音频时长缓存
     setAudioDurationCache: (url: string, duration: number) => void;
     getAudioDurationCache: (url: string) => number | undefined;
+
+    appSign: string; // 应用标识
+    setAppSign: (sign: string) => void;
 }
 
 export const useAppStore = create<APPState>()(
@@ -36,15 +39,18 @@ export const useAppStore = create<APPState>()(
                 })),
             getAudioDurationCache: (url) => {
                 return get().audioDurationCache[url]
-            }
+            },
+            appSign: '',
+            setAppSign: (sign) => set({ appSign: sign }),
         }),
         // 持久化配置
         {
-            name: 'audio-storage', // 存储的key
+            name: 'app-storage', // 存储的key
             storage: createJSONStorage(() => AsyncStorage), // 设置持久化引擎为AsyncStorage
             // 指定要持久化的字段，不设置，默认持久化store中所有字段
             partialize: (state) => ({
                 audioDurationCache: state.audioDurationCache,
+                appSign: state.appSign,
             })
         }
     )

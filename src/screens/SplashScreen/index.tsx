@@ -13,7 +13,6 @@ const SplashScreen: React.FC = () => {
   const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
-    
     if (useUserStore.persist.hasHydrated()) {
       setHydrated(true);
     } else {

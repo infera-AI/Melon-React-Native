@@ -80,11 +80,38 @@ android {
 
     namespace "com.melon"
     defaultConfig {
-        applicationId "com.melon"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 1
-        versionName "1.0"
+        flavorDimensions "default"
+    }
+
+    productFlavors {
+        melon { // melon 收费国内版
+            dimension "default"
+            applicationId "com.melon.melon"
+            versionCode 1
+            versionName "1.0-melon"
+            buildConfigField "String", "APP_SIGN", "\"melon\""
+        }
+        melons { // melon 收费海外版
+            dimension "default"
+            applicationId "com.melon.melons"
+            versionCode 1
+            versionName "1.0-melons"
+            buildConfigField "String", "APP_SIGN", "\"melons\""
+        }
+        // melon: { // melon 免费国内版
+        //     applicationId "com.melon"
+        //     versionCode 1
+        //     versionName "1.0"
+        //     buildConfigField: "string", "APP_VARIANT", "\"melon\""
+        // }
+        // melons: { // melon 免费海外版
+        //     applicationId "com.melons"
+        //     versionCode 1
+        //     versionName "1.0"
+        //     buildConfigField: "string", "APP_VARIANT", "\"melons\""
+        // },
     }
     signingConfigs {
         debug {

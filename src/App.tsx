@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { LanguageProvider } from './contexts/LanguageContext';
 import AppNavigator from './navigation/AppNavigator';
 import EStyleSheet from 'react-native-extended-stylesheet';
@@ -8,12 +8,12 @@ import { MessageModalProvider } from './contexts/MessageModalContext';
 import { useAppStore, useUserStore } from '@/store';
 import MessageModalRegister from '@/components/MessageModalRegister';
 import { Provider as PaperProvider} from 'react-native-paper';
+import { NativeModules } from 'react-native';
+const { ConfigModule } = NativeModules;
 
 const App = () => {
+  const [isInitialized, setIsInitialized] = useState(false);
   React.useEffect(() => {
-    // 使Zustand主动同步AsyncStorage中的数据
-    useAppStore.persist.rehydrate()
-    useUserStore.persist.rehydrate()
     if (!__DEV__) {
       console.log = () => {};
       console.info = () => {};
@@ -21,7 +21,25 @@ const App = () => {
       console.debug = () => {};
       console.error = () => {};
     }
+    useAppStore.persist.onFinishHydration(async() => {
+      // zustand 持久化数据已加载完成
+
+      // 获取应用标识
+      const appSign = useAppStore.getState().appSign
+      // 如果没有设置 appSign，则从配置模块获取并设置
+      if (!appSign) {
+        const config = await ConfigModule.getConfig();
+        useAppStore.getState().setAppSign(config.APP_SIGN);
+      }
+      setIsInitialized(true);
+    });
+    
+    // 使Zustand主动同步AsyncStorage中的数据，Zustand主动会同步持久化数据，所以不写也可
+    // useAppStore.persist.rehydrate()
+    // useUserStore.persist.rehydrate()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
   EStyleSheet.build({
     $spacing: 32,
   });
@@ -36,7 +54,10 @@ const App = () => {
             barStyle="light-content" // 或 dark-content 看界面颜色
           />
           <MessageModalProvider>
-            <AppNavigator />
+            {
+              isInitialized &&
+              <AppNavigator />
+            }
             <MessageModalRegister/>
           </MessageModalProvider>
         </SafeAreaProvider>

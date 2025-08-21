@@ -15,8 +15,9 @@ if linkage != nil
   use_frameworks! :linkage => linkage.to_sym
 end
 
+config = use_native_modules!
+
 target 'Melon' do
-  config = use_native_modules!
   pod 'ffmpeg-kit-react-native', :path => '../node_modules/ffmpeg-kit-react-native' # 或者你的 fork 路径
   use_react_native!(
     :path => config[:reactNativePath],
@@ -28,14 +29,42 @@ target 'Melon' do
     'Microphone', # 麦克风
     # 也可以加其他，比如 'CAMERA', 'LOCATION', 'PHOTO_LIBRARY'
   ])
+end
 
-  post_install do |installer|
-    # https://github.com/facebook/react-native/blob/main/packages/react-native/scripts/react_native_pods.rb#L197-L202
-    react_native_post_install(
-      installer,
-      config[:reactNativePath],
-      :mac_catalyst_enabled => false,
-      # :ccache_enabled => true
-    )
-  end
+ target 'MelonApp' do
+   pod 'ffmpeg-kit-react-native', :path => '../node_modules/ffmpeg-kit-react-native' # 或者你的 fork 路径
+   use_react_native!(
+     :path => config[:reactNativePath],
+     # An absolute path to your application root.
+     :app_path => "#{Pod::Config.instance.installation_root}/.."
+   )
+
+   setup_permissions([
+     'Microphone', # 麦克风
+     # 也可以加其他，比如 'CAMERA', 'LOCATION', 'PHOTO_LIBRARY'
+   ])
+ end
+
+ target 'MelonsApp' do
+   pod 'ffmpeg-kit-react-native', :path => '../node_modules/ffmpeg-kit-react-native' # 或者你的 fork 路径
+   use_react_native!(
+     :path => config[:reactNativePath],
+     # An absolute path to your application root.
+     :app_path => "#{Pod::Config.instance.installation_root}/.."
+   )
+
+   setup_permissions([
+     'Microphone', # 麦克风
+     # 也可以加其他，比如 'CAMERA', 'LOCATION', 'PHOTO_LIBRARY'
+   ])
+ end
+
+post_install do |installer|
+  # https://github.com/facebook/react-native/blob/main/packages/react-native/scripts/react_native_pods.rb#L197-L202
+  react_native_post_install(
+    installer,
+    config[:reactNativePath],
+    :mac_catalyst_enabled => false,
+    # :ccache_enabled => true
+  )
 end

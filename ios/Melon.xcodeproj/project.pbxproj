@@ -11,17 +11,67 @@
 		0439C6822E45146200353460 /* AudioConcatBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = 0439C6812E45146200353460 /* AudioConcatBridge.m */; };
 		048DA7642E3BFF9E00FA95BE /* HeadsetDetection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 048DA7632E3BFF9E00FA95BE /* HeadsetDetection.swift */; };
 		048DA7662E3C000000FA95BE /* HeadsetDetectionBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = 048DA7652E3C000000FA95BE /* HeadsetDetectionBridge.m */; };
+		04E7CEA32E55B52D0094A637 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 761780EC2CA45674006654EE /* AppDelegate.swift */; };
+		04E7CEA42E55B52D0094A637 /* AudioSessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04F414362E3B1F5E00D77B0A /* AudioSessionManager.swift */; };
+		04E7CEA52E55B52D0094A637 /* AudioConcatModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0439C67F2E4512B300353460 /* AudioConcatModule.swift */; };
+		04E7CEA62E55B52D0094A637 /* HeadsetDetection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 048DA7632E3BFF9E00FA95BE /* HeadsetDetection.swift */; };
+		04E7CEA72E55B52D0094A637 /* AudioSessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 04F414392E3B206500D77B0A /* AudioSessionManager.m */; };
+		04E7CEA82E55B52D0094A637 /* HeadsetDetectionBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = 048DA7652E3C000000FA95BE /* HeadsetDetectionBridge.m */; };
+		04E7CEA92E55B52D0094A637 /* AudioConcatBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = 0439C6812E45146200353460 /* AudioConcatBridge.m */; };
+		04E7CEAD2E55B52D0094A637 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
+		04E7CEAE2E55B52D0094A637 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
+		04E7CEAF2E55B52D0094A637 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */; };
+		04E7CEBC2E55B6B40094A637 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 761780EC2CA45674006654EE /* AppDelegate.swift */; };
+		04E7CEBD2E55B6B40094A637 /* AudioSessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04F414362E3B1F5E00D77B0A /* AudioSessionManager.swift */; };
+		04E7CEBE2E55B6B40094A637 /* AudioConcatModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0439C67F2E4512B300353460 /* AudioConcatModule.swift */; };
+		04E7CEBF2E55B6B40094A637 /* HeadsetDetection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 048DA7632E3BFF9E00FA95BE /* HeadsetDetection.swift */; };
+		04E7CEC02E55B6B40094A637 /* AudioSessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 04F414392E3B206500D77B0A /* AudioSessionManager.m */; };
+		04E7CEC12E55B6B40094A637 /* HeadsetDetectionBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = 048DA7652E3C000000FA95BE /* HeadsetDetectionBridge.m */; };
+		04E7CEC22E55B6B40094A637 /* AudioConcatBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = 0439C6812E45146200353460 /* AudioConcatBridge.m */; };
+		04E7CEC42E55B6B40094A637 /* (null) in Frameworks */ = {isa = PBXBuildFile; };
+		04E7CEC62E55B6B40094A637 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
+		04E7CEC72E55B6B40094A637 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
+		04E7CEC82E55B6B40094A637 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */; };
+		04E7CED32E55B9E30094A637 /* ConfigModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04E7CED22E55B9E30094A637 /* ConfigModule.swift */; };
+		04E7CED42E55B9E30094A637 /* ConfigModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04E7CED22E55B9E30094A637 /* ConfigModule.swift */; };
+		04E7CED52E55B9E30094A637 /* ConfigModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04E7CED22E55B9E30094A637 /* ConfigModule.swift */; };
+		04E7CED72E55BB6A0094A637 /* ConfigModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 04E7CED62E55BB6A0094A637 /* ConfigModule.m */; };
+		04E7CED82E55BB6A0094A637 /* ConfigModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 04E7CED62E55BB6A0094A637 /* ConfigModule.m */; };
+		04E7CED92E55BB6A0094A637 /* ConfigModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 04E7CED62E55BB6A0094A637 /* ConfigModule.m */; };
 		04F414372E3B1F5E00D77B0A /* AudioSessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04F414362E3B1F5E00D77B0A /* AudioSessionManager.swift */; };
 		04F4143A2E3B206500D77B0A /* AudioSessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 04F414392E3B206500D77B0A /* AudioSessionManager.m */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		761780ED2CA45674006654EE /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 761780EC2CA45674006654EE /* AppDelegate.swift */; };
 		76D43A07939EB58E07A41C7E /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */; };
+		808ABC5D9888AABEDA25F5F4 /* libPods-Melon.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8D1305AC7362AB54907240A5 /* libPods-Melon.a */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
-		FE2AF26877C59EF9567DB704 /* libPods-Melon.a in Frameworks */ = {isa = PBXBuildFile; fileRef = EE6839BDB548094B9E089AAB /* libPods-Melon.a */; };
+		85CF1F98E53C7BBE2ACA173D /* libPods-MelonApp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A09BFF3133294B6298B27B61 /* libPods-MelonApp.a */; };
+		D8BA46BCE0A182AA6617F830 /* libPods-MelonsApp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9D2CB455B1FDBE8D1F8C5CD7 /* libPods-MelonsApp.a */; };
+		FE2AF26877C59EF9567DB704 /* (null) in Frameworks */ = {isa = PBXBuildFile; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
 		04D67A3B2E44F9DE00660DFC /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		04E7CEB32E55B52D0094A637 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		04E7CECC2E55B6B40094A637 /* Embed Frameworks */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "";
@@ -38,6 +88,12 @@
 		0439C6812E45146200353460 /* AudioConcatBridge.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AudioConcatBridge.m; sourceTree = "<group>"; };
 		048DA7632E3BFF9E00FA95BE /* HeadsetDetection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeadsetDetection.swift; sourceTree = "<group>"; };
 		048DA7652E3C000000FA95BE /* HeadsetDetectionBridge.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HeadsetDetectionBridge.m; sourceTree = "<group>"; };
+		04E7CE9F2E55B0EB0094A637 /* MelonApp-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "MelonApp-Info.plist"; path = "/Users/jihongyang/Documents/Melon-React-Native/ios/MelonApp-Info.plist"; sourceTree = "<absolute>"; };
+		04E7CEB72E55B52D0094A637 /* MelonApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MelonApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		04E7CED02E55B6B40094A637 /* MelonsApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MelonsApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		04E7CED12E55B6B40094A637 /* MelonsApp-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "MelonsApp-Info.plist"; path = "/Users/jihongyang/Documents/Melon-React-Native/ios/MelonsApp-Info.plist"; sourceTree = "<absolute>"; };
+		04E7CED22E55B9E30094A637 /* ConfigModule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigModule.swift; sourceTree = "<group>"; };
+		04E7CED62E55BB6A0094A637 /* ConfigModule.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ConfigModule.m; sourceTree = "<group>"; };
 		04F414362E3B1F5E00D77B0A /* AudioSessionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioSessionManager.swift; sourceTree = "<group>"; };
 		04F414382E3B206500D77B0A /* Melon-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Melon-Bridging-Header.h"; sourceTree = "<group>"; };
 		04F414392E3B206500D77B0A /* AudioSessionManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AudioSessionManager.m; sourceTree = "<group>"; };
@@ -46,19 +102,43 @@
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = Melon/Info.plist; sourceTree = "<group>"; };
 		13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = PrivacyInfo.xcprivacy; path = Melon/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		4B64ED172FB78EBDF102BC75 /* Pods-Melon.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Melon.debug.xcconfig"; path = "Target Support Files/Pods-Melon/Pods-Melon.debug.xcconfig"; sourceTree = "<group>"; };
+		6047328F666D5503917D91C6 /* Pods-MelonsApp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MelonsApp.release.xcconfig"; path = "Target Support Files/Pods-MelonsApp/Pods-MelonsApp.release.xcconfig"; sourceTree = "<group>"; };
 		761780EC2CA45674006654EE /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = Melon/AppDelegate.swift; sourceTree = "<group>"; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = Melon/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		8D1305AC7362AB54907240A5 /* libPods-Melon.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Melon.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		9D2CB455B1FDBE8D1F8C5CD7 /* libPods-MelonsApp.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-MelonsApp.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		A09BFF3133294B6298B27B61 /* libPods-MelonApp.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-MelonApp.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		DE563878996940129736B6E0 /* Pods-MelonApp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MelonApp.release.xcconfig"; path = "Target Support Files/Pods-MelonApp/Pods-MelonApp.release.xcconfig"; sourceTree = "<group>"; };
 		E12093F9CE0BD24188314C0F /* Pods-Melon.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Melon.release.xcconfig"; path = "Target Support Files/Pods-Melon/Pods-Melon.release.xcconfig"; sourceTree = "<group>"; };
+		E461F80E69A3916E641EE811 /* Pods-MelonsApp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MelonsApp.debug.xcconfig"; path = "Target Support Files/Pods-MelonsApp/Pods-MelonsApp.debug.xcconfig"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
-		EE6839BDB548094B9E089AAB /* libPods-Melon.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Melon.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		F0E7EEB1209FFF10ACEB2C29 /* Pods-MelonApp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MelonApp.debug.xcconfig"; path = "Target Support Files/Pods-MelonApp/Pods-MelonApp.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		04E7CEAA2E55B52D0094A637 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				85CF1F98E53C7BBE2ACA173D /* libPods-MelonApp.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		04E7CEC32E55B6B40094A637 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				04E7CEC42E55B6B40094A637 /* (null) in Frameworks */,
+				D8BA46BCE0A182AA6617F830 /* libPods-MelonsApp.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		13B07F8C1A680F5B00A75B9A /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				FE2AF26877C59EF9567DB704 /* libPods-Melon.a in Frameworks */,
+				FE2AF26877C59EF9567DB704 /* (null) in Frameworks */,
+				808ABC5D9888AABEDA25F5F4 /* libPods-Melon.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -80,6 +160,8 @@
 				048DA7652E3C000000FA95BE /* HeadsetDetectionBridge.m */,
 				0439C67F2E4512B300353460 /* AudioConcatModule.swift */,
 				0439C6812E45146200353460 /* AudioConcatBridge.m */,
+				04E7CED22E55B9E30094A637 /* ConfigModule.swift */,
+				04E7CED62E55BB6A0094A637 /* ConfigModule.m */,
 			);
 			name = Melon;
 			sourceTree = "<group>";
@@ -88,7 +170,9 @@
 			isa = PBXGroup;
 			children = (
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
-				EE6839BDB548094B9E089AAB /* libPods-Melon.a */,
+				A09BFF3133294B6298B27B61 /* libPods-MelonApp.a */,
+				8D1305AC7362AB54907240A5 /* libPods-Melon.a */,
+				9D2CB455B1FDBE8D1F8C5CD7 /* libPods-MelonsApp.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -108,6 +192,8 @@
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
 				BBD78D7AC51CEA395F1C20DB /* Pods */,
+				04E7CE9F2E55B0EB0094A637 /* MelonApp-Info.plist */,
+				04E7CED12E55B6B40094A637 /* MelonsApp-Info.plist */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -118,6 +204,8 @@
 			isa = PBXGroup;
 			children = (
 				13B07F961A680F5B00A75B9A /* Melon.app */,
+				04E7CEB72E55B52D0094A637 /* MelonApp.app */,
+				04E7CED02E55B6B40094A637 /* MelonsApp.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -127,6 +215,10 @@
 			children = (
 				4B64ED172FB78EBDF102BC75 /* Pods-Melon.debug.xcconfig */,
 				E12093F9CE0BD24188314C0F /* Pods-Melon.release.xcconfig */,
+				F0E7EEB1209FFF10ACEB2C29 /* Pods-MelonApp.debug.xcconfig */,
+				DE563878996940129736B6E0 /* Pods-MelonApp.release.xcconfig */,
+				E461F80E69A3916E641EE811 /* Pods-MelonsApp.debug.xcconfig */,
+				6047328F666D5503917D91C6 /* Pods-MelonsApp.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -134,6 +226,50 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		04E7CEA02E55B52D0094A637 /* MelonApp */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 04E7CEB42E55B52D0094A637 /* Build configuration list for PBXNativeTarget "MelonApp" */;
+			buildPhases = (
+				04E7CEA12E55B52D0094A637 /* [CP] Check Pods Manifest.lock */,
+				04E7CEA22E55B52D0094A637 /* Sources */,
+				04E7CEAA2E55B52D0094A637 /* Frameworks */,
+				04E7CEAC2E55B52D0094A637 /* Resources */,
+				04E7CEB02E55B52D0094A637 /* Bundle React Native code and images */,
+				04E7CEB12E55B52D0094A637 /* [CP] Embed Pods Frameworks */,
+				04E7CEB22E55B52D0094A637 /* [CP] Copy Pods Resources */,
+				04E7CEB32E55B52D0094A637 /* Embed Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = MelonApp;
+			productName = Melon;
+			productReference = 04E7CEB72E55B52D0094A637 /* MelonApp.app */;
+			productType = "com.apple.product-type.application";
+		};
+		04E7CEB92E55B6B40094A637 /* MelonsApp */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 04E7CECD2E55B6B40094A637 /* Build configuration list for PBXNativeTarget "MelonsApp" */;
+			buildPhases = (
+				04E7CEBA2E55B6B40094A637 /* [CP] Check Pods Manifest.lock */,
+				04E7CEBB2E55B6B40094A637 /* Sources */,
+				04E7CEC32E55B6B40094A637 /* Frameworks */,
+				04E7CEC52E55B6B40094A637 /* Resources */,
+				04E7CEC92E55B6B40094A637 /* Bundle React Native code and images */,
+				04E7CECA2E55B6B40094A637 /* [CP] Embed Pods Frameworks */,
+				04E7CECB2E55B6B40094A637 /* [CP] Copy Pods Resources */,
+				04E7CECC2E55B6B40094A637 /* Embed Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = MelonsApp;
+			productName = Melon;
+			productReference = 04E7CED02E55B6B40094A637 /* MelonsApp.app */;
+			productType = "com.apple.product-type.application";
+		};
 		13B07F861A680F5B00A75B9A /* Melon */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "Melon" */;
@@ -183,11 +319,33 @@
 			projectRoot = "";
 			targets = (
 				13B07F861A680F5B00A75B9A /* Melon */,
+				04E7CEA02E55B52D0094A637 /* MelonApp */,
+				04E7CEB92E55B6B40094A637 /* MelonsApp */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		04E7CEAC2E55B52D0094A637 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				04E7CEAD2E55B52D0094A637 /* LaunchScreen.storyboard in Resources */,
+				04E7CEAE2E55B52D0094A637 /* Images.xcassets in Resources */,
+				04E7CEAF2E55B52D0094A637 /* PrivacyInfo.xcprivacy in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		04E7CEC52E55B6B40094A637 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				04E7CEC62E55B6B40094A637 /* LaunchScreen.storyboard in Resources */,
+				04E7CEC72E55B6B40094A637 /* Images.xcassets in Resources */,
+				04E7CEC82E55B6B40094A637 /* PrivacyInfo.xcprivacy in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		13B07F8E1A680F5B00A75B9A /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -216,6 +374,166 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "set -e\n\nWITH_ENVIRONMENT=\"$REACT_NATIVE_PATH/scripts/xcode/with-environment.sh\"\nREACT_NATIVE_XCODE=\"$REACT_NATIVE_PATH/scripts/react-native-xcode.sh\"\n\n/bin/sh -c \"$WITH_ENVIRONMENT $REACT_NATIVE_XCODE\"\n";
+		};
+		04E7CEA12E55B52D0094A637 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-MelonApp-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		04E7CEB02E55B52D0094A637 /* Bundle React Native code and images */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"$(SRCROOT)/.xcode.env.local",
+				"$(SRCROOT)/.xcode.env",
+			);
+			name = "Bundle React Native code and images";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "set -e\n\nWITH_ENVIRONMENT=\"$REACT_NATIVE_PATH/scripts/xcode/with-environment.sh\"\nREACT_NATIVE_XCODE=\"$REACT_NATIVE_PATH/scripts/react-native-xcode.sh\"\n\n/bin/sh -c \"$WITH_ENVIRONMENT $REACT_NATIVE_XCODE\"\n";
+		};
+		04E7CEB12E55B52D0094A637 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-MelonApp/Pods-MelonApp-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			inputPaths = (
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-MelonApp/Pods-MelonApp-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-MelonApp/Pods-MelonApp-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		04E7CEB22E55B52D0094A637 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-MelonApp/Pods-MelonApp-resources-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			inputPaths = (
+			);
+			name = "[CP] Copy Pods Resources";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-MelonApp/Pods-MelonApp-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-MelonApp/Pods-MelonApp-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		04E7CEBA2E55B6B40094A637 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-MelonsApp-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		04E7CEC92E55B6B40094A637 /* Bundle React Native code and images */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"$(SRCROOT)/.xcode.env.local",
+				"$(SRCROOT)/.xcode.env",
+			);
+			name = "Bundle React Native code and images";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "set -e\n\nWITH_ENVIRONMENT=\"$REACT_NATIVE_PATH/scripts/xcode/with-environment.sh\"\nREACT_NATIVE_XCODE=\"$REACT_NATIVE_PATH/scripts/react-native-xcode.sh\"\n\n/bin/sh -c \"$WITH_ENVIRONMENT $REACT_NATIVE_XCODE\"\n";
+		};
+		04E7CECA2E55B6B40094A637 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-MelonsApp/Pods-MelonsApp-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			inputPaths = (
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-MelonsApp/Pods-MelonsApp-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-MelonsApp/Pods-MelonsApp-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		04E7CECB2E55B6B40094A637 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-MelonsApp/Pods-MelonsApp-resources-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			inputPaths = (
+			);
+			name = "[CP] Copy Pods Resources";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-MelonsApp/Pods-MelonsApp-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-MelonsApp/Pods-MelonsApp-resources.sh\"\n";
+			showEnvVarsInLog = 0;
 		};
 		BA2163F1D673C383DB377FDA /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -247,9 +565,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Melon/Pods-Melon-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Melon/Pods-Melon-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -264,9 +586,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Melon/Pods-Melon-resources-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Copy Pods Resources";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Melon/Pods-Melon-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -276,11 +602,45 @@
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		04E7CEA22E55B52D0094A637 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				04E7CEA32E55B52D0094A637 /* AppDelegate.swift in Sources */,
+				04E7CED92E55BB6A0094A637 /* ConfigModule.m in Sources */,
+				04E7CED52E55B9E30094A637 /* ConfigModule.swift in Sources */,
+				04E7CEA42E55B52D0094A637 /* AudioSessionManager.swift in Sources */,
+				04E7CEA52E55B52D0094A637 /* AudioConcatModule.swift in Sources */,
+				04E7CEA62E55B52D0094A637 /* HeadsetDetection.swift in Sources */,
+				04E7CEA72E55B52D0094A637 /* AudioSessionManager.m in Sources */,
+				04E7CEA82E55B52D0094A637 /* HeadsetDetectionBridge.m in Sources */,
+				04E7CEA92E55B52D0094A637 /* AudioConcatBridge.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		04E7CEBB2E55B6B40094A637 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				04E7CEBC2E55B6B40094A637 /* AppDelegate.swift in Sources */,
+				04E7CED82E55BB6A0094A637 /* ConfigModule.m in Sources */,
+				04E7CED32E55B9E30094A637 /* ConfigModule.swift in Sources */,
+				04E7CEBD2E55B6B40094A637 /* AudioSessionManager.swift in Sources */,
+				04E7CEBE2E55B6B40094A637 /* AudioConcatModule.swift in Sources */,
+				04E7CEBF2E55B6B40094A637 /* HeadsetDetection.swift in Sources */,
+				04E7CEC02E55B6B40094A637 /* AudioSessionManager.m in Sources */,
+				04E7CEC12E55B6B40094A637 /* HeadsetDetectionBridge.m in Sources */,
+				04E7CEC22E55B6B40094A637 /* AudioConcatBridge.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		13B07F871A680F5B00A75B9A /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 				761780ED2CA45674006654EE /* AppDelegate.swift in Sources */,
+				04E7CED72E55BB6A0094A637 /* ConfigModule.m in Sources */,
+				04E7CED42E55B9E30094A637 /* ConfigModule.swift in Sources */,
 				04F414372E3B1F5E00D77B0A /* AudioSessionManager.swift in Sources */,
 				0439C6802E4512B300353460 /* AudioConcatModule.swift in Sources */,
 				048DA7642E3BFF9E00FA95BE /* HeadsetDetection.swift in Sources */,
@@ -293,6 +653,122 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
+		04E7CEB52E55B52D0094A637 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = F0E7EEB1209FFF10ACEB2C29 /* Pods-MelonApp.debug.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = MelonAppIcon;
+				CLANG_ENABLE_MODULES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = M2PPXGK85W;
+				ENABLE_BITCODE = NO;
+				INFOPLIST_FILE = "MelonApp-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-ObjC",
+					"-lc++",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "Melon-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				VERSIONING_SYSTEM = "apple-generic";
+			};
+			name = Debug;
+		};
+		04E7CEB62E55B52D0094A637 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = DE563878996940129736B6E0 /* Pods-MelonApp.release.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = MelonAppIcon;
+				CLANG_ENABLE_MODULES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = M2PPXGK85W;
+				INFOPLIST_FILE = "MelonApp-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-ObjC",
+					"-lc++",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "Melon-Bridging-Header.h";
+				SWIFT_VERSION = 5.0;
+				VERSIONING_SYSTEM = "apple-generic";
+			};
+			name = Release;
+		};
+		04E7CECE2E55B6B40094A637 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = E461F80E69A3916E641EE811 /* Pods-MelonsApp.debug.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = MelonsAppIcon;
+				CLANG_ENABLE_MODULES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = M2PPXGK85W;
+				ENABLE_BITCODE = NO;
+				INFOPLIST_FILE = "MelonsApp-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-ObjC",
+					"-lc++",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "Melon-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				VERSIONING_SYSTEM = "apple-generic";
+			};
+			name = Debug;
+		};
+		04E7CECF2E55B6B40094A637 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 6047328F666D5503917D91C6 /* Pods-MelonsApp.release.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = MelonsAppIcon;
+				CLANG_ENABLE_MODULES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = M2PPXGK85W;
+				INFOPLIST_FILE = "MelonsApp-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-ObjC",
+					"-lc++",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "Melon-Bridging-Header.h";
+				SWIFT_VERSION = 5.0;
+				VERSIONING_SYSTEM = "apple-generic";
+			};
+			name = Release;
+		};
 		13B07F941A680F5B00A75B9A /* Debug */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 4B64ED172FB78EBDF102BC75 /* Pods-Melon.debug.xcconfig */;
@@ -420,10 +896,7 @@
 					"-DFOLLY_CFG_NO_COROUTINES=1",
 					"-DFOLLY_HAVE_CLOCK_GETTIME=1",
 				);
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					" ",
-				);
+				OTHER_LDFLAGS = "$(inherited)  ";
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) DEBUG";
@@ -492,10 +965,7 @@
 					"-DFOLLY_CFG_NO_COROUTINES=1",
 					"-DFOLLY_HAVE_CLOCK_GETTIME=1",
 				);
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					" ",
-				);
+				OTHER_LDFLAGS = "$(inherited)  ";
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				USE_HERMES = true;
@@ -506,6 +976,24 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		04E7CEB42E55B52D0094A637 /* Build configuration list for PBXNativeTarget "MelonApp" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				04E7CEB52E55B52D0094A637 /* Debug */,
+				04E7CEB62E55B52D0094A637 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		04E7CECD2E55B6B40094A637 /* Build configuration list for PBXNativeTarget "MelonsApp" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				04E7CECE2E55B6B40094A637 /* Debug */,
+				04E7CECF2E55B6B40094A637 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "Melon" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
