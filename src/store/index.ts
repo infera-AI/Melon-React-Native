@@ -2,5 +2,6 @@
 export * from './modules/user.store';
 export * from './modules/app.store';
 export * from './modules/voice.store';
+export * from './modules/points.store';
 export * from './authSlice';
 export * from './userSlice';

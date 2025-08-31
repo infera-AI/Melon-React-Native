@@ -5,6 +5,7 @@ import {
   TouchableOpacity,
   Image,
   StyleSheet,
+  ScrollView,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
@@ -13,9 +14,10 @@ import { ProfileStackParamList } from './ProfileNavigator';
 import theme from '@/utils/theme';
 import { logout } from '@/api/login';
 import { getDeviceInfo } from '@/utils/helpers';
-import { useUserStore } from '@/store/modules/user.store'; 
+import { useUserStore } from '@/store/modules/user.store';
 import { useLanguage } from '../../../contexts/LanguageContext';
 import { normalize, normalizeFontSize } from '@/utils/stylesUtil';
+import LoginDeviceManagementScreen from './LoginDeviceManagementScreen';
 
 type AccountSecurityScreenNavigationProp = NativeStackNavigationProp<ProfileStackParamList, 'AccountSecurity'>;
 
@@ -28,11 +30,19 @@ const AccountSecurityScreen: React.FC = () => {
   };
 
   const handleChangePassword = () => {
+    navigation.navigate('ResetPassword');
     // 修改密码逻辑
     console.log('Change password');
   };
 
+  const handleForgotPassword = () => {
+    navigation.navigate('RetrivePassword');
+    // 忘记密码逻辑
+    console.log('Forgot password');
+  };
+
   const handleBindPhoneEmail = () => {
+    navigation.navigate('BindPhoneEmail');
     // 绑定手机号/邮箱逻辑
     console.log('Bind phone/email');
   };
@@ -41,7 +51,11 @@ const AccountSecurityScreen: React.FC = () => {
     navigation.navigate('DeregisterAccount');
   };
 
-  const handleLogout = async() => {
+  const handleLoginDeviceManagement = () => {
+    navigation.navigate('LoginDeviceManagement');
+  };
+
+  const handleLogout = async () => {
     const deviceInfo = getDeviceInfo();
     const res = await logout({
       device_fingerprint: deviceInfo.fingerprint,
@@ -55,84 +69,103 @@ const AccountSecurityScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
-      {/* 顶部导航栏 */}
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-          <Image 
-            source={require('../../../assets/main/page_return_icon.png')} 
-            style={styles.backIcon}
-          />
-        </TouchableOpacity>
-        <Text style={styles.title}>{t('account_security.account_and_security')}</Text>
-        <View style={styles.headerSpacer} />
-      </View>
-
-      {/* 修改密码卡片 */}
-      <TouchableOpacity style={styles.card} onPress={handleChangePassword}>
-        <View style={styles.cardContent}>
-          <View style={styles.cardLeft}>
-            <Image 
-              source={require('../../../assets/profile/profile_security_icon.png')} 
-              style={styles.cardIcon}
+      <ScrollView>
+        {/* 顶部导航栏 */}
+        <View style={styles.header}>
+          <TouchableOpacity style={styles.backButton} onPress={handleBack}>
+            <Image
+              source={require('../../../assets/main/page_return_icon.png')}
+              style={styles.backIcon}
             />
-            <Text style={styles.cardTitle}>{t('account_security.change_password')}</Text>
-          </View>
-          <Image 
-            source={require('../../../assets/main/right_arrow_icon.png')} 
-            style={styles.arrowIcon}
-          />
+          </TouchableOpacity>
+          <Text style={styles.title}>{t('account_security.account_and_security')}</Text>
+          <View style={styles.headerSpacer} />
         </View>
-      </TouchableOpacity>
 
-      {/* 绑定手机号/邮箱卡片 */}
-      <TouchableOpacity style={styles.card} onPress={handleBindPhoneEmail}>
-        <View style={styles.cardContent}>
-          <View style={styles.cardLeft}>
-              <Image 
-                source={require('../../../assets/profile/profile_bind_icon.png')} 
+        {/* 修改密码卡片 */}
+        <TouchableOpacity style={styles.card} onPress={handleChangePassword}>
+          <View style={styles.cardContent}>
+            <View style={styles.cardLeft}>
+              <Image
+                source={require('../../../assets/profile/profile_security_icon.png')}
+                style={styles.cardIcon}
+              />
+              <Text style={styles.cardTitle}>{t('account_security.change_password')}</Text>
+            </View>
+            <Image
+              source={require('../../../assets/main/right_arrow_icon.png')}
+              style={styles.arrowIcon}
+            />
+          </View>
+        </TouchableOpacity>
+
+        {/* 绑定手机号/邮箱卡片 */}
+        <TouchableOpacity style={styles.card} onPress={handleBindPhoneEmail}>
+          <View style={styles.cardContent}>
+            <View style={styles.cardLeft}>
+              <Image
+                source={require('../../../assets/profile/profile_bind_icon.png')}
                 style={styles.bindIcon}
               />
-            <Text style={styles.cardTitle}>{t('account_security.bind_phone_number_email')}</Text>
+              <Text style={styles.cardTitle}>{t('account_security.bind_phone_number_email')}</Text>
+            </View>
+            <Image
+              source={require('../../../assets/main/right_arrow_icon.png')}
+              style={styles.arrowIcon}
+            />
           </View>
-          <Image 
-            source={require('../../../assets/main/right_arrow_icon.png')} 
-            style={styles.arrowIcon}
-          />
-        </View>
-      </TouchableOpacity>
+        </TouchableOpacity>
 
-      {/* 注销账户卡片 */}
-      <TouchableOpacity style={styles.card} onPress={handleDeregisterAccount}>
+        {/* 登录设备管理卡片 */}
+        {/* <TouchableOpacity style={styles.card} onPress={handleLoginDeviceManagement}>
         <View style={styles.cardContent}>
           <View style={styles.cardLeft}>
             <Image 
-              source={require('../../../assets/main/shutdown_icon.png')} 
+              source={require('../../../assets/profile/profile_device_icon.png')} 
               style={styles.cardIcon}
             />
-            <Text style={styles.cardTitle}>{t('account_security.deregister_account')}</Text>
+            <Text style={styles.cardTitle}>{t('account_security.login_device_management')}</Text>
           </View>
           <Image 
             source={require('../../../assets/main/right_arrow_icon.png')} 
             style={styles.arrowIcon}
           />
         </View>
-      </TouchableOpacity>
+      </TouchableOpacity> */}
 
-      <TouchableOpacity style={[styles.card,styles.logoutCard]} onPress={handleLogout}>
-        <View style={styles.cardContent}>
-          <View style={styles.cardLeft}>
-            <Image 
-              source={require('../../../assets/main/shutdown_icon.png')} 
-              style={styles.cardIcon}
+        {/* 注销账户卡片 */}
+        <TouchableOpacity style={styles.card} onPress={handleDeregisterAccount}>
+          <View style={styles.cardContent}>
+            <View style={styles.cardLeft}>
+              <Image
+                source={require('../../../assets/main/shutdown_icon.png')}
+                style={styles.cardIcon}
+              />
+              <Text style={styles.cardTitle}>{t('account_security.deregister_account')}</Text>
+            </View>
+            <Image
+              source={require('../../../assets/main/right_arrow_icon.png')}
+              style={styles.arrowIcon}
             />
-            <Text style={[styles.cardTitle,styles.logoutCardText]}>{t('account_security.logout')}</Text>
           </View>
-          <Image 
-            source={require('../../../assets/main/right_arrow_icon.png')} 
-            style={styles.arrowIcon}
-          />
-        </View>
-      </TouchableOpacity>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={[styles.card, styles.logoutCard]} onPress={handleLogout}>
+          <View style={styles.cardContent}>
+            <View style={styles.cardLeft}>
+              <Image
+                source={require('../../../assets/main/shutdown_icon.png')}
+                style={styles.cardIcon}
+              />
+              <Text style={[styles.cardTitle, styles.logoutCardText]}>{t('account_security.logout')}</Text>
+            </View>
+            <Image
+              source={require('../../../assets/main/right_arrow_icon.png')}
+              style={styles.arrowIcon}
+            />
+          </View>
+        </TouchableOpacity>
+      </ScrollView>
     </SafeAreaView>
   );
 };

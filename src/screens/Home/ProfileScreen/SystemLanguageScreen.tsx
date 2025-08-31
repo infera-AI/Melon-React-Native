@@ -11,9 +11,11 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ProfileStackParamList } from './ProfileNavigator';
-import { supportedLanguages } from '../../../i18n/languages';
 import { useLanguage } from '../../../contexts/LanguageContext';
 import { normalize, normalizeFontSize } from '@/utils/stylesUtil';
+import CountryFlag from 'react-native-country-flag';
+import { languageToCountryCode, supportedLanguages } from "@/i18n/languages"
+import theme from '@/utils/theme';
 
 type SystemLanguageScreenNavigationProp = NativeStackNavigationProp<ProfileStackParamList, 'SystemLanguage'>;
 
@@ -83,15 +85,21 @@ const SystemLanguageScreen: React.FC = () => {
               key={language.code}
               style={[
                 styles.languageItem,
+                index >= supportedLanguages.length - 1 && {borderBottomWidth:0},  
               ]}
               onPress={() => handleLanguageSelect(language.code)}
             >
               <View style={styles.languageContent}>
-                <Text style={[
-                  styles.languageText,
-                ]}>
-                   {t(`languageNames.${language.code}`)}
-                </Text>
+                <View style={styles.languageContentLeft}>
+                  <View style={styles.flagOutView}>
+                      <CountryFlag isoCode={languageToCountryCode[language.code]} size={25} style={styles.flag}/>
+                  </View>
+                  <Text style={[
+                    styles.languageText,
+                  ]}>
+                    {t(`languageNames.${language.code}`)}
+                  </Text>
+                </View>
                 {currentLanguage.code === language.code && (
                   <View style={styles.checkIcon}>
                     <Image 
@@ -101,7 +109,6 @@ const SystemLanguageScreen: React.FC = () => {
                   </View>
                 )}
               </View>
-              {index < supportedLanguages.length - 1 && <View style={styles.divider} />}
             </TouchableOpacity>
           ))}
         </ScrollView>
@@ -161,6 +168,9 @@ const styles = StyleSheet.create({
   languageItem: {
     paddingHorizontal: normalize(16),
     paddingVertical: normalize(12),
+    borderBottomWidth: 1,
+    borderColor: theme.background,
+    borderRadius: normalize(12),
   },
   selectedLanguageItem: {
     backgroundColor: 'rgba(255, 134, 211, 0.1)',
@@ -170,12 +180,27 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
   },
+  languageContentLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  flagOutView: {
+    width: normalize(20),
+    height: normalize(16),
+    overflow: 'hidden',
+    position: 'relative'
+  },
+  flag: {
+    width: '100%',
+    height: '100%',
+  },
   languageText: {
     fontSize: normalizeFontSize(14),
     fontWeight: '400',
     color: '#B0B0B0',
     lineHeight: normalizeFontSize(45),
     letterSpacing: -0.4,
+    marginLeft: normalize(8),
   },
   selectedLanguageText: {
     color: '#FFFFFF',

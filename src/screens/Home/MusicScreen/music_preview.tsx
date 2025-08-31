@@ -13,6 +13,7 @@ import { saveMusicWork } from '@/api/music/music';
 import FullScreenLoader from '@/components/FullScreenLoader';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { normalize, normalizeFontSize } from '@/utils/stylesUtil';
+import CommonModal from '@/components/CommonModal';
 
 type MusicPreviewScreenNavigationProp = NativeStackNavigationProp<MusicStackParamList, 'MusicPreview'>;
 
@@ -38,6 +39,8 @@ const MusicPreviewScreen: React.FC<{route: RouteProp<MusicStackParamList, 'Music
   const [isPlaying, setIsPlaying] = useState(false);
   const [duration, setDuration] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
+  const [isShowModal, setIsShowModal] = useState(false);
+ 
   const { t } = useLanguage();
     // 作品数组转换
     async function convertSongData(songData: any) {
@@ -161,6 +164,30 @@ const MusicPreviewScreen: React.FC<{route: RouteProp<MusicStackParamList, 'Music
       }
     }
 
+    const handleGoBack=()=>{
+      setIsShowModal(true);
+    }
+
+    const modalConfig = {
+      title: "",
+      content: 'The current song has not been saved yet',
+      buttons: [
+        {
+          text: 'Exit',
+          onPress: ()=>{
+            setIsShowModal(false);
+            navigation.navigate('MusicMain' as any);
+          },
+          type: 'secondary' as const,
+        },
+        {
+          text: 'Save and Exit',
+          onPress:handleSaveMusic,
+          type: 'primary' as const,
+        },
+      ],
+    }
+
     useEffect(()=>{
       const fetchSongDatas = async () => {
         setIsLoading(true);
@@ -176,17 +203,33 @@ const MusicPreviewScreen: React.FC<{route: RouteProp<MusicStackParamList, 'Music
     <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
       <ScrollView style={{width:'100%'}}>
         {/* 风格标签 */}
-      <View style={styles.styleTag}>
-        <Text style={styles.styleTagText}>{t('music.classical')}</Text>
+      <View>
+        <Text style={styles.lyricText}>
+          Music style
+        </Text>
+        <View style={[styles.lyricCard,styles.genresCard]}>
+          <ScrollView 
+            showsVerticalScrollIndicator={true}
+            nestedScrollEnabled={true}
+            contentContainerStyle={styles.lyricScrollContent}
+          >
+            <Text style={styles.lyricContent}>
+              {selectedMusic?.genres.join(', ')}
+            </Text>
+          </ScrollView>
+      </View>
       </View>
       {/* 歌词/文本卡片 */}
+      <Text style={styles.lyricText}>
+          Lyrics
+      </Text>
       <View style={styles.lyricCard}>
         <ScrollView 
           showsVerticalScrollIndicator={true}
           nestedScrollEnabled={true}
           contentContainerStyle={styles.lyricScrollContent}
         >
-          <Text style={styles.lyricText}>
+          <Text style={styles.lyricContent}>
             {lyricsArrayToText(selectedMusic?.lyrics)||'lyrics'} 
           </Text>
         </ScrollView>
@@ -218,7 +261,7 @@ const MusicPreviewScreen: React.FC<{route: RouteProp<MusicStackParamList, 'Music
       {/* 按钮区 */}
       <TouchableOpacity
         style={styles.homeBtn}
-        onPress={() => navigation.navigate('MusicMain')}
+        onPress={handleGoBack}
         activeOpacity={0.7}
       >
         <Text style={styles.homeBtnText}>{t('music.back_to_homepage')}</Text>
@@ -232,6 +275,11 @@ const MusicPreviewScreen: React.FC<{route: RouteProp<MusicStackParamList, 'Music
       </TouchableOpacity>
       </ScrollView>
       <FullScreenLoader visible={isLoading} />
+      <CommonModal
+        visible={isShowModal}
+        onClose={()=>setIsShowModal(false)}
+        config={modalConfig}
+      />
     </SafeAreaView>
   );
 };
@@ -265,17 +313,29 @@ const styles = StyleSheet.create({
     width: "100%",
     backgroundColor: '#222',
     borderRadius: normalize(12),
-    padding: normalize(16),
+    padding: normalize(12),
     marginBottom: normalize(18),
     height: normalize(406), // 固定高度，让ScrollView可以滚动
+    borderColor: "#454545",
+    borderWidth: 1,
+    marginTop: normalize(12),
+  },
+  genresCard: {
+    height: normalize(80),
   },
   lyricScrollContent: {
     flexGrow: 1, // 确保ScrollView内容可以增长
   },
   lyricText: {
-    color: '#eee',
-    fontSize: normalizeFontSize(16),
+    color: theme.textPrimary,
+    fontWeight: '600',
+    fontSize: normalizeFontSize(15),
     lineHeight: normalize(22),
+  },
+  lyricContent: {
+    color: theme.textSecondary,
+    fontSize: normalizeFontSize(14),
+    lineHeight: normalize(20),
   },
   coversRow: {
     flexDirection: 'row',
@@ -362,7 +422,7 @@ const styles = StyleSheet.create({
     borderRadius: normalize(12),
     borderWidth: 2,
     borderColor: '#85F380',
-    paddingVertical: normalize(14),
+    justifyContent: 'center',
     alignItems: 'center',
     marginBottom: normalize(14),
   },
@@ -377,7 +437,7 @@ const styles = StyleSheet.create({
     height:normalize(48),
     backgroundColor: '#85F380',
     borderRadius: normalize(12),
-    paddingVertical: normalize(16),
+    justifyContent: 'center',
     alignItems: 'center',
   },
   okBtnText: {

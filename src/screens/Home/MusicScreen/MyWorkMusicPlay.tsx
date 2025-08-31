@@ -42,12 +42,12 @@ const img_music_share = require("../../../../assets/images/music_share.png");
 const img_music_back_btn = require("../../../../assets/images/music_back_btn.png");
 const img_music_edit = require("@/assets/music/music_edit_icon.png");
 const img_music_delete = require("@/assets/music/music_delete_icon.png");
-const img_music_save = require("@/assets/music/music_reload_icon.png");
+const img_music_save = require("@/assets/music/music_cover_icon.png");
 
 const { width } = Dimensions.get("window");
 
 const MyWorkMusicPlay = ({ navigation, route }: any) => {
-  const { music={},myWorkIds=[] } = route.params;
+  const { music = {}, myWorkIds = [] } = route.params || {};
   const [sound, setSound] = useState<Sound | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -62,8 +62,10 @@ const MyWorkMusicPlay = ({ navigation, route }: any) => {
   const [downloading, setDownloading] = useState(false);
   const [progress, setProgress] = useState(0);
   const downloader = MusicDownloader.getInstance();
+  const [isGenresExpanded, setIsGenresExpanded] = useState(false);
 
-  
+
+
   // 防抖状态
   const [isSwitching, setIsSwitching] = useState(false);
 
@@ -76,18 +78,18 @@ const MyWorkMusicPlay = ({ navigation, route }: any) => {
         sound.release();
         setSound(null);
       }
-      
+
       // 清理定时器
       if (progressInterval.current) {
         clearInterval(progressInterval.current);
         progressInterval.current = null;
       }
-      
+
       // 重置播放状态
       setIsPlaying(false);
       setCurrentTime(0);
       setIsSliding(false);
-      
+
       console.log('音频数据清理完成');
     } catch (error) {
       console.error('清理音频数据失败:', error);
@@ -104,8 +106,8 @@ const MyWorkMusicPlay = ({ navigation, route }: any) => {
   // 编辑歌曲名输入
   const [editTitle, setEditTitle] = useState('');
 
-   // 秒数转换
-   const timeToSec = (t: string) => {
+  // 秒数转换
+  const timeToSec = (t: string) => {
     const [min, sec] = t.split(":").map(Number);
     return min * 60 + sec;
   };
@@ -123,11 +125,11 @@ const MyWorkMusicPlay = ({ navigation, route }: any) => {
       return lyricsData.map((item: any) => {
 
         const [startTime, endTime, text] = item;
-          return {
-            startTime: timeToSec(startTime),
-            endTime: timeToSec(endTime),
-            text: text,
-          }
+        return {
+          startTime: timeToSec(startTime),
+          endTime: timeToSec(endTime),
+          text: text,
+        }
       });
     }
     return []
@@ -228,7 +230,7 @@ const MyWorkMusicPlay = ({ navigation, route }: any) => {
       progressInterval.current = setInterval(() => {
         sound.getCurrentTime((seconds) => {
           setCurrentTime(seconds);
-          
+
           // 检查是否播放完成
           if (seconds >= duration && duration > 0) {
             console.log('检测到播放完成，重置状态');
@@ -275,7 +277,7 @@ const MyWorkMusicPlay = ({ navigation, route }: any) => {
   useEffect(() => {
     if (lyricScrollRef.current && lyricArr.length > 0) {
       const activeIndex = getActiveLyricIndex();
-      
+
       // 滚动到当前歌词行
       lyricScrollRef.current.scrollToIndex({
         index: Math.max(0, activeIndex - 1), // 提前1行显示
@@ -304,7 +306,7 @@ const MyWorkMusicPlay = ({ navigation, route }: any) => {
     }, [cleanupAudioData])
   );
 
- 
+
   // 编辑歌曲名
   const handleEditTitle = async () => {
     if (!editTitle.trim()) {
@@ -326,21 +328,21 @@ const MyWorkMusicPlay = ({ navigation, route }: any) => {
   };
 
   // 切换歌曲
-  const handleSwitchMusic = async (type:string) => {
+  const handleSwitchMusic = async (type: string) => {
     // 防抖：如果正在切换中，则忽略此次点击
     if (isSwitching) {
       console.log('正在切换歌曲中，忽略此次点击');
       return;
     }
-    
-    console.log(currentMusicIndex,'currentMusicIndex',myWorkIds);
-    
+
+    console.log(currentMusicIndex, 'currentMusicIndex', myWorkIds);
+
     // 设置切换状态
     setIsSwitching(true);
-    
+
     // 记录当前是否正在播放
     const wasPlaying = isPlaying;
-    
+
     // 停止当前播放
     if (sound) {
       sound.stop();
@@ -349,35 +351,35 @@ const MyWorkMusicPlay = ({ navigation, route }: any) => {
     }
     setIsPlaying(false);
     setCurrentTime(0);
-    
+
     // 清除进度监听
     if (progressInterval.current) {
       clearInterval(progressInterval.current);
     }
-    
+
     // 计算新的索引
     let newIndex = currentMusicIndex;
-    if(type === 'next'){
-      if(currentMusicIndex === myWorkIds.length - 1){
+    if (type === 'next') {
+      if (currentMusicIndex === myWorkIds.length - 1) {
         newIndex = 0;
-      }else{
+      } else {
         newIndex = currentMusicIndex + 1;
       }
-    }else{
-      if(currentMusicIndex === 0){
+    } else {
+      if (currentMusicIndex === 0) {
         newIndex = myWorkIds.length - 1;
-      }else{
+      } else {
         newIndex = currentMusicIndex - 1;
       }
     }
-    
+
     // 先更新索引，确保状态同步
     setCurrentMusicIndex(newIndex);
-    
+
     // 获取新的音乐信息
     try {
       const newMusicInfo = await getMusicWorkInfoRequest(myWorkIds[newIndex]);
-      
+
       // 如果之前正在播放，则自动播放新歌曲
       if (wasPlaying && newMusicInfo) {
         // 等待一下让新的音乐信息加载完成
@@ -406,10 +408,25 @@ const MyWorkMusicPlay = ({ navigation, route }: any) => {
     await getMusicWorkInfoRequest(musicInfo.id);
   }
 
+  // 构建分享URL，将音乐信息作为参数传递
+  const buildShareUrl = () => {
+    const baseUrl = 'https://xiguapopo67.github.io/musishare/';
+    const params = new URLSearchParams({
+      // 也可以单独传递关键参数
+      workTitle: musicInfo.title,
+      workCover: musicInfo.cover,
+      workUrl: musicInfo.url,
+      workGenres: (musicInfo.genres || []).join(','),
+      workLyrics: JSON.stringify(musicInfo.lyrics),
+    });
+
+    return `${baseUrl}?${params.toString()}`;
+  };
+
   // 删除歌曲
   const handleDeleteMusic = async () => {
     try {
-      await deleteMusicWork({work_ids: [music.id]})
+      await deleteMusicWork({ work_ids: [music.id] })
       show({ message: t('music.delete_success') });
       setShowDeleteModal(false);
       navigation.goBack();
@@ -418,23 +435,25 @@ const MyWorkMusicPlay = ({ navigation, route }: any) => {
     }
   };
   // 获取作品信息
-  const getMusicWorkInfoRequest = useCallback(async (id?:number) => {
+  const getMusicWorkInfoRequest = useCallback(async (id?: number) => {
     try {
-    const workId = id || musicInfo.id;
-    if (!workId) return;
-    
-    const res = await getMusicWorkInfo({work_id: workId.toString()})
-    console.log(res,'res');
-    const info ={
-      id: res.work_id,
-      title: res.work_title,
-      url: res.work_url,
-      lyrics: res.work_lyrics,
-      genres: res.work_genres,
-      cover: res.work_cover,
-    }
-    setMusicInfo(info);
-    return info; // 返回获取到的音乐信息
+      const workId = id || musicInfo.id;
+      if (!workId) return;
+
+      const res = await getMusicWorkInfo({ work_id: workId.toString() })
+      console.log(res, 'res');
+      const info = {
+        id: res.work_id,
+        title: res.work_title,
+        url: res.work_url,
+        lyrics: res.work_lyrics,
+        genres: res.work_genres,
+        cover: res.work_cover,
+      }
+      setMusicInfo(info);
+      console.log(info, 'info')
+      console.log(buildShareUrl(), 'buildShareUrl')
+      return info; // 返回获取到的音乐信息
     } catch (error) {
       console.log(error);
       return null;
@@ -456,7 +475,7 @@ const MyWorkMusicPlay = ({ navigation, route }: any) => {
           onComplete: (result) => {
             setDownloading(false);
             console.log('下载完成:', result.localPath);
-            show({ message: t('music.download_success')});
+            show({ message: t('music.download_success') });
           },
           onError: (error) => {
             setDownloading(false);
@@ -470,7 +489,7 @@ const MyWorkMusicPlay = ({ navigation, route }: any) => {
     }
   };
 
-  useEffect(() => { 
+  useEffect(() => {
     if (music.id) {
       getMusicWorkInfoRequest(music.id);
     }
@@ -500,38 +519,55 @@ const MyWorkMusicPlay = ({ navigation, route }: any) => {
           <View style={styles.infoHeaderRow}>
             <Text
               style={styles.name}
-              numberOfLines={1}
+              numberOfLines={2}
               ellipsizeMode="tail"
             >
               {musicInfo.title}
             </Text>
-            <Text
-              style={styles.tags}
-              numberOfLines={1}
-              ellipsizeMode="tail"
-            >
-              {musicInfo.genres?.join(", ")}
-            </Text>
           </View>
-         <View style={styles.infoHeaderRowRight}>
-          <TouchableOpacity onPress={() => {
-            setEditTitle(musicInfo.title || '');
-            setShowEditModal(true);
-          }}>
-            <Image source={img_music_edit} style={styles.infoIcon} />
-          </TouchableOpacity>
+          <View style={styles.infoHeaderRowRight}>
+            <TouchableOpacity onPress={() => {
+              setEditTitle(musicInfo.title || '');
+              setShowEditModal(true);
+            }}>
+              <Image source={img_music_edit} style={styles.infoIcon} />
+            </TouchableOpacity>
+          </View>
+        </View>
+        <View style={styles.infoSideIcons}>
           <TouchableOpacity onPress={() => setShowDeleteModal(true)}>
             <Image source={img_music_delete} style={styles.infoIcon} />
           </TouchableOpacity>
-        </View>
-        </View>
-        <View style={styles.infoSideIcons}>
-          <TouchableOpacity onPress={()=>{}}>
+          <TouchableOpacity onPress={() => { navigation.navigate('SingerSelection', { type: 'generate' }) }}>
             <Image source={img_music_save} style={styles.infoIcon} />
           </TouchableOpacity>
           <TouchableOpacity onPress={() => setShowShareModal(true)}>
             <Image source={img_music_share} style={styles.infoIcon} />
           </TouchableOpacity>
+        </View>
+      </View>
+
+      <View style={styles.genersCard}>
+        <View style={styles.tagsContainer}>
+          <Text
+            style={[
+              styles.tags,
+              !isGenresExpanded && styles.tagsCollapsed
+            ]}
+            numberOfLines={isGenresExpanded ? undefined : 1}
+            ellipsizeMode="tail"
+          >
+            {musicInfo.genres?.join(", ")}
+          </Text>
+
+          <TouchableOpacity
+            style={styles.expandButton}
+            onPress={() => setIsGenresExpanded(!isGenresExpanded)}
+            activeOpacity={0.7}
+          >
+            <Image source={isGenresExpanded ? require('@/assets/profile/points_dropup_icon.png') : require('@/assets/profile/points_dropdown_icon.png')} style={styles.expandButtonImg} />
+          </TouchableOpacity>
+
         </View>
       </View>
 
@@ -551,7 +587,7 @@ const MyWorkMusicPlay = ({ navigation, route }: any) => {
             const activeIndex = getActiveLyricIndex();
             const isActive = index === activeIndex;
             const isPast = index < activeIndex;
-            
+
             return (
               <View style={styles.lyricItem}>
                 <Text
@@ -559,7 +595,7 @@ const MyWorkMusicPlay = ({ navigation, route }: any) => {
                     styles.lyrics,
                     {
                       color: isActive ? "#3cff8f" : isPast ? "#666" : "#888",
-                      fontWeight: isActive ? "bold" : "normal",
+                      fontWeight: isActive ? "500" : "normal",
                       fontSize: isActive ? normalizeFontSize(18) : normalizeFontSize(16),
                       opacity: isActive ? 1 : isPast ? 0.7 : 0.5,
                       transform: [{ scale: isActive ? 1.05 : 1 }],
@@ -623,7 +659,7 @@ const MyWorkMusicPlay = ({ navigation, route }: any) => {
 
       {/* 播放控制 */}
       <View style={styles.controlRow}>
-        <TouchableOpacity onPress={()=>handleSwitchMusic('prev')}>
+        <TouchableOpacity onPress={() => handleSwitchMusic('prev')}>
           <Image source={img_last_song} style={styles.controlImg} />
         </TouchableOpacity>
         <TouchableOpacity onPress={handlePlayPause}>
@@ -632,7 +668,7 @@ const MyWorkMusicPlay = ({ navigation, route }: any) => {
             style={styles.playImg}
           />
         </TouchableOpacity>
-        <TouchableOpacity onPress={()=>handleSwitchMusic('next')}>
+        <TouchableOpacity onPress={() => handleSwitchMusic('next')}>
           <Image source={img_next_song} style={styles.controlImg} />
         </TouchableOpacity>
       </View>
@@ -649,13 +685,13 @@ const MyWorkMusicPlay = ({ navigation, route }: any) => {
         <View style={styles.modalOverlay}>
           <Pressable style={styles.blurMask} onPress={() => setShowShareModal(false)} />
           <View style={styles.bottomModal}>
-            <Text style={styles.modalTitle}>
+            <Text style={styles.modalTitle} numberOfLines={1} ellipsizeMode="tail">
               Share {musicInfo.title}
             </Text>
-            <Text style={styles.shareLink}>{musicInfo.url}</Text>
+            <Text style={styles.shareLink} numberOfLines={1} ellipsizeMode="tail">{musicInfo.url}</Text>
             <View style={styles.modalBtnRow}>
               <TouchableOpacity
-                style={styles.cancelBtn}
+                style={[styles.cancelBtn, styles.shareBtn]}
                 onPress={handleDownload}
               >
                 <Text style={styles.cancelBtnText}>{t('music.download')}</Text>
@@ -667,11 +703,11 @@ const MyWorkMusicPlay = ({ navigation, route }: any) => {
                     title: t('music.copy_success'),
                     message: t('music.link_copied'),
                   });
-                  Clipboard.setString(musicInfo.url);
+                  Clipboard.setString(buildShareUrl());
                   setShowShareModal(false)
                 }}
               >
-                 <Text style={styles.copyBtnText}>{t('music.copy_link')}</Text>
+                <Text style={styles.copyBtnText}>{t('music.copy_link')}</Text>
               </TouchableOpacity>
             </View>
 
@@ -688,7 +724,7 @@ const MyWorkMusicPlay = ({ navigation, route }: any) => {
       >
         <View style={styles.modalOverlay}>
           <Pressable style={styles.blurMask} onPress={() => setShowEditModal(false)} />
-          <View style={[styles.bottomModal,styles.bottomModalTitle]}>
+          <View style={[styles.bottomModal, styles.bottomModalTitle]}>
             <Text style={styles.modalTitle}>
               {t('music.edit')}
             </Text>
@@ -746,7 +782,7 @@ const MyWorkMusicPlay = ({ navigation, route }: any) => {
           </View>
         </View>
       </Modal>
-      <FullScreenLoading visible={downloading} progress={progress}/>
+      <FullScreenLoading visible={downloading} progress={progress} />
     </View>
   );
 };
@@ -773,7 +809,7 @@ const styles = StyleSheet.create({
   backIcon: {
     color: "#fff",
     fontSize: normalizeFontSize(28),
-    fontWeight: "bold",
+    fontWeight: "500",
   },
   backIconImg: {
     width: normalize(28),
@@ -781,7 +817,16 @@ const styles = StyleSheet.create({
     // resizeMode: "contain",
   },
   infoCard: {
-    backgroundColor: "#191919",
+    backgroundColor: theme.backgroundSecondary,
+    borderRadius: normalize(18),
+    marginHorizontal: normalize(16),
+    padding: normalize(16),
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: normalize(12),
+  },
+  genersCard: {
+    backgroundColor: theme.backgroundSecondary,
     borderRadius: normalize(18),
     marginHorizontal: normalize(16),
     padding: normalize(16),
@@ -790,8 +835,8 @@ const styles = StyleSheet.create({
     marginBottom: normalize(18),
   },
   avatarBox: {
-    width: normalize(72),
-    height: normalize(72),
+    width: normalize(100),
+    height: normalize(100),
     borderRadius: normalize(16),
     backgroundColor: "#FFE89D",
     justifyContent: "center",
@@ -810,11 +855,11 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "flex-start",
-    minWidth: 0,  
+    minWidth: 0,
   },
   infoHeaderRow: {
     flexDirection: "column",
-    flex:1,
+    flex: 1,
     alignItems: "flex-start",
     justifyContent: "flex-start",
     marginBottom: normalize(2),
@@ -831,7 +876,7 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     marginRight: normalize(8),
     flexShrink: 1,
-    minWidth: 0,
+    width: normalize(160),
   },
   nameIcons: {
     flexDirection: "row",
@@ -840,12 +885,35 @@ const styles = StyleSheet.create({
     gap: 0,
   },
   tags: {
-    color: "#bdbdbd",
-    fontSize: normalizeFontSize(15),
-    marginTop: normalize(2),
+    color: theme.textSecondary,
+    fontSize: normalizeFontSize(12),
     marginBottom: 0,
     flexShrink: 1,
     minWidth: 0,
+  },
+  tagsContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingRight: normalize(40),
+    width: '100%',
+  },
+  tagsCollapsed: {
+    flex: 1,
+  },
+  expandButton: {
+    position: 'absolute',
+    right: normalize(0),
+    top: normalize(0),
+  },
+  expandButtonImg: {
+    width: normalize(20),
+    height: normalize(20),
+  },
+  expandButtonText: {
+    color: theme.primary,
+    fontSize: normalizeFontSize(10),
+    fontWeight: '500',
   },
   infoSideIcons: {
     position: "absolute",
@@ -878,7 +946,7 @@ const styles = StyleSheet.create({
   lyricSection: {
     marginHorizontal: normalize(16),
     marginBottom: normalize(12),
-    flex:1
+    flex: 1
   },
   lyricHeader: {
     flexDirection: "row",
@@ -889,7 +957,7 @@ const styles = StyleSheet.create({
   lyricTitle: {
     color: "#fff",
     fontSize: normalizeFontSize(18),
-    fontWeight: "bold",
+    fontWeight: "500",
   },
   lyricProgress: {
     color: "#888",
@@ -968,7 +1036,7 @@ const styles = StyleSheet.create({
   playIcon: {
     color: "#111",
     fontSize: normalizeFontSize(28),
-    fontWeight: "bold",
+    fontWeight: "500",
   },
   playImg: {
     width: normalize(48),
@@ -1012,7 +1080,7 @@ const styles = StyleSheet.create({
   modalTitle: {
     color: "#fff",
     fontSize: normalizeFontSize(18),
-    fontWeight: "bold",
+    fontWeight: "500",
     marginBottom: normalize(24),
   },
   modalBtnRow: {
@@ -1033,6 +1101,9 @@ const styles = StyleSheet.create({
     paddingVertical: normalize(12),
     alignItems: "center",
   },
+  shareBtn: {
+    borderColor: theme.primary,
+  },
   okBtn: {
     flex: 1,
     backgroundColor: theme.primary,
@@ -1044,19 +1115,19 @@ const styles = StyleSheet.create({
   cancelBtnText: {
     color: "#fff",
     fontSize: normalizeFontSize(16),
-    fontWeight: "bold",
-    textAlign:'center'
+    fontWeight: "500",
+    textAlign: 'center'
   },
   okBtnText: {
     color: "#111",
     fontSize: normalizeFontSize(16),
-    fontWeight: "bold",
+    fontWeight: "500",
   },
   shareLink: {
     color: "#fff",
     fontSize: normalizeFontSize(16),
     textAlign: "center",
-    marginBottom:normalize(55)
+    marginBottom: normalize(55)
   },
   copyBtn: {
     backgroundColor: theme.primary,
@@ -1072,7 +1143,7 @@ const styles = StyleSheet.create({
   copyBtnText: {
     color: "#111",
     fontSize: normalizeFontSize(18),
-    fontWeight: "bold",
+    fontWeight: "500",
     textAlign: "center",
   },
   editInput: {
@@ -1083,7 +1154,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: normalize(16),
     color: "#fff",
     fontSize: normalizeFontSize(16),
-    bottom:normalize(5)
+    bottom: normalize(5)
   },
   deleteWarning: {
     color: "#bdbdbd",
@@ -1102,7 +1173,7 @@ const styles = StyleSheet.create({
   deleteBtnText: {
     color: "#fff",
     fontSize: normalizeFontSize(16),
-    fontWeight: "bold",
+    fontWeight: "500",
   },
   debugText: {
     color: "#fff",
@@ -1122,7 +1193,7 @@ const styles = StyleSheet.create({
   debugBtnText: {
     color: "#fff",
     fontSize: normalizeFontSize(16),
-    fontWeight: "bold",
+    fontWeight: "500",
   },
 });
 

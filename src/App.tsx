@@ -10,6 +10,7 @@ import MessageModalRegister from '@/components/MessageModalRegister';
 import { Provider as PaperProvider} from 'react-native-paper';
 import { NativeModules } from 'react-native';
 const { ConfigModule } = NativeModules;
+import { ThemeProvider } from './contexts/ThemeContext';
 
 const App = () => {
   const [isInitialized, setIsInitialized] = useState(false);
@@ -37,7 +38,7 @@ const App = () => {
     // 使Zustand主动同步AsyncStorage中的数据，Zustand主动会同步持久化数据，所以不写也可
     // useAppStore.persist.rehydrate()
     // useUserStore.persist.rehydrate()
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   }, [])
 
   EStyleSheet.build({
@@ -45,23 +46,25 @@ const App = () => {
   });
   return (
     <PaperProvider>
-      <LanguageProvider>
-        <SafeAreaProvider>
-          {/* 透明沉浸式状态栏设置 */}
-          <StatusBar
-            translucent
-            backgroundColor="transparent"
-            barStyle="light-content" // 或 dark-content 看界面颜色
-          />
-          <MessageModalProvider>
-            {
-              isInitialized &&
-              <AppNavigator />
-            }
-            <MessageModalRegister/>
-          </MessageModalProvider>
-        </SafeAreaProvider>
-      </LanguageProvider>
+      <ThemeProvider>
+        <LanguageProvider>
+          <SafeAreaProvider>
+            {/* 透明沉浸式状态栏设置 */}
+            <StatusBar
+              translucent
+              backgroundColor="transparent"
+              barStyle="light-content" // 或 dark-content 看界面颜色
+            />
+            <MessageModalProvider>
+              {
+                isInitialized &&
+                <AppNavigator />
+              }
+              <MessageModalRegister/>
+            </MessageModalProvider>
+          </SafeAreaProvider>
+        </LanguageProvider>
+      </ThemeProvider>
     </PaperProvider>
   );
 };

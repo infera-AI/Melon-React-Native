@@ -10,14 +10,14 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { ProfileStackParamList } from './ProfileNavigator';
+import { ProfileStackParamList } from '../ProfileNavigator';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { getVoiceprintDemoConfig ,synthesizeSpeech, translateText} from '../../../api/profile/profile';
-import { useMessageModal } from '../../../contexts/MessageModalContext';
+import { getVoiceprintDemoConfig ,synthesizeSpeech, translateText} from '@/api/profile/profile';
+import { useMessageModal } from '@/contexts/MessageModalContext';
 import Sound from 'react-native-sound';
 import { useVoiceStore } from '@/store';
 import { VoiceType } from '@/store/modules/voice.store';
-import { useLanguage } from '../../../contexts/LanguageContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { normalize, normalizeFontSize } from '@/utils/stylesUtil';
 
 const langs={
@@ -161,7 +161,7 @@ const VoiceprintManagementScreen: React.FC = () => {
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={handleBack}>
           <Image 
-            source={require('../../../assets/main/page_return_icon.png')} 
+            source={require('@/assets/main/page_return_icon.png')} 
             style={styles.backIcon}
           />
         </TouchableOpacity>
@@ -173,7 +173,7 @@ const VoiceprintManagementScreen: React.FC = () => {
       <View style={styles.voiceprintCard}>
         {/* 语音波形图标 */}
         <View style={styles.waveformContainer}>
-          <Image source={require('../../../assets/profile/profile_voice_icon.png')} style={styles.voiceprintExampleIcon}/>
+          <Image source={require('@/assets/profile/profile_voice_icon.png')} style={styles.voiceprintExampleIcon}/>
           {/* 标题 */}
           <Text style={styles.voiceprintTitle}>{t('voiceprint_management.my_voiceprint_example')}</Text>
         </View>
@@ -191,23 +191,23 @@ const VoiceprintManagementScreen: React.FC = () => {
                 <Text style={[styles.languageText]}>
                   {langs[leftLanguage as keyof typeof langs]}
         </Text>
-              <Image source={require('../../../assets/main/dropdown_disabled_icon.png')} resizeMode='contain' style={styles.dropdownIcon}/>
+              <Image source={require('@/assets/main/dropdown_disabled_icon.png')} resizeMode='contain' style={styles.dropdownIcon}/>
             </View>
-            <Image source={require('../../../assets/main/exchange_icon.png')} resizeMode='contain' style={styles.exchangeIcon}/>
+            <Image source={require('@/assets/main/exchange_icon.png')} resizeMode='contain' style={styles.exchangeIcon}/>
             <View style={styles.languageItem}>  
               <Text style={[
                 styles.languageText,styles.languageTextActive
               ]}>
                 {langs[rightLanguage as keyof typeof langs]}
         </Text>
-             <Image source={require('../../../assets/main/dropdown_icon.png')} resizeMode='contain' style={styles.dropdownIcon}/>
+             <Image source={require('@/assets/main/dropdown_icon.png')} resizeMode='contain' style={styles.dropdownIcon}/>
             </View>
           </View>
         </TouchableOpacity>
 
         {/* 试听按钮 */}
         <TouchableOpacity style={[styles.trialButton,isSynthesizing && styles.trialButtonDisabled]} onPress={handlePlayAudio} disabled={isSynthesizing}>
-          <Image source={require('../../../assets/profile/profile_play_icon.png')} resizeMode='contain' style={styles.playIcon}/>
+          <Image source={require('@/assets/profile/profile_play_icon.png')} resizeMode='contain' style={styles.playIcon}/>
           <Text style={styles.trialText}> 
             {isPlaying ? t('voiceprint_management.playing') : t('voiceprint_management.trial_listening')}
           </Text>
@@ -217,11 +217,11 @@ const VoiceprintManagementScreen: React.FC = () => {
       {/* 语音优化卡片 */}
       <TouchableOpacity style={styles.optimizationCard} onPress={handleOptimizVoice}>
         <View style={styles.optimizationContent}>
-          <Image source={require('../../../assets/profile/profile_optimize_icon.png')} resizeMode='contain' style={styles.optimizationIcon}/>
+          <Image source={require('@/assets/profile/profile_optimize_icon.png')} resizeMode='contain' style={styles.optimizationIcon}/>
           <Text style={styles.optimizationTitle}>{t('voiceprint_management.voiceprint_optimization')}</Text>
           <View style={styles.arrowContainer}>
             <Image 
-              source={require('../../../assets/main/right_arrow_icon.png')} 
+              source={require('@/assets/main/right_arrow_icon.png')} 
               style={styles.arrowIcon}
             />
           </View>

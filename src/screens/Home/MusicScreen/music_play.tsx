@@ -27,13 +27,13 @@ const img_last_song = require("../../../../assets/images/last_song.png");
 const img_next_song = require("../../../../assets/images/next_song.png");
 const img_play_btn = require("../../../../assets/images/music_play.png");
 const img_pause_btn = require("../../../../assets/images/music_pause.png");
-const img_music_share = require("../../../../assets/images/music_share.png");
+// const img_music_share = require("../../../../assets/images/music_share.png");
 const img_music_back_btn = require("../../../../assets/images/music_back_btn.png");
 
 // const { width } = Dimensions.get("window");
 
 const MusicPlayScreen = ({ navigation, route }: any) => {
-  const { music={} ,songs=[]} = route.params;
+  const { music={} ,songs=[]} = route.params||{};
   const [sound, setSound] = useState<Sound | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -79,6 +79,8 @@ const MusicPlayScreen = ({ navigation, route }: any) => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   // 分享弹窗
   const [showShareModal, setShowShareModal] = useState(false);
+  // 风格标签展开状态
+  const [isGenresExpanded, setIsGenresExpanded] = useState(false);
 
    // 秒数转换
    const timeToSec = (t: string) => {
@@ -356,7 +358,7 @@ const MusicPlayScreen = ({ navigation, route }: any) => {
           <View style={styles.infoHeaderRow}>
             <Text
               style={styles.name}
-              numberOfLines={1}
+              numberOfLines={2}
               ellipsizeMode="tail"
             >
               {currentMusic.title}
@@ -369,14 +371,38 @@ const MusicPlayScreen = ({ navigation, route }: any) => {
               {currentMusic.genres?.join(", ")}
             </Text>
           </View>
-        </View>
+      </View>
         <View style={styles.infoSideIcons}>
           {/* <TouchableOpacity onPress={handleSaveMusic}>
             <Image source={img_music_save} style={styles.infoIcon} />
           </TouchableOpacity> */}
-          <TouchableOpacity onPress={() => setShowShareModal(true)}>
+          {/* <TouchableOpacity onPress={() => setShowShareModal(true)}>
             <Image source={img_music_share} style={styles.infoIcon} />
-          </TouchableOpacity>
+          </TouchableOpacity> */}
+        </View>
+      </View>
+
+      <View style={styles.genersCard}>
+        <View style={styles.tagsContainer}>
+          <Text 
+            style={[
+              styles.tags,
+              !isGenresExpanded && styles.tagsCollapsed
+            ]}
+            numberOfLines={isGenresExpanded ? undefined : 1}
+            ellipsizeMode="tail"
+          >
+            {currentMusic.genres?.join(", ")}
+          </Text>
+          
+            <TouchableOpacity 
+              style={styles.expandButton}
+              onPress={() => setIsGenresExpanded(!isGenresExpanded)}
+              activeOpacity={0.7}
+            >
+              <Image source={isGenresExpanded?require('@/assets/profile/points_dropup_icon.png'):require('@/assets/profile/points_dropdown_icon.png')} style={styles.expandButtonImg} />
+            </TouchableOpacity>
+     
         </View>
       </View>
 
@@ -558,7 +584,7 @@ const MusicPlayScreen = ({ navigation, route }: any) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#111",
+    backgroundColor: theme.background,
     paddingTop: normalize(32),
     paddingHorizontal: 0,
   },
@@ -585,7 +611,16 @@ const styles = StyleSheet.create({
     // resizeMode: "contain",
   },
   infoCard: {
-    backgroundColor: "#191919",
+    backgroundColor: theme.backgroundSecondary,
+    borderRadius: normalize(18),
+    marginHorizontal: normalize(16),
+    padding: normalize(16),
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: normalize(12),
+  },
+  genersCard: {
+    backgroundColor: theme.backgroundSecondary,
     borderRadius: normalize(18),
     marginHorizontal: normalize(16),
     padding: normalize(16),
@@ -594,8 +629,8 @@ const styles = StyleSheet.create({
     marginBottom: normalize(18),
   },
   avatarBox: {
-    width: normalize(72),
-    height: normalize(72),
+    width: normalize(100),
+    height: normalize(100),
     borderRadius: normalize(16),
     backgroundColor: "#FFE89D",
     justifyContent: "center",
@@ -617,6 +652,7 @@ const styles = StyleSheet.create({
     flex:1,
     alignItems: "flex-start",
     justifyContent: "flex-start",
+    width: normalize(160),
     marginBottom: normalize(2),
     marginTop: normalize(10),
   },
@@ -635,12 +671,35 @@ const styles = StyleSheet.create({
     gap: 0,
   },
   tags: {
-    color: "#bdbdbd",
-    fontSize: normalizeFontSize(15),
-    marginTop: normalize(2),
+    color:theme.textSecondary,
+    fontSize: normalizeFontSize(12),
     marginBottom: 0,
     flexShrink: 1,
     minWidth: 0,
+  },
+  tagsContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingRight: normalize(40),
+    width: '100%',
+  },
+  tagsCollapsed: {
+    flex: 1,
+  },
+  expandButton: {
+    position: 'absolute',
+    right: normalize(0),
+    top: normalize(0),
+  },
+  expandButtonImg: {
+    width: normalize(20),
+    height: normalize(20),
+  },
+  expandButtonText: {
+    color: theme.primary,
+    fontSize: normalizeFontSize(10),
+    fontWeight: '500',
   },
   infoSideIcons: {
     position: "absolute",
@@ -815,7 +874,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#222",
     borderRadius: normalize(12),
     borderWidth: 1,
-    borderColor: "#444",
     marginRight: normalize(8),
     paddingVertical: normalize(12),
     alignItems: "center",
@@ -833,13 +891,13 @@ const styles = StyleSheet.create({
   cancelBtnText: {
     color: "#fff",
     fontSize: normalizeFontSize(16),
-    fontWeight: "bold",
+    fontWeight: "500",
     textAlign:'center'
   },
   okBtnText: {
     color: "#111",
     fontSize: normalizeFontSize(16),
-    fontWeight: "bold",
+    fontWeight: "500",
   },
   shareLink: {
     color: "#fff",

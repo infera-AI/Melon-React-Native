@@ -32,6 +32,7 @@ const MusicScreen: React.FC = () => {
   const [lyrics, setLyrics] = useState('');
   const [selectedStyles, setSelectedStyles] = useState<string[]>([]);
   const [musicStyles, setMusicStyles] = useState<string[]>([]);
+  const [musicStylesInput, setMusicStylesInput] = useState<string>("");
   const {show} = useMessageModal()
   const [isLoading, setIsLoading] = useState(false);
   const [showLanguageModal, setShowLanguageModal] = useState(false);
@@ -61,6 +62,7 @@ const MusicScreen: React.FC = () => {
 
   // 获取推荐曲风
   const getRecommendStylesRequest = async () => {
+    setLoading(true);
     try {
       const res = await recommendGenres({
         work_lyrics: lyrics,
@@ -72,17 +74,24 @@ const MusicScreen: React.FC = () => {
         message: t('music.get_recommend_styles_failed') + (error.message || t('common.unknown_error')),
       });
     }
+    setLoading(false);
   };
 
+  //去掉连续出现的逗号替换为一个逗号,去掉首尾的逗号
+  const removeExtraCommas = (str: string) => {
+    return str.replace(/,+/g, ",").replace(/^,+/, "").replace(/,+$/, "");
+  }
   // 选择曲风
   const handleStyleSelect = (style: string) => {
-    setSelectedStyles(prev => {
-      if (prev.includes(style)) {
-        return prev.filter(item => item !== style);
-      } else {
-        return [...prev, style];
+    if(musicStylesInput.includes(style)){
+        setMusicStylesInput(removeExtraCommas(musicStylesInput.replace(style,"")));
+    }else{
+      if(musicStylesInput.endsWith(",")){
+        setMusicStylesInput(musicStylesInput+style);
+      }else{
+        setMusicStylesInput(musicStylesInput.length > 0 ? musicStylesInput+","+style : style);
       }
-    });
+    }
   };
 
   const handleLanguageSelect = (language: string) => {
@@ -99,38 +108,39 @@ const MusicScreen: React.FC = () => {
       show({message:t('music.lyrics_empty')});
       return;
     }
-    if(selectedStyles.length === 0){
+    if(musicStylesInput.length === 0){
       show({message:t('music.select_music_style')});
       return;
     }
     useMusicStore.getState().setMusicGenerateInfo({
       title: title,
       lyrics: lyrics,
-      musicStyles: selectedStyles,
+      musicStyles: musicStylesInput.split(","),
     });
-    setLoading(true);
-    generateMusic({ 
-      work_title: title,
-      work_lyrics: lyrics,
-      work_genres: selectedStyles,
-    }).then((rsp) => {
-      setLoading(false);
-      if(!rsp.task_id){
-        show({
-          message: t('translate_screen.failed_again')
-        })
-        return
-      }
-      navigation.navigate('GeneratingMusic', {
-        taskId: rsp.task_id,
-        createTaskTime: Math.floor(performance.now())
-      });
-    }).catch(() => {
-      setLoading(false);
-      show({
-        message: t('http_service_error')
-      })
-    });
+    navigation.navigate('SingerSelection' ,{type: 'generate'});
+    // setLoading(true);
+    // generateMusic({ 
+    //   work_title: title,
+    //   work_lyrics: lyrics,
+    //   work_genres: selectedStyles,
+    // }).then((rsp) => {
+    //   setLoading(false);
+    //   if(!rsp.task_id){
+    //     show({
+    //       message: t('translate_screen.failed_again')
+    //     })
+    //     return
+    //   }
+    //   navigation.navigate('GeneratingMusic', {
+    //     taskId: rsp.task_id,
+    //     createTaskTime: Math.floor(performance.now())
+    //   });
+    // }).catch(() => {
+    //   setLoading(false);
+    //   show({
+    //     message: t('http_service_error')
+    //   })
+    // });
     // navigation.navigate('GeneratingMusic' as never);
   }
 
@@ -231,21 +241,24 @@ const MusicScreen: React.FC = () => {
           numberOfLines={10}
           multiline
         />
+        {lyrics.length > 0 && <TouchableOpacity style={styles.clearIconContainer} onPress={()=>setLyrics("")}>
+          <Image source={require('@/assets/music/music_delete_icon.png')} style={styles.clearIcon} />
+        </TouchableOpacity>}
       </View>
       
       {/* 底部操作区 */}
       <View style={{ justifyContent: 'flex-end' }}>
         {/* 语言选择与功能按钮 */}
         <View style={styles.langRow}>
+          <View style={styles.langBtnContainer}>
           <TouchableOpacity style={styles.langBtn} onPress={()=>handleLanguageSwitch("left")}>
             <Text style={styles.langText}>{t(`languageNames.${leftLanguage}`)}</Text>
-            <Text style={styles.langArrow}>▼</Text>
           </TouchableOpacity>
-          <Text style={styles.langSwitch}>⇄</Text>
+          <Image source={require('@/assets/main/language_exchange.png')} style={styles.langSwitch} />
           <TouchableOpacity style={styles.langBtn} onPress={()=>handleLanguageSwitch("right")}>
             <Text style={styles.langText}>{t(`languageNames.${rightLanguage}`)}</Text>
-            <Text style={styles.langArrow}>▼</Text>
           </TouchableOpacity>
+          </View>
           <TouchableOpacity style={styles.musicTransBtn} onPress={handleTranslateLyrics}>
             <Image
               source={require('../../../../assets/images/music_trans.png')}
@@ -256,7 +269,7 @@ const MusicScreen: React.FC = () => {
         </View>
 
          {/* 曲风选择卡片 */}
-      {lyrics&&<View style={styles.musicStyleCard}>
+        <View style={styles.musicStyleCard}>
         <View style={styles.musicStyleHeader}>
           <Text style={styles.musicStyleTitle}>{t('music.select_music_style')}</Text>
           <TouchableOpacity style={styles.aiPolish} onPress={getRecommendStylesRequest}>
@@ -282,40 +295,52 @@ const MusicScreen: React.FC = () => {
             </MaskedView>
           </TouchableOpacity>
         </View>
-
+        <TextInput
+            style={styles.lyricInput}
+            placeholder={'Enter style tags, separated by commas. Example: pop,rock,......'}
+            placeholderTextColor="#666"
+            value={musicStylesInput}
+            onChangeText={setMusicStylesInput}
+            numberOfLines={10}
+            multiline
+          />
+        {musicStylesInput.length > 0 && <TouchableOpacity style={[styles.clearIconContainer,{bottom: normalize(68)}]} onPress={()=>setMusicStylesInput("")}>
+          <Image source={require('@/assets/music/music_delete_icon.png')} style={styles.clearIcon} />
+        </TouchableOpacity>}
         {/* 音频可视化 */}
-        <View style={styles.audioVisualization}>
-          <Text style={styles.audioDescription}>
-            {t('music.pre_filled_description')}
-          </Text>
-        </View>
-
-        {/* 曲风选择芯片 */}
-        <ScrollView 
-          horizontal 
-          showsHorizontalScrollIndicator={false}
-          style={styles.styleChipsContainer}
-          contentContainerStyle={styles.styleChipsContent}
-        >
-          {musicStyles.map((style) => (
-            <TouchableOpacity
-              key={style}
-              style={[
-                styles.styleChip,
-                selectedStyles.includes(style) && styles.styleChipSelected
-              ]}
-              onPress={() => handleStyleSelect(style)}
-            >
-              <Text style={[
-                styles.styleChipText,
-                selectedStyles.includes(style) && styles.styleChipTextSelected
-              ]}>
-                {style}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
+        {lyrics.length > 0 && <View style={styles.audioVisualization}>
+        <TouchableOpacity onPress={getRecommendStylesRequest}>  
+          <Image source={require('@/assets/main/refresh_icon.png')} style={styles.musicStyleInputIcon} />
+        </TouchableOpacity>
+           {/* 曲风选择芯片 */}
+          <ScrollView 
+            horizontal 
+            showsHorizontalScrollIndicator={false}
+            style={styles.styleChipsContainer}
+            contentContainerStyle={styles.styleChipsContent}
+          >
+            {musicStyles.map((style) => (
+              <TouchableOpacity
+                key={style}
+                style={[
+                  styles.styleChip,
+                  musicStylesInput.includes(style) && styles.styleChipSelected
+                ]}
+                onPress={() => handleStyleSelect(style)}
+              >
+                <Text style={[
+                  styles.styleChipText,
+                  musicStylesInput.includes(style) && styles.styleChipTextSelected
+                ]}>
+                  {style}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
         </View>}
+
+      
+        </View>
 
         {/* Next 按钮 */}
         <TouchableOpacity
@@ -474,13 +499,23 @@ const styles = StyleSheet.create({
     marginTop: normalize(2),
     textAlignVertical: 'top',
   },
+  clearIconContainer: {
+    position: 'absolute',
+    right: normalize(16),
+    bottom: normalize(16),
+  },
+  clearIcon: {
+    width: normalize(22),
+    height: normalize(22),
+  },
   // 曲风选择卡片样式
   musicStyleCard: {
     backgroundColor: '#262626',
     borderRadius: normalize(12),
     padding: normalize(16),
     marginBottom: normalize(18),
-    minHeight: normalize(181),
+    height: normalize(388),
+    paddingBottom: normalize(16),
   },
   musicStyleHeader: {
     flexDirection: 'row',
@@ -496,7 +531,19 @@ const styles = StyleSheet.create({
   },
   // 音频可视化样式
   audioVisualization: {
-    marginBottom: normalize(16),
+    position: 'absolute',
+    height: normalize(36),
+    bottom: normalize(16),
+    left: normalize(16),
+    right: normalize(16),
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  musicStyleInputIcon: {
+    width: normalize(22),
+    height: normalize(22),
+    marginRight: normalize(12),
   },
   audioDescription: {
     color: '#B0B0B0',
@@ -508,14 +555,11 @@ const styles = StyleSheet.create({
   },
   // 曲风选择芯片样式
   styleChipsContainer: {
-    marginTop: normalize(8),
-    height: normalize(20),
+    height: normalize(36),
   },
   styleChipsContent: {
     position: 'absolute',
-    paddingHorizontal: 0,
     height: normalize(36),
-    bottom: normalize(10),
   },
   styleChip: {
     backgroundColor: '#262626',
@@ -541,20 +585,29 @@ const styles = StyleSheet.create({
   },
   langRow: {
     flexDirection: 'row',
-    alignItems: 'center',
+    justifyContent: 'space-between',
+    // alignItems: 'center',
     backgroundColor: 'transparent',
     marginBottom: normalize(18),
   },
+  langBtnContainer: {
+    width: "83%",
+    height: normalize(48),
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#222',
+    borderRadius: normalize(12),
+    borderWidth: 1,
+  },
   langBtn: {
     flex: 1,
-    backgroundColor: '#222',
+    height: normalize(48),
+    backgroundColor: 'transparent',
     borderRadius: normalize(10),
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: normalize(10),
-    paddingHorizontal: normalize(14),
-    marginHorizontal: normalize(2),
     justifyContent: 'center',
+    marginHorizontal: normalize(2),
   },
   langText: {
     color: '#fff',
@@ -567,23 +620,21 @@ const styles = StyleSheet.create({
     fontSize: normalizeFontSize(13),
   },
   langSwitch: {
-    color: '#fff',
-    fontSize: normalizeFontSize(22),
-    marginHorizontal: normalize(8),
+    width: normalize(20),
+    height: normalize(20),
   },
   musicTransBtn: {
-    width: normalize(32),
-    height: normalize(32),
+    width: normalize(48),
+    height: normalize(48),
     backgroundColor: '#222',
     borderRadius: normalize(10),
     justifyContent: 'center',
     alignItems: 'center',
-    marginLeft: normalize(6),
   },
   musicTransIcon: {
-    width: normalize(32),
-    height: normalize(32),
-    // tintColor: '#3cff8f',
+    width: normalize(48),
+    height: normalize(48),
+    // tintColor: '#333',
   },
   nextBtn: {
     backgroundColor: '#85F380',

@@ -9,6 +9,8 @@ import MusicEditHummingScreen from './music_edit_humming';
 import MusicPreviewScreen from './music_preview';
 import GeneratingMusicScreen from './GeneratingMusicScreen';
 import MyWorkMusicPlay from './MyWorkMusicPlay';
+import SingerSelectionScreen from './SingerSelectionScreen';
+                                                    import CoverUploadScreen from './CoverUploadScreen';
 
 export type MusicStackParamList = {
   MusicMain: undefined;
@@ -20,6 +22,8 @@ export type MusicStackParamList = {
   MusicPreview: {music: any};
   GeneratingMusic: { taskId: string; createTaskTime: number };
   MyWorkMusicPlay: {music: any,myWorkIds:number[]};
+  SingerSelection: {type: 'upload' | 'generate'};
+  CoverUpload: undefined;
 };
 
 const Stack = createNativeStackNavigator<MusicStackParamList>();
@@ -40,6 +44,8 @@ const MusicStackNavigator: React.FC = () => (
     <Stack.Screen name="MusicPreview" component={MusicPreviewScreen} />
     <Stack.Screen name="GeneratingMusic" component={GeneratingMusicScreen} />
     <Stack.Screen name="MyWorkMusicPlay" component={MyWorkMusicPlay} />
+    <Stack.Screen name="SingerSelection" component={SingerSelectionScreen} />
+    <Stack.Screen name="CoverUpload" component={CoverUploadScreen} />
   </Stack.Navigator>
 );
 

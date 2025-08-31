@@ -11,6 +11,11 @@ import UserServiceAgreementScreen from './UserServiceAgreementScreen';
 import PrivacyPolicyScreen from './PrivacyPolicyScreen';
 import LoginWithCodeScreen from './LoginWithCodeScreen';
 import VerifyCodeLoginScreen from './VerifyCodeLoginScreen';
+import RetrivePasswordScreen from './RetrivePasswordScreen';
+import RetrivePasswordVerifyScreen from './RetrivePasswordVerifyScreen';
+import RetriveResetPassworScreen from './RetriveResetPassworScreen';
+import InvitationCodeScreen from './InvitationCodeScreen';
+import ThirdPartyLoginScreen from './ThirdPartyLoginScreen';
 
 export type AuthStackParamList = {
   Initial: undefined;
@@ -25,6 +30,11 @@ export type AuthStackParamList = {
   PrivacyPolicy: undefined;
   LoginWithCode: undefined;
   VerifyCodeLogin: { account?: string; type?: 'phone' | 'email'; countryCode?: string };
+  RetrivePassword: undefined;
+  RetrivePasswordVerify: { type: 'phone' | 'email', email: string, phoneNumber: string, countryCode: string, actionToken: string };
+  RetriveResetPassword: { bindType: 'phone' | 'email', bindValue: string, actionToken: string };
+  InvitationCode: undefined;
+  ThirdPartyLogin: undefined;
 };
 
 const Stack = createNativeStackNavigator<AuthStackParamList>();
@@ -41,6 +51,11 @@ const AuthNavigator: React.FC = () => (
     <Stack.Screen name="PrivacyPolicy" component={PrivacyPolicyScreen} />
     <Stack.Screen name="LoginWithCode" component={LoginWithCodeScreen} />
     <Stack.Screen name="VerifyCodeLogin" component={VerifyCodeLoginScreen} />
+    <Stack.Screen name="RetrivePassword" component={RetrivePasswordScreen} />
+    <Stack.Screen name="RetrivePasswordVerify" component={RetrivePasswordVerifyScreen} />
+    <Stack.Screen name="RetriveResetPassword" component={RetriveResetPassworScreen} />
+    <Stack.Screen name="InvitationCode" component={InvitationCodeScreen} />
+    {/* <Stack.Screen name="Welcome" component={ThirdPartyLoginScreen} /> */}
   </Stack.Navigator>
 );
 

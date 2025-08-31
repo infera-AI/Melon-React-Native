@@ -17,6 +17,7 @@ import { useMessageModal } from '@/contexts/MessageModalContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { formatTime } from '@/utils/helpers';
 import { normalize, normalizeFontSize } from '@/utils/stylesUtil';
+import theme from '@/utils/theme';
 
 interface Music {
   id: number;
@@ -356,23 +357,32 @@ const MyWorkScreen = ({ navigation }: any) => {
         <View style={{ width: 32 }} />
       </View>
 
-      {/* Search */}
-      <View style={styles.searchBox}>
-        <Image source={require('@/assets/music/music_search_icon.png')} style={styles.searchIcon} resizeMode="contain" />
-        <TextInput
-          style={styles.searchInput}
-          placeholder={t('music.search_placeholder')}
-          placeholderTextColor="#888"
-          value={searchText}
-          onChangeText={handleSearch}
-          onSubmitEditing={clearSearch}
-        />
-        {searchText.length > 0 && (
-          <TouchableOpacity onPress={clearSearch} style={styles.clearSearchBtn}>
-            <Text style={styles.clearSearchText}>✕</Text>
-          </TouchableOpacity>
-        )}
+      <View style={styles.searchUploadContainer}>
+        {/* Search */}
+        <View style={styles.searchBox}>
+              <Image source={require('@/assets/music/music_search_icon.png')} style={styles.searchIcon} resizeMode="contain" />
+              <TextInput
+                style={styles.searchInput}
+                placeholder={t('music.search_placeholder')}
+                placeholderTextColor="#888"
+                value={searchText}
+                onChangeText={handleSearch}
+                onSubmitEditing={clearSearch}
+              />
+              {searchText.length > 0 && (
+                <TouchableOpacity onPress={clearSearch} style={styles.clearSearchBtn}>
+                  <Text style={styles.clearSearchText}>✕</Text>
+                </TouchableOpacity>
+          )}
+        </View>
+        {/* 上传按钮 */}
+        <TouchableOpacity style={styles.uploadBtn} onPress={()=>navigation.navigate('CoverUpload' as never)}>
+          <Text style={styles.uploadBtnText}>Upload</Text>
+        </TouchableOpacity>
       </View>
+
+    
+    
 
       {/* Search Results Info */}
       {/* {searchText.length > 0 && (
@@ -461,11 +471,10 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   searchBox: {
+    width: "66%",
     backgroundColor: '#222',
     height:normalize(48),
     borderRadius: normalize(12),
-    marginHorizontal: normalize(16),
-    marginBottom: normalize(18),
     paddingHorizontal: normalize(12),
     paddingVertical: normalize(6),
     justifyContent:'center',
@@ -568,6 +577,26 @@ const styles = StyleSheet.create({
   emptyText: {
     color: '#fff',
     fontSize: normalizeFontSize(15),
+  },
+  searchUploadContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: normalize(16),
+    marginBottom: normalize(18),
+  },
+  uploadBtn: {
+    width: "30%",
+    height:normalize(48),
+    backgroundColor: theme.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: normalize(12),
+  },
+  uploadBtnText: {
+    color: theme.background,
+    fontSize: normalizeFontSize(16),
+    fontWeight: '500',
   },
 });
 

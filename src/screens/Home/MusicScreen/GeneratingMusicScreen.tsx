@@ -43,7 +43,7 @@ const GeneratingMusicScreen: React.FC = () => {
   const { t } = useLanguage();
   const { lyrics, musicStyles, title } = useMusicStore.getState().musicGenerateInfo;
 
-  const { taskId, createTaskTime } = route.params;
+  const { taskId, createTaskTime } = {taskId:'',createTaskTime:0}||{};
 
   // 清理所有轮询
   const cleanupPolling = () => {
@@ -60,6 +60,7 @@ const GeneratingMusicScreen: React.FC = () => {
       clearTimeout(timeoutRef.current);
       timeoutRef.current = null;
     }
+    
   };
 
   useEffect(() => {
@@ -68,6 +69,17 @@ const GeneratingMusicScreen: React.FC = () => {
     setProgress(0)
     taskIdRef.current = taskId
     startStatusPolling();
+    
+    // 禁用返回手势，但允许程序化导航
+    const unsubscribe = navigation.addListener('beforeRemove', (e) => {
+      // 检查是否是程序化导航（如replace）
+      if (e.data.action.type === 'REPLACE') {
+        // 允许程序化导航
+        return;
+      }
+      // 阻止用户手动返回
+      e.preventDefault();
+    });
     
     // generateMusicRequest();
 
@@ -89,6 +101,7 @@ const GeneratingMusicScreen: React.FC = () => {
       // cleanupPolling();
       // subscription?.remove();
       clearTimeout(getTaskInfoTimer)
+      unsubscribe();
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -96,7 +109,8 @@ const GeneratingMusicScreen: React.FC = () => {
   const generRationFailed = () => {
     setIsGenerating(false);
     show({message: t('music.generation_failed')});
-    navigation.goBack();
+    // 由于禁用了返回功能，改为跳转到主页面
+    navigation.replace('SingerSelection',{type:'generate'});
     // 发生错误时清理轮询
     cleanupPolling();
     clearTimeout(getTaskInfoTimer);
@@ -259,9 +273,26 @@ const GeneratingMusicScreen: React.FC = () => {
     navigation.replace('MusicMain');
   };
 
+  // 阻止所有返回操作
+  const preventGoBack = () => {
+    // 不执行任何操作，阻止返回
+    return;
+  };
+
   return (
-    <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
-     <ScrollView>
+    <Modal
+      visible={true}
+      transparent={false}
+      animationType="none"
+      statusBarTranslucent={true}
+      onRequestClose={() => {
+        // 禁用返回手势，不执行任何操作
+        return;
+      }}
+      presentationStyle="fullScreen"
+    >
+      <SafeAreaView style={styles.container} edges={[]}>
+       <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
        {/* 背景图片 */}
        <Image 
         source={require('../../../assets/profile/profile_generate_bg.png')} 
@@ -292,23 +323,36 @@ const GeneratingMusicScreen: React.FC = () => {
       </View>
 
       {/* 进度百分比 */}
-      <Text style={styles.progressText}>{Math.round(progress)}%</Text>
+      <Text style={styles.progressText}>{"Estimated time 1 minute，"+Math.round(progress)}%</Text>
 
-      {/* 状态文本 */}
+      {/* 状态文本根据时间进度切换文字 */}
       <View style={styles.statusContainer}>
-        <Text style={styles.statusText}>
-           {t('music.generating_music')}
-        </Text>
+        {progress >=0 && progress < 25 && <Text style={styles.statusText}>
+          In the process of arranging music...
+        </Text>}
+        {progress >= 25 && progress < 50 && <Text style={styles.statusText}>
+          In the process of arranging music...
+        </Text>}
+        {progress >= 50 && progress < 75 && <Text style={styles.statusText}>
+          In the process of Vocal singing...
+        </Text>}
+        {progress >= 75 && progress < 100 && <Text style={styles.statusText}>
+          In the process of Editing fine-tuning...
+        </Text>}
+        {progress >= 100 && <Text style={styles.statusText}>
+         In the process of reverberating music...
+        </Text>}
       </View>
-     </ScrollView>
+            </ScrollView>
+      </SafeAreaView>
 
-     {/* 生成完成弹窗 */}
-     <Modal
-       visible={showCompletionModal}
-       transparent={true}
-       animationType="fade"
-       onRequestClose={() => setShowCompletionModal(false)}
-     >
+      {/* 生成完成弹窗 */}
+      <Modal
+        visible={showCompletionModal}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setShowCompletionModal(false)}
+      >
        <View style={styles.modalOverlay}>
          <View style={styles.modalContainer}>
            {/* 标题和描述 */}
@@ -349,8 +393,8 @@ const GeneratingMusicScreen: React.FC = () => {
            </View>
          </View>
        </View>
+       </Modal>
      </Modal>
-    </SafeAreaView>
   );
 };
 
@@ -358,7 +402,25 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#181819',
-    paddingHorizontal: normalize(24),
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 9999,
+    elevation: 9999,
+  },
+  scrollView: {
+    flex: 1,
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+  scrollContent: {
+    flexGrow: 1,
+    minHeight: '100%',
   },
   backgroundImage: {
     position: 'absolute',
@@ -372,7 +434,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginTop: normalize(10),
+    marginTop: normalize(24),
   },
   backButton: {
     width: normalize(40),

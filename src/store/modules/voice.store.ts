@@ -22,6 +22,8 @@ export interface VoiceState {
     setLocal: (lang: string) => void;
     type: VoiceType;
     setType: (type: VoiceType) => void;
+    materials: VoiceFile[];
+    setMaterials: (materials: VoiceFile[]) => void;
 }
 
 export const useVoiceStore = create<VoiceState>()(
@@ -32,5 +34,7 @@ export const useVoiceStore = create<VoiceState>()(
             setLocal: (lang) => set({local: lang}),
             type: VoiceType.CREATE,
             setType: (type) => set({type: type}),
+            materials: [],
+            setMaterials: (materials) => set({materials: materials}),
         })
 );

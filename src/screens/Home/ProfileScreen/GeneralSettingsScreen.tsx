@@ -9,6 +9,7 @@ import {
   Modal,
   Animated,
   Easing,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
@@ -17,16 +18,22 @@ import { ProfileStackParamList } from './ProfileNavigator';
 import { useMessageModal } from '@/contexts/MessageModalContext';
 import { useLanguage } from '../../../contexts/LanguageContext';
 import { normalize, normalizeFontSize } from '@/utils/stylesUtil';
+import { useTheme } from '@/contexts/ThemeContext';
+import { ThemeSelector } from '@/components/ThemeSelector';
+import { useGlobalTheme } from '@/hooks/useGlobalTheme';
 
 type GeneralSettingsScreenNavigationProp = NativeStackNavigationProp<ProfileStackParamList, 'GeneralSettings'>;
 
-const GeneralSettingsScreen: React.FC = () => {
+export const GeneralSettingsScreen: React.FC = () => {
   const navigation = useNavigation<GeneralSettingsScreenNavigationProp>();
   const [cacheSize, setCacheSize] = useState('366M');
   const [showLoadingModal, setShowLoadingModal] = useState(false);
   const rotateAnim = useRef(new Animated.Value(0)).current;
   const { show } = useMessageModal();
   const { t } = useLanguage();
+  const { colors, themeMode } = useTheme();
+  const { apply, applyItem, text, textSecondary } = useGlobalTheme();
+
   const handleBack = () => {
     navigation.goBack();
   };
@@ -56,45 +63,45 @@ const GeneralSettingsScreen: React.FC = () => {
   }, [showLoadingModal, rotateAnim]);
 
   const handleClearCache = () => {
-      // 显示加载弹窗
-      setShowLoadingModal(true);
-            
-      // 模拟清除缓存的过程
-      setTimeout(() => {
-        setCacheSize('0M');
-        setShowLoadingModal(false);
-        show({message: t('general_settings.cache_cleared_successfully')});
-      }, 3000);
+    // 显示加载弹窗
+    setShowLoadingModal(true);
+
+    // 模拟清除缓存的过程
+    setTimeout(() => {
+      setCacheSize('0M');
+      setShowLoadingModal(false);
+      show({ message: t('general_settings.cache_cleared_successfully') });
+    }, 3000);
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
+    <SafeAreaView style={apply(styles.container)} edges={['top', 'bottom']}>
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
         {/* Header */}
         <View style={styles.header}>
-          <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-            <Image 
-              source={require('../../../assets/main/page_return_icon.png')} 
+          <TouchableOpacity style={applyItem(styles.backButton)} onPress={handleBack}>
+            <Image
+              source={require('../../../assets/main/page_return_icon.png')}
               style={styles.backIcon}
             />
           </TouchableOpacity>
-          <Text style={styles.title}>{t('general_settings.general_settings')}</Text>
+          <Text style={[styles.title, text]}>{t('general_settings.general_settings')}</Text>
           <View style={styles.headerSpacer} />
         </View>
 
         {/* System Language Selection */}
-        <TouchableOpacity style={styles.settingCard} onPress={handleLanguageSelection}>
+        <TouchableOpacity style={applyItem(styles.settingCard)} onPress={handleLanguageSelection}>
           <View style={styles.settingContent}>
             <View style={styles.settingLeft}>
-              <Image 
-                source={require('../../../assets/profile/profile_setting_language.png')} 
+              <Image
+                source={require('../../../assets/profile/profile_setting_language.png')}
                 style={styles.settingIcon}
               />
-              <Text style={styles.settingTitle}>{t('general_settings.system_language_selection')}</Text>
+              <Text style={[styles.settingTitle, text]}>{t('general_settings.system_language_selection')}</Text>
             </View>
             <View style={styles.settingRight}>
-              <Image 
-                source={require('../../../assets/main/right_arrow_icon.png')} 
+              <Image
+                source={require('../../../assets/main/right_arrow_icon.png')}
                 style={styles.arrowIcon}
               />
             </View>
@@ -102,29 +109,34 @@ const GeneralSettingsScreen: React.FC = () => {
         </TouchableOpacity>
 
         {/* Clear Cache */}
-        <View style={styles.settingCard}>
+        <View style={applyItem(styles.settingCard)}>
           <View style={styles.settingContent}>
             <View style={styles.settingLeft}>
-              <Image 
-                source={require('../../../assets/profile/profile_clear_icon.png')} 
+              <Image
+                source={require('../../../assets/profile/profile_clear_icon.png')}
                 style={styles.settingIcon}
               />
-              <Text style={styles.settingTitle}>{t('general_settings.clear_the_cache')}</Text>
+              <Text style={[styles.settingTitle, text]}>{t('general_settings.clear_the_cache')}</Text>
             </View>
             <View style={styles.settingRight}>
-              <Text style={styles.cacheSize}>{cacheSize}</Text>
+              <Text style={[styles.cacheSize, textSecondary]}>{cacheSize}</Text>
               <TouchableOpacity onPress={handleClearCache}>
-                <Image 
-                  source={require('../../../assets/profile/profile_clear_clear.png')} 
+                <Image
+                  source={require('../../../assets/profile/profile_clear_clear.png')}
                   style={styles.deleteIcon}
                 />
               </TouchableOpacity>
             </View>
           </View>
-          <Text style={styles.cacheDescription}>
+          <Text style={[styles.cacheDescription, textSecondary]}>
             {t('general_settings.cache_description')}
           </Text>
         </View>
+
+        {/* Theme and Language Settings */}
+        {/* <View style={styles.section}>
+          <ThemeSelector />
+        </View> */}
       </ScrollView>
 
       {/* 清除缓存加载弹窗 */}
@@ -138,29 +150,29 @@ const GeneralSettingsScreen: React.FC = () => {
           <View style={styles.modalContainer}>
             {/* 加载动画 */}
             <View style={styles.loadingContainer}>
-                             <Animated.View
-                 style={[
-                   styles.rotatingCircle,
-                   {
-                     transform: [
-                       {
-                         rotate: rotateAnim.interpolate({
-                           inputRange: [0, 1],
-                           outputRange: ['0deg', '360deg'],
-                         }),
-                       },
-                     ],
-                   },
-                 ]}
-               >
-                                 <Image 
-                   source={require('../../../assets/profile/profile_clearloading_icon.png')} 
-                   style={styles.outerCircle}
-                   resizeMode="contain"
-                 />
+              <Animated.View
+                style={[
+                  styles.rotatingCircle,
+                  {
+                    transform: [
+                      {
+                        rotate: rotateAnim.interpolate({
+                          inputRange: [0, 1],
+                          outputRange: ['0deg', '360deg'],
+                        }),
+                      },
+                    ],
+                  },
+                ]}
+              >
+                <Image
+                  source={require('../../../assets/profile/profile_clearloading_icon.png')}
+                  style={styles.outerCircle}
+                  resizeMode="contain"
+                />
               </Animated.View>
             </View>
-            
+
             {/* 文本 */}
             <Text style={styles.loadingText}>{t('general_settings.cleaning_cache')}</Text>
           </View>

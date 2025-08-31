@@ -95,3 +95,64 @@ export function polishLyrics(params: PolishLyricsParams) {
     { headers: { 'Content-Type': 'multipart/form-data' } }
   );
 }
+
+// 翻唱歌曲
+export function coverMusic(params: { voice_print_id?: string; music_file?: any }) {
+  const formData = new FormData();
+  formData.append('voice_print_id', params.voice_print_id);
+  formData.append('music_file', {
+    uri: params.music_file.uri,
+    name: params.music_file.name,
+    type: params.music_file.type,
+  });
+  return http.post<any>(
+    API_ENDPOINTS.MUSIC.COVER_MUSIC,
+    formData,
+    { headers: { 'Content-Type': 'multipart/form-data' } }
+  );
+}
+
+// 获取翻唱歌曲状态
+export function getCoverMusicStatus(params?: { task_id?: string }) {
+  return http.get<any>(API_ENDPOINTS.MUSIC.GET_COVER_MUSIC_STATUS, params);
+}
+
+// 生成歌曲
+export function generateMusicOS(params: { 
+  lyrics: string; 
+  genres: string[]; 
+  work_title?: string | null; 
+  voice_print_id?: number 
+}) {
+  const formData = new FormData();
+  formData.append('lyrics', params.lyrics);
+  formData.append('genres', JSON.stringify(params.genres));
+  formData.append('work_title', params.work_title);
+  formData.append('voice_print_id', params.voice_print_id?.toString() || '');
+  return http.post<any>(API_ENDPOINTS.MUSIC.GENERATE_MUSIC_OS, formData, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  });
+}
+
+// 保存翻唱歌曲
+export function saveCoverMusicOS(params: { task_id: string }) {
+  const formData = new FormData();
+  formData.append('task_id', params.task_id);
+  return http.post<any>(API_ENDPOINTS.MUSIC.SAVE_COVER_MUSIC_OS, formData, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  });
+}
+
+// 获取生成歌曲状态
+export function getGenerateMusicOSStatus(params?: { task_id?: string }) {
+  return http.get<any>(API_ENDPOINTS.MUSIC.GET_GENERATE_MUSIC_OS_STATUS, params);
+}
+
+// 保存生成歌曲
+export function saveGenerateMusicOS(params: { task_id: string }) {
+  const formData = new FormData();
+  formData.append('task_id', params.task_id);
+  return http.post<any>(API_ENDPOINTS.MUSIC.SAVE_GENERATE_MUSIC_OS, formData, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  });
+}

@@ -125,20 +125,14 @@ export interface RegisterRequest {
 
 // 忘记密码重设参数
 export interface ForgotPasswordResetRequest {
-  /**
-   * 邮箱地址或手机号码
-   */
+  auth_type: string;
   identifier: string;
-  /**
-   * 新密码
-   */
   new_password: string;
-  /**
-   * 验证码
-   */
-  verification_code: string;
+  confirm_password: string;
+  action_token: string;
   [property: string]: any;
 }
+
 
 // 验证码登录请求参数
 export interface LoginByVerificationCodeRequest {
