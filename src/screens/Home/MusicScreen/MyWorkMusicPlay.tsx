@@ -10,6 +10,7 @@ import {
   Modal,
   Pressable,
   TextInput,
+  ScrollView,
 } from "react-native";
 import { useFocusEffect } from '@react-navigation/native';
 import Sound from "react-native-sound";
@@ -23,6 +24,7 @@ import theme from "@/utils/theme";
 import { normalize, normalizeFontSize } from '@/utils/stylesUtil';
 import { MusicDownloader } from '@/utils/MusicDownloader';
 import FullScreenLoading from "@/components/FullScreenLoader";
+import { useMusicStore } from '@/store/modules/music.store';
 
 type Music = {
   id: number;
@@ -105,6 +107,8 @@ const MyWorkMusicPlay = ({ navigation, route }: any) => {
   const [showEditModal, setShowEditModal] = useState(false);
   // 编辑歌曲名输入
   const [editTitle, setEditTitle] = useState('');
+
+  const { setGenerateMusicType, setMusicGenerateInfo } = useMusicStore.getState();
 
   // 秒数转换
   const timeToSec = (t: string) => {
@@ -452,13 +456,13 @@ const MyWorkMusicPlay = ({ navigation, route }: any) => {
       }
       setMusicInfo(info);
       console.log(info, 'info')
-      console.log(buildShareUrl(), 'buildShareUrl')
+      // console.log(buildShareUrl(), 'buildShareUrl')
       return info; // 返回获取到的音乐信息
     } catch (error) {
       console.log(error);
       return null;
     }
-  }, [musicInfo.id]);
+  }, [musicInfo.id,]);
 
   const handleDownload = async () => {
     setDownloading(true);
@@ -488,6 +492,16 @@ const MyWorkMusicPlay = ({ navigation, route }: any) => {
       console.error('下载出错:', error);
     }
   };
+
+  const handleCoverMusic = () => {
+    setGenerateMusicType('generate');
+    setMusicGenerateInfo({
+      title: musicInfo.title,
+      lyrics: musicInfo.lyrics,
+      musicStyles: musicInfo.genres,
+    });
+    navigation.navigate('SingerSelection', { type: 'generate' });
+  }
 
   useEffect(() => {
     if (music.id) {
@@ -538,7 +552,7 @@ const MyWorkMusicPlay = ({ navigation, route }: any) => {
           <TouchableOpacity onPress={() => setShowDeleteModal(true)}>
             <Image source={img_music_delete} style={styles.infoIcon} />
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => { navigation.navigate('SingerSelection', { type: 'generate' }) }}>
+          <TouchableOpacity onPress={handleCoverMusic}>
             <Image source={img_music_save} style={styles.infoIcon} />
           </TouchableOpacity>
           <TouchableOpacity onPress={() => setShowShareModal(true)}>
@@ -548,17 +562,27 @@ const MyWorkMusicPlay = ({ navigation, route }: any) => {
       </View>
 
       <View style={styles.genersCard}>
-        <View style={styles.tagsContainer}>
-          <Text
-            style={[
-              styles.tags,
-              !isGenresExpanded && styles.tagsCollapsed
-            ]}
-            numberOfLines={isGenresExpanded ? undefined : 1}
-            ellipsizeMode="tail"
-          >
-            {musicInfo.genres?.join(", ")}
-          </Text>
+        <View style={[styles.tagsContainer, { minHeight: isGenresExpanded ? normalize(30) : undefined }]}>
+          {isGenresExpanded ? (
+            // 展开状态：完整显示，不受宽度限制
+            <Text
+              style={[styles.tags, styles.tagsExpanded]}
+              // 移除所有可能限制文本显示的属性
+              allowFontScaling={true}
+              adjustsFontSizeToFit={false}
+            >
+              {musicInfo.genres?.join(", ")}
+            </Text>
+          ) : (
+            // 折叠状态：单行显示，带省略号
+            <Text
+              style={[styles.tags, styles.tagsCollapsed]}
+              numberOfLines={1}
+              ellipsizeMode="tail"
+            >
+              {musicInfo.genres?.join(", ")}
+            </Text>
+          )}
 
           <TouchableOpacity
             style={styles.expandButton}
@@ -579,7 +603,7 @@ const MyWorkMusicPlay = ({ navigation, route }: any) => {
             {getActiveLyricIndex() + 1} / {lyricArr.length}
           </Text>
         </View> */}
-        <FlatList
+        {/* <FlatList
           style={styles.lyricScroll}
           data={lyricArr}
           keyExtractor={(_, idx) => idx.toString()}
@@ -604,11 +628,6 @@ const MyWorkMusicPlay = ({ navigation, route }: any) => {
                 >
                   {item.text}
                 </Text>
-                {/* {isActive && (
-                  <Text style={styles.lyricTime}>
-                    {secToTime(item.startTime)} - {secToTime(item.endTime)}
-                  </Text>
-                )} */}
               </View>
             );
           }}
@@ -620,7 +639,10 @@ const MyWorkMusicPlay = ({ navigation, route }: any) => {
           ref={lyricScrollRef}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.lyricContainer}
-        />
+        /> */}
+        <ScrollView style={styles.lyricSection}>
+          <Text style={styles.lyrics}>{musicInfo.lyrics}</Text>
+        </ScrollView>
       </View>
 
       {/* 播放进度条 */}
@@ -837,16 +859,16 @@ const styles = StyleSheet.create({
   avatarBox: {
     width: normalize(100),
     height: normalize(100),
-    borderRadius: normalize(16),
+    borderRadius: normalize(50),
     backgroundColor: "#FFE89D",
     justifyContent: "center",
     alignItems: "center",
     marginRight: normalize(14),
   },
   avatar: {
-    width: normalize(72),
-    height: normalize(72),
-    borderRadius: normalize(12),
+    width: normalize(100),
+    height: normalize(100),
+    borderRadius: normalize(50),
     backgroundColor: "#FFE89D",
   },
   infoMain: {
@@ -897,6 +919,16 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingRight: normalize(40),
     width: '100%',
+  },
+  tagsExpanded: {
+    flex: 1,
+    flexShrink: 0,  // 展开时不收缩
+    flexWrap: 'wrap',  // 允许换行
+    alignSelf: 'flex-start',  // 从左边开始对齐
+    width: '100%',  // 确保占满容器宽度
+    maxWidth: '100%',  // 最大宽度限制
+    paddingRight: normalize(50),  // 为展开按钮留出空间
+    lineHeight: normalize(18),  // 设置行高
   },
   tagsCollapsed: {
     flex: 1,

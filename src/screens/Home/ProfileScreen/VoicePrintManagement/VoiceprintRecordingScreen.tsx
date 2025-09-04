@@ -124,54 +124,54 @@ const RecordingScreen: React.FC = () => {
       const uri = await audioRecorderPlayer.startRecorder(path, audioSet);
       setRecordingPath(uri);
       console.log('开始录音:', uri);
-      
+
       // 记录开始时间
       recordingStartTime.current = Date.now();
-      
-              // 使用 setInterval 实时更新录音时间
-        timerInterval.current = setInterval(() => {
-          const elapsedTime = Math.floor((Date.now() - recordingStartTime.current) / 1000);
-          const totalTime = accumulatedTime.current + elapsedTime;
-          setRealRecordingTime(totalTime);
-          realRecordingTimeRef.current = totalTime;
-          setForceUpdate(prev => prev + 1); // 强制重新渲染
-          console.log('实时录音时间:', totalTime);
-          
-          if (totalTime > MAXDURATION) {
-            show({message: t('recording.recording_time_exceeds_maximum')});  
-            if (handleStopRecordingRef.current) {
-              handleStopRecordingRef.current();
-            }
+
+      // 使用 setInterval 实时更新录音时间
+      timerInterval.current = setInterval(() => {
+        const elapsedTime = Math.floor((Date.now() - recordingStartTime.current) / 1000);
+        const totalTime = accumulatedTime.current + elapsedTime;
+        setRealRecordingTime(totalTime);
+        realRecordingTimeRef.current = totalTime;
+        setForceUpdate(prev => prev + 1); // 强制重新渲染
+        console.log('实时录音时间:', totalTime);
+
+        if (totalTime > MAXDURATION) {
+          show({ message: t('recording.recording_time_exceeds_maximum') });
+          if (handleStopRecordingRef.current) {
+            handleStopRecordingRef.current();
           }
-        }, 16); // 每16ms更新一次，约60fps，获得更流畅的更新
-      
+        }
+      }, 16); // 每16ms更新一次，约60fps，获得更流畅的更新
+
       return true;
     } catch (error) {
       console.error('开始录音失败:', error);
-      show({message: t('recording.cannot_start_recording')});  
+      show({ message: t('recording.cannot_start_recording') });
       return false;
     }
   };
- 
-   
-   const handleStartRecording = async () => {
-     const permission =
-       Platform.OS === 'ios'
-         ? PERMISSIONS.IOS.MICROPHONE
-         : PERMISSIONS.ANDROID.RECORD_AUDIO;
- 
-     const result = await check(permission);
-     if (result === RESULTS.GRANTED) {
-       // 权限已通过，开始录音
-       console.log('权限已通过');
- 
-       // 如果是第一次录音，重置时间
-     //  if (!isPaused.current) {
-        setRealRecordingTime(0);
-        realRecordingTimeRef.current = 0;
-        accumulatedTime.current = 0;
-     //  }
-      
+
+
+  const handleStartRecording = async () => {
+    const permission =
+      Platform.OS === 'ios'
+        ? PERMISSIONS.IOS.MICROPHONE
+        : PERMISSIONS.ANDROID.RECORD_AUDIO;
+
+    const result = await check(permission);
+    if (result === RESULTS.GRANTED) {
+      // 权限已通过，开始录音
+      console.log('权限已通过');
+
+      // 如果是第一次录音，重置时间
+      //  if (!isPaused.current) {
+      setRealRecordingTime(0);
+      realRecordingTimeRef.current = 0;
+      accumulatedTime.current = 0;
+      //  }
+
       // 开始真实录音
       const success = await startRecording();
       if (success) {
@@ -179,74 +179,74 @@ const RecordingScreen: React.FC = () => {
         setIsRecordingValid(false);
         isPaused.current = false;
       }
-       
-       return;
-     }
- 
-     if (result === RESULTS.DENIED) {
-       const newResult = await request(permission);
- 
-       if (newResult === RESULTS.GRANTED) {
-         // 首次获取权限成功
-         console.log('获得麦克风权限');
-         
-       } else {
-         console.log('未授权麦克风');
-         show({
-           message: t('translate_screen.mic_permission_error')
-         })
-       }
-       return;
-     }
- 
-     if (result === RESULTS.BLOCKED) {
-       show({
-         message: t('translate_screen.mic_permission_error')
-       })
-       return;
-     }
+
+      return;
+    }
+
+    if (result === RESULTS.DENIED) {
+      const newResult = await request(permission);
+
+      if (newResult === RESULTS.GRANTED) {
+        // 首次获取权限成功
+        console.log('获得麦克风权限');
+
+      } else {
+        console.log('未授权麦克风');
+        show({
+          message: t('translate_screen.mic_permission_error')
+        })
+      }
+      return;
+    }
+
+    if (result === RESULTS.BLOCKED) {
+      show({
+        message: t('translate_screen.mic_permission_error')
+      })
+      return;
+    }
   };
 
   // 停止录音
   const stopRecording = useCallback(async () => {
-  try {
-    const result = await audioRecorderPlayer.stopRecorder();
-    console.log('停止录音:', result);
-    
-    // 移除录音监听器
-    audioRecorderPlayer.removeRecordBackListener();
-    
-    return result;
-  } catch (error) {
-    console.error('停止录音失败:', error);
-    show({message: t('recording.cannot_stop_recording')});  
-    return null;
-  }
-}, [audioRecorderPlayer, show, t]);
-  
+    try {
+      const result = await audioRecorderPlayer.stopRecorder();
+      console.log('停止录音:', result);
+
+      // 移除录音监听器
+      audioRecorderPlayer.removeRecordBackListener();
+
+      return result;
+    } catch (error) {
+      console.error('停止录音失败:', error);
+      show({ message: t('recording.cannot_stop_recording') });
+      return null;
+    }
+  }, [audioRecorderPlayer, show, t]);
+
   const handleStopRecording = useCallback(async () => {
     setIsRecording(false);
     isPaused.current = true;
-    
+
     // 停止定时器
     if (timerInterval.current) {
       clearInterval(timerInterval.current);
       timerInterval.current = null;
     }
-    
+
     // 计算当前录音时长并累加
     const currentElapsedTime = Math.floor((Date.now() - recordingStartTime.current) / 1000);
     accumulatedTime.current += currentElapsedTime;
-    
+
     const currentRealTime = realRecordingTimeRef.current;
     console.log('暂停录音，累计时间:', currentRealTime);
-    
+
     // 停止真实录音
     const recordingFile = await stopRecording();
-    
+
     if (recordingFile && recordingFile.length > 0) {
       console.log('录音片段完成:', recordingFile);
-      
+
       // 保存录音文件片段
       try {
         const recordFile = {
@@ -254,69 +254,69 @@ const RecordingScreen: React.FC = () => {
           name: `${Date.now()}.m4a`,
           type: 'audio/m4a',
         }
-      //  const newRecordFileList = [...recordFileList];
-      //  newRecordFileList.push(recordFile);
+        //  const newRecordFileList = [...recordFileList];
+        //  newRecordFileList.push(recordFile);
         setRecordFileList([recordFile]);
         console.log('录音片段列表:', [recordFile]);
-        
+
       } catch (error) {
         console.error('保存录音文件失败:', error);
-        show({message: t('recording.recording_file_save_failed')});  
+        show({ message: t('recording.recording_file_save_failed') });
       }
     }
   }, [stopRecording, recordFileList, show, t]);
 
- // 清理录音相关数据
- const cleanupRecordingData = useCallback(async () => {
-  try {
-    // 如果正在录音，先停止录音
-    if (isRecording) {
-      // 直接停止录音，不调用 handleStopRecording 避免循环依赖
+  // 清理录音相关数据
+  const cleanupRecordingData = useCallback(async () => {
+    try {
+      // 如果正在录音，先停止录音
+      if (isRecording) {
+        // 直接停止录音，不调用 handleStopRecording 避免循环依赖
+        setIsRecording(false);
+        isPaused.current = true;
+
+        // 停止定时器
+        if (timerInterval.current) {
+          clearInterval(timerInterval.current);
+          timerInterval.current = null;
+        }
+
+        // 停止真实录音
+        try {
+          await audioRecorderPlayer.stopRecorder();
+          audioRecorderPlayer.removeRecordBackListener();
+        } catch (stopError) {
+          console.log('停止录音时出错（可能是正常的）:', stopError);
+        }
+      }
+
+      // 清理录音文件列表
+      setRecordFileList([]);
+
+      // 重置录音状态
       setIsRecording(false);
-      isPaused.current = true;
-      
-      // 停止定时器
+      setIsRecordingValid(false);
+      setRealRecordingTime(0);
+      setRecordingPath('');
+
+      // 重置累计时间
+      accumulatedTime.current = 0;
+      isPaused.current = false;
+
+      // 清理定时器
       if (timerInterval.current) {
         clearInterval(timerInterval.current);
         timerInterval.current = null;
       }
-      
-      // 停止真实录音
-      try {
-        await audioRecorderPlayer.stopRecorder();
-        audioRecorderPlayer.removeRecordBackListener();
-      } catch (stopError) {
-        console.log('停止录音时出错（可能是正常的）:', stopError);
-      }
+
+      // 清理合并的音频路径
+      mergedAudioPathRef.current = '';
+
+      console.log('录音数据清理完成');
+    } catch (error) {
+      console.error('清理录音数据失败:', error);
     }
-    
-    // 清理录音文件列表
-    setRecordFileList([]);
-    
-    // 重置录音状态
-    setIsRecording(false);
-    setIsRecordingValid(false);
-    setRealRecordingTime(0);
-    setRecordingPath('');
-    
-    // 重置累计时间
-    accumulatedTime.current = 0;
-    isPaused.current = false;
-    
-    // 清理定时器
-    if (timerInterval.current) {
-      clearInterval(timerInterval.current);
-      timerInterval.current = null;
-    }
-    
-    // 清理合并的音频路径
-    mergedAudioPathRef.current = '';
-    
-    console.log('录音数据清理完成');
-  } catch (error) {
-    console.error('清理录音数据失败:', error);
-  }
-}, [isRecording, audioRecorderPlayer]);
+  }, [isRecording, audioRecorderPlayer]);
 
   // 重新录制功能
   const handleRerecord = async () => {
@@ -326,8 +326,8 @@ const RecordingScreen: React.FC = () => {
   };
 
   const handleNext = async () => {
-    if(isRecording){
-      show({message: t('recording.please_stop_recording')});  
+    if (isRecording) {
+      show({ message: t('recording.please_stop_recording') });
       return;
     }
     useVoiceStore.getState().setMaterials([...useVoiceStore.getState().materials, recordFileList[0]]);
@@ -393,85 +393,85 @@ const RecordingScreen: React.FC = () => {
   return (
     <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
       <ScrollView>
-         {/* 顶部导航栏 */}
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-          <Image 
-            source={require('@/assets/main/page_return_icon.png')} 
-            style={styles.backIcon}
-          />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Recording timbre</Text>
-        <View style={styles.headerSpacer} />
-      </View>
-
-      <View style={styles.recordingStatus}>
-        <Text style={styles.recordingStatusText}>
-           After reading all the content aloud, click Next
-        </Text>
-      </View>
-
-      <View style={styles.transcriptContainer}>
-        <Text style={styles.transcriptText}>
-          {voiceprintEnrollmentConfig?.phrases?.[currentSegment - 1] || 'The transcript of the recording is displayed here'}
-        </Text>
-      </View>
-
-      <View style={styles.recordingTimeContainer}>
-        <Image source={require('@/assets/profile/profile_record_voice_icon.png')} style={styles.recordingIcon} />
-        <Text style={styles.recordingTime}>{formatTime( realRecordingTime)}</Text>
-        <Image source={require('@/assets/profile/profile_record_voice_icon.png')} style={styles.recordingIcon} />
-      </View>
-
-      <View style={styles.recordingControls}>
-        <View style={styles.recordingButtonContainer}>
-          {!isRecording ? (
-            <TouchableOpacity
-              style={styles.recordingButton}
-              onPress={handleStartRecording}
-              activeOpacity={0.8}
-            >
-              <View style={styles.recordingButtonInner} />
-            </TouchableOpacity>
-          ) : (
-            <Animated.View
-              style={[
-                styles.recordingButton,
-                {
-                  transform: [{ scale: pulseAnim }]
-                }
-              ]}
-            >
-              <TouchableOpacity
-                style={styles.recordingButtonInner}
-                onPress={handleStopRecording}
-                activeOpacity={0.8}
-               />
-            </Animated.View>
-          )}
+        {/* 顶部导航栏 */}
+        <View style={styles.header}>
+          <TouchableOpacity style={styles.backButton} onPress={handleBack}>
+            <Image
+              source={require('@/assets/main/page_return_icon.png')}
+              style={styles.backIcon}
+            />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>Recording timbre</Text>
+          <View style={styles.headerSpacer} />
         </View>
-      </View>
 
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.rerecordButton} onPress={handleRerecord}>
-          <Text style={styles.rerecordButtonText}>Re-record</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity 
-          style={[
-            styles.nextButton,
-           isRecording && styles.nextButtonActive
-          ]} 
-          onPress={handleNext}
-        >
-          <Text style={[
-            styles.nextButtonText,
-            isRecording && styles.nextButtonTextActive
-          ]}>
-            Done
+        <View style={styles.recordingStatus}>
+          <Text style={styles.recordingStatusText}>
+            After reading all the content aloud, click Next
           </Text>
-        </TouchableOpacity>
-      </View>
+        </View>
+
+        <View style={styles.transcriptContainer}>
+          <Text style={styles.transcriptText}>
+            {voiceprintEnrollmentConfig?.phrases?.[currentSegment - 1] || 'The transcript of the recording is displayed here'}
+          </Text>
+        </View>
+
+        <View style={styles.recordingTimeContainer}>
+          <Image source={require('@/assets/profile/profile_record_voice_icon.png')} style={styles.recordingIcon} />
+          <Text style={styles.recordingTime}>{formatTime(realRecordingTime)}</Text>
+          <Image source={require('@/assets/profile/profile_record_voice_icon.png')} style={styles.recordingIcon} />
+        </View>
+
+        <View style={styles.recordingControls}>
+          <View style={styles.recordingButtonContainer}>
+            {!isRecording ? (
+              <TouchableOpacity
+                style={styles.recordingButton}
+                onPress={handleStartRecording}
+                activeOpacity={0.8}
+              >
+                <View style={styles.recordingButtonInner} />
+              </TouchableOpacity>
+            ) : (
+              <Animated.View
+                style={[
+                  styles.recordingButton,
+                  {
+                    transform: [{ scale: pulseAnim }]
+                  }
+                ]}
+              >
+                <TouchableOpacity
+                  style={styles.recordingButtonInner}
+                  onPress={handleStopRecording}
+                  activeOpacity={0.8}
+                />
+              </Animated.View>
+            )}
+          </View>
+        </View>
+
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity style={styles.rerecordButton} onPress={handleRerecord}>
+            <Text style={styles.rerecordButtonText}>Re-record</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[
+              styles.nextButton,
+              !isRecording && styles.nextButtonActive
+            ]}
+            onPress={handleNext}
+          >
+            <Text style={[
+              styles.nextButtonText,
+              !isRecording && styles.nextButtonTextActive
+            ]}>
+              Done
+            </Text>
+          </TouchableOpacity>
+        </View>
       </ScrollView>
     </SafeAreaView>
   );

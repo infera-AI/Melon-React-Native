@@ -33,7 +33,7 @@ const img_music_back_btn = require("../../../../assets/images/music_back_btn.png
 // const { width } = Dimensions.get("window");
 
 const MusicPlayScreen = ({ navigation, route }: any) => {
-  const { music={} ,songs=[]} = route.params||{};
+  const { music = {}, songs = [] } = route.params || {};
   const [sound, setSound] = useState<Sound | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -57,18 +57,18 @@ const MusicPlayScreen = ({ navigation, route }: any) => {
         sound.release();
         setSound(null);
       }
-      
+
       // 清理定时器
       if (progressInterval.current) {
         clearInterval(progressInterval.current);
         progressInterval.current = null;
       }
-      
+
       // 重置播放状态
       setIsPlaying(false);
       setCurrentTime(0);
       setIsSliding(false);
-      
+
       console.log('音频数据清理完成');
     } catch (error) {
       console.error('清理音频数据失败:', error);
@@ -82,8 +82,8 @@ const MusicPlayScreen = ({ navigation, route }: any) => {
   // 风格标签展开状态
   const [isGenresExpanded, setIsGenresExpanded] = useState(false);
 
-   // 秒数转换
-   const timeToSec = (t: string) => {
+  // 秒数转换
+  const timeToSec = (t: string) => {
     const [min, sec] = t.split(":").map(Number);
     return min * 60 + sec;
   };
@@ -97,19 +97,19 @@ const MusicPlayScreen = ({ navigation, route }: any) => {
   // 解析歌词数据 - 支持新的work_lyrics格式
   const lyricArr = React.useMemo(() => {
     // 如果music.lyrics是work_lyrics格式
-    if (currentMusic.lyrics && Array.isArray(currentMusic.lyrics)) {
-      const lyricsData = currentMusic.lyrics; // 取第一个语言版本
-      return lyricsData.map((item: any) => {
+    // if (currentMusic.lyrics && Array.isArray(currentMusic.lyrics)) {
+    //   const lyricsData = currentMusic.lyrics; // 取第一个语言版本
+    //   return lyricsData.map((item: any) => {
 
-        const [startTime, endTime, text] = item;
-          return {
-            startTime: timeToSec(startTime),
-            endTime: timeToSec(endTime),
-            text: text,
-          }
-      });
-    }
-    return []
+    //     const [startTime, endTime, text] = item;
+    //     return {
+    //       startTime: timeToSec(startTime),
+    //       endTime: timeToSec(endTime),
+    //       text: text,
+    //     }
+    //   });
+    // }
+    return [music.lyrics]
   }, [currentMusic.lyrics]);
 
   // 播放音乐
@@ -164,10 +164,10 @@ const MusicPlayScreen = ({ navigation, route }: any) => {
     console.log('开始获取音频时长，URI:', currentMusic.url);
     try {
       const durationTime = await AudioDurationManager.getDuration(currentMusic.url);
-      console.log(durationTime,'durationTime')
+      console.log(durationTime, 'durationTime')
       setDuration(durationTime);
     } catch (error) {
-      console.log(error,'error')
+      console.log(error, 'error')
     }
   }, [currentMusic.url]);
 
@@ -217,7 +217,7 @@ const MusicPlayScreen = ({ navigation, route }: any) => {
   const getActiveLyricIndex = useCallback(() => {
     let activeIndex = 0;
     for (let i = 0; i < lyricArr.length; i++) {
-      const lyric = lyricArr[i];
+      const lyric = lyricArr[i] || {};
       // 检查当前时间是否在歌词的时间范围内
       if (currentTime >= lyric.startTime && currentTime <= lyric.endTime) {
         activeIndex = i;
@@ -235,7 +235,7 @@ const MusicPlayScreen = ({ navigation, route }: any) => {
   useEffect(() => {
     if (lyricScrollRef.current && lyricArr.length > 0) {
       const activeIndex = getActiveLyricIndex();
-      
+
       // 滚动到当前歌词行
       lyricScrollRef.current.scrollToIndex({
         index: Math.max(0, activeIndex - 1), // 提前1行显示
@@ -279,7 +279,7 @@ const MusicPlayScreen = ({ navigation, route }: any) => {
           onComplete: (result) => {
             setDownloading(false);
             console.log('下载完成:', result.localPath);
-            show({ message: t('music.download_success')});
+            show({ message: t('music.download_success') });
           },
           onError: (error) => {
             setDownloading(false);
@@ -294,48 +294,49 @@ const MusicPlayScreen = ({ navigation, route }: any) => {
   };
 
   //切换歌曲
- const handleSwitchMusic = (type:string) => {
-  // 记录当前是否正在播放
-  const wasPlaying = isPlaying;
-  
-  // 停止当前播放
-  if (sound) {
-    sound.stop();
-    sound.release();
-    setSound(null);
-  }
-  setIsPlaying(false);
-  setCurrentTime(0);
-  
-  // 清除进度监听
-  if (progressInterval.current) {
-    clearInterval(progressInterval.current);
+  const handleSwitchMusic = (type: string) => {
+    // 记录当前是否正在播放
+    const wasPlaying = isPlaying;
+
+    // 停止当前播放
+    if (sound) {
+      sound.stop();
+      sound.release();
+      setSound(null);
+    }
+    setIsPlaying(false);
+    setCurrentTime(0);
+
+    // 清除进度监听
+    if (progressInterval.current) {
+      clearInterval(progressInterval.current);
+    }
+
+    // 切换歌曲
+    if (type === 'prev') {
+      const index = songs.findIndex((item: any) => item.id === currentMusic.id);
+      const newIndex = index - 1 < 0 ? songs.length - 1 : index - 1;
+      setCurrentMusic(songs[newIndex]);
+      console.log(songs[newIndex], 'songs[newIndex]')
+    } else {
+      const index = songs.findIndex((item: any) => item.id === currentMusic.id);
+      const newIndex = index + 1 > songs.length - 1 ? 0 : index + 1;
+      setCurrentMusic(songs[newIndex]);
+    }
+
+    // 如果之前正在播放，则自动播放新歌曲
+    if (wasPlaying) {
+      // 等待一下让新的音乐信息加载完成
+      setTimeout(() => {
+        handlePlayAudio();
+      }, 100);
+    }
   }
 
-
-  
-  // 切换歌曲
-  if(type==='prev'){
-    const index = songs.findIndex((item:any)=>item.id===currentMusic.id);
-    const newIndex = index-1<0?songs.length-1:index-1;
-    setCurrentMusic(songs[newIndex]);
-  }else{
-    const index = songs.findIndex((item:any)=>item.id===currentMusic.id);
-    const newIndex = index+1>songs.length-1?0:index+1;
-    setCurrentMusic(songs[newIndex]);
-  }
-  
-  // 如果之前正在播放，则自动播放新歌曲
-  if (wasPlaying) {
-    // 等待一下让新的音乐信息加载完成
-    setTimeout(() => {
-      handlePlayAudio();
-    }, 100);
-  }
-}
+  console.log(lyricArr, 'lyricArr')
 
   return (
-    <SafeAreaView style={styles.container} edges={['top','bottom']}>
+    <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
       {/* Header */}
       <View style={styles.headerRow}>
         <TouchableOpacity
@@ -371,7 +372,7 @@ const MusicPlayScreen = ({ navigation, route }: any) => {
               {currentMusic.genres?.join(", ")}
             </Text>
           </View>
-      </View>
+        </View>
         <View style={styles.infoSideIcons}>
           {/* <TouchableOpacity onPress={handleSaveMusic}>
             <Image source={img_music_save} style={styles.infoIcon} />
@@ -383,26 +384,36 @@ const MusicPlayScreen = ({ navigation, route }: any) => {
       </View>
 
       <View style={styles.genersCard}>
-        <View style={styles.tagsContainer}>
-          <Text 
-            style={[
-              styles.tags,
-              !isGenresExpanded && styles.tagsCollapsed
-            ]}
-            numberOfLines={isGenresExpanded ? undefined : 1}
-            ellipsizeMode="tail"
-          >
-            {currentMusic.genres?.join(", ")}
-          </Text>
-          
-            <TouchableOpacity 
-              style={styles.expandButton}
-              onPress={() => setIsGenresExpanded(!isGenresExpanded)}
-              activeOpacity={0.7}
+        <View style={[styles.tagsContainer, { minHeight: isGenresExpanded ? normalize(30) : undefined }]}>
+          {isGenresExpanded ? (
+            // 展开状态：完整显示，不受宽度限制
+            <Text
+              style={[styles.tags, styles.tagsExpanded]}
+              // 移除所有可能限制文本显示的属性
+              allowFontScaling={true}
+              adjustsFontSizeToFit={false}
             >
-              <Image source={isGenresExpanded?require('@/assets/profile/points_dropup_icon.png'):require('@/assets/profile/points_dropdown_icon.png')} style={styles.expandButtonImg} />
-            </TouchableOpacity>
-     
+              {currentMusic.genres?.join(", ")}
+            </Text>
+          ) : (
+            // 折叠状态：单行显示，带省略号
+            <Text
+              style={[styles.tags, styles.tagsCollapsed]}
+              numberOfLines={1}
+              ellipsizeMode="tail"
+            >
+              {currentMusic.genres?.join(", ")}
+            </Text>
+          )}
+
+          <TouchableOpacity
+            style={styles.expandButton}
+            onPress={() => setIsGenresExpanded(!isGenresExpanded)}
+            activeOpacity={0.7}
+          >
+            <Image source={isGenresExpanded ? require('@/assets/profile/points_dropup_icon.png') : require('@/assets/profile/points_dropdown_icon.png')} style={styles.expandButtonImg} />
+          </TouchableOpacity>
+
         </View>
       </View>
 
@@ -422,7 +433,7 @@ const MusicPlayScreen = ({ navigation, route }: any) => {
             const activeIndex = getActiveLyricIndex();
             const isActive = index === activeIndex;
             const isPast = index < activeIndex;
-            
+
             return (
               <View style={styles.lyricItem}>
                 <Text
@@ -437,7 +448,7 @@ const MusicPlayScreen = ({ navigation, route }: any) => {
                     },
                   ]}
                 >
-                  {item.text}
+                  {item}
                 </Text>
                 {/* {isActive && (
                   <Text style={styles.lyricTime}>
@@ -491,7 +502,7 @@ const MusicPlayScreen = ({ navigation, route }: any) => {
 
       {/* 播放控制 */}
       <View style={styles.controlRow}>
-        <TouchableOpacity onPress={()=>handleSwitchMusic('prev')}>
+        <TouchableOpacity onPress={() => handleSwitchMusic('prev')}>
           <Image source={img_last_song} style={styles.controlImg} />
         </TouchableOpacity>
         <TouchableOpacity onPress={handlePlayPause}>
@@ -500,7 +511,7 @@ const MusicPlayScreen = ({ navigation, route }: any) => {
             style={styles.playImg}
           />
         </TouchableOpacity>
-        <TouchableOpacity onPress={()=>handleSwitchMusic('next')}>
+        <TouchableOpacity onPress={() => handleSwitchMusic('next')}>
           <Image source={img_next_song} style={styles.controlImg} />
         </TouchableOpacity>
       </View>
@@ -523,7 +534,7 @@ const MusicPlayScreen = ({ navigation, route }: any) => {
                 style={styles.cancelBtn}
                 onPress={() => setShowDeleteModal(false)}
               >
-                      <Text style={styles.cancelBtnText}>{t('music.cancel')}</Text>
+                <Text style={styles.cancelBtnText}>{t('music.cancel')}</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.okBtn}
@@ -532,7 +543,7 @@ const MusicPlayScreen = ({ navigation, route }: any) => {
                   // TODO: 删除逻辑
                 }}
               >
-               <Text style={styles.okBtnText}>{t('music.ok')}</Text>
+                <Text style={styles.okBtnText}>{t('music.ok')}</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -570,13 +581,13 @@ const MusicPlayScreen = ({ navigation, route }: any) => {
                   setShowShareModal(false)
                 }}
               >
-               <Text style={styles.copyBtnText}>{t('music.copy_link')}</Text>
+                <Text style={styles.copyBtnText}>{t('music.copy_link')}</Text>
               </TouchableOpacity>
             </View>
           </View>
         </View>
       </Modal>
-      <FullScreenLoading visible={downloading} progress={progress}/>
+      <FullScreenLoading visible={downloading} progress={progress} />
     </SafeAreaView>
   );
 };
@@ -625,31 +636,31 @@ const styles = StyleSheet.create({
     marginHorizontal: normalize(16),
     padding: normalize(16),
     flexDirection: "row",
-    alignItems: "center",
+    alignItems: "flex-start",  // 改为flex-start，允许内容向上扩展
     marginBottom: normalize(18),
   },
   avatarBox: {
     width: normalize(100),
     height: normalize(100),
-    borderRadius: normalize(16),
+    borderRadius: normalize(50),
     backgroundColor: "#FFE89D",
     justifyContent: "center",
     alignItems: "center",
     marginRight: normalize(14),
   },
   avatar: {
-    width: normalize(72),
-    height: normalize(72),
-    borderRadius: normalize(12),
+    width: normalize(100),
+    height: normalize(100),
+    borderRadius: normalize(50),
     backgroundColor: "#FFE89D",
   },
   infoMain: {
     flex: 1,
-    minWidth: 0,    marginRight: normalize(10),
+    minWidth: 0, marginRight: normalize(10),
   },
   infoHeaderRow: {
     flexDirection: "column",
-    flex:1,
+    flex: 1,
     alignItems: "flex-start",
     justifyContent: "flex-start",
     width: normalize(160),
@@ -671,26 +682,42 @@ const styles = StyleSheet.create({
     gap: 0,
   },
   tags: {
-    color:theme.textSecondary,
+    color: theme.textSecondary,
     fontSize: normalizeFontSize(12),
     marginBottom: 0,
-    flexShrink: 1,
+    flexShrink: 0,  // 改为0，防止文本被收缩
     minWidth: 0,
   },
   tagsContainer: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-start',  // 改为flex-start，允许内容向上对齐
     justifyContent: 'space-between',
     paddingRight: normalize(40),
     width: '100%',
+    position: 'relative',  // 添加相对定位
+    // minHeight: normalize(40),  // 设置最小高度
   },
   tagsCollapsed: {
     flex: 1,
+    flexShrink: 1,  // 折叠时才收缩
+  },
+  tagsExpanded: {
+    flex: 1,
+    flexShrink: 0,  // 展开时不收缩
+    flexWrap: 'wrap',  // 允许换行
+    alignSelf: 'flex-start',  // 从左边开始对齐
+    width: '100%',  // 确保占满容器宽度
+    maxWidth: '100%',  // 最大宽度限制
+    paddingRight: normalize(50),  // 为展开按钮留出空间
+    lineHeight: normalize(18),  // 设置行高
   },
   expandButton: {
     position: 'absolute',
     right: normalize(0),
     top: normalize(0),
+    zIndex: 1,  // 确保按钮在最上层
+    backgroundColor: theme.backgroundSecondary,  // 添加背景色，防止文本穿透
+    padding: normalize(4),  // 添加内边距
   },
   expandButtonImg: {
     width: normalize(20),
@@ -732,7 +759,7 @@ const styles = StyleSheet.create({
   lyricSection: {
     marginHorizontal: normalize(16),
     marginBottom: normalize(12),
-    flex:1
+    flex: 1,
   },
   lyricHeader: {
     flexDirection: "row",
@@ -892,7 +919,7 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: normalizeFontSize(16),
     fontWeight: "500",
-    textAlign:'center'
+    textAlign: 'center'
   },
   okBtnText: {
     color: "#111",

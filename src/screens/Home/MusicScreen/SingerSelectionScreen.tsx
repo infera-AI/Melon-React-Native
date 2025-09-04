@@ -1,5 +1,5 @@
 // src/screens/SingerSelectionScreen/index.tsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -18,15 +18,22 @@ import { normalize, normalizeFontSize } from '@/utils/stylesUtil';
 import theme from '@/utils/theme';
 import PointsLimitModal from '@/components/PointsLimitModal';
 import PointsConfirmModal from '@/components/PointsConfirmModal';
-import { polishLyrics, recommendGenres, generateMusic } from '@/api/music/music';
+import { polishLyrics, recommendGenres, generateMusic, coverMusic } from '@/api/music/music';
+import { getPersonalVoiceprints, getCommonVoiceprints } from '@/api/profile/profile';
 import { useMusicStore } from '@/store/modules/music.store';
 import FullScreenLoader from '@/components/FullScreenLoader';
 import { useMessageModal } from '@/contexts/MessageModalContext';
+import CommonModal from '@/components/CommonModal';
+import { useAudioPlayer } from '@/hooks/useAudioPlayer';
+import { FilePathConverter } from '@/utils/filePathConverter';
+import { uploadFiles } from '@/api/file/file';
+import { usePointsStore } from '@/store/modules/points.store';
 
 
 // 歌手数据接口
 interface Singer {
   id: string;
+  id: number;
   name: string;
   language: string;
   avatar: any;
@@ -37,74 +44,86 @@ interface Singer {
 type TabType = 'public' | 'voiceprint';
 
 // 模拟歌手数据
-const singers: Singer[] = [
-  {
-    id: '1',
-    name: 'Gladys',
-    language: 'Hindi',
-    avatar: require('@/assets/profile/profile_voice_icon.png'),
-  },
-  {
-    id: '2',
-    name: 'Beyoncé Giselle Knowles',
-    language: 'English',
-    avatar: require('@/assets/profile/profile_voice_icon.png'),
-  },
-  {
-    id: '3',
-    name: 'Gladys',
-    language: 'Hindi',
-    avatar: require('@/assets/profile/profile_voice_icon.png'),
-  },
-  {
-    id: '4',
-    name: 'Gladys',
-    language: 'Hindi',
-    avatar: require('@/assets/profile/profile_voice_icon.png'),
-  },
-  {
-    id: '5',
-    name: 'Gladys',
-    language: 'Hindi',
-    avatar: require('@/assets/profile/profile_voice_icon.png'),
-  },
-  {
-    id: '6',
-    name: 'Gladys',
-    language: 'Hindi',
-    avatar: require('@/assets/profile/profile_voice_icon.png'),
-  },
-  {
-    id: '7',
-    name: 'Gladys',
-    language: 'Hindi',
-    avatar: require('@/assets/profile/profile_voice_icon.png'),
-  },
-  {
-    id: '8',
-    name: 'Gladys',
-    language: 'Hindi',
-    avatar: require('@/assets/profile/profile_voice_icon.png'),
-  },
-];
+// const singers: Singer[] = [
+//   {
+//     id: 1,
+//     name: 'Gladys',
+//     language: 'Hindi',
+//     avatar: require('@/assets/profile/profile_voice_icon.png'),
+//   },
+//   {
+//     id: '2',
+//     name: 'Beyoncé Giselle Knowles',
+//     language: 'English',
+//     avatar: require('@/assets/profile/profile_voice_icon.png'),
+//   },
+//   {
+//     id: '3',
+//     name: 'Gladys',
+//     language: 'Hindi',
+//     avatar: require('@/assets/profile/profile_voice_icon.png'),
+//   },
+//   {
+//     id: '4',
+//     name: 'Gladys',
+//     language: 'Hindi',
+//     avatar: require('@/assets/profile/profile_voice_icon.png'),
+//   },
+//   {
+//     id: '5',
+//     name: 'Gladys',
+//     language: 'Hindi',
+//     avatar: require('@/assets/profile/profile_voice_icon.png'),
+//   },
+//   {
+//     id: '6',
+//     name: 'Gladys',
+//     language: 'Hindi',
+//     avatar: require('@/assets/profile/profile_voice_icon.png'),
+//   },
+//   {
+//     id: '7',
+//     name: 'Gladys',
+//     language: 'Hindi',
+//     avatar: require('@/assets/profile/profile_voice_icon.png'),
+//   },
+//   {
+//     id: '8',
+//     name: 'Gladys',
+//     language: 'Hindi',
+//     avatar: require('@/assets/profile/profile_voice_icon.png'),
+//   },
+// ];
 
-const SingerSelectionScreen: React.FC<any> = ({route}:any) => {
-  const {type} = route.params||{};
+const SingerSelectionScreen: React.FC<any> = ({ route }: any) => {
+  const { type, } = route.params || {};
   const navigation = useNavigation();
   const { t } = useLanguage();
-  const {show} = useMessageModal()
+  const { show } = useMessageModal()
   const { apply, applyItem, text, textSecondary } = useGlobalTheme();
-  const [selectedSinger, setSelectedSinger] = useState<string | null>(null);
-  const [singersList, setSingersList] = useState<Singer[]>(singers);
-  const [activeTab, setActiveTab] = useState<TabType>('public');
+  const [selectedSinger, setSelectedSinger] = useState<Singer | null>(null);
+  const [singersList, setSingersList] = useState<Singer[]>([]);
+  const [activeTab, setActiveTab] = useState<TabType>('voiceprint');
   const [modalVisible, setModalVisible] = useState(false);
+  const [pointsLimitModalVisible, setPointsLimitModalVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [commonVoiceprints, setCommonVoiceprints] = useState<any[]>([]);
+  const [personalVoiceprints, setPersonalVoiceprints] = useState<any[]>([]);
+  const [recordModalVisible, setRecordModalVisible] = useState(false);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const { setGenerateMusicType, musicGenerateInfo, coverMusicFile, setIsSelectedVoice, isSelectedVoice } = useMusicStore.getState();
+  const { refreshPointsBalance, pointsBalance } = usePointsStore.getState();
+  const {
+    isPlayIndex,
+    togglePlayPause,
+    cleanup,
+  } = useAudioPlayer();
   // 处理Tab切换
   const handleTabChange = (tab: TabType) => {
     setActiveTab(tab);
     // 切换Tab时清空选择
     setSelectedSinger(null);
-    setSingersList(prev => 
+    setSingersList(prev =>
       prev.map(singer => ({
         ...singer,
         isSelected: false
@@ -112,24 +131,35 @@ const SingerSelectionScreen: React.FC<any> = ({route}:any) => {
     );
   };
 
+  // 播放素材
+  const handlePlayMaterial = (material: any) => {
+    console.log('Play material:', material);
+    const materialCopy = { ...material, uri: material.merge_file };
+    handlePlayPause(materialCopy);
+  };
+
+  // 暂停/恢复
+  const handlePlayPause = (music: any) => {
+    togglePlayPause(music);
+  };
+
   // 处理歌手选择
-  const handleSingerSelect = (singerId: string) => {
-    setSelectedSinger(singerId);
-    
-    // 更新歌手列表的选择状态
-    setSingersList(prev => 
-      prev.map(singer => ({
-        ...singer,
-        isSelected: singer.id === singerId
-      }))
-    );
+  const handleSingerSelect = (singer: Singer) => {
+    setIsSelectedVoice(true);
+    setSelectedSinger(singer);
+    setSelectedId(singer.id);
   };
 
   // 处理跳过选择
   const handleSkipSelection = () => {
     // 跳过选择逻辑
-    console.log('跳过选择');
-    // navigation.navigate('NextScreen');
+    setIsSelectedVoice(false);
+    if (checkPointsBalance(false)) {
+      setModalVisible(true);
+    } else {
+      setPointsLimitModalVisible(true);
+    }
+    // handleToMusicGenerate(true);
   };
 
   // 处理上一步
@@ -140,7 +170,11 @@ const SingerSelectionScreen: React.FC<any> = ({route}:any) => {
   // 处理下一步
   const handleNextStep = () => {
 
-    setModalVisible(true);
+    if (checkPointsBalance(isSelectedVoice)) {
+      setModalVisible(true);
+    } else {
+      setPointsLimitModalVisible(true);
+    }
     // if (selectedSinger) {
     //   console.log('选择的歌手:', selectedSinger);
     //   console.log('当前Tab:', activeTab);
@@ -150,6 +184,24 @@ const SingerSelectionScreen: React.FC<any> = ({route}:any) => {
     //   console.log('请选择歌手');
     // }
   };
+
+  // 获取公用声纹
+  const getPublicVoiceprintsRequest = async () => {
+    const res = await getCommonVoiceprints();
+    setCommonVoiceprints(res.data_list || []);
+    console.log('res', res);
+  }
+  // 获取个人声纹
+  const getPersonalVoiceprintsRequest = async () => {
+    const res = await getPersonalVoiceprints();
+    setPersonalVoiceprints(res.data_list || []);
+    console.log('res', res);
+  }
+
+  useEffect(() => {
+    getPublicVoiceprintsRequest();
+    getPersonalVoiceprintsRequest();
+  }, []);
 
   // 渲染Tab栏
   const renderTabBar = () => (
@@ -169,7 +221,7 @@ const SingerSelectionScreen: React.FC<any> = ({route}:any) => {
         </Text>
         {activeTab === 'public' && <View style={styles.tabIndicator} />}
       </TouchableOpacity>
-      
+
       <TouchableOpacity
         style={[
           styles.tabItem,
@@ -188,91 +240,108 @@ const SingerSelectionScreen: React.FC<any> = ({route}:any) => {
     </View>
   );
 
+  // 判断积分余额是否足够
+  const checkPointsBalance = (selectedVoice: boolean) => {
+    if (selectedVoice) {
+      return pointsBalance >= 110;
+    } else {
+      return pointsBalance >= 50;
+    }
+  }
+
   // 渲染内容区域
   const renderContent = () => {
-    if (activeTab === 'public') {
-      return (
-        <>
-         <View
-              style={[
-                styles.addButtonContainer,
-              ]}
-          >
-              {/* 增加按钮 */}
-            <TouchableOpacity 
-              style={styles.addButton}
-              activeOpacity={0.7}
-              onPress={() => {
-                // 处理添加录音逻辑
-                console.log('Go record pressed');
-              }}
-            >
-              <View style={styles.addButtonContent}>
-                <Image source={require('@/assets/music/music_add_icon.png')} style={styles.plusIcon} />
-                <Text style={styles.addButtonText}>Go record</Text>
-              </View>
-            </TouchableOpacity>
+    return <>
+      {activeTab === 'voiceprint' && <View
+        style={[
+          styles.addButtonContainer,
+        ]}
+      >
+        {/* 增加按钮 */}
+        <TouchableOpacity
+          style={styles.addButton}
+          activeOpacity={0.7}
+          onPress={() => {
+            // 处理添加录音逻辑
+            setRecordModalVisible(true)
+            console.log('Go record pressed');
+          }}
+        >
+          <View style={styles.addButtonContent}>
+            <Image source={require('@/assets/music/music_add_icon.png')} style={styles.plusIcon} />
+            <Text style={styles.addButtonText}>Go record</Text>
           </View>
-          {/* 歌手列表 */}
-          <ScrollView style={styles.singerList} showsVerticalScrollIndicator={false}>
-           
-            {singersList.map((singer,index) => (
-              <TouchableOpacity
-                key={singer.id}
-                style={[
-                  styles.singerItem,
-                  index === singersList.length - 1 && styles.lastSingerItem,
-                  singer.isSelected && styles.selectedSingerItem
-                ]}
-                onPress={() => handleSingerSelect(singer.id)}
-              >
-                <View style={styles.singerInfo}>
-                  <Image 
-                    source={singer.avatar}
-                    style={styles.singerAvatar}
-                  />
-                  <Text style={[styles.singerName, text]}>
-                    {singer.name} - {singer.language}
-                  </Text>
-                </View>
-                <TouchableOpacity>
-                  <Image source={require('../../../../assets/images/music_play.png')} style={styles.playIcon} />
-                </TouchableOpacity>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
-        </>
-      );
-    } else {
-      return (
-        <View style={styles.voiceprintContent}>
-          <Text style={[styles.voiceprintText, text]}>
-            My voiceprint content will be displayed here
-          </Text>
+        </TouchableOpacity>
+      </View>}
+      {/* 歌手列表 */}
+      <ScrollView style={[styles.singerList, activeTab === 'public' && styles.commonList]} showsVerticalScrollIndicator={false}>
+        {activeTab === 'public' && commonVoiceprints.length < 1 && <View style={styles.CommonvoiceprintContent}>
           <Text style={[styles.voiceprintSubtext, textSecondary]}>
-            This is the voiceprint tab content
+            No Content
           </Text>
-        </View>
-      );
-    }
+        </View>}
+        {activeTab === 'voiceprint' && personalVoiceprints.length < 1 && <View style={styles.voiceprintContent}>
+          <Text style={[styles.voiceprintSubtext, textSecondary]}>
+            No Content
+          </Text>
+        </View>}
+        {(activeTab === 'public' ? commonVoiceprints : personalVoiceprints)?.map((singer, index) => (
+          <TouchableOpacity
+            key={singer.id}
+            disabled={singer.status !== 2}
+            style={[
+              styles.singerItem,
+              index === singersList.length - 1 && styles.lastSingerItem,
+              selectedId === singer.id && styles.selectedSingerItem,
+              { opacity: singer.status === 2 ? 1 : 0.4 }
+            ]}
+            onPress={() => handleSingerSelect(singer)}
+          >
+            <View style={styles.singerInfo}>
+              <Image
+                source={require('@/assets/profile/profile_voice_icon.png')}
+                style={styles.singerAvatar}
+              />
+              <Text style={[styles.singerName, text]}>
+                {singer.name} - {singer.language}
+              </Text>
+            </View>
+            {activeTab === 'public' && singer.status === 2 && <TouchableOpacity
+              style={styles.languageButton}
+              onPress={() => { }}
+            >
+              <Text style={styles.languageButtonText}>Chinese</Text>
+            </TouchableOpacity>}
+            {singer.status === 2 && <TouchableOpacity
+              onPress={() => handlePlayMaterial(singer)}
+            >
+              <Image source={isPlayIndex === singer.merge_file ? require('@/assets/music/music_pause_icon.png') : require('@/assets/music/music_play_icon.png')} style={styles.playIcon} />
+            </TouchableOpacity>}
+            {singer.status !== 2 && <Text style={styles.trainingText}>Training...</Text>}
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
+    </>
   };
 
-  // 跳转到音乐生成页面
-  const handleToMusicGenerate = () => {
+  // 跳转到音乐生成页面 skip跳过声纹
+  const handleToMusicGenerate = (skip: boolean = false) => {
     setIsLoading(true);
-    const {musicGenerateInfo} = useMusicStore.getState();
-    generateMusic({ 
+    generateMusic({
       work_title: musicGenerateInfo.title,
-      work_lyrics: musicGenerateInfo.lyrics,
-      work_genres: musicGenerateInfo.musicStyles,
+      lyrics: musicGenerateInfo.lyrics,
+      genres: musicGenerateInfo.musicStyles,
+      voice_print_id: skip ? null : selectedSinger?.id || 0,
     }).then((rsp) => {
       setIsLoading(false);
-      if(!rsp.task_id){
+      if (!rsp.task_id) {
         show({
           message: t('translate_screen.failed_again')
         })
         return
       }
+      refreshPointsBalance();
+      setGenerateMusicType('generate');
       navigation.navigate('GeneratingMusic' as never, {
         taskId: rsp.task_id,
         createTaskTime: Math.floor(performance.now())
@@ -285,12 +354,64 @@ const SingerSelectionScreen: React.FC<any> = ({route}:any) => {
     });
   }
 
+  // 上传文件
+  const handleUploadFile = async (file: any) => {
+    try {
+      // 转换文档
+      const convertedFileuri = await FilePathConverter.convertContentUriToFilePath(file.uri);
+      const res = await uploadFiles({
+        files: [{ name: file.name, type: file.type, uri: convertedFileuri }],
+      });
+      console.log(res, 'res');
+      return res;
+    } catch (error) {
+      show({ message: "upload files failed" });
+      return {};
+    }
+  };
+
+  // 翻唱歌曲
+  const handleCoverSingToMusic = async () => {
+    setIsLoading(true);
+    coverMusic({
+      voice_print_id: selectedSinger?.id || 0,
+      music_file: coverMusicFile,
+    }).then((rsp) => {
+      if (!rsp.task_id) {
+        show({
+          message: t('translate_screen.failed_again')
+        })
+        return
+      }
+      setGenerateMusicType('cover');
+      refreshPointsBalance();
+      navigation.navigate('GeneratingMusic' as never, {
+        taskId: rsp.task_id,
+        createTaskTime: Math.floor(performance.now())
+      });
+    }).catch(() => {
+      setIsLoading(false);
+      show({
+        message: t('http_service_error')
+      })
+    }).finally(() => {
+      setIsLoading(false);
+    });
+  }
   const handlePointsTopup = () => {
     // navigation.navigate('PointsTopup');
   }
 
   const handleWatchAds = () => {
     // navigation.navigate('AI');
+  }
+
+  const handleGenerateMusicAction = () => {
+    if (type === 'generate') {
+      handleToMusicGenerate(isSelectedVoice);
+    } else if (type === 'cover') {
+      handleCoverSingToMusic();
+    }
   }
 
   return (
@@ -302,32 +423,32 @@ const SingerSelectionScreen: React.FC<any> = ({route}:any) => {
       {/* 内容区域 */}
       {renderContent()}
 
-       {/* 跳过选择 */}
-     {type === 'generate' && <View style={styles.skipContainer}>
-            <TouchableOpacity onPress={handleSkipSelection}>
-              <Text style={[styles.skipText]}>
-                Skip selection &gt;&gt;
-              </Text>
-            </TouchableOpacity>
-        </View>}
+      {/* 跳过选择 */}
+      {type === 'generate' && <View style={styles.skipContainer}>
+        <TouchableOpacity onPress={handleSkipSelection}>
+          <Text style={[styles.skipText]}>
+            Skip selection &gt;&gt;
+          </Text>
+        </TouchableOpacity>
+      </View>}
 
       {/* 底部按钮 */}
       <View style={styles.buttonContainer}>
-        <TouchableOpacity 
+        <TouchableOpacity
           style={[styles.button, styles.previousButton, applyItem(styles.button)]}
           onPress={handlePreviousStep}
         >
           <Text style={[styles.buttonText, text]}>Previous step</Text>
         </TouchableOpacity>
-        
-        <TouchableOpacity 
+
+        <TouchableOpacity
           style={[
-            styles.button, 
-            styles.nextButton, 
-            !selectedSinger && activeTab === 'public' && styles.disabledButton
+            styles.button,
+            styles.nextButton,
+            !selectedSinger && styles.disabledButton
           ]}
           onPress={handleNextStep}
-          disabled={!selectedSinger && activeTab === 'public'}
+          disabled={!selectedSinger}
         >
           <Text style={[styles.buttonText, styles.nextButtonText]}>
             Next
@@ -337,24 +458,52 @@ const SingerSelectionScreen: React.FC<any> = ({route}:any) => {
       <PointsConfirmModal
         visible={modalVisible}
         onClose={() => setModalVisible(false)}
-        onConfirm={handleToMusicGenerate}
+        onConfirm={handleGenerateMusicAction}
         onCancel={() => setModalVisible(false)}
-        pointsToSpend={50}
-        pointsBalance={300}
-        onDontShowAgain={() => {}}
+        title={<Text>Generating your song will cost <Text style={{ color: theme.primary }}>{isSelectedVoice ? 110 : 50}</Text> points. You can choose to generate it for free by watching an advertisement.</Text>}
+        onDontShowAgain={() => { }}
       />
-      {/* <PointsLimitModal
-        visible={modalVisible}
-        onClose={handleWatchAds}
+      <PointsLimitModal
+        visible={pointsLimitModalVisible}
+        onClose={() => setPointsLimitModalVisible(false)}
         onConfirm={handlePointsTopup}
         onCancel={() => setModalVisible(false)}
-        pointsToSpend={50}
-        pointsBalance={300}
-        onDontShowAgain={() => {}}
-      /> */}
+        onDontShowAgain={() => { }}
+      />
+      <CommonModal
+        visible={recordModalVisible}
+        onClose={() => setRecordModalVisible(false)}
+        config={{
+          title: 'Creating a voiceprint will leave this page',
+          content: 'Here are the rules for voiceprint recording，Includes consumption points, audio format, total duration of audio materials, consistency of audio sound, and failure to generate points will result in a refund',
+          buttons: [
+            {
+              text: 'Cancel',
+              onPress: () => { setRecordModalVisible(false) },
+              type: 'border' as const,
+            },
+            {
+              text: 'Go record',
+              onPress: () => {
+                navigation.reset({
+                  index: 0,
+                  routes: [
+                    {
+                      name: 'Profile',
+                      params: {
+                        screen: 'VoiceprintMaterialCreate'
+                      }
+                    },
+                  ]
+                });
+              },
+              type: 'primary' as const,
+            },
+          ],
+        }}
+      />
       <FullScreenLoader
         visible={isLoading}
-        message={t('loading')}
       />
     </SafeAreaView>
   );
@@ -365,7 +514,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingTop: normalize(30),
   },
-  
+
   // Tab栏样式
   tabBar: {
     flexDirection: 'row',
@@ -399,7 +548,7 @@ const styles = StyleSheet.create({
     backgroundColor: theme.primary,
     borderRadius: normalize(1.5),
   },
-  
+
   // 状态栏样式
   statusBar: {
     flexDirection: 'row',
@@ -435,7 +584,7 @@ const styles = StyleSheet.create({
     width: normalize(24),
     height: normalize(12),
   },
-  
+
   // 标题栏样式
   titleBar: {
     flexDirection: 'row',
@@ -452,7 +601,7 @@ const styles = StyleSheet.create({
     fontSize: normalizeFontSize(16),
     fontWeight: '500',
   },
-  
+
   // 头像容器
   avatarContainer: {
     alignItems: 'center',
@@ -463,7 +612,7 @@ const styles = StyleSheet.create({
     height: normalize(80),
     borderRadius: normalize(40),
   },
-  
+
   // 跳过选择
   skipContainer: {
     alignItems: 'center',
@@ -473,7 +622,7 @@ const styles = StyleSheet.create({
     fontSize: normalizeFontSize(14),
     color: theme.primary,
   },
-  addButtonContainer:{
+  addButtonContainer: {
     height: normalize(72),
     backgroundColor: theme.backgroundSecondary,
     flexDirection: 'row',
@@ -497,9 +646,14 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 0,
     borderTopRightRadius: 0,
     backgroundColor: theme.backgroundSecondary,
-    margin:normalize(24),
+    margin: normalize(24),
     marginBottom: normalize(15),
     marginTop: normalize(0),
+  },
+  commonList: {
+    borderTopLeftRadius: normalize(12),
+    borderTopRightRadius: normalize(12),
+    marginTop: normalize(24),
   },
   singerItem: {
     width: '100%',
@@ -514,15 +668,38 @@ const styles = StyleSheet.create({
   },
   selectedSingerItem: {
     backgroundColor: 'rgba(133,243,128,0.4)',
-    flex:1,
+    flex: 1,
   },
-  lastSingerItem:{
+  lastSingerItem: {
     borderBottomWidth: 0,
   },
   singerInfo: {
     flexDirection: 'row',
     alignItems: 'center',
     flex: 1,
+  },
+  languageButton: {
+    width: normalize(60),
+    height: normalize(24),
+    borderRadius: normalize(8),
+    borderWidth: 1,
+    borderColor: '#454545',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: normalize(16),
+  },
+  languageButtonText: {
+    fontSize: normalizeFontSize(12),
+    fontWeight: '400',
+    color: theme.primary,
+    letterSpacing: -0.4,
+  },
+  trainingText: {
+    fontSize: normalizeFontSize(14),
+    fontWeight: '500',
+    color: theme.textPrimary,
+    letterSpacing: -0.4,
+    height: normalize(20),
   },
   playIcon: {
     width: normalize(26),
@@ -542,13 +719,16 @@ const styles = StyleSheet.create({
     width: normalize(20),
     height: normalize(20),
   },
-  
-  // 声纹内容
-  voiceprintContent: {
-    flex: 1,
+
+  CommonvoiceprintContent: {
+    height: normalize(400),
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: normalize(20),
+  },
+  voiceprintContent: {
+    height: normalize(300),
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   voiceprintText: {
     fontSize: normalizeFontSize(18),
@@ -560,7 +740,7 @@ const styles = StyleSheet.create({
     fontSize: normalizeFontSize(14),
     textAlign: 'center',
   },
-  
+
   // 底部按钮
   buttonContainer: {
     flexDirection: 'row',
@@ -594,13 +774,13 @@ const styles = StyleSheet.create({
     color: theme.background,
   },
   addButton: {
-    flex:1,
+    flex: 1,
     backgroundColor: theme.backgroundTertiary,
     height: normalize(48),
     borderRadius: normalize(12),
     justifyContent: 'center',
     alignItems: 'center',
-    margin:normalize(16),
+    margin: normalize(16),
     marginBottom: normalize(15),
     shadowColor: '#000000',
     shadowOffset: {

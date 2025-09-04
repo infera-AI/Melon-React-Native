@@ -19,6 +19,7 @@ import FullScreenLoader from '@/components/FullScreenLoader';
 import { formatTime } from '@/utils/helpers';
 import { AudioPlayer, quickValidateAudio, getAudioDuration } from '@/utils/audioUtils';
 import { useNavigation } from '@react-navigation/native';
+import { useMusicStore } from '@/store/modules/music.store';
 
 const img_pause_btn = require("../../../../assets/images/music_pause.png");
 
@@ -77,6 +78,7 @@ const CoverUploadScreen: React.FC = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const audioPlayerRef = useRef<AudioPlayer | null>(null);
   const navigation = useNavigation();
+  const { setCoverMusicFile, setGenerateMusicType } = useMusicStore.getState();
 
 
   // 清空播放器
@@ -94,19 +96,19 @@ const CoverUploadScreen: React.FC = () => {
       console.log('没有选择文件，跳过时长获取');
       return;
     }
-    
+
     console.log('开始获取音频时长，URI:', selectedFile.uri);
-    
+
     // 先进行快速验证
     const isValid = await quickValidateAudio(selectedFile.uri);
     console.log('快速验证结果:', isValid);
-    
+
     if (!isValid) {
       console.error('音频文件验证失败，无法获取时长');
       setDuration(0);
       return;
     }
-    
+
     try {
       const durationValue = await getAudioDuration(selectedFile.uri);
       console.log('获取到的音频时长:', durationValue);
@@ -122,7 +124,7 @@ const CoverUploadScreen: React.FC = () => {
       console.log('没有选择文件，无法播放');
       return;
     }
-    
+
     if (isPlaying) {
       // 暂停播放
       if (audioPlayerRef.current) {
@@ -138,23 +140,23 @@ const CoverUploadScreen: React.FC = () => {
       setIsPlaying(true);
       return;
     }
-    
+
     // 首次播放，创建新的播放器实例
     console.log('开始播放音频，URI:', selectedFile.uri);
     audioPlayerRef.current = AudioPlayer.getInstance();
-    
+
     // 设置播放完成的回调
     audioPlayerRef.current.setFinishCallback(() => {
       audioPlayerRef.current = null;
       setIsPlaying(false);
       setCurrentTime(0); // 重置播放时间
     });
-    
+
     // 设置播放进度更新的回调
     audioPlayerRef.current.setProgressCallback((currentTime: number) => {
       setCurrentTime(currentTime);
     });
-    
+
     const success = await audioPlayerRef.current.playAudio(selectedFile.uri);
     setIsPlaying(true);
     console.log('播放成功:', success);
@@ -173,7 +175,7 @@ const CoverUploadScreen: React.FC = () => {
       }
 
       const file = res[0];
-      
+
       // 验证文件类型
       if (!androidAudioTypes.includes(file.type ?? '')) {
         show({
@@ -196,7 +198,7 @@ const CoverUploadScreen: React.FC = () => {
       clearAudioPlayer();
       // 自动开始上传
       // handleUpload(file as AudioFile);
-      
+
     } catch (error) {
       console.error('文件选择失败:', error);
       show({
@@ -205,8 +207,8 @@ const CoverUploadScreen: React.FC = () => {
     }
   };
 
-    const _handleUpload = async (_file: AudioFile) => {
-   
+  const _handleUpload = async (_file: AudioFile) => {
+
   };
 
   const handleReupload = () => {
@@ -215,7 +217,9 @@ const CoverUploadScreen: React.FC = () => {
   };
 
   const handleNextStep = () => {
-    navigation.navigate('SingerSelection',{type:'upload'} as never);
+    setCoverMusicFile(selectedFile);
+    setGenerateMusicType('cover');
+    navigation.navigate('SingerSelection', { type: 'cover' } as never);
   };
 
   useEffect(() => {
@@ -236,22 +240,22 @@ const CoverUploadScreen: React.FC = () => {
         {/* 上传区域 */}
         <View style={styles.uploadArea}>
           {/* 圆形背景 */}
-          {!selectedFile?<View style={styles.circleBackground}>
+          {!selectedFile ? <View style={styles.circleBackground}>
             {/* 音乐图标 */}
             <View style={styles.musicIconContainer}>
-              <Image 
+              <Image
                 source={require('@/assets/music/music_mp3_icon.png')}
                 style={styles.musicIcon}
               />
             </View>
-          </View>:<View style={styles.fileInfoContainer}>
-                <Text style={[styles.fileName, text]} numberOfLines={1}>
-                  {selectedFile.name}
-                </Text>
-                {/* <Text style={[styles.fileSize, textSecondary]}>
+          </View> : <View style={styles.fileInfoContainer}>
+            <Text style={[styles.fileName, text]} numberOfLines={1}>
+              {selectedFile.name}
+            </Text>
+            {/* <Text style={[styles.fileSize, textSecondary]}>
                   {(selectedFile.size / (1024 * 1024)).toFixed(2)} MB
                 </Text> */}
-              </View>}
+          </View>}
         </View>
 
         {/* 选择文件后展示音频播放器，没选择展示说明文字 */}
@@ -275,20 +279,20 @@ const CoverUploadScreen: React.FC = () => {
                 resizeMode="contain"
               />
             </View>
-            
+
             {/* 进度条 */}
             <View style={styles.progressSection}>
               <View style={styles.audioProgressBar}>
                 <View style={[styles.audioProgressFill, { width: `${(currentTime / duration) * 100}%` }]} />
               </View>
             </View>
-            
+
             {/* 时间显示 */}
             <View style={styles.timeWrapper}>
               <Text style={styles.timeText}>{formatTime(currentTime)}</Text>
               <Text style={styles.timeText}>{formatTime(duration)}</Text>
             </View>
-            
+
             {/* 播放按钮 */}
             <TouchableOpacity style={styles.playButton} activeOpacity={0.7} onPress={handlePlayAudio}>
               <Image
@@ -317,7 +321,7 @@ const CoverUploadScreen: React.FC = () => {
         )} */}
 
         {/* 上传按钮 */}
-        <TouchableOpacity 
+        <TouchableOpacity
           style={[
             styles.uploadButton,
             selectedFile && styles.uploadButtonDisabled
@@ -326,16 +330,16 @@ const CoverUploadScreen: React.FC = () => {
           activeOpacity={0.7}
           disabled={isUploading}
         >
-          <Text style={[styles.uploadButtonText,selectedFile && styles.uploadButtonTextDisabled]}>
-            {selectedFile 
+          <Text style={[styles.uploadButtonText, selectedFile && styles.uploadButtonTextDisabled]}>
+            {selectedFile
               ? 'Re-upload'
               : 'Upload original song '
             }
           </Text>
         </TouchableOpacity>
-        
+
         {/* 没有选择文件置灰下一步按钮 */}
-        {selectedFile&&<TouchableOpacity disabled={!selectedFile} style={[styles.uploadButton, styles.nextButton, !selectedFile && styles.nextBtnDisabled]} onPress={handleNextStep}>
+        {selectedFile && <TouchableOpacity disabled={!selectedFile} style={[styles.uploadButton, styles.nextButton, !selectedFile && styles.nextBtnDisabled]} onPress={handleNextStep}>
           <Text style={[styles.uploadButtonText]}>{t('music.next')}</Text>
         </TouchableOpacity>}
 
@@ -343,11 +347,11 @@ const CoverUploadScreen: React.FC = () => {
         {isUploading && (
           <View style={styles.progressContainer}>
             <View style={styles.progressBar}>
-              <View 
+              <View
                 style={[
-                  styles.progressFill, 
+                  styles.progressFill,
                   { width: `${uploadProgress}%` }
-                ]} 
+                ]}
               />
             </View>
             <Text style={[styles.progressText, textSecondary]}>

@@ -8,8 +8,9 @@ export interface ApifoxModel<T = any> {
 // 歌曲生成请求参数
 export interface GenerateMusicParams {
   work_title: string;
-  work_genres: string[];
-  work_lyrics: string;
+  genres: string[];
+  lyrics: string;
+  voice_print_id: number;
   [property: string]: any;
 }
 

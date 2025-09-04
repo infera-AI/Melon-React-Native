@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -21,7 +21,13 @@ import { useMessageModal } from '@/contexts/MessageModalContext';
 import { useVoiceStore } from '@/store/modules/voice.store';
 import CommonModal from '@/components/CommonModal';
 import PointsLimitModal from '@/components/PointsLimitModal';
-import { saveMaterials } from '@/api/profile/profile';
+import { saveMaterials, trainVoiceprint, saveVoiceprint } from '@/api/profile/profile';
+import { FilePathConverter } from '@/utils/filePathConverter';
+import { uploadFiles } from '@/api/file/file';
+import FullScreenLoader from '@/components/FullScreenLoader';
+import { useAudioPlayer } from '@/hooks/useAudioPlayer';
+import { usePointsStore } from '@/store/modules/points.store';
+import PointsConfirmModal from '@/components/PointsConfirmModal';
 
 type VoiceprintMaterialCreateScreenNavigationProp = NativeStackNavigationProp<ProfileStackParamList, 'VoiceprintMaterialCreate'>;
 
@@ -69,16 +75,57 @@ const iosAudioTypes = [
 
 const VoiceprintMaterialCreateScreen: React.FC = () => {
   const navigation = useNavigation<VoiceprintMaterialCreateScreenNavigationProp>();
-  const { materials, setMaterials } = useVoiceStore();
+  const { materials, setMaterials, materialsId, setMaterialsId, materialsName, setMaterialsName } = useVoiceStore();
+  const { refreshPointsBalance } = usePointsStore.getState();
   const { t } = useLanguage();
   const { show } = useMessageModal();
   const [showAddModal, setShowAddModal] = useState(false);
   const [showPointsListModal, setShowPointsListModal] = useState(false);
   const [purchaseModalVisible, setPurchaseModalVisible] = useState(false);
   const [notSaveModalVisible, setNotSaveModalVisible] = useState(false);
-  const [materialsName, setMaterialsName] = useState('');
-  const handleBack = () => {
+  const [materialsNameInput, setMaterialsNameInput] = useState(materialsName);
+  const [type, setType] = useState<'save' | 'send'>('save');
+  const { pointsBalance } = usePointsStore.getState();
+  // 音频播放
+  const [isLoading, setIsLoading] = useState(false);
+  const {
+    isPlayIndex,
+    togglePlayPause,
+    cleanup,
+  } = useAudioPlayer();
+
+  // const cleanupAudioData = React.useCallback(() => {
+  //   try {
+  //     // 停止音频播放
+  //     if (sound) {
+  //       sound.stop();
+  //       sound.release();
+  //       setSound(null);
+  //     }
+
+  //     // 重置播放状态
+  //     setIsPlaying(false);
+  //     setIsPlayMusic('');
+
+  //     // 重置所有作品的播放状态
+  //     setIsPlayIndex('');
+
+  //     console.log('音频数据清理完成');
+  //   } catch (error) {
+  //     console.error('清理音频数据失败:', error);
+  //   }
+  // }, [sound]);
+
+
+  const clearAction = () => {
     setMaterials([]);
+    setMaterialsId("");
+    setMaterialsName("");
+    cleanup();
+  };
+
+  const handleBack = () => {
+    clearAction();
     navigation.replace('VoiceprintManagementList' as any);
   };
 
@@ -124,37 +171,138 @@ const VoiceprintMaterialCreateScreen: React.FC = () => {
       });
     }
   };
-  const handleDirectRecording = () => {
-    navigation.navigate('CreateVoice' as any);
-    console.log('Direct recording');
-    // 这里可以处理直接录音逻辑
-  };
+
+  // 保存声纹素材
+  const handleSaveMaterialsRequest = async () => {
+    setIsLoading(true);
+    const resFile = await handleUploadFile(materials);
+    if (!resFile.url_list) {
+      return;
+    }
+    const file_list = resFile.url_list
+    try {
+      const res = await saveMaterials({
+        name: materialsNameInput,
+        file_list,
+        name_list: materials.map(material => material.name),
+      });
+      show({ message: "save material successfully" });
+      return res;
+    } catch (error) {
+      console.log(error, 'error');
+      return {};
+    } finally {
+      setIsLoading(false);
+    }
+  }
 
   const handleStoreMaterials = async () => {
     setShowAddModal(false);
     try {
-      const res = await saveMaterials({
-        name: materialsName,
-        file_list: materials.map(material => material.uri),
-      });
-      console.log(res, 'res');
+      await handleSaveMaterialsRequest();
+      clearAction();
       navigation.navigate('AudioMaterialLibrary' as any);
-
     } catch (error) {
       console.log(error, 'error');
     }
-
   };
 
-  const handleSendTraining = () => {
+  // 播放素材
+  const handlePlayMaterial = (material: any) => {
+    console.log('Play material:', material);
+    handlePlayPause(material);
+  };
+
+  // 暂停/恢复
+  const handlePlayPause = (music: any) => {
+    togglePlayPause(music);
+  };
+
+  // 上传文件
+  const handleUploadFile = async (files: any[]) => {
+
+    try {
+      // 转换文档
+      const convertedFiles = await FilePathConverter.convertFilePaths(files);
+      const res = await uploadFiles({
+        files: convertedFiles,
+      });
+      console.log(res, 'res');
+      return res;
+    } catch (error) {
+      show({ message: "upload files failed" });
+      return {};
+    }
+  };
+
+  const handleSendTraining = async () => {
+    setIsLoading(true);
     console.log('Send training');
-    // 这里可以处理发送训练逻辑
+    let id = materialsId;
+    let name = materialsNameInput;
+
+    try {
+      // 判断是否为声纹素材跳转
+      if (!id) {
+        const resMaterials = await handleSaveMaterialsRequest();
+        id = resMaterials?.id;
+      }
+      const resSave = await saveVoiceprint({
+        material_id: id,
+        name: name,
+      });
+
+      if (resSave?.id) {
+        const res = await trainVoiceprint({
+          voice_print_id: resSave?.id,
+        });
+        show({ message: "train voiceprint successfully" });
+        console.log(res, 'res');
+        clearAction();
+        navigation.replace('VoiceprintTrainingSuccess' as any);
+      }
+    } catch (error) {
+      console.log(error, 'error');
+    } finally {
+      setIsLoading(false);
+      refreshPointsBalance();
+    }
   };
 
   const handleDeleteMaterial = (name: string) => {
     console.log('Delete material:', name);
     setMaterials(materials.filter(material => material.name !== name));
   };
+
+  const handleBackIconPress = () => {
+    if (materials.length > 0) {
+      setNotSaveModalVisible(true)
+    } else {
+      handleBack()
+    }
+  };
+
+  const handleSaveMaterialsAction = () => {
+    if (!materialsId) {
+      setShowAddModal(true);
+      setType('save');
+    } else {
+      handleStoreMaterials()
+    }
+  }
+
+  const handleSendTrainingAction = () => {
+    if (!materialsId) {
+      setShowAddModal(true);
+      setType('send');
+    } else {
+      if (pointsBalance >= 200) {
+        setModalVisible(true);
+      } else {
+        setShowPointsListModal(true);
+      }
+    }
+  }
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
@@ -163,7 +311,7 @@ const VoiceprintMaterialCreateScreen: React.FC = () => {
         <View style={styles.navBar}>
           <View style={styles.titleContainer}>
             <Text style={styles.titleText}>Voiceprint Management</Text>
-            <TouchableOpacity style={styles.backButton} onPress={() => setNotSaveModalVisible(true)}>
+            <TouchableOpacity style={styles.backButton} onPress={handleBackIconPress}>
               <Image
                 source={require('@/assets/main/page_return_icon.png')}
                 style={styles.backIcon}
@@ -222,15 +370,25 @@ const VoiceprintMaterialCreateScreen: React.FC = () => {
                     />
                     <Text style={styles.materialName} numberOfLines={1} ellipsizeMode="tail">{material.name}</Text>
                   </View>
-                  <TouchableOpacity
-                    style={styles.deleteButton}
-                    onPress={() => handleDeleteMaterial(material.name)}
-                  >
-                    <Image
-                      source={require('@/assets/music/music_delete_icon.png')}
-                      style={styles.deleteIcon}
-                    />
-                  </TouchableOpacity>
+                  <View style={styles.musicContainer}>
+                    <TouchableOpacity
+                      onPress={() => handlePlayMaterial(material)}
+                    >
+                      <Image
+                        source={isPlayIndex === material.uri ? require('@/assets/music/music_pause_icon.png') : require('@/assets/music/music_play_icon.png')}
+                        style={styles.deleteIcon}
+                      />
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={styles.deleteButton}
+                      onPress={() => handleDeleteMaterial(material.name)}
+                    >
+                      <Image
+                        source={require('@/assets/music/music_delete_icon.png')}
+                        style={styles.deleteIcon}
+                      />
+                    </TouchableOpacity>
+                  </View>
                 </View>
               </View>
             ))}
@@ -239,10 +397,10 @@ const VoiceprintMaterialCreateScreen: React.FC = () => {
 
         {/* 底部按钮 */}
         <View style={styles.bottomButtonsContainer}>
-          <TouchableOpacity style={styles.storeButton} onPress={() => setShowAddModal(true)}>
+          <TouchableOpacity style={styles.storeButton} onPress={handleSaveMaterialsAction}>
             <Text style={styles.storeButtonText}>Save</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.sendButton} onPress={() => setPurchaseModalVisible(true)}>
+          <TouchableOpacity style={styles.sendButton} onPress={handleSendTrainingAction}>
             <Text style={styles.sendButtonText}>Upload training</Text>
           </TouchableOpacity>
         </View>
@@ -255,11 +413,11 @@ const VoiceprintMaterialCreateScreen: React.FC = () => {
           title: 'Rename',
           customContent: <View style={styles.renameInputContainer}>
             <TextInput
-              value={materialsName}
+              value={materialsNameInput}
               style={styles.renameInput}
               placeholder="1.My voiceprint"
               placeholderTextColor={theme.textTertiary}
-              onChangeText={setMaterialsName}
+              onChangeText={setMaterialsNameInput}
             />
           </View> as React.ReactNode,
           buttons: [
@@ -270,56 +428,41 @@ const VoiceprintMaterialCreateScreen: React.FC = () => {
             },
             {
               text: 'Next',
-              onPress: () => { handleStoreMaterials() },
+              onPress: () => {
+                if (type === 'save') {
+                  handleStoreMaterials()
+                } else {
+                  if (pointsBalance >= 200) {
+                    setModalVisible(true);
+                  } else {
+                    setShowPointsListModal(true);
+                  }
+                }
+              },
               type: 'primary' as const,
             },
           ],
         }}
       />
+      <PointsConfirmModal
+        visible={purchaseModalVisible}
+        onClose={() => setPurchaseModalVisible(false)}
+        onConfirm={handleSendTraining}
+        onCancel={() => setPurchaseModalVisible(false)}
+        title={<Text>We are about to generate voiceprints for you spending <Text style={{ color: theme.primary }}>200</Text> points</Text>}
+        onDontShowAgain={() => { }}
+      />
       {/* 积分不足 */}
       <PointsLimitModal
         visible={showPointsListModal}
         onClose={() => setShowPointsListModal(false)}
-        onConfirm={() => { }}
-        onCancel={() => { }}
-        pointsBalance={300}
-      />
-      {/* 消费弹窗 */}
-      <CommonModal
-        visible={purchaseModalVisible}
-        onClose={() => setPurchaseModalVisible(false)}
-        config={{
-          title: '',
-          buttons: [
-            {
-              text: 'Cancel',
-              onPress: () => { setPurchaseModalVisible(false) },
-              type: 'border' as const,
-            },
-            {
-              text: 'Next',
-              onPress: handleSendTraining,
-              type: 'primary' as const,
-            },
-          ],
-          customContent: <View style={styles.purchaseContainer}>
-            {/* 内容 */}
-            <View style={styles.contentContainer}>
-              <Text style={[styles.contentText]}>
-                We are about to generate voiceprints for you spending <Text style={{ color: theme.primary }}>2000</Text> points.
-              </Text>
-            </View>
-
-            {/* 积分余额 */}
-            <View style={styles.balanceContainer}>
-              <Text style={[styles.balanceLabel]}>
-                Points balance:
-              </Text>
-              <Text style={[styles.balanceValue, { color: theme.primary }]}>
-                &nbsp;{300}
-              </Text>
-            </View>
-          </View> as React.ReactNode,
+        onConfirm={() => {
+          navigation.navigate('Profile' as never, {
+            screen: 'Purchase'
+          } as never);
+        }}
+        onCancel={() => {
+          setShowPointsListModal(false);
         }}
       />
       {/* 未保存弹窗 */}
@@ -342,6 +485,9 @@ const VoiceprintMaterialCreateScreen: React.FC = () => {
             },
           ],
         }}
+      />
+      <FullScreenLoader
+        visible={isLoading}
       />
     </SafeAreaView>
   );
@@ -488,6 +634,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
+  musicContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    gap: normalize(16),
+  },
   materialIcon: {
     width: normalize(18),
     height: normalize(15),
@@ -558,8 +710,7 @@ const styles = StyleSheet.create({
     height: normalize(38),
     backgroundColor: theme.background,
     borderRadius: normalize(12),
-    paddingHorizontal: normalize(12),
-    paddingVertical: normalize(10),
+    paddingLeft: normalize(8),
     fontSize: normalizeFontSize(14),
     fontWeight: '500',
     color: theme.textPrimary,

@@ -206,25 +206,15 @@ export function getPersonalVoiceprints() {
 
 // 重命名声纹
 export function renameVoiceprint(params: { id: number; name: string }) {
-  const formData = new FormData();
-  formData.append('name', params.name);
-  formData.append('id', params.id.toString());
   return http.post<any>(
     API_ENDPOINTS.PROFILE.RENAME_VOICEPRINT,
-    formData,
-    { headers: { 'Content-Type': 'multipart/form-data' } }
+    params,
   );
 }
 
 // 删除声纹
 export function deleteVoiceprint(params: { id_list: number[] }) {
-  const formData = new FormData();
-  formData.append('id_list', JSON.stringify(params.id_list));
-  return http.post<CommonResult>(API_ENDPOINTS.PROFILE.DELETE_VOICEPRINT, formData, {
-    headers: {
-      'Content-Type': 'multipart/form-data',
-    },
-  });
+  return http.post<CommonResult>(API_ENDPOINTS.PROFILE.DELETE_VOICEPRINT, params);
 }
 
 // 保存声纹
@@ -246,25 +236,33 @@ export function getAllMaterials() {
 
 // 删除声纹素材
 export function deleteMaterials(params: { id_list: number[] }) {
+  return http.post<CommonResult>(API_ENDPOINTS.PROFILE.DELETE_MATERIALS, params);
+}
+
+// 保存声纹素材
+export function saveMaterials(params: { name: string; file_list: any[] ,name_list:string[]}) {
+  return http.post<CommonResult>(API_ENDPOINTS.PROFILE.SAVE_MATERIALS, params);
+}
+
+//训练声纹
+export function trainVoiceprint(params: { voice_print_id: number }) {
   const formData = new FormData();
-  formData.append('id_list', JSON.stringify(params.id_list));
-  return http.post<CommonResult>(API_ENDPOINTS.PROFILE.DELETE_MATERIALS, formData, {
+  formData.append('voice_print_id', params.voice_print_id.toString());
+  return http.post<CommonResult>(API_ENDPOINTS.PROFILE.TRAIN_VOICEPRINT, formData, {
     headers: {
       'Content-Type': 'multipart/form-data',
     },
   });
 }
 
-// 保存声纹素材
-export function saveMaterials(params: { name: string; file_list: string[] }) {
-  const formData = new FormData();
-  formData.append('name', params.name);
-  formData.append('file_list', JSON.stringify(params.file_list));
-  return http.post<CommonResult>(API_ENDPOINTS.PROFILE.SAVE_MATERIALS, formData, {
-    headers: {
-      'Content-Type': 'multipart/form-data',
-    },
-  });
+// 获取积分余额
+export function getPointsBalance() {
+  return http.get<CommonResult>(API_ENDPOINTS.PROFILE.GET_INTEGRAL_BALANCE);
+}
+
+// 获取积分记录
+export function getPointsRecord() {
+  return http.get<CommonResult>(API_ENDPOINTS.PROFILE.GET_INTEGRAL_RECORD);
 }
 
 

@@ -8,18 +8,11 @@ export function getMusicWorks() {
 }
 
 // 生成音乐
-export function generateMusic(params: GenerateMusicParams) {
-  const formData = new FormData();
-  formData.append('work_title', params.work_title);
-  formData.append('work_lyrics', params.work_lyrics);
-  params.work_genres.forEach((genre: string) => {
-    formData.append('work_genres', genre);
-  });
+export function generateMusic(params: GenerateMusicParams) { 
   return http.post<GenerateMusicResponse>(
     API_ENDPOINTS.MUSIC.GENERATE_MUSIC,
-    formData,
-    { headers: { 'Content-Type': 'multipart/form-data' } }
-  );            
+    params,
+  );           
 }
 
 // 推荐曲风
@@ -100,7 +93,7 @@ export function polishLyrics(params: PolishLyricsParams) {
 export function coverMusic(params: { voice_print_id?: string; music_file?: any }) {
   const formData = new FormData();
   formData.append('voice_print_id', params.voice_print_id);
-  formData.append('music_file', {
+  formData.append('music_file',{
     uri: params.music_file.uri,
     name: params.music_file.name,
     type: params.music_file.type,
@@ -150,9 +143,20 @@ export function getGenerateMusicOSStatus(params?: { task_id?: string }) {
 
 // 保存生成歌曲
 export function saveGenerateMusicOS(params: { task_id: string }) {
-  const formData = new FormData();
-  formData.append('task_id', params.task_id);
-  return http.post<any>(API_ENDPOINTS.MUSIC.SAVE_GENERATE_MUSIC_OS, formData, {
-    headers: { 'Content-Type': 'multipart/form-data' }
-  });
+  return http.post<any>(API_ENDPOINTS.MUSIC.SAVE_GENERATE_MUSIC_OS, params, );
+}
+
+// 获取个人作品
+export function getPersonalWorks(params: { page_number: number, page_size: number,title:string}) {
+  return http.get<any>(API_ENDPOINTS.MUSIC.GET_PERSONAL_WORKS, params);
+}
+
+// 获取支持语言
+export function getSupportedLanguages() {
+  return http.get<any>(API_ENDPOINTS.MUSIC.GET_SUPPORTED_LANGUAGES);
+}
+
+//获取音乐分割
+export function getMusicSegmentation(params: { work_id: string }) {
+  return http.get<any>(API_ENDPOINTS.MUSIC.GET_MUSIC_SEGMENTATION, params);
 }

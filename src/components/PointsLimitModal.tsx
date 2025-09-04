@@ -10,14 +10,14 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { useGlobalTheme } from '@/hooks/useGlobalTheme';
 import { normalize, normalizeFontSize } from '@/utils/stylesUtil';
 import theme from '@/utils/theme';
+import { usePointsStore } from '@/store/modules/points.store';
+import { useNavigation } from '@react-navigation/native';
 
 interface PointsConfirmModalProps {
   visible: boolean;
   onClose: () => void;
   onConfirm: () => void;
   onCancel: () => void;
-  pointsToSpend?: number;
-  pointsBalance?: number;
   onDontShowAgain?: (dontShow: boolean) => void;
 }
 
@@ -26,14 +26,13 @@ const PointsLimitModal: React.FC<PointsConfirmModalProps> = ({
   onClose,
   onConfirm,
   onCancel,
-  pointsBalance,
-  pointsToSpend,
   onDontShowAgain,
 }) => {
+  const navigation = useNavigation();
   const { t } = useLanguage();
   const { text } = useGlobalTheme();
   const [dontShowAgain, setDontShowAgain] = useState(false);
-
+  const { pointsBalance } = usePointsStore.getState();
   const _handleDontShowAgain = () => {
     const newValue = !dontShowAgain;
     setDontShowAgain(newValue);
@@ -42,6 +41,9 @@ const PointsLimitModal: React.FC<PointsConfirmModalProps> = ({
 
   const handleConfirm = () => {
     onConfirm();
+    navigation.navigate('Profile' as never, {
+      screen: 'Purchase'
+    } as never);
     onClose();
   };
 
@@ -58,7 +60,7 @@ const PointsLimitModal: React.FC<PointsConfirmModalProps> = ({
       onRequestClose={onClose}
     >
       <View style={styles.overlay}>
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.overlayTouchable}
           activeOpacity={1}
           onPress={onClose}
@@ -66,11 +68,10 @@ const PointsLimitModal: React.FC<PointsConfirmModalProps> = ({
         <View style={styles.modalContainer}>
           {/* 拖拽指示器 */}
           <View style={styles.dragIndicator} />
-          
+
           {/* 标题 */}
           <View style={styles.titleContainer}>
             <Text style={[styles.titleText, text]}>
-              Prompt
             </Text>
           </View>
 
@@ -80,20 +81,20 @@ const PointsLimitModal: React.FC<PointsConfirmModalProps> = ({
               The current credit limit is insufficient. Please watch the advertisement or go to recharge
             </Text>
           </View>
-          
-           {/* 积分余额 */}
-           <View style={styles.balanceContainer}>
+
+          {/* 积分余额 */}
+          <View style={styles.balanceContainer}>
             <Text style={[styles.balanceLabel]}>
-             Points balance: 
+              Points balance:
             </Text>
-            <Text style={[styles.balanceValue, {color: theme.primary}]}>
-              &nbsp;{pointsBalance}
+            <Text style={[styles.balanceValue, { color: theme.primary }]}>
+              &nbsp;{pointsBalance || 0}
             </Text>
           </View>
 
           {/* 按钮组 */}
           <View style={styles.buttonContainer}>
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.cancelButton}
               onPress={handleCancel}
               activeOpacity={0.7}
@@ -102,8 +103,8 @@ const PointsLimitModal: React.FC<PointsConfirmModalProps> = ({
                 Watch ads
               </Text>
             </TouchableOpacity>
-            
-            <TouchableOpacity 
+
+            <TouchableOpacity
               style={styles.confirmButton}
               onPress={handleConfirm}
               activeOpacity={0.7}

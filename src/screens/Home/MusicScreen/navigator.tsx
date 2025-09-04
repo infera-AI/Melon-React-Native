@@ -10,19 +10,19 @@ import MusicPreviewScreen from './music_preview';
 import GeneratingMusicScreen from './GeneratingMusicScreen';
 import MyWorkMusicPlay from './MyWorkMusicPlay';
 import SingerSelectionScreen from './SingerSelectionScreen';
-                                                    import CoverUploadScreen from './CoverUploadScreen';
+import CoverUploadScreen from './CoverUploadScreen';
 
 export type MusicStackParamList = {
   MusicMain: undefined;
   MyWork: undefined;
-  MusicPlay: {music: any,songs:any};
+  MusicPlay: { music: any, songs: any, type: string };
   HummingMusic: undefined;
   MusicEdit: undefined;
-  MusicEditHumming: {uri: string};
-  MusicPreview: {music: any};
+  MusicEditHumming: { uri: string };
+  MusicPreview: { music: any };
   GeneratingMusic: { taskId: string; createTaskTime: number };
-  MyWorkMusicPlay: {music: any,myWorkIds:number[]};
-  SingerSelection: {type: 'upload' | 'generate'};
+  MyWorkMusicPlay: { music: any, myWorkIds: number[] };
+  SingerSelection: { type: 'upload' | 'generate' };
   CoverUpload: undefined;
 };
 

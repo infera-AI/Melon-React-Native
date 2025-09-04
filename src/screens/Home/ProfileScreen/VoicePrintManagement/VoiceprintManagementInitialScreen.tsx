@@ -10,8 +10,9 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ProfileStackParamList } from '../ProfileNavigator';
-import theme from '@/utils/theme';
+
 import { normalize, normalizeFontSize } from '@/utils/stylesUtil';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 type VoiceprintManagementInitialScreenNavigationProp = NativeStackNavigationProp<ProfileStackParamList, 'VoiceprintManagementInitial'>;
 
@@ -22,132 +23,119 @@ const VoiceprintManagementInitialScreen: React.FC = () => {
     navigation.goBack();
   };
 
-  const handleCreate = () => {
-    console.log('Create voiceprint');
-    navigation.navigate('VoiceprintManagementList' as any);
-  };
-
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top']}>
+
 
       {/* 页面标题和返回按钮 */}
       <View style={styles.navBar}>
-        <View style={styles.titleContainer}>
-          <Text style={styles.titleText}>Voiceprint Management</Text>
-          <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-            <Image 
-              source={require('@/assets/main/page_return_icon.png')} 
-              style={styles.backIcon}
-            />
-          </TouchableOpacity>
-        </View>
+        <Text style={styles.titleText}>Voiceprint recording rules</Text>
+        <TouchableOpacity style={styles.backButton} onPress={handleBack}>
+          <Image
+            source={require('@/assets/main/page_return_icon.png')}
+            style={styles.backIcon}
+          />
+        </TouchableOpacity>
       </View>
 
-      {/* 主要内容卡片 */}
-      <ScrollView style={styles.contentCard} showsVerticalScrollIndicator={false}>
-        {/* 重要提示标题 */}
-        <Text style={styles.importantTitle}>Important: Cancel your account</Text>
-        
-        {/* 风险项目1 */}
-        <Text style={styles.riskTitle}>Risk item 1:</Text>
-        <Text style={styles.riskContent}>
-          Account data will be permanently deleted and cannot be recovered
-        </Text>
-        
-        {/* 风险项目2 */}
-        <Text style={styles.riskTitle}>Risk item 2:</Text>
-        <Text style={styles.riskContent}>
-          You will no longer be able to use this account to log in to T1 and all related services
-        </Text>
-        
-        {/* 风险项目3 */}
-        <View style={styles.riskGroup}>
-          <Text style={styles.riskTitle}>Risk item 3:</Text>
-          <Text style={styles.riskContent}>
-            The third-party binding associated with the account will be automatically released
-          </Text>
-        </View>
-        
-        {/* 注意事项 */}
-        <View style={styles.noticeGroup}>
-          <Text style={styles.noticeTitle}>Please be sure to check before canceling</Text>
-          <Text style={styles.noticeContent}>
-            1. You have backed up all important conversation records and knowledge base content.{'\n'}
-            2. You have unbound all important third-party accounts in case you cannot log in in the future.{'\n'}
-            3. You are fully aware of the full consequences of cancellation
+      {/* 主要内容 */}
+      <ScrollView style={styles.contentWrapper} showsVerticalScrollIndicator={false}>
+        <View style={styles.textContent}>
+          <Text style={styles.contentText}>
+            <Text style={styles.paragraph1}>
+              Here are the rules for voiceprint recording{'\n'}
+            </Text>
+            <Text style={styles.paragraph2}>
+              {'\n'}Article 1 Ownership of Rights {'\n'}
+            </Text>
+            <Text style={styles.paragraph3}>
+              1.1 This Agreement is between you and Melon…{'\n'}
+              {'\n'}
+            </Text>
+            <Text style={styles.paragraph4}>
+              Article 2 Authorized Use{'\n'}
+            </Text>
+            <Text style={styles.paragraph5}>
+              2.1{'\n'}
+              3.1{'\n'}
+            </Text>
+            <Text style={styles.paragraph6}>
+              {'\n'}
+              {'\n'}
+              {'\n'}
+            </Text>
+            <Text style={styles.copyrightText}>
+              © 2025 Melon. All Rights Reserved
+            </Text>
           </Text>
         </View>
       </ScrollView>
-
-      {/* 创建按钮 */}
-      {/* <TouchableOpacity style={styles.createButton} onPress={handleCreate}>
-        <Text style={styles.createButtonText}>Create</Text>
-      </TouchableOpacity> */}
-    </View>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: theme.background,
-    paddingHorizontal: normalize(24),
+    backgroundColor: 'rgba(24, 24, 25, 1)',
+    position: 'relative',
   },
   statusBar: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: normalize(12),
-    paddingHorizontal: normalize(14),
-    marginTop: normalize(12),
+    width: normalize(300),
+    height: normalize(20),
+    marginTop: normalize(17),
+    marginLeft: normalize(38),
   },
   timeText: {
+    width: normalize(31),
+    height: normalize(20),
     fontSize: normalizeFontSize(15),
     fontWeight: '600',
-    color: '#FFFFFF',
+    color: 'rgba(255, 255, 255, 1)',
     letterSpacing: -0.4,
+    textAlign: 'center',
+    lineHeight: normalize(20),
   },
   statusIcons: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: normalize(4),
   },
   signalIcon: {
     width: normalize(17),
     height: normalize(11),
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'rgba(255, 255, 255, 1)',
+    marginRight: normalize(5),
   },
   wifiIcon: {
     width: normalize(16),
     height: normalize(11),
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'rgba(255, 255, 255, 1)',
+    marginRight: normalize(4),
   },
   batteryIcon: {
     width: normalize(25),
     height: normalize(12),
   },
   navBar: {
-    marginTop: normalize(24),
-    marginBottom: normalize(17),
-  },
-  titleContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     position: 'relative',
     height: normalize(40),
-    marginTop: normalize(8),
+    marginTop: normalize(17),
   },
-  titleText: {
-    fontSize: normalizeFontSize(18),
-    fontWeight: '700',
-    color: '#FFFFFF',
-    textAlign: 'center',
-    letterSpacing: -0.4,
+  titleContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: normalize(276),
+    height: normalize(40),
   },
   backButton: {
     position: 'absolute',
-    left: 0,
+    left: normalize(24),
     width: normalize(40),
     height: normalize(40),
     backgroundColor: '#3E3E3E',
@@ -159,80 +147,78 @@ const styles = StyleSheet.create({
     width: normalize(16),
     height: normalize(16),
   },
-  contentCard: {
-    backgroundColor: theme.backgroundSecondary,
-    borderRadius: normalize(12),
-    width: "100%",
-    height: normalize(700),
-    marginTop: normalize(-1),
-    paddingHorizontal: normalize(17),
-    paddingTop: normalize(16),
-  },
-  importantTitle: {
-    fontSize: normalizeFontSize(15),
-    fontWeight: '600',
-    color: '#B0B0B0',
-    letterSpacing: -0.4,
-    lineHeight: normalize(20),
-    marginBottom: normalize(15),
-  },
-  riskTitle: {
-    fontSize: normalizeFontSize(15),
-    fontWeight: '600',
-    color: '#FFFFFF',
-    letterSpacing: -0.4,
-    lineHeight: normalize(20),
-    marginTop: normalize(15),
-    marginBottom: normalize(7),
-  },
-  riskContent: {
-    fontSize: normalizeFontSize(15),
-    fontWeight: '400',
-    color: '#B0B0B0',
-    letterSpacing: -0.4,
-    lineHeight: normalize(20),
-    marginLeft: normalize(1),
-    marginBottom: normalize(13),
-  },
-  riskGroup: {
-    marginTop: normalize(73),
-    marginBottom: normalize(56),
-  },
-  noticeGroup: {
-    marginBottom: normalize(46),
-  },
-  noticeTitle: {
-    fontSize: normalizeFontSize(15),
+  titleText: {
+    fontSize: normalizeFontSize(18),
     fontWeight: '700',
     color: '#FFFFFF',
-    letterSpacing: -0.4,
-    lineHeight: normalize(20),
-    marginBottom: normalize(9),
-  },
-  noticeContent: {
-    fontSize: normalizeFontSize(15),
-    fontWeight: '400',
-    color: '#B0B0B0',
-    letterSpacing: -0.4,
-    lineHeight: normalize(20),
-    width: normalize(275),
-  },
-  createButton: {
-    backgroundColor: theme.primary,
-    borderRadius: normalize(12),
-    height: normalize(48),
-    width: "100%",
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: normalize(21),
-    marginBottom: normalize(5),
-  },
-  createButtonText: {
-    fontSize: normalizeFontSize(16),
-    fontWeight: '500',
-    color: theme.background,
+    textAlign: 'center',
     letterSpacing: -0.4,
     lineHeight: normalize(21),
+  },
+  contentWrapper: {
+    flex: 1,
+    marginTop: normalize(28),
+    marginLeft: normalize(40),
+    marginRight: normalize(40),
+    marginBottom: normalize(152),
+  },
+  textContent: {
+    width: normalize(295),
+  },
+  contentText: {
+    fontSize: 0,
+    letterSpacing: -0.4,
+    textAlign: 'left',
+    lineHeight: normalize(20),
+  },
+  paragraph1: {
+    fontSize: normalizeFontSize(15),
+    fontWeight: '600',
+    color: 'rgba(255, 255, 255, 1)',
+    letterSpacing: -0.4,
+    lineHeight: normalize(20),
+  },
+  paragraph2: {
+    fontSize: normalizeFontSize(15),
+    fontWeight: '400',
+    color: 'rgba(255, 255, 255, 1)',
+    letterSpacing: -0.4,
+    lineHeight: normalize(20),
+  },
+  paragraph3: {
+    fontSize: normalizeFontSize(15),
+    fontWeight: '400',
+    color: 'rgba(179, 179, 179, 1)',
+    letterSpacing: -0.4,
+    lineHeight: normalize(20),
+  },
+  paragraph4: {
+    fontSize: normalizeFontSize(15),
+    fontWeight: '400',
+    color: 'rgba(255, 255, 255, 1)',
+    letterSpacing: -0.4,
+    lineHeight: normalize(20),
+  },
+  paragraph5: {
+    fontSize: normalizeFontSize(15),
+    fontWeight: '400',
+    color: 'rgba(179, 179, 179, 1)',
+    letterSpacing: -0.4,
+    lineHeight: normalize(20),
+  },
+  paragraph6: {
+    fontSize: normalizeFontSize(15),
+    fontWeight: '400',
+    color: 'rgba(255, 255, 255, 1)',
+    letterSpacing: -0.4,
+    lineHeight: normalize(20),
+  },
+  copyrightText: {
+    fontSize: normalizeFontSize(15),
+    fontWeight: '400',
+    color: 'rgba(179, 179, 179, 1)',
+    letterSpacing: -0.4,
+    lineHeight: normalize(20),
   },
 });
 

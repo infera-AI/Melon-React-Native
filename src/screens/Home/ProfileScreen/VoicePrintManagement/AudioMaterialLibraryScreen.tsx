@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -14,12 +14,18 @@ import theme from '@/utils/theme';
 import { normalize, normalizeFontSize } from '@/utils/stylesUtil';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import CommonModal from '@/components/CommonModal';
+import { getAllMaterials } from '@/api/profile/profile';
+import { useVoiceStore } from '@/store/modules/voice.store';
+import { deleteMaterials } from '@/api/profile/profile';
+import FullScreenLoader from '@/components/FullScreenLoader';
 
 type AudioMaterialLibraryScreenNavigationProp = NativeStackNavigationProp<ProfileStackParamList, 'AudioMaterialLibrary'>;
 
 const AudioMaterialLibraryScreen: React.FC = () => {
   const navigation = useNavigation<AudioMaterialLibraryScreenNavigationProp>();
   const [showAddModal, setShowAddModal] = useState(false);
+  const { materials, setMaterials, setMaterialsId, materialsName, setMaterialsName } = useVoiceStore();
+  const [isLoading, setIsLoading] = useState(false);
   const handleBack = () => {
     navigation.goBack();
   };
@@ -28,15 +34,44 @@ const AudioMaterialLibraryScreen: React.FC = () => {
     setShowAddModal(true);
   };
 
-  const handleMaterialPress = (id: number) => {
-    console.log('Select material:', id);
-    // 处理素材选择逻辑
+  const handleMaterialPress = (fileList: any) => {
+    const { file_list, name_list } = fileList;
+    const files = file_list.map((file: string, index: number) => {
+      return {
+        uri: file,
+        name: name_list[index],
+      }
+    });
+    console.log('Select material:', fileList);
+    setMaterials(files);
+    setMaterialsId(fileList.id);
+    setMaterialsName(fileList.name);
+    navigation.navigate('VoiceprintMaterialCreate');
   };
 
-  const materials = [
-    { id: 1, name: 'My voiceprint01' },
-    { id: 2, name: 'My voiceprint02' },
-  ];
+
+  const [list, setList] = useState<any[]>([]);
+
+  const handleDeleteMaterial = async (id: number) => {
+    console.log('Delete material:', id);
+    setIsLoading(true);
+    const res = await deleteMaterials({
+      id_list: [id],
+    });
+    getMaterialsRequest()
+    setIsLoading(false);
+  };
+
+
+  const getMaterialsRequest = async () => {
+    const res = await getAllMaterials();
+    console.log(res, 'res');
+    setList(res.data_list || []);
+  };
+
+  useEffect(() => {
+    getMaterialsRequest();
+  }, []);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -44,67 +79,73 @@ const AudioMaterialLibraryScreen: React.FC = () => {
       <View style={styles.navBar}>
         <Text style={styles.titleText}>Audio materials</Text>
         <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-          <Image 
-            source={require('@/assets/main/page_return_icon.png')} 
+          <Image
+            source={require('@/assets/main/page_return_icon.png')}
             style={styles.backIcon}
           />
         </TouchableOpacity>
       </View>
 
       {/* 素材列表 */}
-      {materials.length > 0 && <View style={styles.materialListContainer}>
+      {list.length > 0 && <View style={styles.materialListContainer}>
         <ScrollView style={styles.materialList} showsVerticalScrollIndicator={false}>
           <View style={styles.materialListContent}>
-            
-          {materials.map((material) => (
-            <TouchableOpacity 
-              key={material.id} 
-              style={styles.materialItem}
-              onPress={() => handleMaterialPress(material.id)}
-            >
-              <View style={styles.materialContent}>
-                <View style={styles.materialInfo}>
-                  <Image 
-                    source={require('@/assets/profile/voiceprint_dir_icon.png')} 
-                    style={styles.materialIcon}
-                  />
-                  <Text style={styles.materialName}>{material.name}</Text>
+
+            {list.map((material) => (
+              <TouchableOpacity
+                key={material.id}
+                style={styles.materialItem}
+                onPress={() => handleMaterialPress(material)}
+              >
+                <View style={styles.materialContent}>
+                  <View style={styles.materialInfo}>
+                    <Image
+                      source={require('@/assets/profile/voiceprint_dir_icon.png')}
+                      style={styles.materialIcon}
+                    />
+                    <Text style={styles.materialName}>{material.name}</Text>
+                  </View>
+                  <TouchableOpacity style={styles.materialDelete} onPress={() => handleDeleteMaterial(material.id)}>
+                    <Image
+                      source={require('@/assets/music/music_delete_icon.png')}
+                      style={styles.materialArrow}
+                    />
+                    tintColor={theme.textPrimary}
+                  </TouchableOpacity>
                 </View>
-                <Image 
-                  source={require('@/assets/music/music_delete_icon.png')} 
-                  style={styles.materialArrow}
-                />
-              </View>
-            </TouchableOpacity>
-          ))}
+              </TouchableOpacity>
+            ))}
           </View>
         </ScrollView>
-         {/* 添加按钮 */}
-         <TouchableOpacity style={styles.addButton} onPress={handleAdd}>
-            <Text style={styles.addButtonText}>Add</Text>
+        {/* 添加按钮 */}
+        <TouchableOpacity style={styles.addButton} onPress={handleAdd}>
+          <Text style={styles.addButtonText}>Add</Text>
         </TouchableOpacity>
       </View>}
 
-      {materials.length === 0 && <View style={styles.emptyContainer}>
-            <Text style={styles.emptyText}>No materials</Text>
-        </View>}
+      {list.length === 0 && <View style={styles.emptyContainer}>
+        <Text style={styles.emptyText}>No materials</Text>
+      </View>}
 
-    <CommonModal visible={showAddModal} onClose={() => {setShowAddModal(false)}} config={{
+      <CommonModal visible={showAddModal} onClose={() => { setShowAddModal(false) }} config={{
         title: 'Add materials',
         content: 'Supported formats: .mp3, .wav, .m4a, etc. (within 100M)',
         buttons: [
-            {
+          {
             text: 'Add file',
-            onPress: () => {navigation.navigate('VoiceprintMaterialCreate')},
+            onPress: () => { navigation.navigate('VoiceprintMaterialCreate') },
             type: 'border' as const,
-            },
-            {
+          },
+          {
             text: 'Direct recording',
-            onPress: () => {navigation.navigate('VoiceprintMaterialCreate')},
+            onPress: () => { navigation.navigate('VoiceprintMaterialCreate') },
             type: 'primary',
-            },
+          },
         ],
-        }} />
+      }} />
+      <FullScreenLoader
+        visible={isLoading}
+      />
     </SafeAreaView>
   );
 };
@@ -210,6 +251,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     width: normalize(134),
     height: normalize(22),
+  },
+  materialDelete: {
+    width: normalize(30),
+    height: "100%",
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   materialIcon: {
     width: normalize(22),

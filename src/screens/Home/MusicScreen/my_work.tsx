@@ -10,7 +10,7 @@ import {
   Dimensions,
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
-import { getMusicWorks } from '@/api/music/music';
+import { getPersonalWorks } from '@/api/music/music';
 import { AudioPlayer } from '@/utils/audioUtils';
 import Sound from "react-native-sound";
 import { useMessageModal } from '@/contexts/MessageModalContext';
@@ -43,9 +43,9 @@ const MyWorkScreen = ({ navigation }: any) => {
   const audioPlayerRef = useRef<AudioPlayer>(null);
   const [isPlayMusic, setIsPlayMusic] = useState('');
   const [isProcessing, setIsProcessing] = useState(false); // 添加处理状态
-  const {show} = useMessageModal();
+  const { show } = useMessageModal();
   const { t } = useLanguage();
-  
+
   // 清理音频相关数据
   const cleanupAudioData = React.useCallback(() => {
     try {
@@ -55,32 +55,32 @@ const MyWorkScreen = ({ navigation }: any) => {
         sound.release();
         setSound(null);
       }
-      
+
       // 重置播放状态
       setIsPlaying(false);
       setIsPlayMusic('');
-      
+
       // 重置所有作品的播放状态
-      setMyWorks(prevWorks => 
+      setMyWorks(prevWorks =>
         prevWorks.map((item: Music) => ({
           ...item,
           playing: false,
         }))
       );
-      
+
       console.log('音频数据清理完成');
     } catch (error) {
       console.error('清理音频数据失败:', error);
     }
   }, [sound]);
-  
+
   console.log(myWorks)
-   // 获取作品
+  // 获取作品
   const getMyWorks = async () => {
     try {
-      const response = await getMusicWorks();
-      setMyWorks(transformMyWorks(response.works));
-      setFilteredWorks(transformMyWorks(response.works)); // 初始化过滤后的作品
+      const response = await getPersonalWorks({ page_number: 1, page_size: 10, title: searchText });
+      setMyWorks(transformMyWorks(response.data_list));
+      setFilteredWorks(transformMyWorks(response.data_list)); // 初始化过滤后的作品
     } catch (error) {
       console.error('Error fetching my works:', error);
       return [];
@@ -91,13 +91,13 @@ const MyWorkScreen = ({ navigation }: any) => {
   const transformMyWorks = (data: any[]): Music[] => {
     return data.map((item: any) => ({
       id: item.work_id,
-      title: item.work_title,
-      genres: item.work_genres,
-      duration: item.work_duration,
-      cover: item.work_cover,
-      lyrics: item.work_lyrics,
+      title: item.title,
+      genres: item.genres,
+      duration: item.duration,
+      cover: item.cover,
+      lyrics: item.lyrics,
       taskId: item.task_id,
-      url: item.work_url,
+      url: item.cover_url,
       playing: false,
     }));
   }
@@ -112,7 +112,7 @@ const MyWorkScreen = ({ navigation }: any) => {
         const searchLower = text.toLowerCase();
         return (
           work.title?.toLowerCase().includes(searchLower) ||
-          (Array.isArray(work.genres) && work.genres.some((genre: string) => 
+          (Array.isArray(work.genres) && work.genres.some((genre: string) =>
             genre.toLowerCase().includes(searchLower)
           ))
         );
@@ -136,7 +136,7 @@ const MyWorkScreen = ({ navigation }: any) => {
         const searchLower = searchText.toLowerCase();
         return (
           work.title.toLowerCase().includes(searchLower) ||
-          (Array.isArray(work.genres) && work.genres.some((genre: string) => 
+          (Array.isArray(work.genres) && work.genres.some((genre: string) =>
             genre.toLowerCase().includes(searchLower)
           ))
         );
@@ -164,7 +164,7 @@ const MyWorkScreen = ({ navigation }: any) => {
     }
 
     // 重置所有作品的播放状态
-    setMyWorks(prevWorks => 
+    setMyWorks(prevWorks =>
       prevWorks.map((item: Music) => ({
         ...item,
         playing: false,
@@ -203,9 +203,9 @@ const MyWorkScreen = ({ navigation }: any) => {
         newSound.release();
         setSound(null);
         setIsPlayMusic('');
-        
+
         // 重置播放状态
-        setMyWorks(prevWorks => 
+        setMyWorks(prevWorks =>
           prevWorks.map((item: Music) => ({
             ...item,
             playing: false,
@@ -241,18 +241,18 @@ const MyWorkScreen = ({ navigation }: any) => {
         setSound(null);
         setIsPlaying(false);
         setIsPlayMusic('');
-        
+
         // 重置所有作品的播放状态
-        setMyWorks(prevWorks => 
+        setMyWorks(prevWorks =>
           prevWorks.map((item: Music) => ({
             ...item,
             playing: false,
           }))
         );
-        
+
         // 等待一小段时间确保音频完全停止
         await new Promise(resolve => setTimeout(resolve, 100));
-        
+
         // 立即播放新歌曲
         await handlePlayAudio(music);
         return;
@@ -266,7 +266,7 @@ const MyWorkScreen = ({ navigation }: any) => {
       if (isPlaying) {
         sound.pause();
         setIsPlaying(false);
-        setMyWorks(prevWorks => 
+        setMyWorks(prevWorks =>
           prevWorks.map((item: Music) => {
             if (item.url === music.url) {
               return { ...item, playing: false };
@@ -277,7 +277,7 @@ const MyWorkScreen = ({ navigation }: any) => {
       } else {
         sound.play();
         setIsPlaying(true);
-        setMyWorks(prevWorks => 
+        setMyWorks(prevWorks =>
           prevWorks.map((item: Music) => {
             if (item.url === music.url) {
               return { ...item, playing: true };
@@ -301,7 +301,7 @@ const MyWorkScreen = ({ navigation }: any) => {
     React.useCallback(() => {
       console.log('页面获得焦点，执行getMyWorks');
       getMyWorks();
-      
+
       // 页面失去焦点时的清理函数
       return () => {
         console.log('页面失去焦点，清理音频数据');
@@ -311,7 +311,7 @@ const MyWorkScreen = ({ navigation }: any) => {
   );
 
   useEffect(() => {
-    console.log('isPlayMusic',isPlayMusic);
+    console.log('isPlayMusic', isPlayMusic);
     if (isPlayMusic) {
       const playWors = myWorks.map((item: Music) => {
         if (item.url === isPlayMusic) {
@@ -322,7 +322,7 @@ const MyWorkScreen = ({ navigation }: any) => {
         return item;
       });
       setMyWorks([...playWors]);
-      
+
       // 同时更新 filteredWorks
       const filteredPlayWorks = filteredWorks.map((item: Music) => {
         if (item.url === isPlayMusic) {
@@ -334,7 +334,7 @@ const MyWorkScreen = ({ navigation }: any) => {
       });
       setFilteredWorks([...filteredPlayWorks]);
     }
-  }, [isPlayMusic,sound]);
+  }, [isPlayMusic, sound]);
 
   useEffect(() => {
     getMyWorks();
@@ -360,29 +360,29 @@ const MyWorkScreen = ({ navigation }: any) => {
       <View style={styles.searchUploadContainer}>
         {/* Search */}
         <View style={styles.searchBox}>
-              <Image source={require('@/assets/music/music_search_icon.png')} style={styles.searchIcon} resizeMode="contain" />
-              <TextInput
-                style={styles.searchInput}
-                placeholder={t('music.search_placeholder')}
-                placeholderTextColor="#888"
-                value={searchText}
-                onChangeText={handleSearch}
-                onSubmitEditing={clearSearch}
-              />
-              {searchText.length > 0 && (
-                <TouchableOpacity onPress={clearSearch} style={styles.clearSearchBtn}>
-                  <Text style={styles.clearSearchText}>✕</Text>
-                </TouchableOpacity>
+          <Image source={require('@/assets/music/music_search_icon.png')} style={styles.searchIcon} resizeMode="contain" />
+          <TextInput
+            style={styles.searchInput}
+            placeholder={t('music.search_placeholder')}
+            placeholderTextColor="#888"
+            value={searchText}
+            onChangeText={handleSearch}
+            onSubmitEditing={clearSearch}
+          />
+          {searchText.length > 0 && (
+            <TouchableOpacity onPress={clearSearch} style={styles.clearSearchBtn}>
+              <Text style={styles.clearSearchText}>✕</Text>
+            </TouchableOpacity>
           )}
         </View>
         {/* 上传按钮 */}
-        <TouchableOpacity style={styles.uploadBtn} onPress={()=>navigation.navigate('CoverUpload' as never)}>
+        <TouchableOpacity style={styles.uploadBtn} onPress={() => navigation.navigate('CoverUpload' as never)}>
           <Text style={styles.uploadBtnText}>Upload</Text>
         </TouchableOpacity>
       </View>
 
-    
-    
+
+
 
       {/* Search Results Info */}
       {/* {searchText.length > 0 && (
@@ -396,11 +396,11 @@ const MyWorkScreen = ({ navigation }: any) => {
       {/* List */}
       <FlatList
         data={filteredWorks}
-        keyExtractor={item => item.id.toString()}
+        keyExtractor={item => item.url?.toString()}
         renderItem={({ item }: { item: Music }) => (
           <TouchableOpacity
             style={styles.itemCard}
-            onPress={() => navigation.navigate('MyWorkMusicPlay', { music: item ,myWorkIds:myWorks.map((item:Music)=>item.id)})}
+            onPress={() => navigation.navigate('MyWorkMusicPlay', { music: item, myWorkIds: myWorks.map((item: Music) => item.id) })}
           >
             <Image source={{ uri: item.cover }} style={styles.avatar} />
             <View style={styles.itemInfo}>
@@ -414,9 +414,9 @@ const MyWorkScreen = ({ navigation }: any) => {
                 resizeMode="contain"
               />
             ) : (
-              <Text style={styles.price}>{formatTime(item.duration/1000)}</Text>
+              <Text style={styles.price}>{formatTime(item.duration)}</Text>
             )}
-            <TouchableOpacity style={styles.playBtn} onPress={()=>handlePlayPause(item)}>
+            <TouchableOpacity style={styles.playBtn} onPress={() => handlePlayPause(item)}>
               <Image
                 source={
                   item.playing
@@ -473,11 +473,11 @@ const styles = StyleSheet.create({
   searchBox: {
     width: "66%",
     backgroundColor: '#222',
-    height:normalize(48),
+    height: normalize(48),
     borderRadius: normalize(12),
     paddingHorizontal: normalize(12),
     paddingVertical: normalize(6),
-    justifyContent:'center',
+    justifyContent: 'center',
     flexDirection: 'row',
     alignItems: 'center',
   },
@@ -488,10 +488,10 @@ const styles = StyleSheet.create({
   },
   searchInput: {
     color: '#fff',
-    height:normalize(48),
-    paddingVertical:normalize(4),
+    height: normalize(48),
+    paddingVertical: normalize(4),
     fontSize: normalizeFontSize(15),
-    backgroundColor:'transparent',
+    backgroundColor: 'transparent',
     flex: 1,
   },
   clearSearchBtn: {
@@ -587,7 +587,7 @@ const styles = StyleSheet.create({
   },
   uploadBtn: {
     width: "30%",
-    height:normalize(48),
+    height: normalize(48),
     backgroundColor: theme.primary,
     justifyContent: 'center',
     alignItems: 'center',

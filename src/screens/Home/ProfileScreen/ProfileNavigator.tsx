@@ -54,8 +54,8 @@ export type ProfileStackParamList = {
   AccountSecurity: undefined;
   DeregisterAccount: undefined;
   DeregisterVerification: undefined;
-  DeregisterCodeVerification: { phoneNumber: string ,countryCode:string};
-  BindMailbox: {action_token:string};
+  DeregisterCodeVerification: { phoneNumber: string, countryCode: string };
+  BindMailbox: { action_token: string };
   GeneralSettings: undefined;
   SystemLanguage: undefined;
   HelpFeedback: undefined;
@@ -87,7 +87,7 @@ export type ProfileStackParamList = {
   VoiceprintMaterialCreate: undefined;
   AudioMaterialLibrary: undefined;
   VoiceprintTrainingSuccess: undefined;
-  VoiceprintRecording: {locale: string};
+  VoiceprintRecording: { locale: string };
   BindSuccess: {
     bindType: 'phone' | 'email';
     bindValue: string;

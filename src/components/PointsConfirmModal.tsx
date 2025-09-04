@@ -11,15 +11,15 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { useGlobalTheme } from '@/hooks/useGlobalTheme';
 import { normalize, normalizeFontSize } from '@/utils/stylesUtil';
 import theme from '@/utils/theme';
+import { usePointsStore } from '@/store/modules/points.store';
 
 interface PointsConfirmModalProps {
   visible: boolean;
   onClose: () => void;
   onConfirm: () => void;
   onCancel: () => void;
-  pointsToSpend: number;
-  pointsBalance: number;
   onDontShowAgain?: (dontShow: boolean) => void;
+  title: React.ReactNode;
 }
 
 const PointsConfirmModal: React.FC<PointsConfirmModalProps> = ({
@@ -27,13 +27,13 @@ const PointsConfirmModal: React.FC<PointsConfirmModalProps> = ({
   onClose,
   onConfirm,
   onCancel,
-  pointsToSpend,
-  pointsBalance,
+  title,
   onDontShowAgain,
 }) => {
   const { t } = useLanguage();
   const { text, textSecondary } = useGlobalTheme();
   const [dontShowAgain, setDontShowAgain] = useState(false);
+  const { pointsBalance } = usePointsStore.getState();
 
   const handleDontShowAgain = () => {
     const newValue = !dontShowAgain;
@@ -59,7 +59,7 @@ const PointsConfirmModal: React.FC<PointsConfirmModalProps> = ({
       onRequestClose={onClose}
     >
       <View style={styles.overlay}>
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.overlayTouchable}
           activeOpacity={1}
           onPress={onClose}
@@ -71,23 +71,23 @@ const PointsConfirmModal: React.FC<PointsConfirmModalProps> = ({
           {/* 积分消耗提示 */}
           <View style={styles.pointsTextContainer}>
             <Text style={[styles.pointsText, text]}>
-            Make a song and spend 50 credits. You can choose to get 50 points back for watching ads.
+              {title}
             </Text>
           </View>
 
           {/* 积分余额 */}
           <View style={styles.balanceContainer}>
             <Text style={[styles.balanceLabel]}>
-             Points balance: 
+              Points balance:
             </Text>
-            <Text style={[styles.balanceValue, {color: theme.primary}]}>
+            <Text style={[styles.balanceValue, { color: theme.primary }]}>
               &nbsp;{pointsBalance}
             </Text>
           </View>
 
           {/* 按钮组 */}
           <View style={styles.buttonContainer}>
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.cancelButton}
               onPress={handleCancel}
               activeOpacity={0.7}
@@ -96,14 +96,14 @@ const PointsConfirmModal: React.FC<PointsConfirmModalProps> = ({
                 Refuse
               </Text>
             </TouchableOpacity>
-            
-            <TouchableOpacity 
+
+            <TouchableOpacity
               style={styles.confirmButton}
               onPress={handleConfirm}
               activeOpacity={0.7}
             >
               <Text style={styles.confirmButtonText}>
-              Free generation
+                Free generation
               </Text>
             </TouchableOpacity>
           </View>

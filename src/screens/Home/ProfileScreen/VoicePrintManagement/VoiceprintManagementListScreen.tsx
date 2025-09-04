@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   Image,
   ScrollView,
+  TextInput,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -13,12 +14,27 @@ import { ProfileStackParamList } from '../ProfileNavigator';
 import theme from '@/utils/theme';
 import { normalize, normalizeFontSize } from '@/utils/stylesUtil';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { getCommonVoiceprints, getPersonalVoiceprints, renameVoiceprint, deleteVoiceprint } from '@/api/profile/profile';
+import { useAudioPlayer } from '@/hooks/useAudioPlayer';
+import CommonModal from '@/components/CommonModal';
+import { useMessageModal } from '@/contexts/MessageModalContext';
 
 type VoiceprintManagementListScreenNavigationProp = NativeStackNavigationProp<ProfileStackParamList, 'VoiceprintManagementList'>;
 
 const VoiceprintManagementListScreen: React.FC = () => {
   const navigation = useNavigation<VoiceprintManagementListScreenNavigationProp>();
   const [activeTab, setActiveTab] = useState<'voiceprint' | 'dataset'>('voiceprint');
+  const [commonVoiceprints, setCommonVoiceprints] = useState<any[]>([]);
+  const [personalVoiceprints, setPersonalVoiceprints] = useState<any[]>([]);
+  const [showRenameModal, setShowRenameModal] = useState(false);
+  const [renameNameInput, setRenameNameInput] = useState('');
+  const [selectedId, setSelectedId] = useState('');
+  const { show } = useMessageModal();
+  const {
+    isPlayIndex,
+    togglePlayPause,
+    cleanup,
+  } = useAudioPlayer();
 
   const handleBack = () => {
     navigation.replace('ProfileMain' as any);
@@ -27,6 +43,23 @@ const VoiceprintManagementListScreen: React.FC = () => {
   const handleCreate = () => {
     console.log('Create voiceprint');
     navigation.navigate('VoiceprintMaterialCreate' as any);
+  };
+
+  const handleRename = async () => {
+    const res = await renameVoiceprint({
+      id: Number(selectedId),
+      name: renameNameInput,
+    });
+    personalVoiceprints.forEach(voiceprint => {
+      if (voiceprint.id === Number(selectedId)) {
+        voiceprint.name = renameNameInput;
+      }
+    });
+    setPersonalVoiceprints([...personalVoiceprints]);
+    console.log(res, 'res');
+    setShowRenameModal(false);
+    setRenameNameInput('');
+    setSelectedId('');
   };
 
   const voiceprints = [
@@ -42,32 +75,54 @@ const VoiceprintManagementListScreen: React.FC = () => {
   };
 
   const handleEdit = (id: number) => {
+    setSelectedId(id);
     console.log('Edit voiceprint:', id);
+    setShowRenameModal(true);
   };
 
-  const handleDelete = (id: number) => {
+  const handleDelete = async (id: number) => {
     console.log('Delete voiceprint:', id);
+    const res = await deleteVoiceprint({
+      id_list: [id],
+    });
+    show({ message: 'Delete voiceprint successfully' });
+    console.log(res, 'res');
+    getPersonalMaterialsRequest();
   };
+
+  const getCommonMaterialsRequest = async () => {
+    const res = await getCommonVoiceprints();
+    console.log(res, 'res');
+    setCommonVoiceprints(res.data || []);
+  };
+
+  const getPersonalMaterialsRequest = async () => {
+    const res = await getPersonalVoiceprints();
+    console.log(res, 'res');
+    setPersonalVoiceprints(res.data_list || []);
+  };
+
+  // 播放素材
+  const handlePlayMaterial = (material: any) => {
+    console.log('Play material:', material);
+    const materialCopy = { ...material, uri: material.merge_file };
+    handlePlayPause(materialCopy);
+  };
+
+  // 暂停/恢复
+  const handlePlayPause = (music: any) => {
+    togglePlayPause(music);
+  };
+
+
+  useEffect(() => {
+    getCommonMaterialsRequest();
+    getPersonalMaterialsRequest();
+  }, []);
 
   // 渲染Tab栏
   const renderTabBar = () => (
     <View style={styles.tabBar}>
-      <TouchableOpacity
-        style={[
-          styles.tabItem,
-          activeTab === 'voiceprint' && styles.activeTabItem
-        ]}
-        onPress={() => handleTabPress('voiceprint')}
-      >
-        <Text style={[
-          styles.tabText,
-          activeTab === 'voiceprint' && styles.activeTabText
-        ]}>
-          Public singer
-        </Text>
-        {activeTab === 'voiceprint' && <View style={styles.tabIndicator} />}
-      </TouchableOpacity>
-
       <TouchableOpacity
         style={[
           styles.tabItem,
@@ -79,11 +134,27 @@ const VoiceprintManagementListScreen: React.FC = () => {
           styles.tabText,
           activeTab === 'dataset' && styles.activeTabText
         ]}>
+          Public singer
+        </Text>
+        {activeTab === 'dataset' && <View style={styles.tabIndicator} />}
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        style={[
+          styles.tabItem,
+          activeTab === 'voiceprint' && styles.activeTabItem
+        ]}
+        onPress={() => handleTabPress('voiceprint')}
+      >
+        <Text style={[
+          styles.tabText,
+          activeTab === 'voiceprint' && styles.activeTabText
+        ]}>
           My voiceprint
         </Text>
         {/* 红色小圆点 */}
-        <View style={styles.redDot} />
-        {activeTab === 'dataset' && <View style={styles.tabIndicator} />}
+        {personalVoiceprints.find(voiceprint => voiceprint.status === 1) && <View style={styles.redDot} />}
+        {activeTab === 'voiceprint' && <View style={styles.tabIndicator} />}
       </TouchableOpacity>
     </View>
   );
@@ -136,18 +207,33 @@ const VoiceprintManagementListScreen: React.FC = () => {
         {/* 声纹列表 */}
         <View style={styles.listContainer}>
           <ScrollView style={styles.list} showsVerticalScrollIndicator={false}>
-            {voiceprints.map((voiceprint, _index) => (
-              <View key={voiceprint.id} style={styles.voiceprintItem}>
+            {(activeTab === 'dataset' ? commonVoiceprints : personalVoiceprints)?.map((voiceprint, _index) => (
+              <View key={voiceprint.id} style={[styles.voiceprintItem, { opacity: voiceprint.status !== 2 ? 0.4 : 1 }]}>
                 <View style={styles.voiceprintContent}>
                   <View style={styles.voiceprintInfo}>
                     <Image
                       source={require('@/assets/profile/profile_voice_icon.png')}
                       style={styles.voiceprintIcon}
                     />
-                    <Text style={styles.voiceprintName}>{voiceprint.name}</Text>
+                    <Text style={styles.voiceprintName} numberOfLines={1} ellipsizeMode="tail">{voiceprint.name}</Text>
                   </View>
                   <View style={styles.actionButtons}>
-                    <TouchableOpacity
+                    {activeTab === 'dataset' && voiceprint.status === 2 && <TouchableOpacity
+                      style={styles.languageButton}
+                      onPress={() => handlePlayMaterial({})}
+                    >
+                      <Text style={styles.languageButtonText}>Chinese</Text>
+                    </TouchableOpacity>}
+                    {voiceprint.status === 2 && <TouchableOpacity
+                      style={styles.actionButton}
+                      onPress={() => handlePlayMaterial(voiceprint)}
+                    >
+                      <Image
+                        source={isPlayIndex === voiceprint.merge_file ? require('@/assets/music/music_pause_icon.png') : require('@/assets/music/music_play_icon.png')}
+                        style={styles.actionIcon}
+                      />
+                    </TouchableOpacity>}
+                    {activeTab === 'voiceprint' && voiceprint.status === 2 && <TouchableOpacity
                       style={styles.actionButton}
                       onPress={() => handleEdit(voiceprint.id)}
                     >
@@ -155,8 +241,8 @@ const VoiceprintManagementListScreen: React.FC = () => {
                         source={require('@/assets/music/music_edit_icon.png')}
                         style={styles.actionIcon}
                       />
-                    </TouchableOpacity>
-                    <TouchableOpacity
+                    </TouchableOpacity>}
+                    {activeTab === 'voiceprint' && voiceprint.status === 2 && <TouchableOpacity
                       style={styles.actionButton}
                       onPress={() => handleDelete(voiceprint.id)}
                     >
@@ -164,7 +250,8 @@ const VoiceprintManagementListScreen: React.FC = () => {
                         source={require('@/assets/music/music_delete_icon.png')}
                         style={styles.actionIcon}
                       />
-                    </TouchableOpacity>
+                    </TouchableOpacity>}
+                    {voiceprint.status !== 2 && <Text style={styles.trainingText}>Training...</Text>}
                   </View>
                 </View>
               </View>
@@ -177,6 +264,37 @@ const VoiceprintManagementListScreen: React.FC = () => {
           <Text style={styles.createButtonText}>Create</Text>
         </TouchableOpacity>
       </ScrollView>
+      {/* 重命名 */}
+      <CommonModal
+        visible={showRenameModal}
+        onClose={() => setShowRenameModal(false)}
+        config={{
+          title: 'Rename',
+          customContent: <View style={styles.renameInputContainer}>
+            <TextInput
+              value={renameNameInput}
+              style={styles.renameInput}
+              placeholder="1.My voiceprint"
+              placeholderTextColor={theme.textTertiary}
+              onChangeText={setRenameNameInput}
+            />
+          </View> as React.ReactNode,
+          buttons: [
+            {
+              text: 'Cancel',
+              onPress: () => { setShowRenameModal(false) },
+              type: 'border' as const,
+            },
+            {
+              text: 'Next',
+              onPress: () => {
+                handleRename()
+              },
+              type: 'primary' as const,
+            },
+          ],
+        }}
+      />
     </SafeAreaView>
   );
 };
@@ -310,7 +428,6 @@ const styles = StyleSheet.create({
     width: "100%",
     height: normalize(72),
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0, 0, 0, 0.4)',
   },
   voiceprintContent: {
     flexDirection: 'row',
@@ -329,6 +446,7 @@ const styles = StyleSheet.create({
     marginRight: normalize(8),
   },
   voiceprintName: {
+    width: normalize(100),
     fontSize: normalizeFontSize(14),
     fontWeight: '500',
     color: '#FFFFFF',
@@ -339,6 +457,28 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: normalize(16),
+  },
+  languageButton: {
+    width: normalize(60),
+    height: normalize(24),
+    borderRadius: normalize(8),
+    borderWidth: 1,
+    borderColor: '#454545',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  languageButtonText: {
+    fontSize: normalizeFontSize(12),
+    fontWeight: '400',
+    color: theme.primary,
+    letterSpacing: -0.4,
+  },
+  trainingText: {
+    fontSize: normalizeFontSize(14),
+    fontWeight: '500',
+    color: theme.textPrimary,
+    letterSpacing: -0.4,
+    height: normalize(20),
   },
   actionButton: {
     width: normalize(20),
@@ -416,6 +556,24 @@ const styles = StyleSheet.create({
     width: normalize(24),
     height: normalize(24),
     marginTop: normalize(12),
+  },
+  renameInputContainer: {
+    width: '100%',
+    height: normalize(38),
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  renameInput: {
+    width: normalize(259),
+    height: normalize(38),
+    backgroundColor: theme.background,
+    borderRadius: normalize(12),
+    paddingLeft: normalize(8),
+    fontSize: normalizeFontSize(14),
+    fontWeight: '500',
+    color: theme.textPrimary,
+    letterSpacing: -0.4,
+    lineHeight: normalize(16),
   },
 });
 

@@ -15,13 +15,13 @@ export const API_ENDPOINTS = {
     },
     MUSIC: {
       GET_MUSIC_WORKS: '/music/works',
-      GENERATE_MUSIC: '/music/generate',
+      GENERATE_MUSIC: '/opensource/generate_music_os',
       RECOMMEND_GENRES: '/music/genres',
       GET_MUSIC_WORK_INFO: '/music/work_info',
       MODIFY_MUSIC_TITLE: '/music/modify_title',
       REGENERATE_MUSIC_WORK: '/music/regenerate',
       DELETE_MUSIC_WORK: '/music/delete',
-      GET_MUSIC_TASK_STATUS: '/music/task_status',
+      GET_MUSIC_TASK_STATUS: '/opensource/get_generate_music_os_status',
       SING_TO_MUSIC: '/music/sing',
       SAVE_MUSIC_WORK: '/music/save',
       POLISH_LYRICS: '/music/lyrics',
@@ -31,6 +31,9 @@ export const API_ENDPOINTS = {
       SAVE_COVER_MUSIC_OS: '/opensource/save_cover_music_os',
       GET_GENERATE_MUSIC_OS_STATUS: '/opensource/get_generate_music_os_status',
       SAVE_GENERATE_MUSIC_OS: '/opensource/save_generate_music_os',
+      GET_PERSONAL_WORKS: '/opensource/list_music_os',
+      GET_SUPPORTED_LANGUAGES: '/opensource/get_support_language_os',
+      GET_MUSIC_SEGMENTATION: '/opensource/get_music_genres_os',
     },
     TRANSLATE: {
       TRANLATE_DOCUMENT: '/translations/translate/docs',
@@ -69,5 +72,11 @@ export const API_ENDPOINTS = {
           GET_ALL_MATERIALS: '/opensource/list_vpm_os',
           DELETE_MATERIALS: '/opensource/delete_vpm_os',
           SAVE_MATERIALS: '/opensource/save_vpm_os',
+          TRAIN_VOICEPRINT: '/opensource/train_vp_os',
+          GET_INTEGRAL_BALANCE: '/points',
+          GET_INTEGRAL_RECORD: '/points/log',
+        },
+        FILE: {
+          UPLOAD_FILE: '/opensource/upload_file_os',
         },
   };
