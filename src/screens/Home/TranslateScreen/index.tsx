@@ -9,6 +9,7 @@ import {
   Platform,
   Dimensions,
   Image,
+  PermissionsAndroid
 } from 'react-native';
 import { useLanguage } from '@/contexts/LanguageContext';
 import LinearGradient from 'react-native-linear-gradient'; // 渐变色
@@ -25,6 +26,7 @@ import type { Language } from '@/i18n/languages';
 import { scaleSize, scaleFont } from '@/utils/scale';
 import DeviceInfo from 'react-native-device-info';
 import Clipboard from '@react-native-clipboard/clipboard';
+import { useBackHandler } from '@/utils/BackHandlerUtil'; // 导入工具类
 
 import { translateText } from '@/api/translate'
 
@@ -37,6 +39,7 @@ const gutter = 12; // 每行item 的间距
 const itemWidth = (width - pageLRPadding * 2 - gutter) / numColumns;
 
 const TranslateScreen: React.FC = () => {
+  useBackHandler('再按一次退出')
   const { show } = useMessageModal();
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { t } = useLanguage();
@@ -60,6 +63,15 @@ const TranslateScreen: React.FC = () => {
     if (name === 'SpeakerMode') {
       navigation.navigate('Chat')
     } else if (name === 'HeadphoneMode') {
+      // 在使用蓝牙功能前调用
+      const hasPermission = await requestBluetoothPermissions();
+      if (!hasPermission) {
+        // 权限被拒绝，提示用户
+        show({
+          message: t('权限被拒绝，请在设置中开启蓝牙权限')
+        })
+        return;
+      }
       // @ts-ignore
       DeviceInfo.isHeadphonesConnected().then((enabled) => {
         // true or false
@@ -96,6 +108,22 @@ const TranslateScreen: React.FC = () => {
     // show({
     //   message: '211212'
     // })
+  };
+
+  // 检查并请求蓝牙权限
+  const requestBluetoothPermissions = async () => {
+    if (Platform.OS !== 'android') return true;
+    
+    // Android 12 及以上需要请求 BLUETOOTH_CONNECT 权限
+    if (Platform.Version >= 31) {
+      const result = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT
+      );
+      return result === PermissionsAndroid.RESULTS.GRANTED;
+    }
+    
+    // 旧版本不需要动态请求 BLUETOOTH 权限
+    return true;
   };
 
   // 翻译按钮点击
@@ -136,7 +164,6 @@ const TranslateScreen: React.FC = () => {
   }
 
   useEffect(() => {
-    
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 

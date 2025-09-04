@@ -3,12 +3,19 @@
   "version": "0.0.1",
   "scripts": {
     "start:metro": "npx react-native start",
+
     "android:melon": "cd android && ./gradlew installMelonDebug",
     "buildAndroid:melon": "cd android && ./gradlew assembleMelonRelease",
     "android:melons": "cd android && ./gradlew installMelonsDebug",
     "buildAndroid:melons": "cd android && ./gradlew assembleMelonsRelease",
+    "android:momor": "cd android && ./gradlew installMomorDebug",
+    "buildAndroid:momor": "cd android && ./gradlew assembleMomorRelease",
+    "android:momors": "cd android && ./gradlew installMomorsDebug",
+    "buildAndroid:momors": "cd android && ./gradlew assembleMomorsRelease",
+
     "ios:melon": "npx react-native run-ios --scheme MelonApp",
-    "ios:melons": "npx react-native run-ios --scheme MelonsApp"
+    "ios:melons": "npx react-native run-ios --scheme MelonsApp",
+    "ios:momor": "npx react-native run-ios --scheme MomorApp"
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "^2.2.0",
@@ -29,7 +36,7 @@
     "lottie-react-native": "^7.2.4",
     "react": "19.1.0",
     "react-native": "0.80.1",
-    "react-native-audio-record": "git@github.com:infera-AI/react-native-audio-record.git",
+    "react-native-audio-record": "https://github.com/infera-AI/react-native-audio-record.git",
     "react-native-audio-recorder-player": "^3.6.14",
     "react-native-blob-util": "^0.22.2",
     "react-native-country-flag": "^2.0.2",
@@ -37,6 +44,7 @@
     "react-native-extended-stylesheet": "^0.12.0",
     "react-native-fs": "^2.20.0",
     "react-native-gesture-handler": "^2.27.1",
+    "react-native-google-mobile-ads": "^15.7.0",
     "react-native-image-picker": "^8.2.1",
     "react-native-keyboard-aware-scroll-view": "^0.9.5",
     "react-native-linear-gradient": "^2.8.3",
@@ -48,7 +56,7 @@
     "react-native-safe-area-context": "^5.5.2",
     "react-native-screens": "^4.13.1",
     "react-native-share": "^12.1.2",
-    "react-native-sound": "git@github.com:infera-AI/react-native-sound.git",
+    "react-native-sound": "https://github.com/infera-AI/react-native-sound.git",
     "react-native-svg": "^15.12.0",
     "react-native-vector-icons": "^10.3.0",
     "react-native-video": "^6.16.1",

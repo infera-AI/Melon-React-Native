@@ -23,10 +23,12 @@ import { supportedLanguages } from '@/i18n/languages';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { translateText } from '@/api/profile/profile';
 import { normalize, normalizeFontSize } from '@/utils/stylesUtil';
+import { useBackHandler } from '@/utils/BackHandlerUtil'; // 导入工具类
 
 type MusicScreenNavigationProp = NativeStackNavigationProp<MusicStackParamList, 'MusicMain'>;
 
 const MusicScreen: React.FC = () => {
+  useBackHandler('再按一次退出')
   const navigation = useNavigation<MusicScreenNavigationProp>();
   const [title, setTitle] = useState('');
   const [lyrics, setLyrics] = useState('');

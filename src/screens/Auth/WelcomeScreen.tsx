@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -19,9 +19,15 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import CountryFlag from 'react-native-country-flag';
 import { languageToCountryCode, supportedLanguages } from "@/i18n/languages"
 import { scaleSize,scaleFont } from '../../utils/scale';
+import { useBackHandler } from '@/utils/BackHandlerUtil'; // 导入工具类
+import { useAppStore } from '@/store';
 
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '@/navigation/AppNavigator'
+
+import { PangleAdManager, AdEvents, InitAdOptions } from '@/utils/PangleAd';
+import { APP_SIGN_ENUM } from '@/utils';
+import { RewardedAd, RewardedAdEventType, TestIds } from 'react-native-google-mobile-ads';
 
 type WelcomeScreenNavigationProp = StackNavigationProp<AuthStackParamList, 'Initial'>;
 
@@ -36,16 +42,197 @@ type WelcomeScreenNavigationProp = StackNavigationProp<AuthStackParamList, 'Init
 // ];
 
 const WelcomeScreen: React.FC = () => {
+  useBackHandler('再按一次退出')
   const navigation = useNavigation<WelcomeScreenNavigationProp>();
   const navigation2 = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { language, setLanguage } = useLanguage();
   const [showLanguageModal, setShowLanguageModal] = useState(false);
   const [isAgreementChecked, setIsAgreementChecked] = useState(false);
 
+  const [adCodeId, setAdCodeId] = useState('969900432'); // 穿山甲广告位ID（9开头9位）
+  const [rewardName, setRewardName] = useState('积分');   // 奖励名称（可选）
+  const [rewardAmount, setRewardAmount] = useState(50);  // 奖励数量（可选）
+  const [enableAdvancedReward, setEnableAdvancedReward] = useState(false); // 是否启用进阶奖励（可选）
+
   const { t } = useLanguage();
 
   // 获取当前选中的语言信息
   const currentLanguage = supportedLanguages.find(lang => lang.code === language) || supportedLanguages[0];
+
+  let googleRewarded:RewardedAd // 谷歌激励广告实例
+
+  useEffect(() => {
+    let initSuccessListener: (() => void) | undefined
+    let initFailListener: (() => void) | undefined
+    let loadSuccessListener: (() => void) | undefined
+    let loadFailListener: (() => void) | undefined
+    let rewardListener: (() => void) | undefined
+    let adCloseListener: (() => void) | undefined
+
+    // 国内版本需要使用穿山甲广告SDK
+    if (
+      useAppStore.getState().appSign === APP_SIGN_ENUM.TYPE_MELON ||
+      useAppStore.getState().appSign === APP_SIGN_ENUM.TYPE_MOMOR
+    ) {
+      // 3.1 监听「初始化成功」事件
+      initSuccessListener = PangleAdManager.addEventListener(
+        AdEvents.AD_INIT_SUCCESS,
+        (data) => {
+          // setAdStatus(data.msg); // 显示初始化成功信息（如“广告初始化成功（广告位ID：969875202）”）
+          // Alert.alert('广告初始化成功', data.msg);
+          console.log('RN接收到原生事件：广告初始化成功:', data.msg);
+          
+        }
+      );
+
+        // 3.2 监听「初始化失败」事件
+      initFailListener = PangleAdManager.addEventListener(
+        AdEvents.AD_INIT_FAILED,
+        (data) => {
+          // setAdStatus(`初始化失败：${data.msg}`);
+          // Alert.alert('广告初始化失败', data.msg);
+          console.log('广告初始化失败:', data.msg);
+          
+        }
+      );
+
+      // 3.3 监听「广告加载成功」事件
+      loadSuccessListener = PangleAdManager.addEventListener(
+        AdEvents.AD_LOADED,
+        (data) => {
+          // setAdStatus(data.msg); // 显示加载成功信息（如“广告素材缓存完成（最佳展示时机）”）
+          console.log('RN接收到原生事件广告加载成功:', data.msg);
+          PangleAdManager.showAd();
+          
+        }
+      );
+
+      // 3.4 监听「广告加载失败」事件
+      loadFailListener = PangleAdManager.addEventListener(
+        AdEvents.AD_LOAD_FAILED,
+        (data) => {
+          // setAdStatus(`加载失败：${data.msg}（错误码：${data.code}）`);
+          // Alert.alert('广告加载失败', `错误码：${data.code}\n原因：${data.msg}`);
+          console.log('RN接收到原生事件广告加载失败', `错误码：${data.code}\n原因：${data.msg}`);
+          
+        }
+      );
+
+      // 3.5 监听「奖励到账」事件（核心业务逻辑：用户看完广告后发放奖励）
+      rewardListener = PangleAdManager.addEventListener(
+        AdEvents.REWARD_ARRIVED,
+        (data) => {
+          if (data.isRewardValid) {
+            // 奖励有效：执行发放逻辑（如调用API给用户加金币）
+            // Alert.alert(
+            //   '奖励到账',
+            //   `恭喜获得 ${data.rewardAmount} ${data.rewardName}`
+            // );
+            console.log(`RN接收到原生事件奖励到账: 恭喜获得 ${data.rewardAmount} ${data.rewardName}`);
+            
+            // 示例：调用后端接口发放奖励
+            // fetch('/api/user/addReward', {
+            //   method: 'POST',
+            //   body: JSON.stringify({
+            //     userId: '当前用户ID',
+            //     rewardType: data.rewardName,
+            //     rewardNum: data.rewardAmount
+            //   })
+            // });
+          } else {
+            // 奖励无效：提示用户
+            // Alert.alert('奖励无效', `原因：${data.serverErrorMsg || '未知错误'}`);
+            console.log('RN接收到原生事件奖励无效: ', `原因：${data.serverErrorMsg || '未知错误'}`);
+          }
+        }
+      );
+
+      // 3.6 监听「广告关闭」事件
+      adCloseListener = PangleAdManager.addEventListener(
+        AdEvents.AD_CLOSED,
+        (data) => {
+          // setAdStatus('广告已关闭');
+          console.log('RN接收到原生事件广告已关闭');
+        }
+      );
+    } else { // 国外版使用谷歌广告
+
+    }
+
+    // 组件卸载时：取消所有监听 + 释放广告资源
+    return () => {
+      if (
+        useAppStore.getState().appSign === APP_SIGN_ENUM.TYPE_MELON ||
+        useAppStore.getState().appSign === APP_SIGN_ENUM.TYPE_MOMOR
+      ) {
+        console.log('RN端写在监听器');
+        initSuccessListener && initSuccessListener();
+        initFailListener && initFailListener();
+        loadSuccessListener && loadSuccessListener();
+        loadFailListener && loadFailListener();
+        rewardListener && rewardListener();
+        adCloseListener && adCloseListener();
+        PangleAdManager.releaseAd(); // 释放广告资源，避免内存泄漏
+      } else {
+        googleRewarded && googleRewarded.removeAllListeners()
+      }
+      
+    };
+
+  }, [])
+
+  // 4.1 初始化广告（必选：传入广告位ID，可选传奖励信息/进阶奖励）
+  const handleInitAd = async () => {
+    console.log('useAppStore.getState().appSign---', useAppStore.getState().appSign);
+    
+    if (
+      useAppStore.getState().appSign === APP_SIGN_ENUM.TYPE_MELON ||
+      useAppStore.getState().appSign === APP_SIGN_ENUM.TYPE_MOMOR
+    ) {
+      if (!adCodeId.trim()) {
+        // Alert.alert('输入错误', '请输入有效的广告位ID（9开头9位数字）');
+        console.log('请输入有效的广告位ID（9开头9位数字）');
+        
+        return;
+      }
+
+      // setAdStatus('正在初始化广告...');
+      console.log('正在初始化广告...');
+      
+      try {
+        // 构建可选参数（仅当需要设置奖励或启用进阶奖励时传递）
+        const options: InitAdOptions = {};
+        if (rewardName.trim() && rewardAmount > 0) {
+          options.rewardName = rewardName;
+          options.rewardAmount = rewardAmount;
+        }
+        if (enableAdvancedReward) {
+          options.enableAdvancedReward = false;
+        }
+
+        // 调用原生initAd方法（核心：传入广告位ID + 可选参数）
+        await PangleAdManager.initAd(adCodeId, options);
+        await PangleAdManager.autoLoadRewardAd();
+        // await PangleAdManager.showAd();
+      } catch (error: any) {
+        // setAdStatus(`初始化失败：${error.message}`);
+        console.log('广告初始化失败:', error.message);
+        
+      }
+    } else { // 国外版使用谷歌
+      googleRewarded = RewardedAd.createForAdRequest(TestIds.REWARDED, {
+        // keywords: ['fashion', 'clothing'],
+      });
+      googleRewarded.addAdEventListener(RewardedAdEventType.LOADED, () => {
+        console.log('谷歌激励广告加载完成');
+        googleRewarded.show()
+      })
+      googleRewarded.addAdEventListener(RewardedAdEventType.EARNED_REWARD, (reward) => {
+        console.log('谷歌激励广告播放完成----', reward);
+      })
+      googleRewarded.load()
+    }
+  };
 
   const handleRegister = () => {
     navigation.navigate('RegisterEmail');
@@ -102,6 +289,19 @@ const WelcomeScreen: React.FC = () => {
                   resizeMode="contain"
                 />
             </View>
+            <TouchableOpacity
+              style={{
+                width: 50,
+                height: 50,
+                position: 'absolute',
+                top: 40,
+                left: 20,
+                zIndex: 10,
+                backgroundColor: '#ff00ff'
+              }}
+              onPress={handleInitAd}
+            >
+            </TouchableOpacity>
               {/* Melon 标题 - 渐变色文字 */}
              <View style={styles.titleContainer}>
                <Image source={require('../../../src/assets/login/login_title_icon.png')} resizeMode="contain" style={styles.titleIcon} />

@@ -11,6 +11,172 @@
 		0439C6822E45146200353460 /* AudioConcatBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = 0439C6812E45146200353460 /* AudioConcatBridge.m */; };
 		048DA7642E3BFF9E00FA95BE /* HeadsetDetection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 048DA7632E3BFF9E00FA95BE /* HeadsetDetection.swift */; };
 		048DA7662E3C000000FA95BE /* HeadsetDetectionBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = 048DA7652E3C000000FA95BE /* HeadsetDetectionBridge.m */; };
+		049C70A02E603F1700DF9483 /* SplashAdView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 049C709F2E603F1700DF9483 /* SplashAdView.swift */; };
+		049C70A12E603F1700DF9483 /* SplashAdView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 049C709F2E603F1700DF9483 /* SplashAdView.swift */; };
+		049C70A22E603F1700DF9483 /* SplashAdView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 049C709F2E603F1700DF9483 /* SplashAdView.swift */; };
+		049C70A82E60433300DF9483 /* SplashAdViewManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 049C70A72E60433300DF9483 /* SplashAdViewManager.swift */; };
+		049C70A92E60433300DF9483 /* SplashAdViewManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 049C70A72E60433300DF9483 /* SplashAdViewManager.swift */; };
+		049C70AA2E60433300DF9483 /* SplashAdViewManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 049C70A72E60433300DF9483 /* SplashAdViewManager.swift */; };
+		049C70B42E60B19100DF9483 /* PangleAd.swift in Sources */ = {isa = PBXBuildFile; fileRef = 049C70B32E60B19100DF9483 /* PangleAd.swift */; };
+		049C70B52E60B19100DF9483 /* PangleAd.swift in Sources */ = {isa = PBXBuildFile; fileRef = 049C70B32E60B19100DF9483 /* PangleAd.swift */; };
+		049C70B62E60B19100DF9483 /* PangleAd.swift in Sources */ = {isa = PBXBuildFile; fileRef = 049C70B32E60B19100DF9483 /* PangleAd.swift */; };
+		049C70BC2E60B72400DF9483 /* PangleAdBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = 049C70BB2E60B72400DF9483 /* PangleAdBridge.m */; };
+		049C70BD2E60B72400DF9483 /* PangleAdBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = 049C70BB2E60B72400DF9483 /* PangleAdBridge.m */; };
+		049C70BE2E60B72400DF9483 /* PangleAdBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = 049C70BB2E60B72400DF9483 /* PangleAdBridge.m */; };
+		049C70C82E60CB0800DF9483 /* SplashAdViewBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = 049C70C72E60CB0800DF9483 /* SplashAdViewBridge.m */; };
+		049C70C92E60CB0800DF9483 /* SplashAdViewBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = 049C70C72E60CB0800DF9483 /* SplashAdViewBridge.m */; };
+		049C70CA2E60CB0800DF9483 /* SplashAdViewBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = 049C70C72E60CB0800DF9483 /* SplashAdViewBridge.m */; };
+		04AC38582E65CBE200FF2D7E /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFCC2E6004FA00733789 /* Accelerate.framework */; };
+		04AC38592E65CC2000FF2D7E /* AdSupport.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFCE2E60050500733789 /* AdSupport.framework */; };
+		04AC385A2E65CC2900FF2D7E /* AppTrackingTransparency.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFD02E60051300733789 /* AppTrackingTransparency.framework */; };
+		04AC385B2E65CC3400FF2D7E /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFD22E60051F00733789 /* AudioToolbox.framework */; };
+		04AC385C2E65CC3E00FF2D7E /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFD42E60053000733789 /* AVFoundation.framework */; };
+		04AC385D2E65CC5A00FF2D7E /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFD62E60053F00733789 /* CoreGraphics.framework */; };
+		04AC385E2E65CC6300FF2D7E /* CoreHaptics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFCA2E6004EB00733789 /* CoreHaptics.framework */; };
+		04AC385F2E65CC8600FF2D7E /* CoreImage.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFD82E60054900733789 /* CoreImage.framework */; };
+		04AC38602E65CC8F00FF2D7E /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFDA2E60055800733789 /* CoreLocation.framework */; };
+		04AC38612E65CC9800FF2D7E /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFDC2E60056600733789 /* CoreMedia.framework */; };
+		04AC38622E65CCA400FF2D7E /* CoreML.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFC82E6004E100733789 /* CoreML.framework */; };
+		04AC38632E65CD5B00FF2D7E /* CoreMotion.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFDE2E60057200733789 /* CoreMotion.framework */; };
+		04AC38642E65CD6500FF2D7E /* CoreTelephony.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFE02E60057D00733789 /* CoreTelephony.framework */; };
+		04AC38652E65CD8800FF2D7E /* CoreText.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFE22E60058800733789 /* CoreText.framework */; };
+		04AC38662E65CD9100FF2D7E /* DeviceCheck.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFF92E60062300733789 /* DeviceCheck.framework */; };
+		04AC38672E65CDA100FF2D7E /* ImageIO.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFE42E60059000733789 /* ImageIO.framework */; };
+		04AC38682E65CDAA00FF2D7E /* JavaScriptCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ED297162215061F000B7C4FE /* JavaScriptCore.framework */; };
+		04AC38692E65CDB300FF2D7E /* libbz2.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFFB2E60063200733789 /* libbz2.tbd */; };
+		04AC386A2E65CF6200FF2D7E /* libc++.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFFD2E60064700733789 /* libc++.tbd */; };
+		04AC386B2E65CF6C00FF2D7E /* libc++abi.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEF0092E6006A700733789 /* libc++abi.tbd */; };
+		04AC386C2E65CF7500FF2D7E /* libiconv.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFFF2E60065400733789 /* libiconv.tbd */; };
+		04AC386D2E65CF7F00FF2D7E /* libresolv.9.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEF0012E60066F00733789 /* libresolv.9.tbd */; };
+		04AC386E2E65CF9100FF2D7E /* libsqlite3.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEF0032E60067F00733789 /* libsqlite3.tbd */; };
+		04AC386F2E65CF9A00FF2D7E /* libxml2.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEF0052E60068900733789 /* libxml2.tbd */; };
+		04AC38702E65CFA400FF2D7E /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEF0072E60069300733789 /* libz.tbd */; };
+		04AC38712E65CFAD00FF2D7E /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFE72E6005AB00733789 /* MapKit.framework */; };
+		04AC38722E65CFB600FF2D7E /* MediaPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFE92E6005BB00733789 /* MediaPlayer.framework */; };
+		04AC38732E65CFBD00FF2D7E /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFEB2E6005C700733789 /* MobileCoreServices.framework */; };
+		04AC38742E65CFC500FF2D7E /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFED2E6005D300733789 /* QuartzCore.framework */; };
+		04AC38752E65CFCD00FF2D7E /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFEF2E6005E400733789 /* Security.framework */; };
+		04AC38762E65CFD500FF2D7E /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFF12E6005F600733789 /* StoreKit.framework */; };
+		04AC38772E65CFDF00FF2D7E /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFF32E60060400733789 /* SystemConfiguration.framework */; };
+		04AC38782E65CFEE00FF2D7E /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFF52E60060F00733789 /* UIKit.framework */; };
+		04AC38792E65CFF600FF2D7E /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFF72E60061600733789 /* WebKit.framework */; };
+		04AC387D2E6801F700FF2D7E /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 761780EC2CA45674006654EE /* AppDelegate.swift */; };
+		04AC387E2E6801F700FF2D7E /* ConfigModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 04E7CED62E55BB6A0094A637 /* ConfigModule.m */; };
+		04AC387F2E6801F700FF2D7E /* SplashAdView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 049C709F2E603F1700DF9483 /* SplashAdView.swift */; };
+		04AC38802E6801F700FF2D7E /* SplashAdViewBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = 049C70C72E60CB0800DF9483 /* SplashAdViewBridge.m */; };
+		04AC38812E6801F700FF2D7E /* ConfigModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04E7CED22E55B9E30094A637 /* ConfigModule.swift */; };
+		04AC38822E6801F700FF2D7E /* AudioSessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04F414362E3B1F5E00D77B0A /* AudioSessionManager.swift */; };
+		04AC38832E6801F700FF2D7E /* AudioConcatModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0439C67F2E4512B300353460 /* AudioConcatModule.swift */; };
+		04AC38842E6801F700FF2D7E /* PangleAd.swift in Sources */ = {isa = PBXBuildFile; fileRef = 049C70B32E60B19100DF9483 /* PangleAd.swift */; };
+		04AC38852E6801F700FF2D7E /* HeadsetDetection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 048DA7632E3BFF9E00FA95BE /* HeadsetDetection.swift */; };
+		04AC38862E6801F700FF2D7E /* AudioSessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 04F414392E3B206500D77B0A /* AudioSessionManager.m */; };
+		04AC38872E6801F700FF2D7E /* HeadsetDetectionBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = 048DA7652E3C000000FA95BE /* HeadsetDetectionBridge.m */; };
+		04AC38882E6801F700FF2D7E /* AudioConcatBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = 0439C6812E45146200353460 /* AudioConcatBridge.m */; };
+		04AC38892E6801F700FF2D7E /* PangleAdBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = 049C70BB2E60B72400DF9483 /* PangleAdBridge.m */; };
+		04AC388A2E6801F700FF2D7E /* SplashAdViewManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 049C70A72E60433300DF9483 /* SplashAdViewManager.swift */; };
+		04AC38912E6801F700FF2D7E /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
+		04AC38922E6801F700FF2D7E /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
+		04AC38942E6801F700FF2D7E /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */; };
+		04AC389E2E6804C100FF2D7E /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFED2E6005D300733789 /* QuartzCore.framework */; };
+		04AC389F2E6804CC00FF2D7E /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFF52E60060F00733789 /* UIKit.framework */; };
+		04AC38A02E6804E000FF2D7E /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFF32E60060400733789 /* SystemConfiguration.framework */; };
+		04AC38A12E6804E900FF2D7E /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFF72E60061600733789 /* WebKit.framework */; };
+		04AC38A22E6804F300FF2D7E /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFDA2E60055800733789 /* CoreLocation.framework */; };
+		04AC38A32E68050100FF2D7E /* libc++abi.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEF0092E6006A700733789 /* libc++abi.tbd */; };
+		04AC38A42E68050C00FF2D7E /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFD42E60053000733789 /* AVFoundation.framework */; };
+		04AC38A52E68051B00FF2D7E /* CoreText.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFE22E60058800733789 /* CoreText.framework */; };
+		04AC38A62E68052300FF2D7E /* CoreHaptics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFCA2E6004EB00733789 /* CoreHaptics.framework */; };
+		04AC38A72E68052B00FF2D7E /* CoreTelephony.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFE02E60057D00733789 /* CoreTelephony.framework */; };
+		04AC38A82E68053400FF2D7E /* AdSupport.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFCE2E60050500733789 /* AdSupport.framework */; };
+		04AC38A92E68053C00FF2D7E /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFD62E60053F00733789 /* CoreGraphics.framework */; };
+		04AC38AA2E68054300FF2D7E /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFE72E6005AB00733789 /* MapKit.framework */; };
+		04AC38AB2E68055100FF2D7E /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEF0072E60069300733789 /* libz.tbd */; };
+		04AC38AC2E68055A00FF2D7E /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFCC2E6004FA00733789 /* Accelerate.framework */; };
+		04AC38AD2E68056400FF2D7E /* AppTrackingTransparency.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFD02E60051300733789 /* AppTrackingTransparency.framework */; };
+		04AC38AE2E68056E00FF2D7E /* CoreML.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFC82E6004E100733789 /* CoreML.framework */; };
+		04AC38AF2E68057C00FF2D7E /* libresolv.9.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEF0012E60066F00733789 /* libresolv.9.tbd */; };
+		04AC38B02E68059000FF2D7E /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFD22E60051F00733789 /* AudioToolbox.framework */; };
+		04AC38B12E68059900FF2D7E /* MediaPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFE92E6005BB00733789 /* MediaPlayer.framework */; };
+		04AC38B22E6805A500FF2D7E /* libc++.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFFD2E60064700733789 /* libc++.tbd */; };
+		04AC38B32E6805B400FF2D7E /* libxml2.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEF0052E60068900733789 /* libxml2.tbd */; };
+		04AC38B42E6805BD00FF2D7E /* JavaScriptCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ED297162215061F000B7C4FE /* JavaScriptCore.framework */; };
+		04AC38B52E6805C600FF2D7E /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFDC2E60056600733789 /* CoreMedia.framework */; };
+		04AC38B62E6805DD00FF2D7E /* libsqlite3.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEF0032E60067F00733789 /* libsqlite3.tbd */; };
+		04AC38B72E6805EC00FF2D7E /* libbz2.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFFB2E60063200733789 /* libbz2.tbd */; };
+		04AC38B82E6805F800FF2D7E /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFEF2E6005E400733789 /* Security.framework */; };
+		04AC38B92E68060500FF2D7E /* libiconv.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFFF2E60065400733789 /* libiconv.tbd */; };
+		04AC38BA2E68061200FF2D7E /* CoreImage.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFD82E60054900733789 /* CoreImage.framework */; };
+		04AC38BB2E68061D00FF2D7E /* CoreMotion.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFDE2E60057200733789 /* CoreMotion.framework */; };
+		04AC38BC2E68063200FF2D7E /* DeviceCheck.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFF92E60062300733789 /* DeviceCheck.framework */; };
+		04AC38BD2E68063900FF2D7E /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFF12E6005F600733789 /* StoreKit.framework */; };
+		04AC38BE2E68064300FF2D7E /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFEB2E6005C700733789 /* MobileCoreServices.framework */; };
+		04AC38BF2E68065400FF2D7E /* ImageIO.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFE42E60059000733789 /* ImageIO.framework */; };
+		04AC38C62E68117A00FF2D7E /* LaunchScreenMelonApp.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 04AC38C52E68117A00FF2D7E /* LaunchScreenMelonApp.storyboard */; };
+		04AC38C72E68117A00FF2D7E /* LaunchScreenMelonApp.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 04AC38C52E68117A00FF2D7E /* LaunchScreenMelonApp.storyboard */; };
+		04AC38C82E68117A00FF2D7E /* LaunchScreenMelonApp.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 04AC38C52E68117A00FF2D7E /* LaunchScreenMelonApp.storyboard */; };
+		04AC38C92E68117A00FF2D7E /* LaunchScreenMelonApp.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 04AC38C52E68117A00FF2D7E /* LaunchScreenMelonApp.storyboard */; };
+		04AC38DF2E683FB200FF2D7E /* LaunchIcon-MelonApp.png in Resources */ = {isa = PBXBuildFile; fileRef = 04AC38DE2E683FB200FF2D7E /* LaunchIcon-MelonApp.png */; };
+		04AC38E02E683FB200FF2D7E /* LaunchIcon-MelonApp.png in Resources */ = {isa = PBXBuildFile; fileRef = 04AC38DE2E683FB200FF2D7E /* LaunchIcon-MelonApp.png */; };
+		04AC38E12E683FB200FF2D7E /* LaunchIcon-MelonApp.png in Resources */ = {isa = PBXBuildFile; fileRef = 04AC38DE2E683FB200FF2D7E /* LaunchIcon-MelonApp.png */; };
+		04AC38E22E683FB200FF2D7E /* LaunchIcon-MelonApp.png in Resources */ = {isa = PBXBuildFile; fileRef = 04AC38DE2E683FB200FF2D7E /* LaunchIcon-MelonApp.png */; };
+		04AC38E42E68A9C900FF2D7E /* LaunchScreenMomorApp.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 04AC38E32E68A9C900FF2D7E /* LaunchScreenMomorApp.storyboard */; };
+		04AC38E52E68A9C900FF2D7E /* LaunchScreenMomorApp.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 04AC38E32E68A9C900FF2D7E /* LaunchScreenMomorApp.storyboard */; };
+		04AC38E62E68A9C900FF2D7E /* LaunchScreenMomorApp.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 04AC38E32E68A9C900FF2D7E /* LaunchScreenMomorApp.storyboard */; };
+		04AC38E72E68A9C900FF2D7E /* LaunchScreenMomorApp.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 04AC38E32E68A9C900FF2D7E /* LaunchScreenMomorApp.storyboard */; };
+		04AC38EB2E68AE3400FF2D7E /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 761780EC2CA45674006654EE /* AppDelegate.swift */; };
+		04AC38EC2E68AE3400FF2D7E /* ConfigModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 04E7CED62E55BB6A0094A637 /* ConfigModule.m */; };
+		04AC38ED2E68AE3400FF2D7E /* SplashAdView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 049C709F2E603F1700DF9483 /* SplashAdView.swift */; };
+		04AC38EE2E68AE3400FF2D7E /* SplashAdViewBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = 049C70C72E60CB0800DF9483 /* SplashAdViewBridge.m */; };
+		04AC38EF2E68AE3400FF2D7E /* ConfigModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04E7CED22E55B9E30094A637 /* ConfigModule.swift */; };
+		04AC38F02E68AE3400FF2D7E /* AudioSessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04F414362E3B1F5E00D77B0A /* AudioSessionManager.swift */; };
+		04AC38F12E68AE3400FF2D7E /* AudioConcatModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0439C67F2E4512B300353460 /* AudioConcatModule.swift */; };
+		04AC38F22E68AE3400FF2D7E /* PangleAd.swift in Sources */ = {isa = PBXBuildFile; fileRef = 049C70B32E60B19100DF9483 /* PangleAd.swift */; };
+		04AC38F32E68AE3400FF2D7E /* HeadsetDetection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 048DA7632E3BFF9E00FA95BE /* HeadsetDetection.swift */; };
+		04AC38F42E68AE3400FF2D7E /* AudioSessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 04F414392E3B206500D77B0A /* AudioSessionManager.m */; };
+		04AC38F52E68AE3400FF2D7E /* HeadsetDetectionBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = 048DA7652E3C000000FA95BE /* HeadsetDetectionBridge.m */; };
+		04AC38F62E68AE3400FF2D7E /* AudioConcatBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = 0439C6812E45146200353460 /* AudioConcatBridge.m */; };
+		04AC38F72E68AE3400FF2D7E /* PangleAdBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = 049C70BB2E60B72400DF9483 /* PangleAdBridge.m */; };
+		04AC38F82E68AE3400FF2D7E /* SplashAdViewManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 049C70A72E60433300DF9483 /* SplashAdViewManager.swift */; };
+		04AC38FA2E68AE3400FF2D7E /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFED2E6005D300733789 /* QuartzCore.framework */; };
+		04AC38FB2E68AE3400FF2D7E /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFF52E60060F00733789 /* UIKit.framework */; };
+		04AC38FC2E68AE3400FF2D7E /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFF32E60060400733789 /* SystemConfiguration.framework */; };
+		04AC38FD2E68AE3400FF2D7E /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFF72E60061600733789 /* WebKit.framework */; };
+		04AC38FE2E68AE3400FF2D7E /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFDA2E60055800733789 /* CoreLocation.framework */; };
+		04AC38FF2E68AE3400FF2D7E /* libc++abi.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEF0092E6006A700733789 /* libc++abi.tbd */; };
+		04AC39002E68AE3400FF2D7E /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFD42E60053000733789 /* AVFoundation.framework */; };
+		04AC39022E68AE3400FF2D7E /* CoreText.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFE22E60058800733789 /* CoreText.framework */; };
+		04AC39032E68AE3400FF2D7E /* CoreHaptics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFCA2E6004EB00733789 /* CoreHaptics.framework */; };
+		04AC39042E68AE3400FF2D7E /* CoreTelephony.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFE02E60057D00733789 /* CoreTelephony.framework */; };
+		04AC39052E68AE3400FF2D7E /* AdSupport.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFCE2E60050500733789 /* AdSupport.framework */; };
+		04AC39062E68AE3400FF2D7E /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFD62E60053F00733789 /* CoreGraphics.framework */; };
+		04AC39072E68AE3400FF2D7E /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFE72E6005AB00733789 /* MapKit.framework */; };
+		04AC39082E68AE3400FF2D7E /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEF0072E60069300733789 /* libz.tbd */; };
+		04AC39092E68AE3400FF2D7E /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFCC2E6004FA00733789 /* Accelerate.framework */; };
+		04AC390A2E68AE3400FF2D7E /* AppTrackingTransparency.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFD02E60051300733789 /* AppTrackingTransparency.framework */; };
+		04AC390B2E68AE3400FF2D7E /* CoreML.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFC82E6004E100733789 /* CoreML.framework */; };
+		04AC390C2E68AE3400FF2D7E /* libresolv.9.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEF0012E60066F00733789 /* libresolv.9.tbd */; };
+		04AC390D2E68AE3400FF2D7E /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFD22E60051F00733789 /* AudioToolbox.framework */; };
+		04AC390E2E68AE3400FF2D7E /* MediaPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFE92E6005BB00733789 /* MediaPlayer.framework */; };
+		04AC390F2E68AE3400FF2D7E /* libc++.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFFD2E60064700733789 /* libc++.tbd */; };
+		04AC39102E68AE3400FF2D7E /* libxml2.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEF0052E60068900733789 /* libxml2.tbd */; };
+		04AC39112E68AE3400FF2D7E /* JavaScriptCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ED297162215061F000B7C4FE /* JavaScriptCore.framework */; };
+		04AC39122E68AE3400FF2D7E /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFDC2E60056600733789 /* CoreMedia.framework */; };
+		04AC39142E68AE3400FF2D7E /* libsqlite3.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEF0032E60067F00733789 /* libsqlite3.tbd */; };
+		04AC39152E68AE3400FF2D7E /* libbz2.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFFB2E60063200733789 /* libbz2.tbd */; };
+		04AC39162E68AE3400FF2D7E /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFEF2E6005E400733789 /* Security.framework */; };
+		04AC39172E68AE3400FF2D7E /* libiconv.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFFF2E60065400733789 /* libiconv.tbd */; };
+		04AC39182E68AE3400FF2D7E /* CoreImage.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFD82E60054900733789 /* CoreImage.framework */; };
+		04AC39192E68AE3400FF2D7E /* CoreMotion.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFDE2E60057200733789 /* CoreMotion.framework */; };
+		04AC391B2E68AE3400FF2D7E /* DeviceCheck.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFF92E60062300733789 /* DeviceCheck.framework */; };
+		04AC391C2E68AE3400FF2D7E /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFF12E6005F600733789 /* StoreKit.framework */; };
+		04AC391D2E68AE3400FF2D7E /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFEB2E6005C700733789 /* MobileCoreServices.framework */; };
+		04AC391E2E68AE3400FF2D7E /* ImageIO.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFE42E60059000733789 /* ImageIO.framework */; };
+		04AC39212E68AE3400FF2D7E /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
+		04AC39222E68AE3400FF2D7E /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
+		04AC39232E68AE3400FF2D7E /* LaunchScreenMomorApp.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 04AC38E32E68A9C900FF2D7E /* LaunchScreenMomorApp.storyboard */; };
+		04AC39242E68AE3400FF2D7E /* LaunchIcon-MelonApp.png in Resources */ = {isa = PBXBuildFile; fileRef = 04AC38DE2E683FB200FF2D7E /* LaunchIcon-MelonApp.png */; };
+		04AC39252E68AE3400FF2D7E /* LaunchScreenMelonApp.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 04AC38C52E68117A00FF2D7E /* LaunchScreenMelonApp.storyboard */; };
+		04AC39272E68AE3400FF2D7E /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */; };
 		04E7CEA32E55B52D0094A637 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 761780EC2CA45674006654EE /* AppDelegate.swift */; };
 		04E7CEA42E55B52D0094A637 /* AudioSessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04F414362E3B1F5E00D77B0A /* AudioSessionManager.swift */; };
 		04E7CEA52E55B52D0094A637 /* AudioConcatModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0439C67F2E4512B300353460 /* AudioConcatModule.swift */; };
@@ -28,7 +194,6 @@
 		04E7CEC02E55B6B40094A637 /* AudioSessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 04F414392E3B206500D77B0A /* AudioSessionManager.m */; };
 		04E7CEC12E55B6B40094A637 /* HeadsetDetectionBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = 048DA7652E3C000000FA95BE /* HeadsetDetectionBridge.m */; };
 		04E7CEC22E55B6B40094A637 /* AudioConcatBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = 0439C6812E45146200353460 /* AudioConcatBridge.m */; };
-		04E7CEC42E55B6B40094A637 /* (null) in Frameworks */ = {isa = PBXBuildFile; };
 		04E7CEC62E55B6B40094A637 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
 		04E7CEC72E55B6B40094A637 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		04E7CEC82E55B6B40094A637 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */; };
@@ -38,40 +203,67 @@
 		04E7CED72E55BB6A0094A637 /* ConfigModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 04E7CED62E55BB6A0094A637 /* ConfigModule.m */; };
 		04E7CED82E55BB6A0094A637 /* ConfigModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 04E7CED62E55BB6A0094A637 /* ConfigModule.m */; };
 		04E7CED92E55BB6A0094A637 /* ConfigModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 04E7CED62E55BB6A0094A637 /* ConfigModule.m */; };
+		04EEEFC92E6004E100733789 /* CoreML.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFC82E6004E100733789 /* CoreML.framework */; };
+		04EEEFCB2E6004EB00733789 /* CoreHaptics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFCA2E6004EB00733789 /* CoreHaptics.framework */; };
+		04EEEFCD2E6004FA00733789 /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFCC2E6004FA00733789 /* Accelerate.framework */; };
+		04EEEFCF2E60050500733789 /* AdSupport.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFCE2E60050500733789 /* AdSupport.framework */; };
+		04EEEFD12E60051300733789 /* AppTrackingTransparency.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFD02E60051300733789 /* AppTrackingTransparency.framework */; };
+		04EEEFD32E60051F00733789 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFD22E60051F00733789 /* AudioToolbox.framework */; };
+		04EEEFD52E60053000733789 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFD42E60053000733789 /* AVFoundation.framework */; };
+		04EEEFD72E60053F00733789 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFD62E60053F00733789 /* CoreGraphics.framework */; };
+		04EEEFD92E60054900733789 /* CoreImage.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFD82E60054900733789 /* CoreImage.framework */; };
+		04EEEFDB2E60055800733789 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFDA2E60055800733789 /* CoreLocation.framework */; };
+		04EEEFDD2E60056600733789 /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFDC2E60056600733789 /* CoreMedia.framework */; };
+		04EEEFDF2E60057200733789 /* CoreMotion.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFDE2E60057200733789 /* CoreMotion.framework */; };
+		04EEEFE12E60057D00733789 /* CoreTelephony.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFE02E60057D00733789 /* CoreTelephony.framework */; };
+		04EEEFE32E60058800733789 /* CoreText.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFE22E60058800733789 /* CoreText.framework */; };
+		04EEEFE52E60059000733789 /* ImageIO.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFE42E60059000733789 /* ImageIO.framework */; };
+		04EEEFE62E60059E00733789 /* JavaScriptCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ED297162215061F000B7C4FE /* JavaScriptCore.framework */; };
+		04EEEFE82E6005AB00733789 /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFE72E6005AB00733789 /* MapKit.framework */; };
+		04EEEFEA2E6005BB00733789 /* MediaPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFE92E6005BB00733789 /* MediaPlayer.framework */; };
+		04EEEFEC2E6005C700733789 /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFEB2E6005C700733789 /* MobileCoreServices.framework */; };
+		04EEEFEE2E6005D300733789 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFED2E6005D300733789 /* QuartzCore.framework */; };
+		04EEEFF02E6005E400733789 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFEF2E6005E400733789 /* Security.framework */; };
+		04EEEFF22E6005F600733789 /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFF12E6005F600733789 /* StoreKit.framework */; };
+		04EEEFF42E60060400733789 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFF32E60060400733789 /* SystemConfiguration.framework */; };
+		04EEEFF62E60060F00733789 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFF52E60060F00733789 /* UIKit.framework */; };
+		04EEEFF82E60061600733789 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFF72E60061600733789 /* WebKit.framework */; };
+		04EEEFFA2E60062300733789 /* DeviceCheck.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFF92E60062300733789 /* DeviceCheck.framework */; };
+		04EEEFFC2E60063200733789 /* libbz2.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFFB2E60063200733789 /* libbz2.tbd */; };
+		04EEEFFE2E60064700733789 /* libc++.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFFD2E60064700733789 /* libc++.tbd */; };
+		04EEF0002E60065400733789 /* libiconv.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEEFFF2E60065400733789 /* libiconv.tbd */; };
+		04EEF0022E60066F00733789 /* libresolv.9.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEF0012E60066F00733789 /* libresolv.9.tbd */; };
+		04EEF0042E60067F00733789 /* libsqlite3.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEF0032E60067F00733789 /* libsqlite3.tbd */; };
+		04EEF0062E60068900733789 /* libxml2.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEF0052E60068900733789 /* libxml2.tbd */; };
+		04EEF0082E60069400733789 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEF0072E60069300733789 /* libz.tbd */; };
+		04EEF00A2E6006A700733789 /* libc++abi.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EEF0092E6006A700733789 /* libc++abi.tbd */; };
 		04F414372E3B1F5E00D77B0A /* AudioSessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04F414362E3B1F5E00D77B0A /* AudioSessionManager.swift */; };
 		04F4143A2E3B206500D77B0A /* AudioSessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 04F414392E3B206500D77B0A /* AudioSessionManager.m */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
+		245B3CD6A52585BA688A3465 /* BuildFile in Frameworks */ = {isa = PBXBuildFile; };
+		2F406D6568A8A8A7D21B5898 /* libPods-MomorsApp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E2DFAEB405A08AA71A6D8269 /* libPods-MomorsApp.a */; };
+		55484962E2FFF874F5A9D6A7 /* BuildFile in Frameworks */ = {isa = PBXBuildFile; };
 		761780ED2CA45674006654EE /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 761780EC2CA45674006654EE /* AppDelegate.swift */; };
 		76D43A07939EB58E07A41C7E /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */; };
-		808ABC5D9888AABEDA25F5F4 /* libPods-Melon.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8D1305AC7362AB54907240A5 /* libPods-Melon.a */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
-		85CF1F98E53C7BBE2ACA173D /* libPods-MelonApp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A09BFF3133294B6298B27B61 /* libPods-MelonApp.a */; };
-		D8BA46BCE0A182AA6617F830 /* libPods-MelonsApp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9D2CB455B1FDBE8D1F8C5CD7 /* libPods-MelonsApp.a */; };
-		FE2AF26877C59EF9567DB704 /* (null) in Frameworks */ = {isa = PBXBuildFile; };
+		8647F21BFC6A7D779B73BE5B /* libPods-MelonsApp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 66D507C0F64250C201024CD7 /* libPods-MelonsApp.a */; };
+		C7781717C4CF384F678E7934 /* libPods-Melon.a in Frameworks */ = {isa = PBXBuildFile; fileRef = EDA1897AC436D71557CBD7A1 /* libPods-Melon.a */; };
+		D5EECD9959D1B21ADBC38763 /* libPods-MelonApp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 482962007827423E22048777 /* libPods-MelonApp.a */; };
+		E7C3A191B45F3DBDB452F0F5 /* libPods-MomorApp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8906C5758F5BEB433E540256 /* libPods-MomorApp.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		04AC38962E6801F700FF2D7E /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		04D67A3B2E44F9DE00660DFC /* Embed Frameworks */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-			);
-			name = "Embed Frameworks";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		04E7CEB32E55B52D0094A637 /* Embed Frameworks */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-			);
-			name = "Embed Frameworks";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		04E7CECC2E55B6B40094A637 /* Embed Frameworks */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "";
@@ -88,12 +280,58 @@
 		0439C6812E45146200353460 /* AudioConcatBridge.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AudioConcatBridge.m; sourceTree = "<group>"; };
 		048DA7632E3BFF9E00FA95BE /* HeadsetDetection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeadsetDetection.swift; sourceTree = "<group>"; };
 		048DA7652E3C000000FA95BE /* HeadsetDetectionBridge.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HeadsetDetectionBridge.m; sourceTree = "<group>"; };
+		049C709F2E603F1700DF9483 /* SplashAdView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplashAdView.swift; sourceTree = "<group>"; };
+		049C70A72E60433300DF9483 /* SplashAdViewManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplashAdViewManager.swift; sourceTree = "<group>"; };
+		049C70B32E60B19100DF9483 /* PangleAd.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PangleAd.swift; sourceTree = "<group>"; };
+		049C70BB2E60B72400DF9483 /* PangleAdBridge.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PangleAdBridge.m; sourceTree = "<group>"; };
+		049C70C72E60CB0800DF9483 /* SplashAdViewBridge.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SplashAdViewBridge.m; sourceTree = "<group>"; };
+		04AC389C2E6801F700FF2D7E /* MomorApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MomorApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		04AC389D2E6801F700FF2D7E /* MomorApp-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "MomorApp-Info.plist"; path = "/Users/jihongyang/Documents/Melon-React-Native/ios/MomorApp-Info.plist"; sourceTree = "<absolute>"; };
+		04AC38C52E68117A00FF2D7E /* LaunchScreenMelonApp.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = LaunchScreenMelonApp.storyboard; sourceTree = "<group>"; };
+		04AC38DE2E683FB200FF2D7E /* LaunchIcon-MelonApp.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "LaunchIcon-MelonApp.png"; sourceTree = "<group>"; };
+		04AC38E32E68A9C900FF2D7E /* LaunchScreenMomorApp.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = LaunchScreenMomorApp.storyboard; sourceTree = "<group>"; };
+		04AC392E2E68AE3400FF2D7E /* MomorsApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MomorsApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		04AC392F2E68AE3400FF2D7E /* MomorsApp-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "MomorsApp-Info.plist"; path = "/Users/jihongyang/Documents/Melon-React-Native/ios/MomorsApp-Info.plist"; sourceTree = "<absolute>"; };
 		04E7CE9F2E55B0EB0094A637 /* MelonApp-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "MelonApp-Info.plist"; path = "/Users/jihongyang/Documents/Melon-React-Native/ios/MelonApp-Info.plist"; sourceTree = "<absolute>"; };
 		04E7CEB72E55B52D0094A637 /* MelonApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MelonApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		04E7CED02E55B6B40094A637 /* MelonsApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MelonsApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		04E7CED12E55B6B40094A637 /* MelonsApp-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "MelonsApp-Info.plist"; path = "/Users/jihongyang/Documents/Melon-React-Native/ios/MelonsApp-Info.plist"; sourceTree = "<absolute>"; };
 		04E7CED22E55B9E30094A637 /* ConfigModule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigModule.swift; sourceTree = "<group>"; };
 		04E7CED62E55BB6A0094A637 /* ConfigModule.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ConfigModule.m; sourceTree = "<group>"; };
+		04EEEFC82E6004E100733789 /* CoreML.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreML.framework; path = System/Library/Frameworks/CoreML.framework; sourceTree = SDKROOT; };
+		04EEEFCA2E6004EB00733789 /* CoreHaptics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreHaptics.framework; path = System/Library/Frameworks/CoreHaptics.framework; sourceTree = SDKROOT; };
+		04EEEFCC2E6004FA00733789 /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = System/Library/Frameworks/Accelerate.framework; sourceTree = SDKROOT; };
+		04EEEFCE2E60050500733789 /* AdSupport.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AdSupport.framework; path = System/Library/Frameworks/AdSupport.framework; sourceTree = SDKROOT; };
+		04EEEFD02E60051300733789 /* AppTrackingTransparency.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppTrackingTransparency.framework; path = System/Library/Frameworks/AppTrackingTransparency.framework; sourceTree = SDKROOT; };
+		04EEEFD22E60051F00733789 /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
+		04EEEFD42E60053000733789 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
+		04EEEFD62E60053F00733789 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
+		04EEEFD82E60054900733789 /* CoreImage.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreImage.framework; path = System/Library/Frameworks/CoreImage.framework; sourceTree = SDKROOT; };
+		04EEEFDA2E60055800733789 /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
+		04EEEFDC2E60056600733789 /* CoreMedia.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMedia.framework; path = System/Library/Frameworks/CoreMedia.framework; sourceTree = SDKROOT; };
+		04EEEFDE2E60057200733789 /* CoreMotion.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMotion.framework; path = System/Library/Frameworks/CoreMotion.framework; sourceTree = SDKROOT; };
+		04EEEFE02E60057D00733789 /* CoreTelephony.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreTelephony.framework; path = System/Library/Frameworks/CoreTelephony.framework; sourceTree = SDKROOT; };
+		04EEEFE22E60058800733789 /* CoreText.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreText.framework; path = System/Library/Frameworks/CoreText.framework; sourceTree = SDKROOT; };
+		04EEEFE42E60059000733789 /* ImageIO.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ImageIO.framework; path = System/Library/Frameworks/ImageIO.framework; sourceTree = SDKROOT; };
+		04EEEFE72E6005AB00733789 /* MapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MapKit.framework; path = System/Library/Frameworks/MapKit.framework; sourceTree = SDKROOT; };
+		04EEEFE92E6005BB00733789 /* MediaPlayer.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MediaPlayer.framework; path = System/Library/Frameworks/MediaPlayer.framework; sourceTree = SDKROOT; };
+		04EEEFEB2E6005C700733789 /* MobileCoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MobileCoreServices.framework; path = System/Library/Frameworks/MobileCoreServices.framework; sourceTree = SDKROOT; };
+		04EEEFED2E6005D300733789 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
+		04EEEFEF2E6005E400733789 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
+		04EEEFF12E6005F600733789 /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
+		04EEEFF32E60060400733789 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
+		04EEEFF52E60060F00733789 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
+		04EEEFF72E60061600733789 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
+		04EEEFF92E60062300733789 /* DeviceCheck.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = DeviceCheck.framework; path = System/Library/Frameworks/DeviceCheck.framework; sourceTree = SDKROOT; };
+		04EEEFFB2E60063200733789 /* libbz2.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libbz2.tbd; path = usr/lib/libbz2.tbd; sourceTree = SDKROOT; };
+		04EEEFFD2E60064700733789 /* libc++.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libc++.tbd"; path = "usr/lib/libc++.tbd"; sourceTree = SDKROOT; };
+		04EEEFFF2E60065400733789 /* libiconv.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libiconv.tbd; path = usr/lib/libiconv.tbd; sourceTree = SDKROOT; };
+		04EEF0012E60066F00733789 /* libresolv.9.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libresolv.9.tbd; path = usr/lib/libresolv.9.tbd; sourceTree = SDKROOT; };
+		04EEF0032E60067F00733789 /* libsqlite3.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libsqlite3.tbd; path = usr/lib/libsqlite3.tbd; sourceTree = SDKROOT; };
+		04EEF0052E60068900733789 /* libxml2.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libxml2.tbd; path = usr/lib/libxml2.tbd; sourceTree = SDKROOT; };
+		04EEF0072E60069300733789 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
+		04EEF0092E6006A700733789 /* libc++abi.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libc++abi.tbd"; path = "usr/lib/libc++abi.tbd"; sourceTree = SDKROOT; };
+		04EEF0112E60285200733789 /* BUAdSDK.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = BUAdSDK.xcframework; path = "../../../Downloads/穿山甲iOSSDK_7.1.0.3/SDK/BUAdSDK.xcframework"; sourceTree = "<group>"; };
 		04F414362E3B1F5E00D77B0A /* AudioSessionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioSessionManager.swift; sourceTree = "<group>"; };
 		04F414382E3B206500D77B0A /* Melon-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Melon-Bridging-Header.h"; sourceTree = "<group>"; };
 		04F414392E3B206500D77B0A /* AudioSessionManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AudioSessionManager.m; sourceTree = "<group>"; };
@@ -101,26 +339,150 @@
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = Melon/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = Melon/Info.plist; sourceTree = "<group>"; };
 		13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = PrivacyInfo.xcprivacy; path = Melon/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
-		4B64ED172FB78EBDF102BC75 /* Pods-Melon.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Melon.debug.xcconfig"; path = "Target Support Files/Pods-Melon/Pods-Melon.debug.xcconfig"; sourceTree = "<group>"; };
-		6047328F666D5503917D91C6 /* Pods-MelonsApp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MelonsApp.release.xcconfig"; path = "Target Support Files/Pods-MelonsApp/Pods-MelonsApp.release.xcconfig"; sourceTree = "<group>"; };
+		482962007827423E22048777 /* libPods-MelonApp.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-MelonApp.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		4E2C7F91F26075EB33BF8313 /* Pods-MelonApp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MelonApp.release.xcconfig"; path = "Target Support Files/Pods-MelonApp/Pods-MelonApp.release.xcconfig"; sourceTree = "<group>"; };
+		62B4B865509762765F44CB79 /* Pods-MomorApp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MomorApp.debug.xcconfig"; path = "Target Support Files/Pods-MomorApp/Pods-MomorApp.debug.xcconfig"; sourceTree = "<group>"; };
+		66D507C0F64250C201024CD7 /* libPods-MelonsApp.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-MelonsApp.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		740419E2880E18D562740DD3 /* Pods-MelonApp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MelonApp.debug.xcconfig"; path = "Target Support Files/Pods-MelonApp/Pods-MelonApp.debug.xcconfig"; sourceTree = "<group>"; };
 		761780EC2CA45674006654EE /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = Melon/AppDelegate.swift; sourceTree = "<group>"; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = Melon/LaunchScreen.storyboard; sourceTree = "<group>"; };
-		8D1305AC7362AB54907240A5 /* libPods-Melon.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Melon.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		9D2CB455B1FDBE8D1F8C5CD7 /* libPods-MelonsApp.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-MelonsApp.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		A09BFF3133294B6298B27B61 /* libPods-MelonApp.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-MelonApp.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		DE563878996940129736B6E0 /* Pods-MelonApp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MelonApp.release.xcconfig"; path = "Target Support Files/Pods-MelonApp/Pods-MelonApp.release.xcconfig"; sourceTree = "<group>"; };
-		E12093F9CE0BD24188314C0F /* Pods-Melon.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Melon.release.xcconfig"; path = "Target Support Files/Pods-Melon/Pods-Melon.release.xcconfig"; sourceTree = "<group>"; };
-		E461F80E69A3916E641EE811 /* Pods-MelonsApp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MelonsApp.debug.xcconfig"; path = "Target Support Files/Pods-MelonsApp/Pods-MelonsApp.debug.xcconfig"; sourceTree = "<group>"; };
+		86C408BFA34A6C4DC816FC29 /* Pods-MelonsApp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MelonsApp.debug.xcconfig"; path = "Target Support Files/Pods-MelonsApp/Pods-MelonsApp.debug.xcconfig"; sourceTree = "<group>"; };
+		8906C5758F5BEB433E540256 /* libPods-MomorApp.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-MomorApp.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		A30A49620A8497067252567B /* Pods-MelonsApp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MelonsApp.release.xcconfig"; path = "Target Support Files/Pods-MelonsApp/Pods-MelonsApp.release.xcconfig"; sourceTree = "<group>"; };
+		BDA9DC2D61EF6611180DC613 /* Pods-Melon.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Melon.release.xcconfig"; path = "Target Support Files/Pods-Melon/Pods-Melon.release.xcconfig"; sourceTree = "<group>"; };
+		C22CBECABF3747A2E82877C2 /* Pods-MomorsApp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MomorsApp.release.xcconfig"; path = "Target Support Files/Pods-MomorsApp/Pods-MomorsApp.release.xcconfig"; sourceTree = "<group>"; };
+		E07DF5F617AB07A2A572BE02 /* Pods-Melon.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Melon.debug.xcconfig"; path = "Target Support Files/Pods-Melon/Pods-Melon.debug.xcconfig"; sourceTree = "<group>"; };
+		E2DFAEB405A08AA71A6D8269 /* libPods-MomorsApp.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-MomorsApp.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
-		F0E7EEB1209FFF10ACEB2C29 /* Pods-MelonApp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MelonApp.debug.xcconfig"; path = "Target Support Files/Pods-MelonApp/Pods-MelonApp.debug.xcconfig"; sourceTree = "<group>"; };
+		EDA1897AC436D71557CBD7A1 /* libPods-Melon.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Melon.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		F7E09811F6057FCCA7455F37 /* Pods-MomorApp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MomorApp.release.xcconfig"; path = "Target Support Files/Pods-MomorApp/Pods-MomorApp.release.xcconfig"; sourceTree = "<group>"; };
+		F92C600E3D50636868FD68C3 /* Pods-MomorsApp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MomorsApp.debug.xcconfig"; path = "Target Support Files/Pods-MomorsApp/Pods-MomorsApp.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		04AC388B2E6801F700FF2D7E /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				04AC38BF2E68065400FF2D7E /* ImageIO.framework in Frameworks */,
+				04AC38BE2E68064300FF2D7E /* MobileCoreServices.framework in Frameworks */,
+				04AC38BD2E68063900FF2D7E /* StoreKit.framework in Frameworks */,
+				04AC38BC2E68063200FF2D7E /* DeviceCheck.framework in Frameworks */,
+				04AC38BB2E68061D00FF2D7E /* CoreMotion.framework in Frameworks */,
+				04AC38BA2E68061200FF2D7E /* CoreImage.framework in Frameworks */,
+				04AC38B92E68060500FF2D7E /* libiconv.tbd in Frameworks */,
+				04AC38B82E6805F800FF2D7E /* Security.framework in Frameworks */,
+				04AC38B72E6805EC00FF2D7E /* libbz2.tbd in Frameworks */,
+				04AC38B62E6805DD00FF2D7E /* libsqlite3.tbd in Frameworks */,
+				04AC38B52E6805C600FF2D7E /* CoreMedia.framework in Frameworks */,
+				04AC38B42E6805BD00FF2D7E /* JavaScriptCore.framework in Frameworks */,
+				04AC38B32E6805B400FF2D7E /* libxml2.tbd in Frameworks */,
+				04AC38B22E6805A500FF2D7E /* libc++.tbd in Frameworks */,
+				04AC38B12E68059900FF2D7E /* MediaPlayer.framework in Frameworks */,
+				04AC38B02E68059000FF2D7E /* AudioToolbox.framework in Frameworks */,
+				04AC38AF2E68057C00FF2D7E /* libresolv.9.tbd in Frameworks */,
+				04AC38AE2E68056E00FF2D7E /* CoreML.framework in Frameworks */,
+				04AC38AD2E68056400FF2D7E /* AppTrackingTransparency.framework in Frameworks */,
+				04AC38AC2E68055A00FF2D7E /* Accelerate.framework in Frameworks */,
+				04AC38AB2E68055100FF2D7E /* libz.tbd in Frameworks */,
+				04AC38AA2E68054300FF2D7E /* MapKit.framework in Frameworks */,
+				04AC38A92E68053C00FF2D7E /* CoreGraphics.framework in Frameworks */,
+				04AC38A82E68053400FF2D7E /* AdSupport.framework in Frameworks */,
+				04AC38A72E68052B00FF2D7E /* CoreTelephony.framework in Frameworks */,
+				04AC38A62E68052300FF2D7E /* CoreHaptics.framework in Frameworks */,
+				04AC38A52E68051B00FF2D7E /* CoreText.framework in Frameworks */,
+				04AC38A42E68050C00FF2D7E /* AVFoundation.framework in Frameworks */,
+				04AC38A32E68050100FF2D7E /* libc++abi.tbd in Frameworks */,
+				04AC38A22E6804F300FF2D7E /* CoreLocation.framework in Frameworks */,
+				04AC38A12E6804E900FF2D7E /* WebKit.framework in Frameworks */,
+				04AC38A02E6804E000FF2D7E /* SystemConfiguration.framework in Frameworks */,
+				04AC389F2E6804CC00FF2D7E /* UIKit.framework in Frameworks */,
+				04AC389E2E6804C100FF2D7E /* QuartzCore.framework in Frameworks */,
+				E7C3A191B45F3DBDB452F0F5 /* libPods-MomorApp.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		04AC38F92E68AE3400FF2D7E /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				04AC38FA2E68AE3400FF2D7E /* QuartzCore.framework in Frameworks */,
+				04AC38FB2E68AE3400FF2D7E /* UIKit.framework in Frameworks */,
+				04AC38FC2E68AE3400FF2D7E /* SystemConfiguration.framework in Frameworks */,
+				04AC38FD2E68AE3400FF2D7E /* WebKit.framework in Frameworks */,
+				04AC38FE2E68AE3400FF2D7E /* CoreLocation.framework in Frameworks */,
+				04AC38FF2E68AE3400FF2D7E /* libc++abi.tbd in Frameworks */,
+				04AC39002E68AE3400FF2D7E /* AVFoundation.framework in Frameworks */,
+				04AC39022E68AE3400FF2D7E /* CoreText.framework in Frameworks */,
+				04AC39032E68AE3400FF2D7E /* CoreHaptics.framework in Frameworks */,
+				04AC39042E68AE3400FF2D7E /* CoreTelephony.framework in Frameworks */,
+				04AC39052E68AE3400FF2D7E /* AdSupport.framework in Frameworks */,
+				04AC39062E68AE3400FF2D7E /* CoreGraphics.framework in Frameworks */,
+				04AC39072E68AE3400FF2D7E /* MapKit.framework in Frameworks */,
+				04AC39082E68AE3400FF2D7E /* libz.tbd in Frameworks */,
+				04AC39092E68AE3400FF2D7E /* Accelerate.framework in Frameworks */,
+				04AC390A2E68AE3400FF2D7E /* AppTrackingTransparency.framework in Frameworks */,
+				04AC390B2E68AE3400FF2D7E /* CoreML.framework in Frameworks */,
+				04AC390C2E68AE3400FF2D7E /* libresolv.9.tbd in Frameworks */,
+				04AC390D2E68AE3400FF2D7E /* AudioToolbox.framework in Frameworks */,
+				04AC390E2E68AE3400FF2D7E /* MediaPlayer.framework in Frameworks */,
+				04AC390F2E68AE3400FF2D7E /* libc++.tbd in Frameworks */,
+				04AC39102E68AE3400FF2D7E /* libxml2.tbd in Frameworks */,
+				04AC39112E68AE3400FF2D7E /* JavaScriptCore.framework in Frameworks */,
+				04AC39122E68AE3400FF2D7E /* CoreMedia.framework in Frameworks */,
+				04AC39142E68AE3400FF2D7E /* libsqlite3.tbd in Frameworks */,
+				04AC39152E68AE3400FF2D7E /* libbz2.tbd in Frameworks */,
+				04AC39162E68AE3400FF2D7E /* Security.framework in Frameworks */,
+				04AC39172E68AE3400FF2D7E /* libiconv.tbd in Frameworks */,
+				04AC39182E68AE3400FF2D7E /* CoreImage.framework in Frameworks */,
+				04AC39192E68AE3400FF2D7E /* CoreMotion.framework in Frameworks */,
+				04AC391B2E68AE3400FF2D7E /* DeviceCheck.framework in Frameworks */,
+				04AC391C2E68AE3400FF2D7E /* StoreKit.framework in Frameworks */,
+				04AC391D2E68AE3400FF2D7E /* MobileCoreServices.framework in Frameworks */,
+				04AC391E2E68AE3400FF2D7E /* ImageIO.framework in Frameworks */,
+				2F406D6568A8A8A7D21B5898 /* libPods-MomorsApp.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		04E7CEAA2E55B52D0094A637 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				85CF1F98E53C7BBE2ACA173D /* libPods-MelonApp.a in Frameworks */,
+				04EEF00A2E6006A700733789 /* libc++abi.tbd in Frameworks */,
+				04EEF0082E60069400733789 /* libz.tbd in Frameworks */,
+				04EEF0062E60068900733789 /* libxml2.tbd in Frameworks */,
+				04EEF0042E60067F00733789 /* libsqlite3.tbd in Frameworks */,
+				04EEF0022E60066F00733789 /* libresolv.9.tbd in Frameworks */,
+				04EEF0002E60065400733789 /* libiconv.tbd in Frameworks */,
+				04EEEFFE2E60064700733789 /* libc++.tbd in Frameworks */,
+				04EEEFFC2E60063200733789 /* libbz2.tbd in Frameworks */,
+				04EEEFFA2E60062300733789 /* DeviceCheck.framework in Frameworks */,
+				04EEEFF82E60061600733789 /* WebKit.framework in Frameworks */,
+				04EEEFF62E60060F00733789 /* UIKit.framework in Frameworks */,
+				04EEEFF42E60060400733789 /* SystemConfiguration.framework in Frameworks */,
+				04EEEFF22E6005F600733789 /* StoreKit.framework in Frameworks */,
+				04EEEFF02E6005E400733789 /* Security.framework in Frameworks */,
+				04EEEFEE2E6005D300733789 /* QuartzCore.framework in Frameworks */,
+				04EEEFEC2E6005C700733789 /* MobileCoreServices.framework in Frameworks */,
+				04EEEFEA2E6005BB00733789 /* MediaPlayer.framework in Frameworks */,
+				04EEEFE82E6005AB00733789 /* MapKit.framework in Frameworks */,
+				04EEEFE62E60059E00733789 /* JavaScriptCore.framework in Frameworks */,
+				04EEEFE52E60059000733789 /* ImageIO.framework in Frameworks */,
+				04EEEFE32E60058800733789 /* CoreText.framework in Frameworks */,
+				04EEEFE12E60057D00733789 /* CoreTelephony.framework in Frameworks */,
+				04EEEFDF2E60057200733789 /* CoreMotion.framework in Frameworks */,
+				04EEEFDD2E60056600733789 /* CoreMedia.framework in Frameworks */,
+				04EEEFDB2E60055800733789 /* CoreLocation.framework in Frameworks */,
+				04EEEFD92E60054900733789 /* CoreImage.framework in Frameworks */,
+				04EEEFD72E60053F00733789 /* CoreGraphics.framework in Frameworks */,
+				04EEEFD52E60053000733789 /* AVFoundation.framework in Frameworks */,
+				04EEEFD32E60051F00733789 /* AudioToolbox.framework in Frameworks */,
+				04EEEFD12E60051300733789 /* AppTrackingTransparency.framework in Frameworks */,
+				04EEEFCF2E60050500733789 /* AdSupport.framework in Frameworks */,
+				04EEEFCD2E6004FA00733789 /* Accelerate.framework in Frameworks */,
+				04EEEFCB2E6004EB00733789 /* CoreHaptics.framework in Frameworks */,
+				04EEEFC92E6004E100733789 /* CoreML.framework in Frameworks */,
+				D5EECD9959D1B21ADBC38763 /* libPods-MelonApp.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -128,8 +490,42 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				04E7CEC42E55B6B40094A637 /* (null) in Frameworks */,
-				D8BA46BCE0A182AA6617F830 /* libPods-MelonsApp.a in Frameworks */,
+				04AC38742E65CFC500FF2D7E /* QuartzCore.framework in Frameworks */,
+				04AC38782E65CFEE00FF2D7E /* UIKit.framework in Frameworks */,
+				04AC38772E65CFDF00FF2D7E /* SystemConfiguration.framework in Frameworks */,
+				04AC38792E65CFF600FF2D7E /* WebKit.framework in Frameworks */,
+				04AC38602E65CC8F00FF2D7E /* CoreLocation.framework in Frameworks */,
+				04AC386B2E65CF6C00FF2D7E /* libc++abi.tbd in Frameworks */,
+				04AC385C2E65CC3E00FF2D7E /* AVFoundation.framework in Frameworks */,
+				04AC38652E65CD8800FF2D7E /* CoreText.framework in Frameworks */,
+				04AC385E2E65CC6300FF2D7E /* CoreHaptics.framework in Frameworks */,
+				04AC38642E65CD6500FF2D7E /* CoreTelephony.framework in Frameworks */,
+				04AC38592E65CC2000FF2D7E /* AdSupport.framework in Frameworks */,
+				04AC385D2E65CC5A00FF2D7E /* CoreGraphics.framework in Frameworks */,
+				04AC38712E65CFAD00FF2D7E /* MapKit.framework in Frameworks */,
+				04AC38702E65CFA400FF2D7E /* libz.tbd in Frameworks */,
+				04AC38582E65CBE200FF2D7E /* Accelerate.framework in Frameworks */,
+				04AC385A2E65CC2900FF2D7E /* AppTrackingTransparency.framework in Frameworks */,
+				04AC38622E65CCA400FF2D7E /* CoreML.framework in Frameworks */,
+				04AC386D2E65CF7F00FF2D7E /* libresolv.9.tbd in Frameworks */,
+				04AC385B2E65CC3400FF2D7E /* AudioToolbox.framework in Frameworks */,
+				04AC38722E65CFB600FF2D7E /* MediaPlayer.framework in Frameworks */,
+				04AC386A2E65CF6200FF2D7E /* libc++.tbd in Frameworks */,
+				04AC386F2E65CF9A00FF2D7E /* libxml2.tbd in Frameworks */,
+				04AC38682E65CDAA00FF2D7E /* JavaScriptCore.framework in Frameworks */,
+				04AC38612E65CC9800FF2D7E /* CoreMedia.framework in Frameworks */,
+				04AC386E2E65CF9100FF2D7E /* libsqlite3.tbd in Frameworks */,
+				04AC38692E65CDB300FF2D7E /* libbz2.tbd in Frameworks */,
+				04AC38752E65CFCD00FF2D7E /* Security.framework in Frameworks */,
+				04AC386C2E65CF7500FF2D7E /* libiconv.tbd in Frameworks */,
+				04AC385F2E65CC8600FF2D7E /* CoreImage.framework in Frameworks */,
+				04AC38632E65CD5B00FF2D7E /* CoreMotion.framework in Frameworks */,
+				55484962E2FFF874F5A9D6A7 /* BuildFile in Frameworks */,
+				04AC38662E65CD9100FF2D7E /* DeviceCheck.framework in Frameworks */,
+				04AC38762E65CFD500FF2D7E /* StoreKit.framework in Frameworks */,
+				04AC38732E65CFBD00FF2D7E /* MobileCoreServices.framework in Frameworks */,
+				04AC38672E65CDA100FF2D7E /* ImageIO.framework in Frameworks */,
+				8647F21BFC6A7D779B73BE5B /* libPods-MelonsApp.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -137,8 +533,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				FE2AF26877C59EF9567DB704 /* (null) in Frameworks */,
-				808ABC5D9888AABEDA25F5F4 /* libPods-Melon.a in Frameworks */,
+				245B3CD6A52585BA688A3465 /* BuildFile in Frameworks */,
+				C7781717C4CF384F678E7934 /* libPods-Melon.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -149,9 +545,12 @@
 			isa = PBXGroup;
 			children = (
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
+				04AC38DE2E683FB200FF2D7E /* LaunchIcon-MelonApp.png */,
 				761780EC2CA45674006654EE /* AppDelegate.swift */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */,
+				04AC38C52E68117A00FF2D7E /* LaunchScreenMelonApp.storyboard */,
+				04AC38E32E68A9C900FF2D7E /* LaunchScreenMomorApp.storyboard */,
 				13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */,
 				04F414362E3B1F5E00D77B0A /* AudioSessionManager.swift */,
 				04F414392E3B206500D77B0A /* AudioSessionManager.m */,
@@ -162,6 +561,11 @@
 				0439C6812E45146200353460 /* AudioConcatBridge.m */,
 				04E7CED22E55B9E30094A637 /* ConfigModule.swift */,
 				04E7CED62E55BB6A0094A637 /* ConfigModule.m */,
+				049C709F2E603F1700DF9483 /* SplashAdView.swift */,
+				049C70A72E60433300DF9483 /* SplashAdViewManager.swift */,
+				049C70C72E60CB0800DF9483 /* SplashAdViewBridge.m */,
+				049C70B32E60B19100DF9483 /* PangleAd.swift */,
+				049C70BB2E60B72400DF9483 /* PangleAdBridge.m */,
 			);
 			name = Melon;
 			sourceTree = "<group>";
@@ -169,10 +573,46 @@
 		2D16E6871FA4F8E400B85C8A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				04EEF0112E60285200733789 /* BUAdSDK.xcframework */,
+				04EEF0092E6006A700733789 /* libc++abi.tbd */,
+				04EEF0072E60069300733789 /* libz.tbd */,
+				04EEF0052E60068900733789 /* libxml2.tbd */,
+				04EEF0032E60067F00733789 /* libsqlite3.tbd */,
+				04EEF0012E60066F00733789 /* libresolv.9.tbd */,
+				04EEEFFF2E60065400733789 /* libiconv.tbd */,
+				04EEEFFD2E60064700733789 /* libc++.tbd */,
+				04EEEFFB2E60063200733789 /* libbz2.tbd */,
+				04EEEFF92E60062300733789 /* DeviceCheck.framework */,
+				04EEEFF72E60061600733789 /* WebKit.framework */,
+				04EEEFF52E60060F00733789 /* UIKit.framework */,
+				04EEEFF32E60060400733789 /* SystemConfiguration.framework */,
+				04EEEFF12E6005F600733789 /* StoreKit.framework */,
+				04EEEFEF2E6005E400733789 /* Security.framework */,
+				04EEEFED2E6005D300733789 /* QuartzCore.framework */,
+				04EEEFEB2E6005C700733789 /* MobileCoreServices.framework */,
+				04EEEFE92E6005BB00733789 /* MediaPlayer.framework */,
+				04EEEFE72E6005AB00733789 /* MapKit.framework */,
+				04EEEFE42E60059000733789 /* ImageIO.framework */,
+				04EEEFE22E60058800733789 /* CoreText.framework */,
+				04EEEFE02E60057D00733789 /* CoreTelephony.framework */,
+				04EEEFDE2E60057200733789 /* CoreMotion.framework */,
+				04EEEFDC2E60056600733789 /* CoreMedia.framework */,
+				04EEEFDA2E60055800733789 /* CoreLocation.framework */,
+				04EEEFD82E60054900733789 /* CoreImage.framework */,
+				04EEEFD62E60053F00733789 /* CoreGraphics.framework */,
+				04EEEFD42E60053000733789 /* AVFoundation.framework */,
+				04EEEFD22E60051F00733789 /* AudioToolbox.framework */,
+				04EEEFD02E60051300733789 /* AppTrackingTransparency.framework */,
+				04EEEFCE2E60050500733789 /* AdSupport.framework */,
+				04EEEFCC2E6004FA00733789 /* Accelerate.framework */,
+				04EEEFCA2E6004EB00733789 /* CoreHaptics.framework */,
+				04EEEFC82E6004E100733789 /* CoreML.framework */,
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
-				A09BFF3133294B6298B27B61 /* libPods-MelonApp.a */,
-				8D1305AC7362AB54907240A5 /* libPods-Melon.a */,
-				9D2CB455B1FDBE8D1F8C5CD7 /* libPods-MelonsApp.a */,
+				EDA1897AC436D71557CBD7A1 /* libPods-Melon.a */,
+				482962007827423E22048777 /* libPods-MelonApp.a */,
+				66D507C0F64250C201024CD7 /* libPods-MelonsApp.a */,
+				8906C5758F5BEB433E540256 /* libPods-MomorApp.a */,
+				E2DFAEB405A08AA71A6D8269 /* libPods-MomorsApp.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -194,6 +634,8 @@
 				BBD78D7AC51CEA395F1C20DB /* Pods */,
 				04E7CE9F2E55B0EB0094A637 /* MelonApp-Info.plist */,
 				04E7CED12E55B6B40094A637 /* MelonsApp-Info.plist */,
+				04AC389D2E6801F700FF2D7E /* MomorApp-Info.plist */,
+				04AC392F2E68AE3400FF2D7E /* MomorsApp-Info.plist */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -206,6 +648,8 @@
 				13B07F961A680F5B00A75B9A /* Melon.app */,
 				04E7CEB72E55B52D0094A637 /* MelonApp.app */,
 				04E7CED02E55B6B40094A637 /* MelonsApp.app */,
+				04AC389C2E6801F700FF2D7E /* MomorApp.app */,
+				04AC392E2E68AE3400FF2D7E /* MomorsApp.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -213,12 +657,16 @@
 		BBD78D7AC51CEA395F1C20DB /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				4B64ED172FB78EBDF102BC75 /* Pods-Melon.debug.xcconfig */,
-				E12093F9CE0BD24188314C0F /* Pods-Melon.release.xcconfig */,
-				F0E7EEB1209FFF10ACEB2C29 /* Pods-MelonApp.debug.xcconfig */,
-				DE563878996940129736B6E0 /* Pods-MelonApp.release.xcconfig */,
-				E461F80E69A3916E641EE811 /* Pods-MelonsApp.debug.xcconfig */,
-				6047328F666D5503917D91C6 /* Pods-MelonsApp.release.xcconfig */,
+				E07DF5F617AB07A2A572BE02 /* Pods-Melon.debug.xcconfig */,
+				BDA9DC2D61EF6611180DC613 /* Pods-Melon.release.xcconfig */,
+				740419E2880E18D562740DD3 /* Pods-MelonApp.debug.xcconfig */,
+				4E2C7F91F26075EB33BF8313 /* Pods-MelonApp.release.xcconfig */,
+				86C408BFA34A6C4DC816FC29 /* Pods-MelonsApp.debug.xcconfig */,
+				A30A49620A8497067252567B /* Pods-MelonsApp.release.xcconfig */,
+				62B4B865509762765F44CB79 /* Pods-MomorApp.debug.xcconfig */,
+				F7E09811F6057FCCA7455F37 /* Pods-MomorApp.release.xcconfig */,
+				F92C600E3D50636868FD68C3 /* Pods-MomorsApp.debug.xcconfig */,
+				C22CBECABF3747A2E82877C2 /* Pods-MomorsApp.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -226,18 +674,60 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		04AC387A2E6801F700FF2D7E /* MomorApp */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 04AC38992E6801F700FF2D7E /* Build configuration list for PBXNativeTarget "MomorApp" */;
+			buildPhases = (
+				715F76E9E67541AE8BE00AAD /* [CP] Check Pods Manifest.lock */,
+				04AC387C2E6801F700FF2D7E /* Sources */,
+				04AC388B2E6801F700FF2D7E /* Frameworks */,
+				04AC388F2E6801F700FF2D7E /* Resources */,
+				04AC38952E6801F700FF2D7E /* Bundle React Native code and images */,
+				04AC38962E6801F700FF2D7E /* Embed Frameworks */,
+				697B3E4F4D5CAFCBDB0B8FAB /* [CP] Embed Pods Frameworks */,
+				FF102E5F6F91DF98E619AEFD /* [CP] Copy Pods Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = MomorApp;
+			productName = Melon;
+			productReference = 04AC389C2E6801F700FF2D7E /* MomorApp.app */;
+			productType = "com.apple.product-type.application";
+		};
+		04AC38E82E68AE3400FF2D7E /* MomorsApp */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 04AC392B2E68AE3400FF2D7E /* Build configuration list for PBXNativeTarget "MomorsApp" */;
+			buildPhases = (
+				C93BA04198E18683738721BF /* [CP] Check Pods Manifest.lock */,
+				04AC38EA2E68AE3400FF2D7E /* Sources */,
+				04AC38F92E68AE3400FF2D7E /* Frameworks */,
+				04AC391F2E68AE3400FF2D7E /* Resources */,
+				04AC39282E68AE3400FF2D7E /* Bundle React Native code and images */,
+				0F19769ECD9667834632698F /* [CP] Embed Pods Frameworks */,
+				EFEEF3EB614ED5121111F37E /* [CP] Copy Pods Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = MomorsApp;
+			productName = Melon;
+			productReference = 04AC392E2E68AE3400FF2D7E /* MomorsApp.app */;
+			productType = "com.apple.product-type.application";
+		};
 		04E7CEA02E55B52D0094A637 /* MelonApp */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 04E7CEB42E55B52D0094A637 /* Build configuration list for PBXNativeTarget "MelonApp" */;
 			buildPhases = (
-				04E7CEA12E55B52D0094A637 /* [CP] Check Pods Manifest.lock */,
+				296BAE34F9546351D83D7B71 /* [CP] Check Pods Manifest.lock */,
 				04E7CEA22E55B52D0094A637 /* Sources */,
 				04E7CEAA2E55B52D0094A637 /* Frameworks */,
 				04E7CEAC2E55B52D0094A637 /* Resources */,
 				04E7CEB02E55B52D0094A637 /* Bundle React Native code and images */,
-				04E7CEB12E55B52D0094A637 /* [CP] Embed Pods Frameworks */,
-				04E7CEB22E55B52D0094A637 /* [CP] Copy Pods Resources */,
-				04E7CEB32E55B52D0094A637 /* Embed Frameworks */,
+				A40AFF366856EAD9FB700133 /* [CP] Embed Pods Frameworks */,
+				4656853B32CDC673BE893529 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -252,14 +742,13 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 04E7CECD2E55B6B40094A637 /* Build configuration list for PBXNativeTarget "MelonsApp" */;
 			buildPhases = (
-				04E7CEBA2E55B6B40094A637 /* [CP] Check Pods Manifest.lock */,
+				633621BEBBE1719448D230EC /* [CP] Check Pods Manifest.lock */,
 				04E7CEBB2E55B6B40094A637 /* Sources */,
 				04E7CEC32E55B6B40094A637 /* Frameworks */,
 				04E7CEC52E55B6B40094A637 /* Resources */,
 				04E7CEC92E55B6B40094A637 /* Bundle React Native code and images */,
-				04E7CECA2E55B6B40094A637 /* [CP] Embed Pods Frameworks */,
-				04E7CECB2E55B6B40094A637 /* [CP] Copy Pods Resources */,
-				04E7CECC2E55B6B40094A637 /* Embed Frameworks */,
+				8F2D2181009D4C2F9AE446FF /* [CP] Embed Pods Frameworks */,
+				1C6A086E518408C9B1AB8375 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -274,14 +763,14 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "Melon" */;
 			buildPhases = (
-				BA2163F1D673C383DB377FDA /* [CP] Check Pods Manifest.lock */,
+				903B88D675CA637B53EBF242 /* [CP] Check Pods Manifest.lock */,
 				13B07F871A680F5B00A75B9A /* Sources */,
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
 				13B07F8E1A680F5B00A75B9A /* Resources */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
-				CED77D9CFD857C8AF67F4775 /* [CP] Embed Pods Frameworks */,
-				D66E361633828A064761FA76 /* [CP] Copy Pods Resources */,
 				04D67A3B2E44F9DE00660DFC /* Embed Frameworks */,
+				9AB49C8698E1097695585E24 /* [CP] Embed Pods Frameworks */,
+				77525BF7733FFC8973249470 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -321,17 +810,48 @@
 				13B07F861A680F5B00A75B9A /* Melon */,
 				04E7CEA02E55B52D0094A637 /* MelonApp */,
 				04E7CEB92E55B6B40094A637 /* MelonsApp */,
+				04AC387A2E6801F700FF2D7E /* MomorApp */,
+				04AC38E82E68AE3400FF2D7E /* MomorsApp */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		04AC388F2E6801F700FF2D7E /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				04AC38912E6801F700FF2D7E /* LaunchScreen.storyboard in Resources */,
+				04AC38922E6801F700FF2D7E /* Images.xcassets in Resources */,
+				04AC38E72E68A9C900FF2D7E /* LaunchScreenMomorApp.storyboard in Resources */,
+				04AC38E22E683FB200FF2D7E /* LaunchIcon-MelonApp.png in Resources */,
+				04AC38C92E68117A00FF2D7E /* LaunchScreenMelonApp.storyboard in Resources */,
+				04AC38942E6801F700FF2D7E /* PrivacyInfo.xcprivacy in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		04AC391F2E68AE3400FF2D7E /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				04AC39212E68AE3400FF2D7E /* LaunchScreen.storyboard in Resources */,
+				04AC39222E68AE3400FF2D7E /* Images.xcassets in Resources */,
+				04AC39232E68AE3400FF2D7E /* LaunchScreenMomorApp.storyboard in Resources */,
+				04AC39242E68AE3400FF2D7E /* LaunchIcon-MelonApp.png in Resources */,
+				04AC39252E68AE3400FF2D7E /* LaunchScreenMelonApp.storyboard in Resources */,
+				04AC39272E68AE3400FF2D7E /* PrivacyInfo.xcprivacy in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		04E7CEAC2E55B52D0094A637 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 				04E7CEAD2E55B52D0094A637 /* LaunchScreen.storyboard in Resources */,
 				04E7CEAE2E55B52D0094A637 /* Images.xcassets in Resources */,
+				04AC38E52E68A9C900FF2D7E /* LaunchScreenMomorApp.storyboard in Resources */,
+				04AC38E02E683FB200FF2D7E /* LaunchIcon-MelonApp.png in Resources */,
+				04AC38C72E68117A00FF2D7E /* LaunchScreenMelonApp.storyboard in Resources */,
 				04E7CEAF2E55B52D0094A637 /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -342,6 +862,9 @@
 			files = (
 				04E7CEC62E55B6B40094A637 /* LaunchScreen.storyboard in Resources */,
 				04E7CEC72E55B6B40094A637 /* Images.xcassets in Resources */,
+				04AC38E62E68A9C900FF2D7E /* LaunchScreenMomorApp.storyboard in Resources */,
+				04AC38DF2E683FB200FF2D7E /* LaunchIcon-MelonApp.png in Resources */,
+				04AC38C82E68117A00FF2D7E /* LaunchScreenMelonApp.storyboard in Resources */,
 				04E7CEC82E55B6B40094A637 /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -352,6 +875,9 @@
 			files = (
 				81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
+				04AC38E42E68A9C900FF2D7E /* LaunchScreenMomorApp.storyboard in Resources */,
+				04AC38E12E683FB200FF2D7E /* LaunchIcon-MelonApp.png in Resources */,
+				04AC38C62E68117A00FF2D7E /* LaunchScreenMelonApp.storyboard in Resources */,
 				76D43A07939EB58E07A41C7E /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -375,7 +901,105 @@
 			shellPath = /bin/sh;
 			shellScript = "set -e\n\nWITH_ENVIRONMENT=\"$REACT_NATIVE_PATH/scripts/xcode/with-environment.sh\"\nREACT_NATIVE_XCODE=\"$REACT_NATIVE_PATH/scripts/react-native-xcode.sh\"\n\n/bin/sh -c \"$WITH_ENVIRONMENT $REACT_NATIVE_XCODE\"\n";
 		};
-		04E7CEA12E55B52D0094A637 /* [CP] Check Pods Manifest.lock */ = {
+		04AC38952E6801F700FF2D7E /* Bundle React Native code and images */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"$(SRCROOT)/.xcode.env.local",
+				"$(SRCROOT)/.xcode.env",
+			);
+			name = "Bundle React Native code and images";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "set -e\n\nWITH_ENVIRONMENT=\"$REACT_NATIVE_PATH/scripts/xcode/with-environment.sh\"\nREACT_NATIVE_XCODE=\"$REACT_NATIVE_PATH/scripts/react-native-xcode.sh\"\n\n/bin/sh -c \"$WITH_ENVIRONMENT $REACT_NATIVE_XCODE\"\n";
+		};
+		04AC39282E68AE3400FF2D7E /* Bundle React Native code and images */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"$(SRCROOT)/.xcode.env.local",
+				"$(SRCROOT)/.xcode.env",
+			);
+			name = "Bundle React Native code and images";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "set -e\n\nWITH_ENVIRONMENT=\"$REACT_NATIVE_PATH/scripts/xcode/with-environment.sh\"\nREACT_NATIVE_XCODE=\"$REACT_NATIVE_PATH/scripts/react-native-xcode.sh\"\n\n/bin/sh -c \"$WITH_ENVIRONMENT $REACT_NATIVE_XCODE\"\n";
+		};
+		04E7CEB02E55B52D0094A637 /* Bundle React Native code and images */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"$(SRCROOT)/.xcode.env.local",
+				"$(SRCROOT)/.xcode.env",
+			);
+			name = "Bundle React Native code and images";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "set -e\n\nWITH_ENVIRONMENT=\"$REACT_NATIVE_PATH/scripts/xcode/with-environment.sh\"\nREACT_NATIVE_XCODE=\"$REACT_NATIVE_PATH/scripts/react-native-xcode.sh\"\n\n/bin/sh -c \"$WITH_ENVIRONMENT $REACT_NATIVE_XCODE\"\n";
+		};
+		04E7CEC92E55B6B40094A637 /* Bundle React Native code and images */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"$(SRCROOT)/.xcode.env.local",
+				"$(SRCROOT)/.xcode.env",
+			);
+			name = "Bundle React Native code and images";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "set -e\n\nWITH_ENVIRONMENT=\"$REACT_NATIVE_PATH/scripts/xcode/with-environment.sh\"\nREACT_NATIVE_XCODE=\"$REACT_NATIVE_PATH/scripts/react-native-xcode.sh\"\n\n/bin/sh -c \"$WITH_ENVIRONMENT $REACT_NATIVE_XCODE\"\n";
+		};
+		0F19769ECD9667834632698F /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-MomorsApp/Pods-MomorsApp-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-MomorsApp/Pods-MomorsApp-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-MomorsApp/Pods-MomorsApp-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		1C6A086E518408C9B1AB8375 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-MelonsApp/Pods-MelonsApp-resources-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Copy Pods Resources";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-MelonsApp/Pods-MelonsApp-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-MelonsApp/Pods-MelonsApp-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		296BAE34F9546351D83D7B71 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -397,44 +1021,7 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		04E7CEB02E55B52D0094A637 /* Bundle React Native code and images */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-				"$(SRCROOT)/.xcode.env.local",
-				"$(SRCROOT)/.xcode.env",
-			);
-			name = "Bundle React Native code and images";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "set -e\n\nWITH_ENVIRONMENT=\"$REACT_NATIVE_PATH/scripts/xcode/with-environment.sh\"\nREACT_NATIVE_XCODE=\"$REACT_NATIVE_PATH/scripts/react-native-xcode.sh\"\n\n/bin/sh -c \"$WITH_ENVIRONMENT $REACT_NATIVE_XCODE\"\n";
-		};
-		04E7CEB12E55B52D0094A637 /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-MelonApp/Pods-MelonApp-frameworks-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			inputPaths = (
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-MelonApp/Pods-MelonApp-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-MelonApp/Pods-MelonApp-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		04E7CEB22E55B52D0094A637 /* [CP] Copy Pods Resources */ = {
+		4656853B32CDC673BE893529 /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -442,20 +1029,16 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-MelonApp/Pods-MelonApp-resources-${CONFIGURATION}-input-files.xcfilelist",
 			);
-			inputPaths = (
-			);
 			name = "[CP] Copy Pods Resources";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-MelonApp/Pods-MelonApp-resources-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-MelonApp/Pods-MelonApp-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		04E7CEBA2E55B6B40094A637 /* [CP] Check Pods Manifest.lock */ = {
+		633621BEBBE1719448D230EC /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -477,23 +1060,63 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		04E7CEC92E55B6B40094A637 /* Bundle React Native code and images */ = {
+		697B3E4F4D5CAFCBDB0B8FAB /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
-			inputPaths = (
-				"$(SRCROOT)/.xcode.env.local",
-				"$(SRCROOT)/.xcode.env",
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-MomorApp/Pods-MomorApp-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
-			name = "Bundle React Native code and images";
-			outputPaths = (
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-MomorApp/Pods-MomorApp-frameworks-${CONFIGURATION}-output-files.xcfilelist",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "set -e\n\nWITH_ENVIRONMENT=\"$REACT_NATIVE_PATH/scripts/xcode/with-environment.sh\"\nREACT_NATIVE_XCODE=\"$REACT_NATIVE_PATH/scripts/react-native-xcode.sh\"\n\n/bin/sh -c \"$WITH_ENVIRONMENT $REACT_NATIVE_XCODE\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-MomorApp/Pods-MomorApp-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
 		};
-		04E7CECA2E55B6B40094A637 /* [CP] Embed Pods Frameworks */ = {
+		715F76E9E67541AE8BE00AAD /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-MomorApp-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		77525BF7733FFC8973249470 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Melon/Pods-Melon-resources-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Copy Pods Resources";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Melon/Pods-Melon-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Melon/Pods-Melon-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		8F2D2181009D4C2F9AE446FF /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -501,41 +1124,16 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-MelonsApp/Pods-MelonsApp-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
-			inputPaths = (
-			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-MelonsApp/Pods-MelonsApp-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-MelonsApp/Pods-MelonsApp-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		04E7CECB2E55B6B40094A637 /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-MelonsApp/Pods-MelonsApp-resources-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			inputPaths = (
-			);
-			name = "[CP] Copy Pods Resources";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-MelonsApp/Pods-MelonsApp-resources-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-MelonsApp/Pods-MelonsApp-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		BA2163F1D673C383DB377FDA /* [CP] Check Pods Manifest.lock */ = {
+		903B88D675CA637B53EBF242 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -557,7 +1155,7 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		CED77D9CFD857C8AF67F4775 /* [CP] Embed Pods Frameworks */ = {
+		9AB49C8698E1097695585E24 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -565,56 +1163,151 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Melon/Pods-Melon-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
-			inputPaths = (
-			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Melon/Pods-Melon-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Melon/Pods-Melon-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		D66E361633828A064761FA76 /* [CP] Copy Pods Resources */ = {
+		A40AFF366856EAD9FB700133 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-Melon/Pods-Melon-resources-${CONFIGURATION}-input-files.xcfilelist",
+				"${PODS_ROOT}/Target Support Files/Pods-MelonApp/Pods-MelonApp-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
-			inputPaths = (
-			);
-			name = "[CP] Copy Pods Resources";
+			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-Melon/Pods-Melon-resources-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			outputPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-MelonApp/Pods-MelonApp-frameworks-${CONFIGURATION}-output-files.xcfilelist",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Melon/Pods-Melon-resources.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-MelonApp/Pods-MelonApp-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		C93BA04198E18683738721BF /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-MomorsApp-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		EFEEF3EB614ED5121111F37E /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-MomorsApp/Pods-MomorsApp-resources-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Copy Pods Resources";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-MomorsApp/Pods-MomorsApp-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-MomorsApp/Pods-MomorsApp-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		FF102E5F6F91DF98E619AEFD /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-MomorApp/Pods-MomorApp-resources-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Copy Pods Resources";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-MomorApp/Pods-MomorApp-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-MomorApp/Pods-MomorApp-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		04AC387C2E6801F700FF2D7E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				04AC387D2E6801F700FF2D7E /* AppDelegate.swift in Sources */,
+				04AC387E2E6801F700FF2D7E /* ConfigModule.m in Sources */,
+				04AC387F2E6801F700FF2D7E /* SplashAdView.swift in Sources */,
+				04AC38802E6801F700FF2D7E /* SplashAdViewBridge.m in Sources */,
+				04AC38812E6801F700FF2D7E /* ConfigModule.swift in Sources */,
+				04AC38822E6801F700FF2D7E /* AudioSessionManager.swift in Sources */,
+				04AC38832E6801F700FF2D7E /* AudioConcatModule.swift in Sources */,
+				04AC38842E6801F700FF2D7E /* PangleAd.swift in Sources */,
+				04AC38852E6801F700FF2D7E /* HeadsetDetection.swift in Sources */,
+				04AC38862E6801F700FF2D7E /* AudioSessionManager.m in Sources */,
+				04AC38872E6801F700FF2D7E /* HeadsetDetectionBridge.m in Sources */,
+				04AC38882E6801F700FF2D7E /* AudioConcatBridge.m in Sources */,
+				04AC38892E6801F700FF2D7E /* PangleAdBridge.m in Sources */,
+				04AC388A2E6801F700FF2D7E /* SplashAdViewManager.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		04AC38EA2E68AE3400FF2D7E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				04AC38EB2E68AE3400FF2D7E /* AppDelegate.swift in Sources */,
+				04AC38EC2E68AE3400FF2D7E /* ConfigModule.m in Sources */,
+				04AC38ED2E68AE3400FF2D7E /* SplashAdView.swift in Sources */,
+				04AC38EE2E68AE3400FF2D7E /* SplashAdViewBridge.m in Sources */,
+				04AC38EF2E68AE3400FF2D7E /* ConfigModule.swift in Sources */,
+				04AC38F02E68AE3400FF2D7E /* AudioSessionManager.swift in Sources */,
+				04AC38F12E68AE3400FF2D7E /* AudioConcatModule.swift in Sources */,
+				04AC38F22E68AE3400FF2D7E /* PangleAd.swift in Sources */,
+				04AC38F32E68AE3400FF2D7E /* HeadsetDetection.swift in Sources */,
+				04AC38F42E68AE3400FF2D7E /* AudioSessionManager.m in Sources */,
+				04AC38F52E68AE3400FF2D7E /* HeadsetDetectionBridge.m in Sources */,
+				04AC38F62E68AE3400FF2D7E /* AudioConcatBridge.m in Sources */,
+				04AC38F72E68AE3400FF2D7E /* PangleAdBridge.m in Sources */,
+				04AC38F82E68AE3400FF2D7E /* SplashAdViewManager.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		04E7CEA22E55B52D0094A637 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 				04E7CEA32E55B52D0094A637 /* AppDelegate.swift in Sources */,
 				04E7CED92E55BB6A0094A637 /* ConfigModule.m in Sources */,
+				049C70A12E603F1700DF9483 /* SplashAdView.swift in Sources */,
+				049C70CA2E60CB0800DF9483 /* SplashAdViewBridge.m in Sources */,
 				04E7CED52E55B9E30094A637 /* ConfigModule.swift in Sources */,
 				04E7CEA42E55B52D0094A637 /* AudioSessionManager.swift in Sources */,
 				04E7CEA52E55B52D0094A637 /* AudioConcatModule.swift in Sources */,
+				049C70B62E60B19100DF9483 /* PangleAd.swift in Sources */,
 				04E7CEA62E55B52D0094A637 /* HeadsetDetection.swift in Sources */,
 				04E7CEA72E55B52D0094A637 /* AudioSessionManager.m in Sources */,
 				04E7CEA82E55B52D0094A637 /* HeadsetDetectionBridge.m in Sources */,
 				04E7CEA92E55B52D0094A637 /* AudioConcatBridge.m in Sources */,
+				049C70BE2E60B72400DF9483 /* PangleAdBridge.m in Sources */,
+				049C70A92E60433300DF9483 /* SplashAdViewManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -624,13 +1317,18 @@
 			files = (
 				04E7CEBC2E55B6B40094A637 /* AppDelegate.swift in Sources */,
 				04E7CED82E55BB6A0094A637 /* ConfigModule.m in Sources */,
+				049C70A22E603F1700DF9483 /* SplashAdView.swift in Sources */,
+				049C70C82E60CB0800DF9483 /* SplashAdViewBridge.m in Sources */,
 				04E7CED32E55B9E30094A637 /* ConfigModule.swift in Sources */,
 				04E7CEBD2E55B6B40094A637 /* AudioSessionManager.swift in Sources */,
 				04E7CEBE2E55B6B40094A637 /* AudioConcatModule.swift in Sources */,
+				049C70B42E60B19100DF9483 /* PangleAd.swift in Sources */,
 				04E7CEBF2E55B6B40094A637 /* HeadsetDetection.swift in Sources */,
 				04E7CEC02E55B6B40094A637 /* AudioSessionManager.m in Sources */,
 				04E7CEC12E55B6B40094A637 /* HeadsetDetectionBridge.m in Sources */,
 				04E7CEC22E55B6B40094A637 /* AudioConcatBridge.m in Sources */,
+				049C70BD2E60B72400DF9483 /* PangleAdBridge.m in Sources */,
+				049C70A82E60433300DF9483 /* SplashAdViewManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -640,27 +1338,148 @@
 			files = (
 				761780ED2CA45674006654EE /* AppDelegate.swift in Sources */,
 				04E7CED72E55BB6A0094A637 /* ConfigModule.m in Sources */,
+				049C70A02E603F1700DF9483 /* SplashAdView.swift in Sources */,
+				049C70C92E60CB0800DF9483 /* SplashAdViewBridge.m in Sources */,
 				04E7CED42E55B9E30094A637 /* ConfigModule.swift in Sources */,
 				04F414372E3B1F5E00D77B0A /* AudioSessionManager.swift in Sources */,
 				0439C6802E4512B300353460 /* AudioConcatModule.swift in Sources */,
+				049C70B52E60B19100DF9483 /* PangleAd.swift in Sources */,
 				048DA7642E3BFF9E00FA95BE /* HeadsetDetection.swift in Sources */,
 				04F4143A2E3B206500D77B0A /* AudioSessionManager.m in Sources */,
 				048DA7662E3C000000FA95BE /* HeadsetDetectionBridge.m in Sources */,
 				0439C6822E45146200353460 /* AudioConcatBridge.m in Sources */,
+				049C70BC2E60B72400DF9483 /* PangleAdBridge.m in Sources */,
+				049C70AA2E60433300DF9483 /* SplashAdViewManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
+		04AC389A2E6801F700FF2D7E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 62B4B865509762765F44CB79 /* Pods-MomorApp.debug.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = MomorAppIcon;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = B426HM8VBZ;
+				ENABLE_BITCODE = NO;
+				INFOPLIST_FILE = "MomorApp-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-ObjC",
+					"-lc++",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "Melon-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				VERSIONING_SYSTEM = "apple-generic";
+			};
+			name = Debug;
+		};
+		04AC389B2E6801F700FF2D7E /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = F7E09811F6057FCCA7455F37 /* Pods-MomorApp.release.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = MomorAppIcon;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = B426HM8VBZ;
+				INFOPLIST_FILE = "MomorApp-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-ObjC",
+					"-lc++",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "Melon-Bridging-Header.h";
+				SWIFT_VERSION = 5.0;
+				VERSIONING_SYSTEM = "apple-generic";
+			};
+			name = Release;
+		};
+		04AC392C2E68AE3400FF2D7E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = F92C600E3D50636868FD68C3 /* Pods-MomorsApp.debug.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = MelonsAppIcon;
+				CLANG_ENABLE_MODULES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = B426HM8VBZ;
+				ENABLE_BITCODE = NO;
+				INFOPLIST_FILE = "MomorsApp-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"$(MelonApp_OTHER_LDFLAGS)",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "Melon-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				VERSIONING_SYSTEM = "apple-generic";
+			};
+			name = Debug;
+		};
+		04AC392D2E68AE3400FF2D7E /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = C22CBECABF3747A2E82877C2 /* Pods-MomorsApp.release.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = MelonsAppIcon;
+				CLANG_ENABLE_MODULES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = B426HM8VBZ;
+				INFOPLIST_FILE = "MomorsApp-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"$(MelonApp_OTHER_LDFLAGS)",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "Melon-Bridging-Header.h";
+				SWIFT_VERSION = 5.0;
+				VERSIONING_SYSTEM = "apple-generic";
+			};
+			name = Release;
+		};
 		04E7CEB52E55B52D0094A637 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = F0E7EEB1209FFF10ACEB2C29 /* Pods-MelonApp.debug.xcconfig */;
+			baseConfigurationReference = 740419E2880E18D562740DD3 /* Pods-MelonApp.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = MelonAppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = M2PPXGK85W;
+				DEVELOPMENT_TEAM = B426HM8VBZ;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = "MelonApp-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
@@ -673,6 +1492,9 @@
 					"$(inherited)",
 					"-ObjC",
 					"-lc++",
+					"-lc++abi",
+					"-lsqlite3",
+					"-lz",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -685,12 +1507,12 @@
 		};
 		04E7CEB62E55B52D0094A637 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = DE563878996940129736B6E0 /* Pods-MelonApp.release.xcconfig */;
+			baseConfigurationReference = 4E2C7F91F26075EB33BF8313 /* Pods-MelonApp.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = MelonAppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = M2PPXGK85W;
+				DEVELOPMENT_TEAM = B426HM8VBZ;
 				INFOPLIST_FILE = "MelonApp-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -702,6 +1524,9 @@
 					"$(inherited)",
 					"-ObjC",
 					"-lc++",
+					"-lc++abi",
+					"-lsqlite3",
+					"-lz",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -713,12 +1538,12 @@
 		};
 		04E7CECE2E55B6B40094A637 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = E461F80E69A3916E641EE811 /* Pods-MelonsApp.debug.xcconfig */;
+			baseConfigurationReference = 86C408BFA34A6C4DC816FC29 /* Pods-MelonsApp.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = MelonsAppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = M2PPXGK85W;
+				DEVELOPMENT_TEAM = B426HM8VBZ;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = "MelonsApp-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
@@ -729,8 +1554,7 @@
 				MARKETING_VERSION = 1.0;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
-					"-ObjC",
-					"-lc++",
+					"$(MelonApp_OTHER_LDFLAGS)",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -743,12 +1567,12 @@
 		};
 		04E7CECF2E55B6B40094A637 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 6047328F666D5503917D91C6 /* Pods-MelonsApp.release.xcconfig */;
+			baseConfigurationReference = A30A49620A8497067252567B /* Pods-MelonsApp.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = MelonsAppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = M2PPXGK85W;
+				DEVELOPMENT_TEAM = B426HM8VBZ;
 				INFOPLIST_FILE = "MelonsApp-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -758,8 +1582,7 @@
 				MARKETING_VERSION = 1.0;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
-					"-ObjC",
-					"-lc++",
+					"$(MelonApp_OTHER_LDFLAGS)",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -771,12 +1594,12 @@
 		};
 		13B07F941A680F5B00A75B9A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 4B64ED172FB78EBDF102BC75 /* Pods-Melon.debug.xcconfig */;
+			baseConfigurationReference = E07DF5F617AB07A2A572BE02 /* Pods-Melon.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = M2PPXGK85W;
+				DEVELOPMENT_TEAM = B426HM8VBZ;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = Melon/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
@@ -801,12 +1624,12 @@
 		};
 		13B07F951A680F5B00A75B9A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = E12093F9CE0BD24188314C0F /* Pods-Melon.release.xcconfig */;
+			baseConfigurationReference = BDA9DC2D61EF6611180DC613 /* Pods-Melon.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = M2PPXGK85W;
+				DEVELOPMENT_TEAM = B426HM8VBZ;
 				INFOPLIST_FILE = Melon/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -876,6 +1699,17 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"${PODS_CONFIGURATION_BUILD_DIR}/ReactCommon/ReactCommon.framework/Headers",
+					"${PODS_CONFIGURATION_BUILD_DIR}/ReactCommon/ReactCommon.framework/Headers/react/nativemodule/core",
+					"${PODS_CONFIGURATION_BUILD_DIR}/ReactCommon-Samples/ReactCommon_Samples.framework/Headers",
+					"${PODS_CONFIGURATION_BUILD_DIR}/ReactCommon-Samples/ReactCommon_Samples.framework/Headers/platform/ios",
+					"${PODS_CONFIGURATION_BUILD_DIR}/React-Fabric/React_Fabric.framework/Headers/react/renderer/components/view/platform/cxx",
+					"${PODS_CONFIGURATION_BUILD_DIR}/React-NativeModulesApple/React_NativeModulesApple.framework/Headers",
+					"${PODS_CONFIGURATION_BUILD_DIR}/React-graphics/React_graphics.framework/Headers",
+					"${PODS_CONFIGURATION_BUILD_DIR}/React-graphics/React_graphics.framework/Headers/react/renderer/graphics/platform/ios",
+				);
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					/usr/lib/swift,
@@ -896,7 +1730,14 @@
 					"-DFOLLY_CFG_NO_COROUTINES=1",
 					"-DFOLLY_HAVE_CLOCK_GETTIME=1",
 				);
-				OTHER_LDFLAGS = "$(inherited)  ";
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-ObjC",
+					"-lc++",
+					"-lc++abi",
+					"-lsqlite3",
+					"-lz",
+				);
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) DEBUG";
@@ -946,6 +1787,17 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"${PODS_CONFIGURATION_BUILD_DIR}/ReactCommon/ReactCommon.framework/Headers",
+					"${PODS_CONFIGURATION_BUILD_DIR}/ReactCommon/ReactCommon.framework/Headers/react/nativemodule/core",
+					"${PODS_CONFIGURATION_BUILD_DIR}/ReactCommon-Samples/ReactCommon_Samples.framework/Headers",
+					"${PODS_CONFIGURATION_BUILD_DIR}/ReactCommon-Samples/ReactCommon_Samples.framework/Headers/platform/ios",
+					"${PODS_CONFIGURATION_BUILD_DIR}/React-Fabric/React_Fabric.framework/Headers/react/renderer/components/view/platform/cxx",
+					"${PODS_CONFIGURATION_BUILD_DIR}/React-NativeModulesApple/React_NativeModulesApple.framework/Headers",
+					"${PODS_CONFIGURATION_BUILD_DIR}/React-graphics/React_graphics.framework/Headers",
+					"${PODS_CONFIGURATION_BUILD_DIR}/React-graphics/React_graphics.framework/Headers/react/renderer/graphics/platform/ios",
+				);
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					/usr/lib/swift,
@@ -965,7 +1817,14 @@
 					"-DFOLLY_CFG_NO_COROUTINES=1",
 					"-DFOLLY_HAVE_CLOCK_GETTIME=1",
 				);
-				OTHER_LDFLAGS = "$(inherited)  ";
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-ObjC",
+					"-lc++",
+					"-lc++abi",
+					"-lsqlite3",
+					"-lz",
+				);
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				USE_HERMES = true;
@@ -976,6 +1835,24 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		04AC38992E6801F700FF2D7E /* Build configuration list for PBXNativeTarget "MomorApp" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				04AC389A2E6801F700FF2D7E /* Debug */,
+				04AC389B2E6801F700FF2D7E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		04AC392B2E68AE3400FF2D7E /* Build configuration list for PBXNativeTarget "MomorsApp" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				04AC392C2E68AE3400FF2D7E /* Debug */,
+				04AC392D2E68AE3400FF2D7E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		04E7CEB42E55B52D0094A637 /* Build configuration list for PBXNativeTarget "MelonApp" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
