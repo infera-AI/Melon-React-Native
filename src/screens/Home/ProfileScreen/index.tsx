@@ -17,12 +17,14 @@ import { ProfileStackParamList } from './ProfileNavigator';
 import { getUserInfo } from '../../../api/profile/profile';
 import { useLanguage } from '../../../contexts/LanguageContext';
 import { normalize, normalizeFontSize } from '@/utils/stylesUtil';
+import { useBackHandler } from '@/utils/BackHandlerUtil'; // 导入工具类
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
 type ProfileScreenNavigationProp = NativeStackNavigationProp<ProfileStackParamList, 'ProfileMain'>;
 
 const ProfileScreen: React.FC = () => {
+  useBackHandler('再按一次退出')
   const navigation = useNavigation<ProfileScreenNavigationProp>();
   const userInfo = useUserStore((state) => state.userInfo);
   const token = useUserStore((state) => state.token);

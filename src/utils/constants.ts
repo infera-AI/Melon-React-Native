@@ -16,4 +16,6 @@ export const CODE = {
 export const APP_SIGN_ENUM = {
   TYPE_MELON: 'melon',         // 收费国内版
   TYPE_MELONS: 'melons',       // 收费海外版
+  TYPE_MOMOR: 'momor', // 免费国内版
+  TYPE_MOMORS: 'momors', // 免费海外版
 } as const

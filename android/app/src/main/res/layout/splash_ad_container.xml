@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 开屏广告容器：宽高match_parent，确保覆盖全屏 -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/splash_ad_container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/background_dark">  <!-- 背景色可自定义，避免加载时黑屏 -->
+</FrameLayout>

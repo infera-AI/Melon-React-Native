@@ -10,6 +10,8 @@ import MessageModalRegister from '@/components/MessageModalRegister';
 import { Provider as PaperProvider} from 'react-native-paper';
 import { NativeModules } from 'react-native';
 const { ConfigModule } = NativeModules;
+import mobileAds from 'react-native-google-mobile-ads';
+import { APP_SIGN_ENUM } from './utils';
 
 const App = () => {
   const [isInitialized, setIsInitialized] = useState(false);
@@ -26,12 +28,24 @@ const App = () => {
 
       // 获取应用标识
       const appSign = useAppStore.getState().appSign
+      console.log('RN--AppSign--', appSign);
+      
       // 如果没有设置 appSign，则从配置模块获取并设置
       if (!appSign) {
         const config = await ConfigModule.getConfig();
         useAppStore.getState().setAppSign(config.APP_SIGN);
       }
-      setIsInitialized(true);
+      if (appSign === APP_SIGN_ENUM.TYPE_MELONS || appSign === APP_SIGN_ENUM.TYPE_MOMORS) {
+        mobileAds()
+          .initialize()
+          .then(adapterStatuses => {
+            // Initialization complete!
+            console.log('谷歌广告SDK初始化完成--', adapterStatuses);
+            setIsInitialized(true);
+          });
+      } else {
+        setIsInitialized(true);
+      }
     });
     
     // 使Zustand主动同步AsyncStorage中的数据，Zustand主动会同步持久化数据，所以不写也可
