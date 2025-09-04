@@ -21,7 +21,38 @@
     // })
     // console.log('rsp11----', rsp);
  */
-import type { GetUserInfoParams, UpdateProfileRequest, CommonResult, UserVoiceprintDemoResult, VoiceprintDemoConfigResult, SynthesizeSpeechRequest, SynthesizeSpeechResult, GetVoiceprintEnrollmentConfigParams, VoiceprintEnrollmentConfigResult, UploadVoiceprintRecordingRequest, UploadVoiceprintRecordingResult, GenerateVoiceIdRequest, GenerateVoiceIdResult, SubmitFeedbackRequest, SubmitFeedbackResult, GetFeedbackTypeChoicesParams, GetFeedbackTypeChoicesResult, VerifyIdentityByPasswordRequest, VerifyIdentityByPasswordResult, DeleteAccountRequest, DeleteAccountResult, TranslateTextRequest, TranslateTextResult } from './types'
+import type { 
+  GetUserInfoParams, 
+  UpdateProfileRequest, 
+  CommonResult, 
+  UserVoiceprintDemoResult, 
+  VoiceprintDemoConfigResult, 
+  SynthesizeSpeechRequest, 
+  SynthesizeSpeechResult, 
+  GetVoiceprintEnrollmentConfigParams, 
+  VoiceprintEnrollmentConfigResult, 
+  UploadVoiceprintRecordingRequest, 
+  UploadVoiceprintRecordingResult, 
+  GenerateVoiceIdRequest, 
+  GenerateVoiceIdResult, 
+  SubmitFeedbackRequest, 
+  SubmitFeedbackResult, 
+  GetFeedbackTypeChoicesParams, 
+  GetFeedbackTypeChoicesResult, 
+  VerifyIdentityByPasswordRequest, 
+  VerifyIdentityByPasswordResult, 
+  DeleteAccountRequest, 
+  DeleteAccountResult, 
+  TranslateTextRequest, 
+  TranslateTextResult,
+  BindingInfoResult,
+  SendVerificationCodeToNewRequest,
+  SendVerificationCodeToNewResult,
+  GetDeviceInfosParams,
+  GetDeviceInfosResult,
+  ForgotPasswordResetNewRequest,
+  ForgotPasswordResetNewResponse
+} from './types'
 import http from '../../utils/http'
 import { API_ENDPOINTS } from '../apiPath';
 
@@ -145,3 +176,100 @@ export function deleteAccount(params: DeleteAccountRequest) {
 export function translateText(params: TranslateTextRequest) {
   return http.post<TranslateTextResult>(API_ENDPOINTS.TRANSLATE.TRANLATE_TEXT, params);
 }
+
+// 获取账户绑定信息
+export function getBindingInfos() {
+  return http.get<BindingInfoResult>(API_ENDPOINTS.PROFILE.GET_BINDING_INFOS);
+}
+
+// 发送验证码到新邮箱或手机号
+export function sendVerificationCodeToNew(params: SendVerificationCodeToNewRequest) {
+  return http.post<SendVerificationCodeToNewResult>(API_ENDPOINTS.PROFILE.SEND_VERIFICATION_CODE_TO_NEW, params);
+}
+
+// 忘记密码重设
+export function forgotPasswordReset(params: ForgotPasswordResetNewRequest) {
+  return http.post<ForgotPasswordResetNewResponse>(API_ENDPOINTS.PROFILE.FORGOT_PASSWORD_RESET, params);
+}
+
+// ----------- 声纹相关 ------------
+
+// 获取全部公共声纹
+export function getCommonVoiceprints() {
+  return http.get<CommonResult>(API_ENDPOINTS.PROFILE.GET_COMMON_VOICEPRINTS);
+}
+
+// 获取全部个人声纹
+export function getPersonalVoiceprints() {
+  return http.get<CommonResult>(API_ENDPOINTS.PROFILE.GET_PERSONAL_VOICEPRINTS);
+}
+
+// 重命名声纹
+export function renameVoiceprint(params: { id: number; name: string }) {
+  return http.post<any>(
+    API_ENDPOINTS.PROFILE.RENAME_VOICEPRINT,
+    params,
+  );
+}
+
+// 删除声纹
+export function deleteVoiceprint(params: { id_list: number[] }) {
+  return http.post<CommonResult>(API_ENDPOINTS.PROFILE.DELETE_VOICEPRINT, params);
+}
+
+// 保存声纹
+export function saveVoiceprint(params: { material_id: number; name: string }) {
+  const formData = new FormData();
+  formData.append('material_id', params.material_id.toString());
+  formData.append('name', params.name);
+  return http.post<CommonResult>(API_ENDPOINTS.PROFILE.SAVE_VOICEPRINT, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+}
+
+// 获取全部素材
+export function getAllMaterials() {
+  return http.get<CommonResult>(API_ENDPOINTS.PROFILE.GET_ALL_MATERIALS);
+}
+
+// 删除声纹素材
+export function deleteMaterials(params: { id_list: number[] }) {
+  return http.post<CommonResult>(API_ENDPOINTS.PROFILE.DELETE_MATERIALS, params);
+}
+
+// 保存声纹素材
+export function saveMaterials(params: { name: string; file_list: any[] ,name_list:string[]}) {
+  return http.post<CommonResult>(API_ENDPOINTS.PROFILE.SAVE_MATERIALS, params);
+}
+
+//训练声纹
+export function trainVoiceprint(params: { voice_print_id: number }) {
+  const formData = new FormData();
+  formData.append('voice_print_id', params.voice_print_id.toString());
+  return http.post<CommonResult>(API_ENDPOINTS.PROFILE.TRAIN_VOICEPRINT, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+}
+
+// 获取积分余额
+export function getPointsBalance() {
+  return http.get<CommonResult>(API_ENDPOINTS.PROFILE.GET_INTEGRAL_BALANCE);
+}
+
+// 获取积分记录
+export function getPointsRecord() {
+  return http.get<CommonResult>(API_ENDPOINTS.PROFILE.GET_INTEGRAL_RECORD);
+}
+
+
+
+
+
+
+
+
+

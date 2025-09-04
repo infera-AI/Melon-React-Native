@@ -13,7 +13,7 @@ import {
   Modal,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { polishLyrics, recommendGenres, generateMusic } from '@/api/music/music';
+import { polishLyrics, recommendGenres, generateMusic, getSupportedLanguages } from '@/api/music/music';
 import { useMessageModal } from '@/contexts/MessageModalContext';
 import FullScreenLoader from '@/components/FullScreenLoader';
 import { MusicStackParamList } from './navigator';
@@ -34,13 +34,15 @@ const MusicScreen: React.FC = () => {
   const [lyrics, setLyrics] = useState('');
   const [selectedStyles, setSelectedStyles] = useState<string[]>([]);
   const [musicStyles, setMusicStyles] = useState<string[]>([]);
-  const {show} = useMessageModal()
+  const [musicStylesInput, setMusicStylesInput] = useState<string>("");
+  const { show } = useMessageModal()
   const [isLoading, setIsLoading] = useState(false);
   const [showLanguageModal, setShowLanguageModal] = useState(false);
   const [leftLanguage, setLeftLanguage] = useState<string>("zh");
   const [rightLanguage, setRightLanguage] = useState<string>("zh");
-  const [type,setType] = useState<string>("");
-  const {t} = useLanguage();
+  const [type, setType] = useState<string>("");
+  const [supportedLanguageList, setSupportedLanguageList] = useState([])
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(false);
 
   // 歌词润饰
@@ -69,6 +71,7 @@ const MusicScreen: React.FC = () => {
       });
       console.log(res);
       setMusicStyles(res.work_genres)
+      return res.work_genres;
     } catch (error: any) {
       show({
         message: t('music.get_recommend_styles_failed') + (error.message || t('common.unknown_error')),
@@ -76,67 +79,74 @@ const MusicScreen: React.FC = () => {
     }
   };
 
+  //去掉连续出现的逗号替换为一个逗号,去掉首尾的逗号
+  const removeExtraCommas = (str: string) => {
+    return str.replace(/,+/g, ",").replace(/^,+/, "").replace(/,+$/, "");
+  }
   // 选择曲风
   const handleStyleSelect = (style: string) => {
-    setSelectedStyles(prev => {
-      if (prev.includes(style)) {
-        return prev.filter(item => item !== style);
+    if (musicStylesInput.includes(style)) {
+      setMusicStylesInput(removeExtraCommas(musicStylesInput.replace(style, "")));
+    } else {
+      if (musicStylesInput.endsWith(",")) {
+        setMusicStylesInput(musicStylesInput + style);
       } else {
-        return [...prev, style];
+        setMusicStylesInput(musicStylesInput.length > 0 ? musicStylesInput + "," + style : style);
       }
-    });
+    }
   };
 
   const handleLanguageSelect = (language: string) => {
-    if(type==="left"){
+    if (type === "left") {
       setLeftLanguage(language);
-    }else{
+    } else {
       setRightLanguage(language);
     }
     setShowLanguageModal(false);
   };
 
   const handleNext = () => {
-    if(lyrics.trim() === ""){
-      show({message:t('music.lyrics_empty')});
+    if (lyrics.trim() === "") {
+      show({ message: t('music.lyrics_empty') });
       return;
     }
-    if(selectedStyles.length === 0){
-      show({message:t('music.select_music_style')});
+    if (musicStylesInput.length === 0) {
+      show({ message: t('music.select_music_style') });
       return;
     }
     useMusicStore.getState().setMusicGenerateInfo({
       title: title,
       lyrics: lyrics,
-      musicStyles: selectedStyles,
+      musicStyles: musicStylesInput.split(","),
     });
-    setLoading(true);
-    generateMusic({ 
-      work_title: title,
-      work_lyrics: lyrics,
-      work_genres: selectedStyles,
-    }).then((rsp) => {
-      setLoading(false);
-      if(!rsp.task_id){
-        show({
-          message: t('translate_screen.failed_again')
-        })
-        return
-      }
-      navigation.navigate('GeneratingMusic', {
-        taskId: rsp.task_id,
-        createTaskTime: Math.floor(performance.now())
-      });
-    }).catch(() => {
-      setLoading(false);
-      show({
-        message: t('http_service_error')
-      })
-    });
+    navigation.navigate('SingerSelection', { type: 'generate' });
+    // setLoading(true);
+    // generateMusic({ 
+    //   work_title: title,
+    //   work_lyrics: lyrics,
+    //   work_genres: selectedStyles,
+    // }).then((rsp) => {
+    //   setLoading(false);
+    //   if(!rsp.task_id){
+    //     show({
+    //       message: t('translate_screen.failed_again')
+    //     })
+    //     return
+    //   }
+    //   navigation.navigate('GeneratingMusic', {
+    //     taskId: rsp.task_id,
+    //     createTaskTime: Math.floor(performance.now())
+    //   });
+    // }).catch(() => {
+    //   setLoading(false);
+    //   show({
+    //     message: t('http_service_error')
+    //   })
+    // });
     // navigation.navigate('GeneratingMusic' as never);
   }
 
-  const handleLanguageSwitch = (type:string) => {
+  const handleLanguageSwitch = (type: string) => {
     setType(type);
     setShowLanguageModal(true);
   }
@@ -154,7 +164,7 @@ const MusicScreen: React.FC = () => {
       });
       console.log(res);
       setLyrics(res.Translated);
-    } catch (error:any) {
+    } catch (error: any) {
       show({
         message: t('music.translate_lyrics_failed') + (error.message || 'Unknown error'),
       });
@@ -162,217 +172,250 @@ const MusicScreen: React.FC = () => {
     setIsLoading(false);
   }
 
+  const handleRefreshRecommendStyles = async () => {
+    setLoading(true);
+    await getRecommendStylesRequest();
+    setLoading(false);
+  }
+
+  const refreshAIStyles = async () => {
+    setLoading(true);
+    const res = await getRecommendStylesRequest();
+    setMusicStylesInput(res.join(","));
+    setLoading(false);
+  }
+
+  // 获取支持语言
+  const getSupportedLanguagesRequest = async () => {
+    const res = await getSupportedLanguages();
+    setSupportedLanguageList(res.support_language);
+    console.log(res);
+  }
+
   useEffect(() => {
-    if (lyrics) {
-      getRecommendStylesRequest();
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [lyrics]);
+    getSupportedLanguagesRequest();
+  }, []);
 
   return (
-    <SafeAreaView edges={['top','bottom']} style={styles.container}>
-    <ScrollView>
-      {/* 顶部卡片区 */}
-      <View style={styles.topRow}>
-        <TouchableOpacity style={styles.topCard} onPress={() => navigation.navigate('MyWork')}>
-          <Image
-            source={require('../../../../assets/images/my_works.png')}
-            style={styles.topCardIcon}
-            resizeMode="contain"
-          />
-          <Text style={styles.topCardText}>{t('music.my_works')}</Text>
-          <Image source={require('@/assets/main/right_arrow_icon.png')} style={styles.topCardArrow} />
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.topCard} onPress={() => navigation.navigate('HummingMusic' as never)}>
-          <Image
-            source={require('../../../../assets/images/humming_music.png')}
-            style={styles.topCardIcon}
-            resizeMode="contain"
-          />
-          <Text style={styles.topCardText}>{t('music.humming_music')}</Text>
-          <Image source={require('@/assets/main/right_arrow_icon.png')} style={styles.topCardArrow} />
-        </TouchableOpacity>
-      </View>
-
-      {/* 分组标题 */}
-      <Text style={styles.sectionTitle}>{t('music.lyric_writing_composition')}</Text>
-
-      {/* 歌词输入卡片 */}
-      <View style={styles.lyricCard}>
-        <View style={styles.lyricCardHeader}>
-          <Text style={styles.lyricCardTitle}>{t('music.write_lyrics')}</Text>
-          <TouchableOpacity style={styles.aiPolish} onPress={handleAiPolish}>
+    <SafeAreaView edges={['top', 'bottom']} style={styles.container}>
+      <ScrollView>
+        {/* 顶部卡片区 */}
+        <View style={styles.topRow}>
+          <TouchableOpacity style={styles.topCard} onPress={() => navigation.navigate('MyWork')}>
             <Image
-              source={require('../../../../assets/images/ai_polishing_star.png')}
-              style={styles.aiIcon}
+              source={require('../../../../assets/images/my_works.png')}
+              style={styles.topCardIcon}
               resizeMode="contain"
             />
-            <MaskedView
-              maskElement={
-                <Text style={styles.aiPolishText}>{t('music.ai_polishing')}</Text>
-              }
-            >
-              <LinearGradient
-                colors={['#85F380', '#A099FF']}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 0 }}
-              >
-                <Text style={[styles.aiPolishText, { opacity: 0 }]}>
-                  {t('music.ai_polishing')}
-                </Text>
-              </LinearGradient>
-            </MaskedView>
+            <Text style={styles.topCardText}>{t('music.my_works')}</Text>
+            <Image source={require('@/assets/main/right_arrow_icon.png')} style={styles.topCardArrow} />
           </TouchableOpacity>
-        </View>
-        <TextInput
-          style={styles.lyricInput}
-          placeholder={t('music.enter_lyrics_placeholder')}
-          placeholderTextColor="#666"
-          value={lyrics}
-          onChangeText={setLyrics}
-          numberOfLines={10}
-          multiline
-        />
-      </View>
-      
-      {/* 底部操作区 */}
-      <View style={{ justifyContent: 'flex-end' }}>
-        {/* 语言选择与功能按钮 */}
-        <View style={styles.langRow}>
-          <TouchableOpacity style={styles.langBtn} onPress={()=>handleLanguageSwitch("left")}>
-            <Text style={styles.langText}>{t(`languageNames.${leftLanguage}`)}</Text>
-            <Text style={styles.langArrow}>▼</Text>
-          </TouchableOpacity>
-          <Text style={styles.langSwitch}>⇄</Text>
-          <TouchableOpacity style={styles.langBtn} onPress={()=>handleLanguageSwitch("right")}>
-            <Text style={styles.langText}>{t(`languageNames.${rightLanguage}`)}</Text>
-            <Text style={styles.langArrow}>▼</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.musicTransBtn} onPress={handleTranslateLyrics}>
+          <TouchableOpacity style={styles.topCard} onPress={() => navigation.navigate('HummingMusic' as never)}>
             <Image
-              source={require('../../../../assets/images/music_trans.png')}
-              style={styles.musicTransIcon}
-              // resizeMode="contain"
-            />
-          </TouchableOpacity>
-        </View>
-
-         {/* 曲风选择卡片 */}
-      {lyrics&&<View style={styles.musicStyleCard}>
-        <View style={styles.musicStyleHeader}>
-          <Text style={styles.musicStyleTitle}>{t('music.select_music_style')}</Text>
-          <TouchableOpacity style={styles.aiPolish} onPress={getRecommendStylesRequest}>
-            <Image
-              source={require('../../../../assets/images/ai_polishing_star.png')}
-              style={styles.aiIcon}
+              source={require('../../../../assets/images/humming_music.png')}
+              style={styles.topCardIcon}
               resizeMode="contain"
             />
-            <MaskedView
-              maskElement={
-                <Text style={styles.aiPolishText}>{t('music.ai_polishing')}</Text>
-              }
-            >
-              <LinearGradient
-                colors={['#85F380', '#A099FF']}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 0 }}
-              >
-                <Text style={[styles.aiPolishText, { opacity: 0 }]}>
-                  {t('music.ai_polishing')}
-                </Text>
-              </LinearGradient>
-            </MaskedView>
+            <Text style={styles.topCardText}>{t('music.humming_music')}</Text>
+            <Image source={require('@/assets/main/right_arrow_icon.png')} style={styles.topCardArrow} />
           </TouchableOpacity>
         </View>
 
-        {/* 音频可视化 */}
-        <View style={styles.audioVisualization}>
-          <Text style={styles.audioDescription}>
-            {t('music.pre_filled_description')}
-          </Text>
-        </View>
+        {/* 分组标题 */}
+        <Text style={styles.sectionTitle}>{t('music.lyric_writing_composition')}</Text>
 
-        {/* 曲风选择芯片 */}
-        <ScrollView 
-          horizontal 
-          showsHorizontalScrollIndicator={false}
-          style={styles.styleChipsContainer}
-          contentContainerStyle={styles.styleChipsContent}
-        >
-          {musicStyles.map((style) => (
-            <TouchableOpacity
-              key={style}
-              style={[
-                styles.styleChip,
-                selectedStyles.includes(style) && styles.styleChipSelected
-              ]}
-              onPress={() => handleStyleSelect(style)}
-            >
-              <Text style={[
-                styles.styleChipText,
-                selectedStyles.includes(style) && styles.styleChipTextSelected
-              ]}>
-                {style}
-              </Text>
+        {/* 歌词输入卡片 */}
+        <View style={styles.lyricCard}>
+          <View style={styles.lyricCardHeader}>
+            <Text style={styles.lyricCardTitle}>{t('music.write_lyrics')}</Text>
+            <TouchableOpacity style={styles.aiPolish} onPress={handleAiPolish}>
+              <Image
+                source={require('../../../../assets/images/ai_polishing_star.png')}
+                style={styles.aiIcon}
+                resizeMode="contain"
+              />
+              <MaskedView
+                maskElement={
+                  <Text style={styles.aiPolishText}>{t('music.ai_polishing')}</Text>
+                }
+              >
+                <LinearGradient
+                  colors={['#85F380', '#A099FF']}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 0 }}
+                >
+                  <Text style={[styles.aiPolishText, { opacity: 0 }]}>
+                    {t('music.ai_polishing')}
+                  </Text>
+                </LinearGradient>
+              </MaskedView>
             </TouchableOpacity>
-          ))}
-        </ScrollView>
-        </View>}
+          </View>
+          <TextInput
+            style={styles.lyricInput}
+            placeholder={t('music.enter_lyrics_placeholder')}
+            placeholderTextColor="#666"
+            value={lyrics}
+            onEndEditing={() => setLyrics(lyrics.trim())}
+            onChangeText={setLyrics}
+            numberOfLines={10}
+            multiline
+          />
+          {lyrics.length > 0 && <TouchableOpacity style={styles.clearIconContainer} onPress={() => setLyrics("")}>
+            <Image source={require('@/assets/music/music_delete_icon.png')} style={styles.clearIcon} />
+          </TouchableOpacity>}
+        </View>
 
-        {/* Next 按钮 */}
-        <TouchableOpacity
-          style={[
-            styles.nextBtn,
-            !lyrics && styles.nextBtnDisabled
-          ]}
-          disabled={!lyrics}
-          onPress={handleNext}
-        >
-          <Text
-            style={[
-              styles.nextBtnText,
-              !lyrics && styles.nextBtnTextDisabled
-            ]}
-          >
-            {t('music.next')}
-          </Text>
-        </TouchableOpacity>
-      </View>
-    </ScrollView>
-       {/* 语言选择弹窗 */}
-       <Modal
-          visible={showLanguageModal}
-          transparent={true}
-          animationType="fade"
-          onRequestClose={() => setShowLanguageModal(false)}
-        >
-          <View style={styles.modalOverlay}>
-            <View style={styles.modalContent}>
-              <View style={styles.modalHeader}>
-                <Text style={styles.modalTitle}>{t('voiceprint_management.select_language')}</Text>
-                <TouchableOpacity onPress={() => setShowLanguageModal(false)}>
-                  <Text style={styles.modalClose}>✕</Text>
-                </TouchableOpacity>
-              </View>
-              
-              <ScrollView style={styles.languageList}>
-                {supportedLanguages?.map((language: any, index: number) => (
-                  <TouchableOpacity 
-                    key={index}
-                    style={styles.languageOption} 
-                    onPress={() => handleLanguageSelect(language.code)}
+        {/* 底部操作区 */}
+        <View style={{ justifyContent: 'flex-end' }}>
+          {/* 语言选择与功能按钮 */}
+          <View style={styles.langRow}>
+            <View style={styles.langBtnContainer}>
+              <TouchableOpacity style={styles.langBtn} onPress={() => handleLanguageSwitch("left")}>
+                <Text style={styles.langText}>{t(`languageNames.${leftLanguage}`)}</Text>
+              </TouchableOpacity>
+              <Image source={require('@/assets/main/language_exchange.png')} style={styles.langSwitch} />
+              <TouchableOpacity style={styles.langBtn} onPress={() => handleLanguageSwitch("right")}>
+                <Text style={styles.langText}>{t(`languageNames.${rightLanguage}`)}</Text>
+              </TouchableOpacity>
+            </View>
+            <TouchableOpacity style={styles.musicTransBtn} onPress={handleTranslateLyrics}>
+              <Image
+                source={require('../../../../assets/images/music_trans.png')}
+                style={styles.musicTransIcon}
+              // resizeMode="contain"
+              />
+            </TouchableOpacity>
+          </View>
+
+          {/* 曲风选择卡片 */}
+          <View style={styles.musicStyleCard}>
+            <View style={styles.musicStyleHeader}>
+              <Text style={styles.musicStyleTitle}>{t('music.select_music_style')}</Text>
+              <TouchableOpacity style={styles.aiPolish} onPress={refreshAIStyles}>
+                <Image
+                  source={require('../../../../assets/images/ai_polishing_star.png')}
+                  style={styles.aiIcon}
+                  resizeMode="contain"
+                />
+                <MaskedView
+                  maskElement={
+                    <Text style={styles.aiPolishText}>{t('music.ai_polishing')}</Text>
+                  }
+                >
+                  <LinearGradient
+                    colors={['#85F380', '#A099FF']}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 0 }}
                   >
-                    <Text style={styles.languageOptionText}>{t(`languageNames.${language.code}`)}</Text>
+                    <Text style={[styles.aiPolishText, { opacity: 0 }]}>
+                      {t('music.ai_polishing')}
+                    </Text>
+                  </LinearGradient>
+                </MaskedView>
+              </TouchableOpacity>
+            </View>
+            <TextInput
+              style={styles.lyricInput}
+              placeholder={'Enter style tags, separated by commas. Example: pop,rock,......'}
+              placeholderTextColor="#666"
+              value={musicStylesInput}
+              onChangeText={setMusicStylesInput}
+              numberOfLines={10}
+              multiline
+            />
+            {musicStylesInput.length > 0 && <TouchableOpacity style={[styles.clearIconContainer, { bottom: normalize(68) }]} onPress={() => setMusicStylesInput("")}>
+              <Image source={require('@/assets/music/music_delete_icon.png')} style={styles.clearIcon} />
+            </TouchableOpacity>}
+            {/* 音频可视化 */}
+            {lyrics.length > 0 && <View style={styles.audioVisualization}>
+              <TouchableOpacity onPress={handleRefreshRecommendStyles}>
+                <Image source={require('@/assets/main/refresh_icon.png')} style={styles.musicStyleInputIcon} />
+              </TouchableOpacity>
+              {/* 曲风选择芯片 */}
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                style={styles.styleChipsContainer}
+                contentContainerStyle={styles.styleChipsContent}
+              >
+                {musicStyles.map((style) => (
+                  <TouchableOpacity
+                    key={style}
+                    style={[
+                      styles.styleChip,
+                      musicStylesInput.includes(style) && styles.styleChipSelected
+                    ]}
+                    onPress={() => handleStyleSelect(style)}
+                  >
+                    <Text style={[
+                      styles.styleChipText,
+                      musicStylesInput.includes(style) && styles.styleChipTextSelected
+                    ]}>
+                      {style}
+                    </Text>
                   </TouchableOpacity>
                 ))}
               </ScrollView>
+            </View>}
+
+
+          </View>
+
+          {/* Next 按钮 */}
+          <TouchableOpacity
+            style={[
+              styles.nextBtn,
+              !lyrics && styles.nextBtnDisabled
+            ]}
+            disabled={!lyrics}
+            onPress={handleNext}
+          >
+            <Text
+              style={[
+                styles.nextBtnText,
+                !lyrics && styles.nextBtnTextDisabled
+              ]}
+            >
+              {t('music.next')}
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
+      {/* 语言选择弹窗 */}
+      <Modal
+        visible={showLanguageModal}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setShowLanguageModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>{t('voiceprint_management.select_language')}</Text>
+              <TouchableOpacity onPress={() => setShowLanguageModal(false)}>
+                <Text style={styles.modalClose}>✕</Text>
+              </TouchableOpacity>
             </View>
-      </View>
-        </Modal>
-    <FullScreenLoader
-      visible={loading || isLoading}
-      text={t('translate_screen.loading_text')}
-    />
+
+            <ScrollView style={styles.languageList}>
+              {supportedLanguageList?.map((language: any, index: number) => (
+                <TouchableOpacity
+                  key={index}
+                  style={styles.languageOption}
+                  onPress={() => handleLanguageSelect(language.code)}
+                >
+                  <Text style={styles.languageOptionText}>{t(`languageNames.${language.code}`)}</Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
+      <FullScreenLoader
+        visible={loading || isLoading}
+        text={t('translate_screen.loading_text')}
+      />
     </SafeAreaView>
   );
 };
@@ -391,7 +434,7 @@ const styles = StyleSheet.create({
     gap: normalize(12),
   },
   topCard: {
-    flex:1,
+    flex: 1,
     marginTop: normalize(8),
     width: normalize(157.5),
     height: normalize(100),
@@ -467,7 +510,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: normalizeFontSize(15),
     color: '#85F380', // fallback color
-    textAlign:'center',
+    textAlign: 'center',
   },
   lyricInput: {
     minHeight: normalize(90),
@@ -476,13 +519,23 @@ const styles = StyleSheet.create({
     marginTop: normalize(2),
     textAlignVertical: 'top',
   },
+  clearIconContainer: {
+    position: 'absolute',
+    right: normalize(16),
+    bottom: normalize(16),
+  },
+  clearIcon: {
+    width: normalize(22),
+    height: normalize(22),
+  },
   // 曲风选择卡片样式
   musicStyleCard: {
     backgroundColor: '#262626',
     borderRadius: normalize(12),
     padding: normalize(16),
     marginBottom: normalize(18),
-    minHeight: normalize(181),
+    height: normalize(388),
+    paddingBottom: normalize(16),
   },
   musicStyleHeader: {
     flexDirection: 'row',
@@ -498,7 +551,19 @@ const styles = StyleSheet.create({
   },
   // 音频可视化样式
   audioVisualization: {
-    marginBottom: normalize(16),
+    position: 'absolute',
+    height: normalize(36),
+    bottom: normalize(16),
+    left: normalize(16),
+    right: normalize(16),
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  musicStyleInputIcon: {
+    width: normalize(22),
+    height: normalize(22),
+    marginRight: normalize(12),
   },
   audioDescription: {
     color: '#B0B0B0',
@@ -510,14 +575,11 @@ const styles = StyleSheet.create({
   },
   // 曲风选择芯片样式
   styleChipsContainer: {
-    marginTop: normalize(8),
-    height: normalize(20),
+    height: normalize(36),
   },
   styleChipsContent: {
     position: 'absolute',
-    paddingHorizontal: 0,
     height: normalize(36),
-    bottom: normalize(10),
   },
   styleChip: {
     backgroundColor: '#262626',
@@ -543,20 +605,29 @@ const styles = StyleSheet.create({
   },
   langRow: {
     flexDirection: 'row',
-    alignItems: 'center',
+    justifyContent: 'space-between',
+    // alignItems: 'center',
     backgroundColor: 'transparent',
     marginBottom: normalize(18),
   },
+  langBtnContainer: {
+    width: "83%",
+    height: normalize(48),
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#222',
+    borderRadius: normalize(12),
+    borderWidth: 1,
+  },
   langBtn: {
     flex: 1,
-    backgroundColor: '#222',
+    height: normalize(48),
+    backgroundColor: 'transparent',
     borderRadius: normalize(10),
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: normalize(10),
-    paddingHorizontal: normalize(14),
-    marginHorizontal: normalize(2),
     justifyContent: 'center',
+    marginHorizontal: normalize(2),
   },
   langText: {
     color: '#fff',
@@ -569,23 +640,21 @@ const styles = StyleSheet.create({
     fontSize: normalizeFontSize(13),
   },
   langSwitch: {
-    color: '#fff',
-    fontSize: normalizeFontSize(22),
-    marginHorizontal: normalize(8),
+    width: normalize(20),
+    height: normalize(20),
   },
   musicTransBtn: {
-    width: normalize(32),
-    height: normalize(32),
+    width: normalize(48),
+    height: normalize(48),
     backgroundColor: '#222',
     borderRadius: normalize(10),
     justifyContent: 'center',
     alignItems: 'center',
-    marginLeft: normalize(6),
   },
   musicTransIcon: {
-    width: normalize(32),
-    height: normalize(32),
-    // tintColor: '#3cff8f',
+    width: normalize(48),
+    height: normalize(48),
+    // tintColor: '#333',
   },
   nextBtn: {
     backgroundColor: '#85F380',

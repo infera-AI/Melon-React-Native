@@ -1,11 +1,10 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
   StatusBar,
-  Dimensions,
   ScrollView,
   Image,
 } from 'react-native';
@@ -17,9 +16,8 @@ import { ProfileStackParamList } from './ProfileNavigator';
 import { getUserInfo } from '../../../api/profile/profile';
 import { useLanguage } from '../../../contexts/LanguageContext';
 import { normalize, normalizeFontSize } from '@/utils/stylesUtil';
+import CommonModal from '@/components/CommonModal';
 import { useBackHandler } from '@/utils/BackHandlerUtil'; // 导入工具类
-
-const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
 type ProfileScreenNavigationProp = NativeStackNavigationProp<ProfileStackParamList, 'ProfileMain'>;
 
@@ -29,37 +27,59 @@ const ProfileScreen: React.FC = () => {
   const userInfo = useUserStore((state) => state.userInfo);
   const token = useUserStore((state) => state.token);
   const { t } = useLanguage();
+  const [showInvitationModal, setShowInvitationModal] = useState(false);
 
   const menuItems = [
     {
+      id: 'my_points',  
+      title: 'My Points',
+      icon: require('@/assets/profile/menu_points_icon.png'),
+      hasArrow: true,
+      hasIcon: true,
+    },
+    {
+      id: 'invitation_code',  
+      title: 'Invitation code',
+      icon: require('@/assets/profile/menu_invitationcode_icon.png'),
+      hasArrow: true,
+      hasIcon: true,
+    },
+    {
       id: 'ai_voiceprint',  
       title: t('profile.ai_voiceprint_management'),
-      icon: require('../../../assets/profile/profile_voice_icon.png'),
+      icon: require('@/assets/profile/profile_voice_icon.png'),
+      hasArrow: true,
+      hasIcon: true,
+    },
+    {
+      id: 'offline_voice_package',  
+      title: 'Offline voice package',
+      icon: require('@/assets/profile/menu_offlinelanguage_icon.png'),
       hasArrow: true,
       hasIcon: true,
     },
     {
       id: 'account_security',
       title: t('profile.account_and_security'),
-      icon:require('../../../assets/profile/profile_security_icon.png'),
+      icon:require('@/assets/profile/profile_security_icon.png'),
       hasArrow: true,
     },
     {
       id: 'general_settings',
       title: t('profile.general_settings'),
-      icon:require('../../../assets/profile/profile_setting_icon.png'),
+      icon:require('@/assets/profile/profile_setting_icon.png'),
       hasArrow: true,
     },
-    {
-      id: 'help_feedback',
-      title: t('profile.help_and_feedback'),
-      icon:require('../../../assets/profile/profile_help_icon.png'),
-      hasArrow: true,
-    },
+    // {
+    //   id: 'help_feedback',
+    //   title: t('profile.help_and_feedback'),
+    //   icon:require('@/assets/profile/profile_help_icon.png'),
+    //   hasArrow: true,
+    // },
     {
       id: 'about_melon',
       title: t('profile.about_melon'),
-      icon:require('../../../assets/profile/profile_about_icon.png'),
+      icon:require('@/assets/profile/profile_about_icon.png'),
       hasArrow: true,
     },
   ];
@@ -69,7 +89,7 @@ const ProfileScreen: React.FC = () => {
     // 这里可以添加导航逻辑
     switch (itemId) {
       case 'ai_voiceprint':
-        navigation.navigate('VoiceprintManagement');
+        navigation.navigate('VoiceprintManagementList' as any);
         break;
       case 'general_settings':
         navigation.navigate('GeneralSettings');
@@ -83,6 +103,15 @@ const ProfileScreen: React.FC = () => {
       case 'about_melon':
         navigation.navigate('About');
         break;
+      case 'my_points':
+        navigation.navigate('MyPoints');
+        break;
+      case 'invitation_code':
+        setShowInvitationModal(true);
+        break;
+      case 'offline_voice_package':
+        navigation.navigate('OfflineVoicePackage' as any);
+        break;
       // case 'about_melon':
       default:
         console.log('Menu item not implemented yet:', itemId);
@@ -93,6 +122,33 @@ const ProfileScreen: React.FC = () => {
   const handleEditProfile = () => {
     // 导航到编辑个人资料页面
     navigation.navigate('EditProfile');
+  };
+
+  // 邀请码弹窗配置
+  const invitationModalConfig = {
+    title: 'Invitation Code',
+    customContent: (
+      <View style={styles.invitationCodeContainer}>
+        <Text style={styles.invitationCodeText}>12345678</Text>
+      </View>
+    ),
+    buttons: [
+      {
+        text: 'Cancle',
+        onPress: () => {
+          console.log('Cancel pressed');
+        },
+        type: 'secondary' as const,
+      },
+      {
+        text: 'Copy',
+        onPress: () => {
+          // 这里可以添加复制到剪贴板的功能
+          console.log('Copy pressed');
+        },
+        type: 'primary' as const,
+      },
+    ],
   };
   const getUserInfoRequest = async () => {
     const info:any = await getUserInfo({});
@@ -135,21 +191,26 @@ const ProfileScreen: React.FC = () => {
 
       {/* 功能菜单 */}
       <ScrollView style={styles.menuContainer} showsVerticalScrollIndicator={false}>
-        {/* AI Voiceprint Management */}
-        <TouchableOpacity style={styles.menuCard} onPress={() => handleMenuItemPress('ai_voiceprint')}>
-          <View style={styles.menuItem}>
+        {menuItems.slice(0,4).map((item,index) => (
+          <TouchableOpacity
+            key={item.id}
+            style={[styles.menuItem,index === 0 && styles.menuItemFirst,index === 3 && styles.menuItemLast]}
+            onPress={() => handleMenuItemPress(item.id)}
+          >
             <View style={styles.menuItemLeft}>
-                <Image source={require('../../../assets/profile/profile_voice_icon.png')} style={styles.menuIcon}/>
-              <Text style={styles.menuTitle}>{t('profile.ai_voiceprint_management')}</Text>
+              <Image source={item.icon} style={styles.menuIcon}/>
+              <Text style={styles.menuTitle}>{item.title}</Text>
             </View>
-            <TouchableOpacity style={styles.arrowContainer}>
-              <Image source={require('../../../assets/main/right_arrow_icon.png')} style={styles.arrowIcon}/>
-            </TouchableOpacity>
-          </View>
-        </TouchableOpacity>
+            {item.hasArrow && (
+              <View style={styles.arrowContainer}>
+                <Image source={require('../../../assets/main/right_arrow_icon.png')} style={styles.arrowIcon}/>
+              </View>
+            )}
+          </TouchableOpacity>
+        ))}
 
         {/* 其他菜单项 */}
-        {menuItems.slice(1).map((item,index) => (
+        {menuItems.slice(4).map((item,index) => (
           <TouchableOpacity
             key={item.id}
             style={[styles.menuItem,index === 0 && styles.menuItemFirst,index === 3 && styles.menuItemLast]}
@@ -167,6 +228,13 @@ const ProfileScreen: React.FC = () => {
           </TouchableOpacity>
         ))}
       </ScrollView>
+
+      {/* 邀请码弹窗 */}
+      <CommonModal
+        visible={showInvitationModal}
+        onClose={() => setShowInvitationModal(false)}
+        config={invitationModalConfig}
+      />
 
     </View>
   );
@@ -269,6 +337,7 @@ const styles = StyleSheet.create({
   menuItemLast: {
     borderBottomLeftRadius: normalize(12),
     borderBottomRightRadius: normalize(12),
+    marginBottom: normalize(16),
   },
   menuItemLeft: {
     flexDirection: 'row',
@@ -324,6 +393,17 @@ const styles = StyleSheet.create({
   },
   activeNavIcon: {
     color: '#85F380',
+  },
+  invitationCodeContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: normalize(20),
+  },
+  invitationCodeText: {
+    fontSize: normalizeFontSize(24),
+    fontWeight: '600',
+    color: '#FFFFFF',
+    letterSpacing: 1,
   },
 });
 

@@ -102,7 +102,7 @@ const ResetPasswordScreen: React.FC = () => {
           />
           <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
             <Image 
-              source={showPassword ? require('../../../src/assets/login/login_eye_icon.png') : require('../../../src/assets/login/login_eye_icon.png')} 
+              source={showPassword ? require('../../../src/assets/login/login_eyeshow_icon.png') : require('../../../src/assets/login/login_eye_icon.png')} 
               style={styles.inputIcon} 
             />
           </TouchableOpacity>
@@ -121,7 +121,7 @@ const ResetPasswordScreen: React.FC = () => {
           />
           <TouchableOpacity onPress={() => setShowConfirmPassword(!showConfirmPassword)}>
             <Image 
-              source={showConfirmPassword ? require('../../../src/assets/login/login_eye_icon.png') : require('../../../src/assets/login/login_eye_icon.png')} 
+              source={showConfirmPassword ? require('../../../src/assets/login/login_eyeshow_icon.png') : require('../../../src/assets/login/login_eye_icon.png')} 
               style={styles.inputIcon} 
             />
           </TouchableOpacity>

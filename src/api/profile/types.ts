@@ -472,3 +472,186 @@ export interface TranslateTextResult {
   message: string;
   [property: string]: any;
 }
+
+// 绑定信息返回数据
+export interface BindingInfoRes {
+  /**
+   * 手机号
+   */
+  phone?: string;
+  /**
+   * 邮箱
+   */
+  email?: string;
+  /**
+   * 国家代码
+   */
+  country_code?: string;
+  /**
+   * 国家名称
+   */
+  country_name?: string;
+  /**
+   * 是否已绑定手机号
+   */
+  is_phone_bound?: boolean;
+  /**
+   * 是否已绑定邮箱
+   */
+  is_email_bound?: boolean;
+  [property: string]: any;
+}
+
+// 绑定信息API返回结果
+export interface BindingInfoResult {
+  /**
+   * 自定义状态码
+   */
+  code: number;
+  /**
+   * 返回数据
+   */
+  data: BindingInfoRes;
+  /**
+   * 数据说明
+   */
+  message: string;
+  [property: string]: any;
+}
+
+// 发送验证码到新邮箱或手机号请求参数
+export interface SendVerificationCodeToNewRequest {
+  /**
+   * 身份验证后给的临时token（身份认证时候的autu_purpose必须为verify_identity）
+   */
+  action_token: string;
+  /**
+   * 新的邮箱或手机号码
+   */
+  new_identifier: string;
+  /**
+   * 接受的类型 email/phone
+   */
+  recipient_type: string;
+  [property: string]: any;
+}
+
+// 发送验证码到新邮箱或手机号返回结果
+export interface SendVerificationCodeToNewResult {
+  /**
+   * 自定义状态码
+   */
+  code: number;
+  /**
+   * 返回数据
+   */
+  data: null;
+  /**
+   * 数据说明
+   */
+  message: string;
+  [property: string]: any;
+}
+
+// 获取设备信息请求参数
+export interface GetDeviceInfosParams {
+  /**
+   * 用户设备指纹
+   */
+  device_fingerprint?: string;
+  [property: string]: any;
+}
+
+// 设备信息
+export interface DeviceInfo {
+  /**
+   * 可以根据device_info_json解析或用户自定义
+   */
+  device_name: string;
+  /**
+   * 根据device_info_json解析
+   */
+  device_type: string;
+  ip_address: string;
+  /**
+   * 历史登录但仍活跃的设备
+   */
+  is_active: boolean;
+  /**
+   * 标识为当前设备
+   */
+  is_current_device: boolean;
+  last_active_time: string;
+  /**
+   * 可选，通过IP解析
+   */
+  location_info: string;
+  login_time: string;
+  session_id: string;
+  [property: string]: any;
+}
+
+// 用户设备信息返回数据
+export interface UserDevicesRes {
+  device_infos: DeviceInfo[];
+  [property: string]: any;
+}
+
+// 获取设备信息API返回结果
+export interface GetDeviceInfosResult {
+  /**
+   * 自定义状态码
+   */
+  code: number;
+  /**
+   * 返回数据
+   */
+  data: UserDevicesRes;
+  /**
+   * 数据说明
+   */
+  message: string;
+  [property: string]: any;
+}
+
+// 忘记密码重设参数（新接口）
+export interface ForgotPasswordResetNewRequest {
+  /**
+   * 身份验证后给的临时token（身份认证时候的autu_purpose必须为verify_identity）
+   */
+  action_token: string;
+  /**
+   * 身份验证类型
+   */
+  auth_type: string;
+  /**
+   * 确认新密码
+   */
+  confirm_password: string;
+  /**
+   * 邮箱地址或手机号码
+   */
+  identifier: string;
+  /**
+   * 新密码
+   */
+  new_password: string;
+  [property: string]: any;
+}
+
+// 忘记密码重设响应
+export interface ForgotPasswordResetNewResponse {
+  /**
+   * 自定义状态码
+   */
+  code: number;
+  /**
+   * 返回数据
+   */
+  data: any;
+  /**
+   * 数据说明
+   */
+  message: string;
+  [property: string]: any;
+}

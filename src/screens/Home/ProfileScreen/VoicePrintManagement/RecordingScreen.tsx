@@ -1,3 +1,4 @@
+// 之前分段录音 分三段录音最后合成为一段录音
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   View,
@@ -12,9 +13,9 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { ProfileStackParamList } from './ProfileNavigator';
+import { ProfileStackParamList } from '../ProfileNavigator';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { getVoiceprintEnrollmentConfig } from '../../../api/profile/profile';
+import { getVoiceprintEnrollmentConfig } from '@/api/profile/profile';
 import AudioRecorderPlayer, {
   AVEncoderAudioQualityIOSType,
   AVEncodingOption,
@@ -23,11 +24,11 @@ import AudioRecorderPlayer, {
   OutputFormatAndroidType,
 } from 'react-native-audio-recorder-player';
 import RNFS from 'react-native-fs';
-import { mergeAudioFiles, validateAudioFiles, getTotalAudioDuration } from '../../../utils/audioUtils';
+import { mergeAudioFiles, validateAudioFiles, getTotalAudioDuration } from '@/utils/audioUtils';
 import { useVoiceStore } from '@/store';
 import { VoiceType } from '@/store/modules/voice.store';
 import { useMessageModal } from '@/contexts/MessageModalContext';
-import { useLanguage } from '../../../contexts/LanguageContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { normalize, normalizeFontSize } from '@/utils/stylesUtil';
 
 type RecordingScreenNavigationProp = NativeStackNavigationProp<ProfileStackParamList, 'Recording'>;
@@ -391,7 +392,7 @@ const RecordingScreen: React.FC = () => {
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={handleBack}>
           <Image 
-            source={require('../../../assets/main/page_return_icon.png')} 
+            source={require('@/assets/main/page_return_icon.png')} 
             style={styles.backIcon}
           />
         </TouchableOpacity>
@@ -424,9 +425,9 @@ const RecordingScreen: React.FC = () => {
       </View>
 
       <View style={styles.recordingTimeContainer}>
-        <Image source={require('../../../assets/profile/profile_record_voice_icon.png')} style={styles.recordingIcon} />
+        <Image source={require('@/assets/profile/profile_record_voice_icon.png')} style={styles.recordingIcon} />
         <Text style={styles.recordingTime}>{formatTime( realRecordingTime)}</Text>
-        <Image source={require('../../../assets/profile/profile_record_voice_icon.png')} style={styles.recordingIcon} />
+        <Image source={require('@/assets/profile/profile_record_voice_icon.png')} style={styles.recordingIcon} />
       </View>
       
       {isRecording && (

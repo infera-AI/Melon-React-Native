@@ -195,6 +195,12 @@ const LoginWithCodeScreen: React.FC = () => {
     }
   };
 
+  
+
+  const handleForgotPassword = () => {
+    navigation.navigate('RetrivePassword');
+  };
+
   return (
     <SafeAreaView style={{flex: 1}} edges={['top','bottom','left','right']}>
       <View style={styles.container}>
@@ -280,6 +286,8 @@ const LoginWithCodeScreen: React.FC = () => {
               ? styles.sendButtonTextActive
               : null,]}>{t('login_with_code.send_verification_code')}</Text>
         </TouchableOpacity>
+        <Text style={styles.forgotPasswordText} onPress={handleForgotPassword}>{t('login_phone.forgot_password')} </Text>
+
         {/* 国家选择模态框 */}
         {showCountryModal && (
           <View style={styles.modalOverlay}>
@@ -450,6 +458,12 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: theme.textPrimary,
     textAlign: 'center',
+  },
+  forgotPasswordText: {
+    fontSize: normalizeFontSize(13),
+    color: theme.textSecondary,
+    textAlign: 'center',
+    marginTop: normalize(16, 'height'),
   },
   modalOverlay: {
     position: 'absolute',

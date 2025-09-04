@@ -26,35 +26,73 @@ interface AudioFile {
   type: string;   // 文件类型
 }
 
-/**
- * 清理音频文件路径
- * 统一处理各种格式的音频文件路径，确保格式正确
- * 
- * @param filePath 原始文件路径
- * @returns 清理后的标准路径
- */
-const cleanAudioPath = (filePath: string): string => {
-  if (Platform.OS === 'ios') {
-    return filePath; // iOS 不需要处理
-  }
-  let cleanPath = filePath;
-  
-  // 处理多余的斜杠
-  if (cleanPath.startsWith('file:///')) {
-    cleanPath = cleanPath.replace('file:///', 'file://');
-  }
-  
-  // 确保路径格式正确
-  if (cleanPath.startsWith('file://') && !cleanPath.startsWith('file:///')) {
-    // 路径格式正确
-  } else if (!cleanPath.startsWith('file://')) {
-    // 添加 file:// 前缀
-    cleanPath = `file://${cleanPath}`;
-  }
-  
-  console.log('路径清理:', filePath, '->', cleanPath);
-  return cleanPath;
-};
+  /**
+   * 清理音频文件路径
+   * 统一处理各种格式的音频文件路径，确保格式正确
+   * 
+   * @param filePath 原始文件路径
+   * @returns 清理后的标准路径
+   */
+  const cleanAudioPath = (filePath: string): string => {
+    if (Platform.OS === 'ios') {
+      return filePath; // iOS 不需要处理
+    }
+    
+    let cleanPath = filePath;
+    
+    // 处理 Android content URI
+    if (cleanPath.startsWith('content://')) {
+      console.log('检测到 content URI，保持原格式:', cleanPath);
+      return cleanPath; // content URI 不需要转换
+    }
+    
+    // 处理 file:// 路径
+    if (cleanPath.startsWith('file:///')) {
+      cleanPath = cleanPath.replace('file:///', 'file://');
+    }
+    
+    // 确保路径格式正确
+    if (cleanPath.startsWith('file://') && !cleanPath.startsWith('file:///')) {
+      // 路径格式正确
+    } else if (!cleanPath.startsWith('file://') && !cleanPath.startsWith('content://')) {
+      // 添加 file:// 前缀（仅对非 content URI）
+      cleanPath = `file://${cleanPath}`;
+    }
+    
+    console.log('路径清理:', filePath, '->', cleanPath);
+    return cleanPath;
+  };
+
+  /**
+   * 将 content URI 转换为可播放的文件路径
+   * 
+   * @param contentUri content URI 路径
+   * @returns 可播放的文件路径
+   */
+  const convertContentUriToFilePath = async (contentUri: string): Promise<string> => {
+    if (!contentUri.startsWith('content://')) {
+      return contentUri;
+    }
+
+    try {
+      console.log('开始转换 content URI:', contentUri);
+      
+      // 使用 react-native-fs 复制文件到临时目录
+      const fileName = `temp_audio_${Date.now()}.mp3`;
+      const tempPath = `${RNFS.CachesDirectoryPath}/${fileName}`;
+      
+      console.log('临时文件路径:', tempPath);
+      
+      // 复制文件
+      await RNFS.copyFile(contentUri, tempPath);
+      console.log('文件复制成功:', tempPath);
+      
+      return tempPath;
+    } catch (error) {
+      console.error('转换 content URI 失败:', error);
+      throw error;
+    }
+  };
 
 /**
  * 音频文件合成工具类
@@ -312,8 +350,20 @@ export class AudioMerger {
       const cleanPath = cleanAudioPath(filePath);
       console.log('清理后路径:', cleanPath);
       
+      // 转换 content URI 为可访问的路径
+      let accessiblePath = cleanPath;
+      if (cleanPath.startsWith('content://')) {
+        try {
+          accessiblePath = await convertContentUriToFilePath(cleanPath);
+          console.log('转换后的访问路径:', accessiblePath);
+        } catch (conversionError) {
+          console.error('转换 content URI 失败:', conversionError);
+          return 0;
+        }
+      }
+      
       // 先验证文件是否存在
-      const exists = await RNFS.exists(cleanPath);
+      const exists = await RNFS.exists(accessiblePath);
       console.log('文件是否存在:', exists);
       
       if (!exists) {
@@ -321,7 +371,7 @@ export class AudioMerger {
         return 0;
       }
       
-      const command = `-i "${cleanPath}" -show_entries format=duration -v quiet -of csv="p=0"`;
+      const command = `-i "${accessiblePath}" -show_entries format=duration -v quiet -of csv="p=0"`;
       console.log('FFmpeg 命令:', command);
       
       const session = await FFmpegKit.execute(command);
@@ -347,14 +397,18 @@ export class AudioMerger {
         
         // 尝试备用方法
         console.log('尝试备用方法获取时长...');
-        return await this.getAudioDurationFallback(cleanPath);
+        return await this.getAudioDurationFallback(accessiblePath);
       }
     } catch (error) {
       console.error('获取音频时长失败:', error);
       // 尝试备用方法
       try {
         const cleanPath = cleanAudioPath(filePath);
-        return await this.getAudioDurationFallback(cleanPath);
+        let accessiblePath = cleanPath;
+        if (cleanPath.startsWith('content://')) {
+          accessiblePath = await convertContentUriToFilePath(cleanPath);
+        }
+        return await this.getAudioDurationFallback(accessiblePath);
       } catch (fallbackError) {
         console.error('备用方法也失败:', fallbackError);
         return 0;
@@ -503,6 +557,18 @@ export class AudioPlayer {
         await this.stopAudio();
       }
 
+      // 转换 content URI 为可播放的路径
+      let playablePath = cleanPath;
+      if (cleanPath.startsWith('content://')) {
+        try {
+          playablePath = await convertContentUriToFilePath(cleanPath);
+          console.log('转换后的播放路径:', playablePath);
+        } catch (conversionError) {
+          console.error('转换 content URI 失败:', conversionError);
+          return false;
+        }
+      }
+
       // 动态导入 Sound 模块
       const { default: Sound } = await import('react-native-sound');
       
@@ -510,7 +576,7 @@ export class AudioPlayer {
       Sound.setCategory('Playback');
 
       return new Promise((resolve, reject) => {
-        this.sound = new Sound(cleanPath, undefined, (error) => {
+        this.sound = new Sound(playablePath, undefined, (error) => {
           if (error) {
             console.error('音频加载失败:', error);
             reject(error);
@@ -745,8 +811,20 @@ export const quickValidateAudio = async (filePath: string) => {
     const cleanPath = cleanAudioPath(filePath);
     console.log('清理后路径:', cleanPath);
     
+    // 转换 content URI 为可访问的路径
+    let accessiblePath = cleanPath;
+    if (cleanPath.startsWith('content://')) {
+      try {
+        accessiblePath = await convertContentUriToFilePath(cleanPath);
+        console.log('转换后的访问路径:', accessiblePath);
+      } catch (conversionError) {
+        console.error('转换 content URI 失败:', conversionError);
+        return false;
+      }
+    }
+    
     // 检查文件是否存在
-    const exists = await RNFS.exists(cleanPath);
+    const exists = await RNFS.exists(accessiblePath);
     console.log('文件是否存在:', exists);
     
     if (!exists) {
@@ -755,7 +833,7 @@ export const quickValidateAudio = async (filePath: string) => {
     }
     
     // 获取文件大小
-    const stats = await RNFS.stat(cleanPath);
+    const stats = await RNFS.stat(accessiblePath);
     console.log('文件大小:', stats.size, '字节');
     
     if (stats.size === 0) {

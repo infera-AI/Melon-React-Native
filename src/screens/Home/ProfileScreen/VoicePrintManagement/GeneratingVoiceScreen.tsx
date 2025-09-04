@@ -11,14 +11,14 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { ProfileStackParamList } from './ProfileNavigator';
+import { ProfileStackParamList } from '../ProfileNavigator';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import LottieView from 'lottie-react-native';
 import { generateVoiceId } from '@/api/profile/profile';
 import { useVoiceStore } from '@/store';
 import { VoiceType } from '@/store/modules/voice.store';
 import { useMessageModal } from '@/contexts/MessageModalContext';
-import { useLanguage } from '../../../contexts/LanguageContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { normalize, normalizeFontSize } from '@/utils/stylesUtil';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
@@ -120,7 +120,7 @@ const GeneratingVoiceScreen: React.FC = () => {
      <ScrollView>
        {/* 背景图片 */}
        <Image 
-        source={require('../../../assets/profile/profile_generate_bg.png')} 
+        source={require('@/assets/profile/profile_generate_bg.png')} 
         style={styles.backgroundImage} 
       />
       
@@ -128,7 +128,7 @@ const GeneratingVoiceScreen: React.FC = () => {
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={handleBack}>
           <Image 
-            source={require('../../../assets/main/page_return_icon.png')} 
+            source={require('@/assets/main/page_return_icon.png')} 
             style={styles.backIcon}
           />
         </TouchableOpacity>
@@ -139,7 +139,7 @@ const GeneratingVoiceScreen: React.FC = () => {
        {/* 动画容器 */}
        <View style={styles.animationContainer}>
         <LottieView
-          source={require('../../../assets/lottie/generate_voice.json')}
+          source={require('@/assets/lottie/generate_voice.json')}
           style={styles.lottieAnimation}
           autoPlay
           loop
@@ -171,7 +171,7 @@ const GeneratingVoiceScreen: React.FC = () => {
            <View style={styles.modalContent}>
              <View style={styles.iconContainer}>
                  <Image 
-                   source={require('../../../assets/main/success_icon.png')} 
+                   source={require('@/assets/main/success_icon.png')} 
                    style={styles.successIconImage}
                  />
              </View>

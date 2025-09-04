@@ -9,17 +9,20 @@ import {
   Animated,
   ScrollView,
   Modal,
+  Platform,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { ProfileStackParamList } from './ProfileNavigator';
+import { ProfileStackParamList } from '../ProfileNavigator';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import theme from '../../../utils/theme';
-import { getVoiceprintDemoConfig } from '../../../api/profile';
+import theme from '@/utils/theme';
+import { getVoiceprintDemoConfig } from '@/api/profile';
 import { useVoiceStore } from '@/store';
 import { VoiceType } from '@/store/modules/voice.store';
-import { useLanguage } from '../../../contexts/LanguageContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { normalize, normalizeFontSize } from '@/utils/stylesUtil';
+import { pick } from '@react-native-documents/picker';
+import { useMessageModal } from '@/contexts/MessageModalContext';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
@@ -34,13 +37,56 @@ const langs={
 
 type CreateVoiceScreenNavigationProp = NativeStackNavigationProp<ProfileStackParamList, 'CreateVoice'>;
 
+interface AudioFile {
+  name: string;
+  size: number;
+  uri: string;
+  type: string;
+  fileCopyUri?: string;
+}
+
+const MAX_FILE_SIZE_MB = 100; // 文件大小限制（MB）
+
+// 支持的文件类型
+const audioFileTypes = [
+  'audio/mpeg',           // .mp3
+  'audio/wav',            // .wav
+  'audio/mp4',            // .m4a
+  'audio/aac',            // .aac
+  'audio/ogg',            // .ogg
+  'audio/flac',           // .flac
+  'audio/x-m4a',          // .m4a (alternative MIME type)
+];
+// Android 支持的文件类型
+const androidAudioTypes = [
+  'audio/mpeg',
+  'audio/wav',
+  'audio/mp4',
+  'audio/aac',
+  'audio/ogg',
+  'audio/flac',
+  'audio/x-m4a',
+];
+
+// iOS 支持的文件类型
+const iosAudioTypes = [
+  'public.audio',
+  'public.mp3',
+  'public.wav',
+  'public.m4a',
+  'public.aac',
+  'public.ogg',
+  'public.flac',
+];
+
 const CreateVoiceScreen: React.FC = () => {
   const navigation = useNavigation<CreateVoiceScreenNavigationProp>();
+  const { materials, setMaterials } = useVoiceStore();
   const [selectedLanguage, setSelectedLanguage] = useState<string>('English');
   const [languageList, setLanguageList] = useState<any[]>([]);
   const [showLanguageModal, setShowLanguageModal] = useState(false);
   const { t } = useLanguage();
-  
+  const { show } = useMessageModal();
   // 动画值 - 根据Figma设计稿的三个椭圆
   const outerAnim = useRef(new Animated.Value(1)).current;
   const middleAnim = useRef(new Animated.Value(1)).current;
@@ -127,9 +173,51 @@ const CreateVoiceScreen: React.FC = () => {
     navigation.goBack();
   };
 
+  const handleUploadRecording = async () => {
+    try {
+      const res = await pick({
+        type: Platform.OS === 'ios' ? iosAudioTypes : audioFileTypes,
+        allowMultiSelection: false,
+      });
+
+      if (!res || res.length === 0) {
+        console.log('用户取消选择文件');
+        return;
+      }
+
+      const file = res[0];
+      
+      // 验证文件类型
+      if (!androidAudioTypes.includes(file.type ?? '')) {
+        show({
+          message: t('music.unsupported_file_format')
+        });
+        return;
+      }
+
+      // 验证文件大小
+      const fileSizeMB = (file.size ?? 0) / (1024 * 1024);
+      if (fileSizeMB > MAX_FILE_SIZE_MB) {
+        show({
+          message: t('music.file_size_exceeded').replace('{maxSize}', MAX_FILE_SIZE_MB.toString())
+        });
+        return;
+      }
+
+      console.log('✅ 选中的音频文件:', file);
+      setMaterials([...materials, file as AudioFile]);
+      navigation.goBack();
+    } catch (error) {
+      console.error('文件选择失败:', error);
+      show({
+        message: t('music.file_selection_failed')
+      });
+    }
+  };
+
   const handleStartRecording = () => {
     // 导航到录音页面
-    navigation.navigate('Recording',{locale: selectedLanguage});
+    navigation.navigate('VoiceprintRecording',{locale: selectedLanguage});
   };
 
   const handleLanguageToggle = () => {
@@ -142,13 +230,13 @@ const CreateVoiceScreen: React.FC = () => {
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
-      <ScrollView style={{flex:1}}>
+    <SafeAreaView style={styles.safeContainer} edges={['top',]}>
+      <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       {/* 顶部导航栏 */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={handleBack}>
           <Image 
-            source={require('../../../assets/main/page_return_icon.png')} 
+            source={require('@/assets/main/page_return_icon.png')} 
             style={styles.backIcon}
           />
         </TouchableOpacity>
@@ -174,7 +262,7 @@ const CreateVoiceScreen: React.FC = () => {
                  ]} 
                >
                  <Image 
-                   source={require('../../../assets/profile/timer_create_icon1.png')} 
+                   source={require('@/assets/profile/timer_create_icon1.png')} 
                    style={styles.timerIcon}
                  />
                </Animated.View>
@@ -187,7 +275,7 @@ const CreateVoiceScreen: React.FC = () => {
                  ]} 
                >
                  <Image 
-                   source={require('../../../assets/profile/timer_create_icon2.png')} 
+                   source={require('@/assets/profile/timer_create_icon2.png')} 
                    style={styles.timerIcon}
                  />
                </Animated.View>
@@ -200,14 +288,14 @@ const CreateVoiceScreen: React.FC = () => {
                  ]} 
                >
                  <Image 
-                   source={require('../../../assets/profile/timer_create_icon3.png')} 
+                   source={require('@/assets/profile/timer_create_icon3.png')} 
                    style={styles.timerIcon}
                  />
                </Animated.View>
                {/* 中间的voice图标 */}
                <View style={styles.centerVoiceIcon}>
                  <Image 
-                   source={require('../../../assets/profile/timer_create_voice.png')} 
+                   source={require('@/assets/profile/timer_create_voice.png')} 
                    style={styles.voiceIconCenter}
                  />
                </View>
@@ -226,7 +314,7 @@ const CreateVoiceScreen: React.FC = () => {
 
         <View style={styles.guidanceContainer}>
           <Image 
-            source={require('../../../assets/profile/profile_unvoice_icon.png')} 
+            source={require('@/assets/profile/profile_unvoice_icon.png')} 
             style={styles.guidanceImage}
           />
           <Text style={styles.guidanceText}> {t('create_voice.conduct_recording_quiet')}</Text>
@@ -234,7 +322,7 @@ const CreateVoiceScreen: React.FC = () => {
 
         <View style={styles.guidanceContainer}>
           <Image 
-            source={require('../../../assets/profile/profile_record_icon.png')} 
+            source={require('@/assets/profile/profile_record_icon.png')} 
             style={styles.guidanceImage}
           />
           <Text style={styles.guidanceText}>{t('create_voice.read_text_natural')}</Text>
@@ -242,7 +330,7 @@ const CreateVoiceScreen: React.FC = () => {
 
         <View style={styles.guidanceContainer}>
           <Image 
-            source={require('../../../assets/profile/profile_unrecord_icon.png')} 
+            source={require('@/assets/profile/profile_unrecord_icon.png')} 
             style={styles.guidanceImage}
           />
           <Text style={styles.guidanceText}>{t('create_voice.face_microphone_directly')}</Text>
@@ -253,27 +341,26 @@ const CreateVoiceScreen: React.FC = () => {
         <TouchableOpacity style={styles.languageSelector} onPress={handleLanguageToggle}>
           <View style={styles.languageContainer}>
             <Image 
-              source={require('../../../assets/main/language_icon.png')} 
+              source={require('@/assets/main/language_icon.png')} 
               style={styles.voiceIcon}
             />
             <Text style={styles.languageText}>{langs[selectedLanguage as keyof typeof langs]}</Text>
             <Image 
-              source={require('../../../assets/main/dropdown_icon.png')} 
+              source={require('@/assets/main/dropdown_icon.png')} 
               style={styles.arrowIcon}
             />
           </View>
         </TouchableOpacity>
 
-        
-
         {/* 底部按钮 */}
         <View style={styles.buttonContainer}>
+        <TouchableOpacity style={[styles.startButton,styles.uploadButton]} onPress={handleUploadRecording}>
+            <Text style={styles.uploadButtonText}>Upload recording</Text>
+          </TouchableOpacity>
           <TouchableOpacity style={styles.startButton} onPress={handleStartRecording}>
-            <Text style={styles.startButtonText}>{t('create_voice.im_ready_start_recording')}</Text>
+            <Text style={styles.startButtonText}>Start recording</Text>
           </TouchableOpacity>
         </View>
-        <Text style={styles.bottomText}>{t('create_voice.not_recording_now')}</Text>
-
       </View>
       </ScrollView>
 
@@ -312,9 +399,13 @@ const CreateVoiceScreen: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
+  safeContainer: {
+    flex: 1,
+    backgroundColor: theme.background,
+  },
   container: {
     flex: 1,
-    backgroundColor: '#181819',
+    backgroundColor: theme.background,
     paddingHorizontal: normalize(24),
   },
   header: {
@@ -392,7 +483,7 @@ const styles = StyleSheet.create({
   languageSelector: {
     alignItems:'center',
     width: "100%",
-    marginBottom: normalize(100),
+    marginBottom: normalize(20),
     marginTop: normalize(26),
   },
   languageContainer: {
@@ -463,10 +554,7 @@ const styles = StyleSheet.create({
      resizeMode: 'contain',
    },
   buttonContainer: {
-    position: 'absolute',
-    bottom: normalize(20),
-    left: 0,
-    right: 0,
+    marginBottom: normalize(10),
   },
   bottomText: {
     fontSize: normalizeFontSize(14),
@@ -474,6 +562,10 @@ const styles = StyleSheet.create({
     color: theme.primary,
     textAlign: 'center',
     lineHeight: normalize(20),
+  },
+  uploadButton: {
+   backgroundColor: theme.backgroundTertiary,
+   marginBottom: normalize(16),
   },
   startButton: {
     backgroundColor: '#85F380',
@@ -487,6 +579,12 @@ const styles = StyleSheet.create({
     fontSize: normalizeFontSize(16),
     fontWeight: '500',
     color: 'rgba(12, 12, 13, 0.7)',
+    letterSpacing: -0.4,
+  },
+  uploadButtonText: {
+    fontSize: normalizeFontSize(16),
+    fontWeight: '500',
+    color: '#FFFFFF',
     letterSpacing: -0.4,
   },
   recordingText: {

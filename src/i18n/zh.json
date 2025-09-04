@@ -298,6 +298,8 @@
     "save": "保存",
     "delete": "删除",
     "copy_link": "复制链接",
+    "expand": "展开",
+    "collapse": "收起",
     "share": "分享",
     "edit": "编辑",
     "enter_new_title": "输入新标题",

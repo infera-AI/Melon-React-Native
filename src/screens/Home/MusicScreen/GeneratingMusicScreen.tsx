@@ -14,18 +14,18 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { MusicStackParamList } from './navigator';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import LottieView from 'lottie-react-native';
-import { generateMusic, getMusicTaskStatus } from '@/api/music/music';
+import { generateMusic, getGenerateMusicOSStatus, getCoverMusicStatus, saveCoverMusicOS } from '@/api/music/music';
 import { useMusicStore } from '@/store/modules/music.store';
 import { useVoiceStore } from '@/store/modules/voice.store';
 import { useMessageModal } from '@/contexts/MessageModalContext';
 import { useLanguage } from '../../../contexts/LanguageContext';
 import { normalize, normalizeFontSize } from '@/utils/stylesUtil';
+import { usePointsStore } from '@/store/modules/points.store';
 
 type GeneratingMusicScreenNavigationProp = NativeStackNavigationProp<MusicStackParamList, 'GeneratingMusic'>;
 
-const TRANSLATION_MAX_TIME = 120000 // 任务最大时长 (2分钟)，伪进度
 
-let getTaskInfoTimer:any = null
+let getTaskInfoTimer: any = null
 
 const GeneratingMusicScreen: React.FC = () => {
   const route = useRoute<any>();
@@ -42,8 +42,10 @@ const GeneratingMusicScreen: React.FC = () => {
   const { show } = useMessageModal();
   const { t } = useLanguage();
   const { lyrics, musicStyles, title } = useMusicStore.getState().musicGenerateInfo;
-
-  const { taskId, createTaskTime } = route.params;
+  const { generateMusicType, isSelectedVoice, setTaskId } = useMusicStore.getState();
+  const translationMaxTimeRef = useRef(isSelectedVoice ? 180000 : 60000);
+  const { refreshPointsBalance } = usePointsStore.getState();
+  const { taskId, createTaskTime } = route.params || {};
 
   // 清理所有轮询
   const cleanupPolling = () => {
@@ -60,15 +62,27 @@ const GeneratingMusicScreen: React.FC = () => {
       clearTimeout(timeoutRef.current);
       timeoutRef.current = null;
     }
+
   };
 
   useEffect(() => {
-    
+
     console.log('接收taskId-----', taskId);
     setProgress(0)
     taskIdRef.current = taskId
     startStatusPolling();
-    
+
+    // 禁用返回手势，但允许程序化导航
+    const unsubscribe = navigation.addListener('beforeRemove', (e) => {
+      // 检查是否是程序化导航（如replace）
+      if (e.data.action.type === 'REPLACE') {
+        // 允许程序化导航
+        return;
+      }
+      // 阻止用户手动返回
+      e.preventDefault();
+    });
+
     // generateMusicRequest();
 
     // // 监听应用状态变化
@@ -89,14 +103,16 @@ const GeneratingMusicScreen: React.FC = () => {
       // cleanupPolling();
       // subscription?.remove();
       clearTimeout(getTaskInfoTimer)
+      unsubscribe();
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const generRationFailed = () => {
     setIsGenerating(false);
-    show({message: t('music.generation_failed')});
-    navigation.goBack();
+    show({ message: t('music.generation_failed') });
+    // 由于禁用了返回功能，改为跳转到主页面
+    navigation.replace('SingerSelection', { type: 'generate' });
     // 发生错误时清理轮询
     cleanupPolling();
     clearTimeout(getTaskInfoTimer);
@@ -117,13 +133,13 @@ const GeneratingMusicScreen: React.FC = () => {
       //   return
       // }
       // taskIdRef.current = res.task_id;
-      
+
       // 开始轮询查询状态
       // startStatusPolling(taskIdRef.current);
-      
+
       // // 开始模拟进度更新
       // startProgressSimulation();
-      
+
       // 设置超时，3分钟后自动停止轮询
       // timeoutRef.current = setTimeout(() => {
       //   console.log('轮询超时，自动停止');
@@ -132,12 +148,23 @@ const GeneratingMusicScreen: React.FC = () => {
       //   show({message: t('music.generation_timeout')});
       //   navigation.goBack();
       // }, 3 * 60 * 1000); // 3分
-      
+
     } catch (error) {
       // console.log(error,'error')
       // generRationFailed()
     }
   };
+
+  // 保存翻唱歌曲
+  const saveCoverMusicRequest = async () => {
+    try {
+      const res = await saveCoverMusicOS({
+        task_id: taskIdRef.current,
+      });
+    } catch (error) {
+      console.log(error, 'error')
+    }
+  }
 
   // 开始轮询查询状态
   const startStatusPolling = () => {
@@ -150,26 +177,48 @@ const GeneratingMusicScreen: React.FC = () => {
     // }, 3500); // 每2秒查询一次
     getTaskInfoTimer = setTimeout(async () => {
       // await getMusicTaskStatusRequest(id);
-      getMusicTaskStatus({
+
+      const getStatusRequest = generateMusicType === 'generate' ? getGenerateMusicOSStatus : getCoverMusicStatus;
+
+      getStatusRequest({
         task_id: taskIdRef.current,
       }).then((rsp) => {
         console.log('轮询状态------', rsp);
-        
-        if (!rsp) { // 说明在生成中
+
+        let isSuccess = false;
+
+        if (generateMusicType === "generate") {
+          isSuccess = rsp.status === 3;
+        } else if (generateMusicType === "cover") {
+          isSuccess = rsp.status === 2;
+        }
+
+
+        if (!isSuccess) { // 说明在生成中
           startStatusPolling()
           let percent = toPercent(Math.floor(performance.now()) - createTaskTime)
           setProgress(percent === 100 ? 99 : percent)
-          
+
         } else { // 生成成功
           setProgress(100)
-          
+
           setTimeout(() => {
             clearTimeout(getTaskInfoTimer)
-            navigation.replace('MusicPreview',{music:rsp});
+
+            if (generateMusicType === 'cover') {
+              saveCoverMusicRequest()
+              refreshPointsBalance();
+              navigation.replace('MusicPlay', { music: rsp, type: 'cover' });
+            } else {
+              setTaskId(taskIdRef.current)
+              refreshPointsBalance();
+              navigation.replace('MusicPreview', { music: rsp });
+            }
           }, 1000)
-          
+
         }
-      }).catch(() => {
+      }).catch((err) => {
+        console.log(err, 'err')
         generRationFailed()
       })
 
@@ -177,7 +226,7 @@ const GeneratingMusicScreen: React.FC = () => {
   };
 
   const toPercent = (num: number) => {
-    const percent = (num / TRANSLATION_MAX_TIME) * 100;
+    const percent = (num / translationMaxTimeRef.current) * 100;
     return Math.min(Math.round(percent), 100); // 四舍五入并确保最大值为 100
   }
 
@@ -201,24 +250,24 @@ const GeneratingMusicScreen: React.FC = () => {
         task_id: id,
       });
       console.log(res, 'status res');
-      
+
       // 如果res.data不为null，说明生成成功
       if (res !== null) {
         // 停止轮询和进度模拟
         cleanupPolling();
-        
+
         // 设置进度为100%
         setProgress(100);
         setIsGenerating(false);
         const timer = setTimeout(() => {
-           // 跳转音乐预览页面
-          navigation.replace('MusicPreview',{music:res});
+          // 跳转音乐预览页面
+          navigation.replace('MusicPreview', { music: res });
           clearTimeout(timer);
         }, 500);
         // setIsGenerating(false);
 
-       
-        
+
+
         // 显示完成弹窗
         // setTimeout(() => {
         //   if(useVoiceStore.getState().type === VoiceType.CREATE){
@@ -230,8 +279,8 @@ const GeneratingMusicScreen: React.FC = () => {
         //   }
         // }, 1000);
       }
-    } catch (error:any) {
-      show({message: t('music.generation_failed')+error.message||''});
+    } catch (error: any) {
+      show({ message: t('music.generation_failed') + error.message || '' });
       console.log('Status check error:', error);
     }
   };
@@ -253,104 +302,134 @@ const GeneratingMusicScreen: React.FC = () => {
     useVoiceStore.getState().setVoiceFile({
       uri: '',
       type: '',
-        name: '',
-      });
+      name: '',
+    });
     useVoiceStore.getState().setLocal("");
     navigation.replace('MusicMain');
   };
 
+  // 阻止所有返回操作
+  const preventGoBack = () => {
+    // 不执行任何操作，阻止返回
+    return;
+  };
+
   return (
-    <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
-     <ScrollView>
-       {/* 背景图片 */}
-       <Image 
-        source={require('../../../assets/profile/profile_generate_bg.png')} 
-        style={styles.backgroundImage} 
-      />
-      
-      {/* 顶部导航栏 */}
-      <View style={styles.header}>
-        {/* <TouchableOpacity style={styles.backButton} onPress={handleBack}>
+    <Modal
+      visible={true}
+      transparent={false}
+      animationType="none"
+      statusBarTranslucent={true}
+      onRequestClose={() => {
+        // 禁用返回手势，不执行任何操作
+        return;
+      }}
+      presentationStyle="fullScreen"
+    >
+      <SafeAreaView style={styles.container} edges={[]}>
+        <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
+          {/* 背景图片 */}
+          <Image
+            source={require('../../../assets/profile/profile_generate_bg.png')}
+            style={styles.backgroundImage}
+          />
+
+          {/* 顶部导航栏 */}
+          <View style={styles.header}>
+            {/* <TouchableOpacity style={styles.backButton} onPress={handleBack}>
           <Image 
             source={require('../../../assets/main/page_return_icon.png')} 
             style={styles.backIcon}
           />
         </TouchableOpacity> */}
-        <Text style={styles.title}>{t('music.generating_music')}</Text>
-        <View style={styles.headerSpacer} />
-      </View>
+            <Text style={styles.title}>{t('music.generating_music')}</Text>
+            <View style={styles.headerSpacer} />
+          </View>
 
-       {/* 动画容器 */}
-       <View style={styles.animationContainer}>
-        <LottieView
-          source={require('../../../assets/lottie/generate_voice.json')}
-          style={styles.lottieAnimation}
-          autoPlay
-          loop
-          speed={1}
-        />
-      </View>
+          {/* 动画容器 */}
+          <View style={styles.animationContainer}>
+            <LottieView
+              source={require('../../../assets/lottie/generate_voice.json')}
+              style={styles.lottieAnimation}
+              autoPlay
+              loop
+              speed={1}
+            />
+          </View>
 
-      {/* 进度百分比 */}
-      <Text style={styles.progressText}>{Math.round(progress)}%</Text>
+          {/* 进度百分比 */}
+          <Text style={styles.progressText}>{"Estimated time " + (isSelectedVoice ? "2 - 3" : "1") + " minute，" + Math.round(progress)}%</Text>
 
-      {/* 状态文本 */}
-      <View style={styles.statusContainer}>
-        <Text style={styles.statusText}>
-           {t('music.generating_music')}
-        </Text>
-      </View>
-     </ScrollView>
+          {/* 状态文本根据时间进度切换文字 */}
+          <View style={styles.statusContainer}>
+            {progress >= 0 && progress < 25 && <Text style={styles.statusText}>
+              In the process of arranging music...
+            </Text>}
+            {progress >= 25 && progress < 50 && <Text style={styles.statusText}>
+              In the process of Vocal singing...
+            </Text>}
+            {progress >= 50 && progress < 75 && <Text style={styles.statusText}>
+              In the process of Editing fine-tuning...
+            </Text>}
+            {progress >= 75 && progress < 100 && <Text style={styles.statusText}>
+              In the process of reverberating music...
+            </Text>}
+            {progress >= 100 && <Text style={styles.statusText}>
+              In the process of reverberating music...
+            </Text>}
+          </View>
+        </ScrollView>
+      </SafeAreaView>
 
-     {/* 生成完成弹窗 */}
-     <Modal
-       visible={showCompletionModal}
-       transparent={true}
-       animationType="fade"
-       onRequestClose={() => setShowCompletionModal(false)}
-     >
-       <View style={styles.modalOverlay}>
-         <View style={styles.modalContainer}>
-           {/* 标题和描述 */}
-           <View style={styles.modalContent}>
-             <View style={styles.iconContainer}>
-                 <Image 
-                   source={require('../../../assets/main/success_icon.png')} 
-                   style={styles.successIconImage}
-                 />
-             </View>
-             
-             <Text style={styles.modalTitle}>
-               {t('generating_voice.voiceprint_optimization_complete')}
-             </Text>
-             
-             <Text style={styles.modalDescription}>
-               {t('generating_voice.listen_optimization_effect')}
-             </Text>
-           </View>
+      {/* 生成完成弹窗 */}
+      <Modal
+        visible={showCompletionModal}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setShowCompletionModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContainer}>
+            {/* 标题和描述 */}
+            <View style={styles.modalContent}>
+              <View style={styles.iconContainer}>
+                <Image
+                  source={require('../../../assets/main/success_icon.png')}
+                  style={styles.successIconImage}
+                />
+              </View>
 
-           {/* 按钮 */}
-           <View style={styles.modalButtons}>
-             <TouchableOpacity 
-               style={styles.modalButton} 
-               onPress={handleReRecording}
-             >
-               <Text style={styles.reRecordingText}>{t('generating_voice.re_recording')}</Text>
-             </TouchableOpacity>
-             
-             <View style={styles.buttonSeparator} />
-             
-             <TouchableOpacity 
-               style={styles.modalButton} 
-               onPress={handleConfirm}
-             >
-               <Text style={styles.confirmText}>{t('generating_voice.confirm')}</Text>
-             </TouchableOpacity>
-           </View>
-         </View>
-       </View>
-     </Modal>
-    </SafeAreaView>
+              <Text style={styles.modalTitle}>
+                {t('generating_voice.voiceprint_optimization_complete')}
+              </Text>
+
+              <Text style={styles.modalDescription}>
+                {t('generating_voice.listen_optimization_effect')}
+              </Text>
+            </View>
+
+            {/* 按钮 */}
+            <View style={styles.modalButtons}>
+              <TouchableOpacity
+                style={styles.modalButton}
+                onPress={handleReRecording}
+              >
+                <Text style={styles.reRecordingText}>{t('generating_voice.re_recording')}</Text>
+              </TouchableOpacity>
+
+              <View style={styles.buttonSeparator} />
+
+              <TouchableOpacity
+                style={styles.modalButton}
+                onPress={handleConfirm}
+              >
+                <Text style={styles.confirmText}>{t('generating_voice.confirm')}</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+    </Modal>
   );
 };
 
@@ -358,7 +437,25 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#181819',
-    paddingHorizontal: normalize(24),
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 9999,
+    elevation: 9999,
+  },
+  scrollView: {
+    flex: 1,
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+  scrollContent: {
+    flexGrow: 1,
+    minHeight: '100%',
   },
   backgroundImage: {
     position: 'absolute',
@@ -372,7 +469,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginTop: normalize(10),
+    marginTop: normalize(24),
   },
   backButton: {
     width: normalize(40),
@@ -391,7 +488,7 @@ const styles = StyleSheet.create({
     width: normalize(40),
   },
   title: {
-    flex:1,
+    flex: 1,
     fontSize: normalizeFontSize(18),
     fontWeight: '700',
     color: '#FFFFFF',

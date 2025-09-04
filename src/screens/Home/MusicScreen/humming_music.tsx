@@ -334,7 +334,7 @@ const HummingMusicScreen: React.FC = () => {
     }
   }, [audioRecorderPlayer, show, t]);
 
-     const handleStopRecording = useCallback(async () => {
+  const handleStopRecording = useCallback(async () => {
      setIsRecording(false);
      isPaused.current = true;
      
@@ -402,61 +402,6 @@ const HummingMusicScreen: React.FC = () => {
         setIsLoading(false);
     }
    }
-
-    // 音频合成功能
-  const handleMergeAudio = async () => {
-    try {
-      // 检查是否有录音文件
-      if (recordFileList.length === 0) {
-        show({message: t('recording.no_recording_files_to_merge')});  
-        return false;
-      }
-
-      // 过滤有效的录音文件
-      const validFiles = recordFileList.filter(file => file && file.uri);
-      if (validFiles.length === 0) {
-        show({message: t('recording.no_valid_recording_files')});  
-        return false;
-      }
-
-      console.log('开始合成音频文件，文件数量:', validFiles.length);
-
-      // 验证音频文件
-      const validation = await validateAudioFiles(validFiles);
-      if (!validation.valid) {
-        show({message: t('recording.invalid_files_message').replace('{files}', validation.invalidFiles.join(', '))});  
-        return false;
-      }
-
-      // 获取总时长
-      // const duration = await getTotalAudioDuration(validFiles);
-
-      // 合成音频文件
-      const mergedPath = await mergeAudioFiles(validFiles);
-      console.log('原始合并路径:', mergedPath);
-      
-      // 处理路径格式 - 修复多余的斜杠
-      let finalPath = mergedPath;
-      if (recordFileList.length > 1) {
-        // 如果是合并的文件，需要添加 file:/// 前缀，但不要多余的斜杠
-        finalPath = `file:///${mergedPath}`;
-      }
-      
-      mergedAudioPathRef.current = finalPath;
-
-      console.log('最终音频路径:', finalPath);
-      console.log('音频合成成功:', mergedPath);
-      // console.log('总时长:', duration, '秒');
-
-      return true
-    } catch (error) {
-      console.error('音频合成失败:', error);
-      show({message: t('recording.audio_merge_failed')});    
-      return false;
-    } finally {
-    }
-  };
-
    //下一步
    const handleNext = async () => {
     // const success = await handleMergeAudio();
