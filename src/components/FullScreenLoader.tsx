@@ -54,7 +54,7 @@ const FullScreenLoader: React.FC<Props> = ({
     <Modal transparent animationType="fade" visible={visible}>
       <View style={[styles.overlay, { backgroundColor }]}>
         <View style={styles.content}>
-          <View style={styles.box}> 
+          <View style={styles.box}>
             <Text>
               {customIndicator ? (
                 customIndicator
@@ -62,7 +62,7 @@ const FullScreenLoader: React.FC<Props> = ({
                 <ActivityIndicator size={spinnerSize} color={color} />
               )}
             </Text>
-            
+
 
             <Text style={[styles.text, { color }]}>
               {progress != null

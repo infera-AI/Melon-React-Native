@@ -16,7 +16,7 @@ import theme from '@/utils/theme';
 interface ButtonConfig {
   text: string;
   onPress: () => void;
-  type?: 'primary' | 'secondary' | 'danger'| 'border';
+  type?: 'primary' | 'secondary' | 'danger' | 'border';
   disabled?: boolean;
 }
 
@@ -62,7 +62,7 @@ const CommonModal: React.FC<CommonModalProps> = ({
 
   const getButtonStyle = (button: ButtonConfig) => {
     const baseStyle = [styles.button];
-    
+
     switch (button.type) {
       case 'primary':
         baseStyle.push(styles.primaryButton);
@@ -89,7 +89,7 @@ const CommonModal: React.FC<CommonModalProps> = ({
 
   const getButtonTextStyle = (button: ButtonConfig) => {
     const baseStyle = [styles.buttonText];
-    
+
     switch (button.type) {
       case 'primary':
         baseStyle.push(styles.primaryButtonText);
@@ -119,7 +119,7 @@ const CommonModal: React.FC<CommonModalProps> = ({
       const button = config.buttons[0];
       return (
         <View style={styles.singleButtonContainer}>
-          <TouchableOpacity 
+          <TouchableOpacity
             style={getButtonStyle(button)}
             onPress={() => handleButtonPress(button)}
             activeOpacity={0.7}
@@ -136,7 +136,7 @@ const CommonModal: React.FC<CommonModalProps> = ({
     return (
       <View style={styles.buttonContainer}>
         {config.buttons.map((button, index) => (
-          <TouchableOpacity 
+          <TouchableOpacity
             key={index}
             style={[
               getButtonStyle(button),
@@ -163,7 +163,7 @@ const CommonModal: React.FC<CommonModalProps> = ({
       onRequestClose={onClose}
     >
       <View style={styles.overlay}>
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.overlayTouchable}
           activeOpacity={1}
           onPress={onClose}
@@ -171,11 +171,11 @@ const CommonModal: React.FC<CommonModalProps> = ({
         <View style={styles.modalContainer}>
           {/* 拖拽指示器 */}
           <View style={styles.dragIndicator} />
-          
+
           {/* 图标 */}
           {config.icon && (
             <View style={styles.iconContainer}>
-              <Image 
+              <Image
                 source={config.icon}
                 style={styles.icon}
               />
@@ -210,7 +210,7 @@ const CommonModal: React.FC<CommonModalProps> = ({
           {/* 不再提示选项 */}
           {config.showDontShowAgain && (
             <View style={styles.dontShowContainer}>
-              <TouchableOpacity 
+              <TouchableOpacity
                 style={[
                   styles.checkbox,
                   dontShowAgain && styles.checkboxChecked
@@ -339,7 +339,7 @@ const styles = StyleSheet.create({
     color: theme.background,
   },
   secondaryButtonText: {
-    color: theme.text,
+    color: theme.textPrimary,
   },
   dangerButtonText: {
     color: theme.background,

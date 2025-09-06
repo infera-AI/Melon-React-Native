@@ -34,6 +34,7 @@ const VoiceprintManagementListScreen: React.FC = () => {
     isPlayIndex,
     togglePlayPause,
     cleanup,
+    isPlayingUrl,
   } = useAudioPlayer();
 
   const handleBack = () => {
@@ -118,6 +119,9 @@ const VoiceprintManagementListScreen: React.FC = () => {
   useEffect(() => {
     getCommonMaterialsRequest();
     getPersonalMaterialsRequest();
+    return () => {
+      cleanup();
+    }
   }, []);
 
   // 渲染Tab栏
@@ -229,7 +233,7 @@ const VoiceprintManagementListScreen: React.FC = () => {
                       onPress={() => handlePlayMaterial(voiceprint)}
                     >
                       <Image
-                        source={isPlayIndex === voiceprint.merge_file ? require('@/assets/music/music_pause_icon.png') : require('@/assets/music/music_play_icon.png')}
+                        source={isPlayingUrl(voiceprint.merge_file) ? require('@/assets/music/music_pause_icon.png') : require('@/assets/music/music_play_icon.png')}
                         style={styles.actionIcon}
                       />
                     </TouchableOpacity>}

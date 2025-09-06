@@ -161,8 +161,10 @@ const GeneratingMusicScreen: React.FC = () => {
       const res = await saveCoverMusicOS({
         task_id: taskIdRef.current,
       });
+      return res;
     } catch (error) {
       console.log(error, 'error')
+      return error;
     }
   }
 
@@ -202,13 +204,13 @@ const GeneratingMusicScreen: React.FC = () => {
         } else { // 生成成功
           setProgress(100)
 
-          setTimeout(() => {
+          setTimeout(async () => {
             clearTimeout(getTaskInfoTimer)
 
             if (generateMusicType === 'cover') {
-              saveCoverMusicRequest()
+              const resSave = await saveCoverMusicRequest()
               refreshPointsBalance();
-              navigation.replace('MusicPlay', { music: rsp, type: 'cover' });
+              navigation.replace('MusicPlay', { music: resSave, type: 'cover' });
             } else {
               setTaskId(taskIdRef.current)
               refreshPointsBalance();

@@ -11,12 +11,13 @@ import {
   Pressable,
   TextInput,
   ScrollView,
+  ImageBackground,
 } from "react-native";
 import { useFocusEffect } from '@react-navigation/native';
 import Sound from "react-native-sound";
 import { useMessageModal } from "@/contexts/MessageModalContext";
 import { AudioDurationManager } from '@/utils/AudioPlayerUtils';
-import { deleteMusicWork, getMusicWorkInfo, modifyMusicTitle } from "@/api/music/music";
+import { deleteMusicWork, getMusicWorkInfo, renameMusic, deleteMusic } from "@/api/music/music";
 import { useLanguage } from '@/contexts/LanguageContext';
 import Slider from "@react-native-community/slider";
 import Clipboard from "@react-native-clipboard/clipboard";
@@ -317,12 +318,14 @@ const MyWorkMusicPlay = ({ navigation, route }: any) => {
       show({ message: t('music.please_enter_song_name') });
       return;
     }
+    console.log(music, 'music.id', editTitle, 'editTitle');
     try {
-      await modifyMusicTitle({
-        work_id: music.id,
-        work_title: editTitle,
+      await renameMusic({
+        id: music.id,
+        name: editTitle,
       })
       show({ message: t('music.modify_success') });
+      setMusicInfo({ ...musicInfo, title: editTitle });
       setShowEditModal(false);
       setEditTitle('');
       handleRefreshMusicInfo();
@@ -430,7 +433,7 @@ const MyWorkMusicPlay = ({ navigation, route }: any) => {
   // 删除歌曲
   const handleDeleteMusic = async () => {
     try {
-      await deleteMusicWork({ work_ids: [music.id] })
+      await deleteMusic({ work_ids: [music.id] })
       show({ message: t('music.delete_success') });
       setShowDeleteModal(false);
       navigation.goBack();
@@ -526,9 +529,9 @@ const MyWorkMusicPlay = ({ navigation, route }: any) => {
 
       {/* Info Card */}
       <View style={styles.infoCard}>
-        <View style={styles.avatarBox}>
+        <ImageBackground source={require('@/assets/music/music_avatar_icon.png')} style={styles.avatarBox}>
           <Image source={{ uri: musicInfo.cover }} style={styles.avatar} />
-        </View>
+        </ImageBackground>
         <View style={styles.infoMain}>
           <View style={styles.infoHeaderRow}>
             <Text
@@ -536,7 +539,7 @@ const MyWorkMusicPlay = ({ navigation, route }: any) => {
               numberOfLines={2}
               ellipsizeMode="tail"
             >
-              {musicInfo.title}
+              {musicInfo.title || '暂无'}
             </Text>
           </View>
           <View style={styles.infoHeaderRowRight}>
@@ -552,7 +555,7 @@ const MyWorkMusicPlay = ({ navigation, route }: any) => {
           <TouchableOpacity onPress={() => setShowDeleteModal(true)}>
             <Image source={img_music_delete} style={styles.infoIcon} />
           </TouchableOpacity>
-          <TouchableOpacity onPress={handleCoverMusic}>
+          <TouchableOpacity onPress={handleCoverMusic} disabled={!musicInfo.lyrics}>
             <Image source={img_music_save} style={styles.infoIcon} />
           </TouchableOpacity>
           <TouchableOpacity onPress={() => setShowShareModal(true)}>
@@ -860,16 +863,14 @@ const styles = StyleSheet.create({
     width: normalize(100),
     height: normalize(100),
     borderRadius: normalize(50),
-    backgroundColor: "#FFE89D",
     justifyContent: "center",
     alignItems: "center",
     marginRight: normalize(14),
   },
   avatar: {
-    width: normalize(100),
-    height: normalize(100),
-    borderRadius: normalize(50),
-    backgroundColor: "#FFE89D",
+    width: normalize(50),
+    height: normalize(50),
+    borderRadius: normalize(25),
   },
   infoMain: {
     flex: 1,

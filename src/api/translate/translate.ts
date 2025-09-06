@@ -172,3 +172,11 @@ export function translationText(params: any){
       params
     );
 }
+
+// 语种识别
+export function languageDetection(params: {source_text: string}){
+    return http.post<any>(
+    API_ENDPOINTS.TRANSLATE.LANGUAGE_DETECTION,
+      params
+    );
+}

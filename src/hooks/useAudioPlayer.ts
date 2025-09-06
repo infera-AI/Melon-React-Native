@@ -3,6 +3,8 @@ import { useState, useCallback, useRef, useEffect } from 'react';
 import Sound from 'react-native-sound';
 import { useMessageModal } from '@/contexts/MessageModalContext';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { FilePathConverter } from '@/utils/filePathConverter';
+import RNFS from 'react-native-fs';
 
 // 音频播放状态接口
 export interface AudioPlaybackState {
@@ -45,14 +47,70 @@ export const useAudioPlayer = (): AudioPlaybackState & AudioPlayerControls => {
     isProcessingRef.current = isProcessing;
   }, [sound, isProcessing]);
 
+  // 检查文件是否存在
+  const checkFileExists = useCallback(async (filePath: string): Promise<boolean> => {
+    try {
+      if (filePath.startsWith('file://')) {
+        const actualPath = filePath.replace('file://', '');
+        const exists = await RNFS.exists(actualPath);
+        return exists;
+      }
+      return true; // 对于非 file:// URI，假设存在
+    } catch (error) {
+      console.log('检查文件存在性时出错:', error);
+      return false;
+    }
+  }, []);
+
+  // 处理音频URI格式
+  const processAudioUri = useCallback(async (uri: string): Promise<string> => {
+    // 处理 content:// URI
+    if (uri.startsWith('content://')) {
+      try {
+        const convertedUri = await FilePathConverter.convertContentUriToFilePath(uri);
+        
+        // 检查转换后的文件是否存在
+        const exists = await checkFileExists(convertedUri);
+        if (!exists) {
+          return uri;
+        }
+        
+        return convertedUri;
+      } catch (error) {
+        console.log('转换 content:// URI 失败:', error);
+        // 如果转换失败，返回原URI
+        return uri;
+      }
+    }
+    
+    // 处理 file:// URI
+    if (uri.startsWith('file://')) {
+      // 修复 file://// 格式错误（4个斜杠）
+      let cleanUri = uri.replace(/^file:\/\/\/+/, 'file:///');
+      
+      // 检查文件是否存在
+      const exists = await checkFileExists(cleanUri);
+      if (!exists) {
+        return uri;
+      }
+      
+      return cleanUri;
+    }
+    
+    // 处理相对路径
+    if (!uri.startsWith('http') && !uri.startsWith('file://') && !uri.startsWith('content://')) {
+      return `file://${uri}`;
+    }
+    
+    return uri;
+  }, [checkFileExists]);
+
   // 播放音频
   const play = useCallback(async (music: any) => {
     if (!music.uri) {
       show({ message: t('music.no_audio_available') });
       return;
     }
-
-    console.log('开始播放音频，URI:', music.uri);
 
     // 停止当前播放的音频
     if (sound) {
@@ -72,50 +130,72 @@ export const useAudioPlayer = (): AudioPlaybackState & AudioPlayerControls => {
     setIsPlaying(false);
     setIsPlayMusic('');
     
-    console.log('创建音频实例，使用URI:', music.uri);
-    
-    // 创建新的音频实例
-    const newSound = new (Sound as any)(music.uri, (error: any) => {
-      console.log('音频加载回调，错误:', error);
+    // 处理音频URI
+    try {
+      const processedUri = await processAudioUri(music.uri);
       
-      if (error) {
-        console.log('Failed to load audio:', error);
-        show({ message: t('music.failed_to_load_audio') });
-        setSound(null);
-        setIsPlayMusic('');
-        return;
-      }
-      
-      console.log('音频加载成功，开始播放');
-      
-      // 开始播放
-      newSound.play((success: boolean) => {
-        console.log('播放完成回调，成功:', success);
-        
-        if (success) {
-          console.log('Audio played successfully');
-        } else {
-          console.log('Audio playback failed');
+      // 音频加载处理函数
+      const handleAudioLoad = (error: any, soundInstance: Sound, originalUri: string) => {
+        if (error) {
+          console.log('Failed to load audio:', error);
+          show({ message: t('music.failed_to_load_audio') });
+          setSound(null);
+          setIsPlayMusic('');
+          return;
         }
         
-        console.log('播放音乐成功');
-        setIsPlaying(false);
-        setIsPlayMusic('');
-        setIsPlayIndex("");
+        // 开始播放
+        soundInstance.play((success: boolean) => {
+          if (!success) {
+            console.log('Audio playback failed');
+          }
+          
+          setIsPlaying(false);
+          setIsPlayMusic('');
+          setIsPlayIndex("");
+          
+          // 播放完成后释放音频实例
+          soundInstance.release();
+          setSound(null);
+        });
         
-        // 播放完成后释放音频实例
-        newSound.release();
-        setSound(null);
-      });
+        // 设置播放状态
+        setIsPlayMusic(originalUri);
+        setIsPlayIndex(originalUri);
+        setIsPlaying(true);
+      };
       
-      // 设置播放状态
-      setIsPlayMusic(music.uri);
-      setIsPlayIndex(music.uri);
-      setIsPlaying(true);
-    });
+      // 创建新的音频实例
+      let newSound: Sound;
+      
+      try {
+        // 尝试不同的 Sound 构造函数参数
+        if (processedUri.startsWith('file://')) {
+          // 对于本地文件，尝试使用不同的参数
+          newSound = new Sound(processedUri, Sound.MAIN_BUNDLE, (error: any) => {
+            handleAudioLoad(error, newSound, music.uri);
+          });
+        } else {
+          // 对于其他 URI，使用默认参数
+          newSound = new Sound(processedUri, undefined, (error: any) => {
+            handleAudioLoad(error, newSound, music.uri);
+          });
+        }
+      } catch (constructorError) {
+        console.log('Sound 构造函数失败，尝试备用方法:', constructorError);
+        // 备用方法：直接使用原始 URI
+        newSound = new Sound(music.uri, undefined, (error: any) => {
+          handleAudioLoad(error, newSound, music.uri);
+        });
+      }
 
-    setSound(newSound);
-  }, [sound, show, t]);
+      setSound(newSound);
+    } catch (error) {
+      console.log('处理音频URI时出错:', error);
+      show({ message: '无法处理音频文件路径' });
+      return;
+    }
+  }, [sound, show, t, processAudioUri]);
 
   // 暂停播放
   const pause = useCallback(() => {
@@ -123,8 +203,7 @@ export const useAudioPlayer = (): AudioPlaybackState & AudioPlayerControls => {
       try {
         sound.pause();
         setIsPlaying(false);
-        setIsPlayIndex("");
-        console.log('暂停播放');
+        // 注意：不要清空 isPlayIndex，保持当前播放的音频标识
       } catch (error) {
         console.log('暂停播放时出错:', error);
       }
@@ -137,13 +216,12 @@ export const useAudioPlayer = (): AudioPlaybackState & AudioPlayerControls => {
       try {
         sound.play();
         setIsPlaying(true);
-        setIsPlayIndex(isPlayMusic);
-        console.log('恢复播放');
+        // 注意：不要重新设置 isPlayIndex，保持当前播放的音频标识
       } catch (error) {
         console.log('恢复播放时出错:', error);
       }
     }
-  }, [sound, isPlaying, isPlayMusic]);
+  }, [sound, isPlaying]);
 
   // 停止播放
   const stop = useCallback(async () => {
@@ -156,7 +234,6 @@ export const useAudioPlayer = (): AudioPlaybackState & AudioPlayerControls => {
             setIsPlayIndex("");
             sound.release();
             setSound(null);
-            console.log('停止播放');
             resolve();
           });
         } catch (error) {
@@ -171,18 +248,14 @@ export const useAudioPlayer = (): AudioPlaybackState & AudioPlayerControls => {
   const togglePlayPause = useCallback(async (music: any) => {
     // 如果正在处理中，忽略新的点击
     if (isProcessingRef.current) {
-      console.log('正在处理中，忽略点击');
       return;
     }
 
     setIsProcessing(true);
 
     try {
-      console.log('播放/暂停音频:', music.uri, '当前播放:', isPlayMusic);
-
       // 如果点击的是不同的歌曲，先停止当前播放的歌曲，然后播放新歌曲
       if (sound && isPlayMusic !== music.uri) {
-        console.log('切换播放不同的音频');
         try {
           sound.stop();
           sound.release();
@@ -204,7 +277,6 @@ export const useAudioPlayer = (): AudioPlaybackState & AudioPlayerControls => {
 
       // 如果没有音频实例，创建新的
       if (!sound) {
-        console.log('创建新的音频实例');
         await play(music);
         return;
       }
@@ -248,16 +320,22 @@ export const useAudioPlayer = (): AudioPlaybackState & AudioPlayerControls => {
     setIsPlayMusic('');
     setIsPlayIndex("");
     setIsProcessing(false);
-    
-    console.log('音频播放器清理完成');
   }, [sound]);
 
   // 组件卸载时自动清理
   useEffect(() => {
     return () => {
-      cleanup();
+      // 直接清理，不依赖 cleanup 函数
+      if (soundRef.current) {
+        try {
+          soundRef.current.stop();
+          soundRef.current.release();
+        } catch (error) {
+          console.log('清理音频资源时出错:', error);
+        }
+      }
     };
-  }, [cleanup]);
+  }, []);
 
   return {
     // 状态

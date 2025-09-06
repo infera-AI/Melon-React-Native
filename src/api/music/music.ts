@@ -156,7 +156,18 @@ export function getSupportedLanguages() {
   return http.get<any>(API_ENDPOINTS.MUSIC.GET_SUPPORTED_LANGUAGES);
 }
 
-//获取音乐分割
-export function getMusicSegmentation(params: { work_id: string }) {
-  return http.get<any>(API_ENDPOINTS.MUSIC.GET_MUSIC_SEGMENTATION, params);
+//获取音乐风格
+export function getMusicSegmentation() {
+  return http.get<any>(API_ENDPOINTS.MUSIC.GET_MUSIC_SEGMENTATION);
 }
+
+// 删除音乐
+export function deleteMusic(params: { id_list: Array<number> }) {
+  return http.post<any>(API_ENDPOINTS.MUSIC.DELETE_MUSIC, params);
+}
+
+//歌曲重命名
+export function renameMusic(params: { id: number, name: string }) {
+  return http.post<any>(API_ENDPOINTS.MUSIC.RENAME_MUSIC, params);
+}
+

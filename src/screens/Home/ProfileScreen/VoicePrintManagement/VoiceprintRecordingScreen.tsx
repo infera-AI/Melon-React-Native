@@ -36,8 +36,9 @@ type RecordingScreenNavigationProp = NativeStackNavigationProp<ProfileStackParam
 
 const MAXDURATION = 1000;
 
-const RecordingScreen: React.FC = () => {
+const RecordingScreen: React.FC = ({ route }: { route: { params: { locale: string } } }) => {
   const navigation = useNavigation<RecordingScreenNavigationProp>();
+  const { locale } = route.params;
   const [isRecording, setIsRecording] = useState(false);
   const [currentSegment, setCurrentSegment] = useState(1);
   const [voiceprintEnrollmentConfig, setVoiceprintEnrollmentConfig] = useState<any>(null);
@@ -58,8 +59,18 @@ const RecordingScreen: React.FC = () => {
   const timerInterval = useRef<NodeJS.Timeout | null>(null);
   const accumulatedTime = useRef<number>(0); // 累计录音时间
   const isPaused = useRef<boolean>(false); // 是否暂停状态
+  const [recordText, setRecordText] = useState<string>('');
 
 
+  // 获取录音文本
+  const getRecordTextRequest = async () => {
+    try {
+      const res = await getVoiceprintEnrollmentConfig({ language: locale });
+      setRecordText(res.content);
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
   // 请求录音权限
   const requestRecordingPermission = async () => {
@@ -330,6 +341,10 @@ const RecordingScreen: React.FC = () => {
       show({ message: t('recording.please_stop_recording') });
       return;
     }
+    if (recordFileList.length === 0) {
+      show({ message: t('recording.please_record_audio_first') });
+      return;
+    }
     useVoiceStore.getState().setMaterials([...useVoiceStore.getState().materials, recordFileList[0]]);
     navigation.navigate('VoiceprintMaterialCreate');
   };
@@ -373,6 +388,10 @@ const RecordingScreen: React.FC = () => {
     handleStopRecordingRef.current = handleStopRecording;
   }, [handleStopRecording]);
 
+  useEffect(() => {
+    getRecordTextRequest();
+  }, [locale]);
+
   // 页面失去焦点时清理录音数据
   useFocusEffect(
     useCallback(() => {
@@ -392,7 +411,10 @@ const RecordingScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
-      <ScrollView>
+      <ScrollView
+        contentContainerStyle={{ flexGrow: 1 }}
+        keyboardShouldPersistTaps="handled"
+      >
         {/* 顶部导航栏 */}
         <View style={styles.header}>
           <TouchableOpacity style={styles.backButton} onPress={handleBack}>
@@ -411,11 +433,15 @@ const RecordingScreen: React.FC = () => {
           </Text>
         </View>
 
-        <View style={styles.transcriptContainer}>
+        <ScrollView
+          style={styles.transcriptContainer}
+          nestedScrollEnabled={true}
+          showsVerticalScrollIndicator={true}
+        >
           <Text style={styles.transcriptText}>
-            {voiceprintEnrollmentConfig?.phrases?.[currentSegment - 1] || 'The transcript of the recording is displayed here'}
+            {recordText}
           </Text>
-        </View>
+        </ScrollView>
 
         <View style={styles.recordingTimeContainer}>
           <Image source={require('@/assets/profile/profile_record_voice_icon.png')} style={styles.recordingIcon} />

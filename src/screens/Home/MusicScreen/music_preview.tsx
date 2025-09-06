@@ -44,6 +44,7 @@ const MusicPreviewScreen: React.FC<{ route: RouteProp<MusicStackParamList, 'Musi
   const [isShowModal, setIsShowModal] = useState(false);
   const { taskId } = useMusicStore.getState();
   const { refreshPointsBalance } = usePointsStore.getState();
+  const { isSelectedVoice } = useMusicStore.getState();
   const { t } = useLanguage();
   // 作品数组转换
   async function convertSongData(songData: any) {
@@ -151,7 +152,12 @@ const MusicPreviewScreen: React.FC<{ route: RouteProp<MusicStackParamList, 'Musi
       });
       show({ message: t('music.save_success') })
       refreshPointsBalance();
-      navigation.navigate('MyWork' as any);
+      navigation.reset({
+        index: 0,
+        routes: [
+          { name: 'Music' as any, params: { screen: 'MyWork' } },
+        ]
+      });
     } catch (error) {
       show({ message: t('music.save_failed') })
     } finally {
@@ -171,7 +177,12 @@ const MusicPreviewScreen: React.FC<{ route: RouteProp<MusicStackParamList, 'Musi
         text: 'Exit',
         onPress: () => {
           setIsShowModal(false);
-          navigation.navigate('MusicMain' as any);
+          navigation.reset({
+            index: 0,
+            routes: [
+              { name: 'Music' as any, params: { screen: 'MusicMain' } },
+            ]
+          });
         },
         type: 'secondary' as const,
       },
@@ -189,33 +200,17 @@ const MusicPreviewScreen: React.FC<{ route: RouteProp<MusicStackParamList, 'Musi
       setIsLoading(true);
       const songDatas = await convertSongData(music);
       console.log(songDatas, 'songDatas')
-      setSongs([
-        {
-          url: music.cover_url1,
-          title: music.title,
-          duration: music.duration,
-          cover: music.cover,
-          lyrics: music.lyrics,
-          genres: music.genres
-
-        },
-        {
-          url: music.cover_url2,
-          title: music.title,
-          duration: music.duration,
-          cover: music.cover,
-          lyrics: music.lyrics,
-          genres: music.genres
-        }]);
-      setSelectedMusic({
-        url: music.cover_url1,
+      const musicInfo = {
+        url: !isSelectedVoice ? music.music_url : music.cover_url,
         title: music.title,
         duration: music.duration,
         cover: music.cover,
         lyrics: music.lyrics,
         genres: music.genres
 
-      });
+      }
+      setSongs([musicInfo]);
+      setSelectedMusic(musicInfo);
       setIsLoading(false);
     }
     fetchSongDatas();

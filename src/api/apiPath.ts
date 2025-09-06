@@ -34,6 +34,8 @@ export const API_ENDPOINTS = {
       GET_PERSONAL_WORKS: '/opensource/list_music_os',
       GET_SUPPORTED_LANGUAGES: '/opensource/get_support_language_os',
       GET_MUSIC_SEGMENTATION: '/opensource/get_music_genres_os',
+      DELETE_MUSIC: '/opensource/delete_generate_music_os',
+      RENAME_MUSIC: '/opensource/rename_m_os',
     },
     TRANSLATE: {
       TRANLATE_DOCUMENT: '/translations/translate/docs',
@@ -45,7 +47,8 @@ export const API_ENDPOINTS = {
       TRANLATE_TEXT: '/translations/translate/text',
       CREATE_CONVERSATION: '/conversations/new',
       SEND_MSG_TO_AI: '/assistant/send_voice_message',
-      TRANSLATION_TEXT: '/conversations/send_text_message'
+      TRANSLATION_TEXT: '/conversations/send_text_message',
+      LANGUAGE_DETECTION: '/translations/get_detect_language',
     },
     PROFILE: {
           GET_USER_INFO: '/accounts/profile',
@@ -56,7 +59,7 @@ export const API_ENDPOINTS = {
           SEND_VERIFICATION_CODE_TO_NEW: '/accounts/send_verification_code_to_new_email_or_phone',
           GET_VOICEPRINT_DEMO_CONFIG: '/accounts/voiceprint/synthesize_demo_config',
           SYNTHESIZE_SPEECH: '/accounts/voiceprint/synthesize_speech',
-          GET_VOICEPRINT_ENROLLMENT_CONFIG: '/accounts/voiceprint/enrollment_config',
+          GET_VOICEPRINT_ENROLLMENT_CONFIG: '/opensource/get_recording_template',
           UPLOAD_VOICEPRINT_RECORDING: '/accounts/voiceprint/upload_recording',
           GENERATE_VOICE_ID: '/accounts/voiceprint/generate_voice_id',
           SUBMIT_FEEDBACK: '/supports/feedback',
@@ -75,6 +78,8 @@ export const API_ENDPOINTS = {
           TRAIN_VOICEPRINT: '/opensource/train_vp_os',
           GET_INTEGRAL_BALANCE: '/points',
           GET_INTEGRAL_RECORD: '/points/log',
+          GET_INVITATION_CODE: '/accounts/generate_invitation_code',
+          VERIFY_INVITATION_CODE: '/accounts/verify_invitation_code',
         },
         FILE: {
           UPLOAD_FILE: '/opensource/upload_file_os',

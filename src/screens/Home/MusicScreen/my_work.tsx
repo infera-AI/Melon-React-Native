@@ -33,7 +33,6 @@ interface Music {
 
 
 const MyWorkScreen = ({ navigation }: any) => {
-  const [myWorks, setMyWorks] = useState<Music[]>([]);
   const [filteredWorks, setFilteredWorks] = useState<Music[]>([]);
   const [searchText, setSearchText] = useState('');
   const [isPlaying, setIsPlaying] = useState(false);
@@ -61,7 +60,7 @@ const MyWorkScreen = ({ navigation }: any) => {
       setIsPlayMusic('');
 
       // 重置所有作品的播放状态
-      setMyWorks(prevWorks =>
+      setFilteredWorks(prevWorks =>
         prevWorks.map((item: Music) => ({
           ...item,
           playing: false,
@@ -74,12 +73,11 @@ const MyWorkScreen = ({ navigation }: any) => {
     }
   }, [sound]);
 
-  console.log(myWorks)
   // 获取作品
   const getMyWorks = async () => {
     try {
       const response = await getPersonalWorks({ page_number: 1, page_size: 10, title: searchText });
-      setMyWorks(transformMyWorks(response.data_list));
+      // setMyWorks(transformMyWorks(response.data_list));
       setFilteredWorks(transformMyWorks(response.data_list)); // 初始化过滤后的作品
     } catch (error) {
       console.error('Error fetching my works:', error);
@@ -90,14 +88,14 @@ const MyWorkScreen = ({ navigation }: any) => {
   // 转化作品数据
   const transformMyWorks = (data: any[]): Music[] => {
     return data.map((item: any) => ({
-      id: item.work_id,
+      id: item.id,
       title: item.title,
       genres: item.genres,
       duration: item.duration,
       cover: item.cover,
       lyrics: item.lyrics,
       taskId: item.task_id,
-      url: item.cover_url,
+      url: item.cover_url || item.music_url,
       playing: false,
     }));
   }
@@ -105,45 +103,47 @@ const MyWorkScreen = ({ navigation }: any) => {
   // 搜索功能
   const handleSearch = (text: string) => {
     setSearchText(text);
-    if (text.trim() === '') {
-      setFilteredWorks(myWorks);
-    } else {
-      const filtered = myWorks.filter((work: Music) => {
-        const searchLower = text.toLowerCase();
-        return (
-          work.title?.toLowerCase().includes(searchLower) ||
-          (Array.isArray(work.genres) && work.genres.some((genre: string) =>
-            genre.toLowerCase().includes(searchLower)
-          ))
-        );
-      });
-      setFilteredWorks(filtered);
-    }
+    // if (text.trim() === '') {
+    //   setFilteredWorks(myWorks);
+    // } else {
+    //   const filtered = myWorks.filter((work: Music) => {
+    //     const searchLower = text.toLowerCase();
+    //     return (
+    //       work.title?.toLowerCase().includes(searchLower) ||
+    //       (Array.isArray(work.genres) && work.genres.some((genre: string) =>
+    //         genre.toLowerCase().includes(searchLower)
+    //       ))
+    //     );
+    //   });
+    //   setFilteredWorks(filtered);
+    // }
+    getMyWorks();
   };
 
   // 清除搜索
   const clearSearch = () => {
     setSearchText('');
-    setFilteredWorks(myWorks);
+    getMyWorks();
   };
 
   // 当 myWorks 更新时，同步更新 filteredWorks
   useEffect(() => {
-    if (searchText.trim() === '') {
-      setFilteredWorks(myWorks);
-    } else {
-      const filtered = myWorks.filter((work: Music) => {
-        const searchLower = searchText.toLowerCase();
-        return (
-          work.title.toLowerCase().includes(searchLower) ||
-          (Array.isArray(work.genres) && work.genres.some((genre: string) =>
-            genre.toLowerCase().includes(searchLower)
-          ))
-        );
-      });
-      setFilteredWorks(filtered);
-    }
-  }, [myWorks, searchText]);
+    getMyWorks();
+    // if (searchText.trim() === '') {
+    //   setFilteredWorks(myWorks);
+    // } else {
+    //   const filtered = myWorks.filter((work: Music) => {
+    //     const searchLower = searchText.toLowerCase();
+    //     return (
+    //       work.title.toLowerCase().includes(searchLower) ||
+    //       (Array.isArray(work.genres) && work.genres.some((genre: string) =>
+    //         genre.toLowerCase().includes(searchLower)
+    //       ))
+    //     );
+    //   });
+    //   setFilteredWorks(filtered);
+    // }
+  }, [searchText]);
 
   // 播放音乐
   const handlePlayAudio = async (music: Music) => {
@@ -164,7 +164,7 @@ const MyWorkScreen = ({ navigation }: any) => {
     }
 
     // 重置所有作品的播放状态
-    setMyWorks(prevWorks =>
+    setFilteredWorks(prevWorks =>
       prevWorks.map((item: Music) => ({
         ...item,
         playing: false,
@@ -205,7 +205,7 @@ const MyWorkScreen = ({ navigation }: any) => {
         setIsPlayMusic('');
 
         // 重置播放状态
-        setMyWorks(prevWorks =>
+        setFilteredWorks(prevWorks =>
           prevWorks.map((item: Music) => ({
             ...item,
             playing: false,
@@ -243,7 +243,7 @@ const MyWorkScreen = ({ navigation }: any) => {
         setIsPlayMusic('');
 
         // 重置所有作品的播放状态
-        setMyWorks(prevWorks =>
+        setFilteredWorks(prevWorks =>
           prevWorks.map((item: Music) => ({
             ...item,
             playing: false,
@@ -266,9 +266,10 @@ const MyWorkScreen = ({ navigation }: any) => {
       if (isPlaying) {
         sound.pause();
         setIsPlaying(false);
-        setMyWorks(prevWorks =>
+        setFilteredWorks(prevWorks =>
           prevWorks.map((item: Music) => {
             if (item.url === music.url) {
+              console.log(item.url === music.url, 'item.url === music.url', item.url, music.url);
               return { ...item, playing: false };
             }
             return item;
@@ -277,7 +278,7 @@ const MyWorkScreen = ({ navigation }: any) => {
       } else {
         sound.play();
         setIsPlaying(true);
-        setMyWorks(prevWorks =>
+        setFilteredWorks(prevWorks =>
           prevWorks.map((item: Music) => {
             if (item.url === music.url) {
               return { ...item, playing: true };
@@ -313,7 +314,7 @@ const MyWorkScreen = ({ navigation }: any) => {
   useEffect(() => {
     console.log('isPlayMusic', isPlayMusic);
     if (isPlayMusic) {
-      const playWors = myWorks.map((item: Music) => {
+      const playWors = filteredWorks.map((item: Music) => {
         if (item.url === isPlayMusic) {
           item.playing = true;
         } else {
@@ -321,7 +322,7 @@ const MyWorkScreen = ({ navigation }: any) => {
         }
         return item;
       });
-      setMyWorks([...playWors]);
+      setFilteredWorks([...playWors]);
 
       // 同时更新 filteredWorks
       const filteredPlayWorks = filteredWorks.map((item: Music) => {
@@ -345,7 +346,12 @@ const MyWorkScreen = ({ navigation }: any) => {
       <View style={styles.headerRow}>
         <TouchableOpacity onPress={() => {
           cleanupAudioData();
-          navigation.goBack();
+          navigation.reset({
+            index: 0,
+            routes: [
+              { name: 'MusicMain' }
+            ]
+          });
         }} style={styles.backBtn}>
           <Image
             source={require('../../../../assets/images/music_back_btn.png')}
@@ -400,12 +406,12 @@ const MyWorkScreen = ({ navigation }: any) => {
         renderItem={({ item }: { item: Music }) => (
           <TouchableOpacity
             style={styles.itemCard}
-            onPress={() => navigation.navigate('MyWorkMusicPlay', { music: item, myWorkIds: myWorks.map((item: Music) => item.id) })}
+            onPress={() => navigation.navigate('MyWorkMusicPlay', { music: item, myWorkIds: filteredWorks.map((item: Music) => item.id) })}
           >
-            <Image source={{ uri: item.cover }} style={styles.avatar} />
+            <Image source={item.cover ? { uri: item.cover } : require('@/assets/music/music_avatar_icon.png')} style={styles.avatar} />
             <View style={styles.itemInfo}>
-              <Text style={styles.itemName}>{item.title}</Text>
-              <Text style={styles.itemTags}>{item.genres}</Text>
+              <Text style={styles.itemName}>{item.title || '暂无'}</Text>
+              <Text style={styles.itemTags} numberOfLines={1} ellipsizeMode="tail">{item.genres}</Text>
             </View>
             {item.playing ? (
               <Image
@@ -526,7 +532,7 @@ const styles = StyleSheet.create({
   avatar: {
     width: normalize(44),
     height: normalize(44),
-    borderRadius: normalize(12),
+    borderRadius: normalize(22),
     marginRight: normalize(12),
     backgroundColor: '#333',
   },

@@ -8,6 +8,7 @@ import {
   FlatList,
   Modal,
   Pressable,
+  ImageBackground,
 } from "react-native";
 import { useFocusEffect } from '@react-navigation/native';
 import Sound from "react-native-sound";
@@ -27,13 +28,13 @@ const img_last_song = require("../../../../assets/images/last_song.png");
 const img_next_song = require("../../../../assets/images/next_song.png");
 const img_play_btn = require("../../../../assets/images/music_play.png");
 const img_pause_btn = require("../../../../assets/images/music_pause.png");
-// const img_music_share = require("../../../../assets/images/music_share.png");
+const img_music_share = require("../../../../assets/images/music_share.png");
 const img_music_back_btn = require("../../../../assets/images/music_back_btn.png");
 
 // const { width } = Dimensions.get("window");
 
 const MusicPlayScreen = ({ navigation, route }: any) => {
-  const { music = {}, songs = [] } = route.params || {};
+  const { music = {}, songs = [], type } = route.params || {};
   const [sound, setSound] = useState<Sound | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -42,7 +43,7 @@ const MusicPlayScreen = ({ navigation, route }: any) => {
   const { show } = useMessageModal();
   const lyricScrollRef = useRef<FlatList<any>>(null);
   const progressInterval = useRef<NodeJS.Timeout | null>(null);
-  const [currentMusic, setCurrentMusic] = useState<any>(music);
+  const [currentMusic, setCurrentMusic] = useState<any>(type !== 'cover' ? music : { url: music.cover_url });
   const { t } = useLanguage();
   const [downloading, setDownloading] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -109,6 +110,9 @@ const MusicPlayScreen = ({ navigation, route }: any) => {
     //     }
     //   });
     // }
+    if (type === 'cover') {
+      return ["暂无歌词"];
+    }
     return [music.lyrics]
   }, [currentMusic.lyrics]);
 
@@ -271,7 +275,7 @@ const MusicPlayScreen = ({ navigation, route }: any) => {
     try {
       await downloader.downloadMusic(
         currentMusic.url,
-        currentMusic.title,
+        currentMusic.title || Date.now().toString(),
         {
           onProgress: (progress) => {
             setProgress(progress);
@@ -294,7 +298,11 @@ const MusicPlayScreen = ({ navigation, route }: any) => {
   };
 
   //切换歌曲
-  const handleSwitchMusic = (type: string) => {
+  const handleSwitchMusic = (typeSwitch: string) => {
+
+    if (type === 'cover') {
+      return;
+    }
     // 记录当前是否正在播放
     const wasPlaying = isPlaying;
 
@@ -313,7 +321,7 @@ const MusicPlayScreen = ({ navigation, route }: any) => {
     }
 
     // 切换歌曲
-    if (type === 'prev') {
+    if (typeSwitch === 'prev') {
       const index = songs.findIndex((item: any) => item.id === currentMusic.id);
       const newIndex = index - 1 < 0 ? songs.length - 1 : index - 1;
       setCurrentMusic(songs[newIndex]);
@@ -333,8 +341,6 @@ const MusicPlayScreen = ({ navigation, route }: any) => {
     }
   }
 
-  console.log(lyricArr, 'lyricArr')
-
   return (
     <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
       {/* Header */}
@@ -342,7 +348,17 @@ const MusicPlayScreen = ({ navigation, route }: any) => {
         <TouchableOpacity
           onPress={() => {
             cleanupAudioData();
-            navigation.goBack();
+            if (type === 'cover') {
+              // 重置导航栈，让 MyWork 成为新的根页面
+              navigation.reset({
+                index: 0,
+                routes: [
+                  { name: 'MyWork' }
+                ]
+              });
+            } else {
+              navigation.goBack();
+            }
           }}
           style={styles.backBtn}
         >
@@ -352,9 +368,9 @@ const MusicPlayScreen = ({ navigation, route }: any) => {
 
       {/* Info Card */}
       <View style={styles.infoCard}>
-        <View style={styles.avatarBox}>
-          <Image source={{ uri: currentMusic.cover }} style={styles.avatar} />
-        </View>
+        <ImageBackground source={require('@/assets/music/music_avatar_icon.png')} style={styles.avatarBox}>
+          {currentMusic.cover && <Image source={{ uri: currentMusic.cover }} style={styles.avatar} />}
+        </ImageBackground>
         <View style={styles.infoMain}>
           <View style={styles.infoHeaderRow}>
             <Text
@@ -362,14 +378,7 @@ const MusicPlayScreen = ({ navigation, route }: any) => {
               numberOfLines={2}
               ellipsizeMode="tail"
             >
-              {currentMusic.title}
-            </Text>
-            <Text
-              style={styles.tags}
-              numberOfLines={1}
-              ellipsizeMode="tail"
-            >
-              {currentMusic.genres?.join(", ")}
+              {currentMusic.title || '暂无'}
             </Text>
           </View>
         </View>
@@ -377,9 +386,9 @@ const MusicPlayScreen = ({ navigation, route }: any) => {
           {/* <TouchableOpacity onPress={handleSaveMusic}>
             <Image source={img_music_save} style={styles.infoIcon} />
           </TouchableOpacity> */}
-          {/* <TouchableOpacity onPress={() => setShowShareModal(true)}>
+          <TouchableOpacity onPress={() => setShowShareModal(true)}>
             <Image source={img_music_share} style={styles.infoIcon} />
-          </TouchableOpacity> */}
+          </TouchableOpacity>
         </View>
       </View>
 
@@ -393,7 +402,7 @@ const MusicPlayScreen = ({ navigation, route }: any) => {
               allowFontScaling={true}
               adjustsFontSizeToFit={false}
             >
-              {currentMusic.genres?.join(", ")}
+              {currentMusic?.genres?.join(", ")}
             </Text>
           ) : (
             // 折叠状态：单行显示，带省略号
@@ -402,7 +411,7 @@ const MusicPlayScreen = ({ navigation, route }: any) => {
               numberOfLines={1}
               ellipsizeMode="tail"
             >
-              {currentMusic.genres?.join(", ")}
+              {currentMusic?.genres?.join(", ")}
             </Text>
           )}
 
@@ -515,41 +524,6 @@ const MusicPlayScreen = ({ navigation, route }: any) => {
           <Image source={img_next_song} style={styles.controlImg} />
         </TouchableOpacity>
       </View>
-
-      {/* 删除确认弹窗和模糊遮罩 */}
-      <Modal
-        visible={showDeleteModal}
-        animationType="fade"
-        transparent
-        onRequestClose={() => setShowDeleteModal(false)}
-      >
-        <View style={styles.modalOverlay}>
-          {/* 模糊/半透明遮罩 */}
-          <Pressable style={styles.blurMask} onPress={() => setShowDeleteModal(false)} />
-          {/* 底部弹窗 */}
-          <View style={styles.bottomModal}>
-            <Text style={styles.modalTitle}>{t('music.delete')} {currentMusic.title}</Text>
-            <View style={styles.modalBtnRow}>
-              <TouchableOpacity
-                style={styles.cancelBtn}
-                onPress={() => setShowDeleteModal(false)}
-              >
-                <Text style={styles.cancelBtnText}>{t('music.cancel')}</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.okBtn}
-                onPress={() => {
-                  setShowDeleteModal(false);
-                  // TODO: 删除逻辑
-                }}
-              >
-                <Text style={styles.okBtnText}>{t('music.ok')}</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      </Modal>
-
       {/* 分享弹窗 */}
       <Modal
         visible={showShareModal}
@@ -561,7 +535,7 @@ const MusicPlayScreen = ({ navigation, route }: any) => {
           <Pressable style={styles.blurMask} onPress={() => setShowShareModal(false)} />
           <View style={styles.bottomModal}>
             <Text style={styles.modalTitle}>
-              {t('music.share')} {currentMusic.title}
+              {t('music.share')} {currentMusic.title || ''}
             </Text>
             <Text style={styles.shareLink}>{currentMusic.url}</Text>
             <View style={styles.modalBtnRow}>
@@ -643,16 +617,14 @@ const styles = StyleSheet.create({
     width: normalize(100),
     height: normalize(100),
     borderRadius: normalize(50),
-    backgroundColor: "#FFE89D",
     justifyContent: "center",
     alignItems: "center",
     marginRight: normalize(14),
   },
   avatar: {
-    width: normalize(100),
-    height: normalize(100),
-    borderRadius: normalize(50),
-    backgroundColor: "#FFE89D",
+    width: normalize(50),
+    height: normalize(50),
+    borderRadius: normalize(25),
   },
   infoMain: {
     flex: 1,

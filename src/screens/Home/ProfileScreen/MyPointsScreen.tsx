@@ -12,12 +12,13 @@ import { useNavigation } from '@react-navigation/native';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { normalize, normalizeFontSize } from '@/utils/stylesUtil';
 import theme from '@/utils/theme';
+import { usePointsStore } from '@/store/modules/points.store';
 
 const MyPointsScreen: React.FC = () => {
   const navigation = useNavigation();
   const { t } = useLanguage();
   const [selectedPackage, setSelectedPackage] = useState<string>('');
-
+  const { pointsBalance } = usePointsStore.getState();
   // 积分套餐数据
   const packageList = [
     {
@@ -69,12 +70,12 @@ const MyPointsScreen: React.FC = () => {
 
   return (
     <SafeAreaView edges={['top']} style={styles.container}>
-      
+
       {/* 顶部导航栏 */}
       <View style={styles.header}>
         <Text style={styles.headerTitle}>My points</Text>
         <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-          <Image 
+          <Image
             source={require('@/assets/main/page_return_icon.png')}
             style={styles.backIcon}
           />
@@ -83,11 +84,11 @@ const MyPointsScreen: React.FC = () => {
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {/* AI Polishing 标签 */}
-          {/* 剩余积分卡片 */}
-          <View style={styles.remainingPointsCard}>
+        {/* 剩余积分卡片 */}
+        <View style={styles.remainingPointsCard}>
           <View style={styles.remainingPointsContent}>
             <View style={styles.pointsInfo}>
-              <Text style={styles.remainingPointsText}>3000</Text>
+              <Text style={styles.remainingPointsText}>{pointsBalance}</Text>
               <Text style={styles.remainingPointsLabel}>Remaining points</Text>
             </View>
             <TouchableOpacity style={styles.detailsButton} onPress={handleDetails}>
@@ -115,7 +116,7 @@ const MyPointsScreen: React.FC = () => {
               <View style={styles.packageContent}>
                 <Text style={styles.packageTitle}>{pkg.title}</Text>
                 <View style={styles.pointsContainer}>
-                  <Image 
+                  <Image
                     source={require('@/assets/profile/menu_points_icon.png')}
                     style={styles.pointsIcon}
                   />
@@ -147,7 +148,7 @@ const MyPointsScreen: React.FC = () => {
           <Text style={styles.buyButtonText}>Buy</Text>
         </TouchableOpacity>
 
-      
+
       </ScrollView>
     </SafeAreaView>
   );
@@ -189,7 +190,7 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     paddingHorizontal: normalize(24),
-    marginTop:normalize(16)
+    marginTop: normalize(16)
   },
   aiPolishingContainer: {
     flexDirection: 'row',
@@ -218,7 +219,7 @@ const styles = StyleSheet.create({
   packageCardContainer: {
     marginBottom: normalize(12),
     display: 'flex',
-    flexWrap:'wrap',
+    flexWrap: 'wrap',
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
