@@ -40,6 +40,7 @@ const AudioMaterialLibraryScreen: React.FC = () => {
       return {
         uri: file,
         name: name_list[index],
+        server: true,
       }
     });
     console.log('Select material:', fileList);

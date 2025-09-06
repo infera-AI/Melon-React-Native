@@ -92,11 +92,6 @@ export function synthesizeSpeech(params: SynthesizeSpeechRequest) {
   return http.post<SynthesizeSpeechResult>(API_ENDPOINTS.PROFILE.SYNTHESIZE_SPEECH, params);
 }
 
-// 获取声纹录制文本
-export function getVoiceprintEnrollmentConfig(params?: GetVoiceprintEnrollmentConfigParams) {
-  return http.get<VoiceprintEnrollmentConfigResult>(API_ENDPOINTS.PROFILE.GET_VOICEPRINT_ENROLLMENT_CONFIG, params);
-}
-
 // 上传声纹录音
 export function uploadVoiceprintRecording(params: UploadVoiceprintRecordingRequest) {
   const formData = new FormData();
@@ -265,11 +260,26 @@ export function getPointsRecord() {
   return http.get<CommonResult>(API_ENDPOINTS.PROFILE.GET_INTEGRAL_RECORD);
 }
 
+// 获取邀请码
+export function getInvitationCode() {
+  return http.post<any>(API_ENDPOINTS.PROFILE.GET_INVITATION_CODE);
+}
+
+// 验证邀请码
+export function verifyInvitationCode(params: { invitation_code: string }) {
+  return http.post<any>(API_ENDPOINTS.PROFILE.VERIFY_INVITATION_CODE, params);
+}
+
+// 获取声纹录制文本
+export function getVoiceprintEnrollmentConfig(params:{language:string}) {
+  return http.get<VoiceprintEnrollmentConfigResult>(API_ENDPOINTS.PROFILE.GET_VOICEPRINT_ENROLLMENT_CONFIG, params);
+}
 
 
 
 
 
+ 
 
 
 

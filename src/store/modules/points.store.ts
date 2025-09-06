@@ -23,11 +23,9 @@ export const usePointsStore = create<PointsState>()(
             refreshPointsBalance: async () => {
                 try {
                     const response = await getPointsBalance();
-                    if (response.code === 200) {
-                        set({ 
-                            pointsBalance: response.value,
-                        });
-                    }
+                    set({
+                        pointsBalance: response.points,
+                    });
                 } catch (error) {
                     console.error('获取积分余额失败:', error);
                 } finally {

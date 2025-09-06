@@ -13,7 +13,7 @@ import {
   Modal,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { polishLyrics, recommendGenres, generateMusic, getSupportedLanguages } from '@/api/music/music';
+import { polishLyrics, recommendGenres, generateMusic, getSupportedLanguages, getMusicSegmentation } from '@/api/music/music';
 import { useMessageModal } from '@/contexts/MessageModalContext';
 import FullScreenLoader from '@/components/FullScreenLoader';
 import { MusicStackParamList } from './navigator';
@@ -24,6 +24,8 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { translateText } from '@/api/profile/profile';
 import { normalize, normalizeFontSize } from '@/utils/stylesUtil';
 import { useBackHandler } from '@/utils/BackHandlerUtil'; // 导入工具类
+import { languageDetection } from '@/api/translate/translate';
+import { usePointsStore } from '@/store/modules/points.store';
 
 type MusicScreenNavigationProp = NativeStackNavigationProp<MusicStackParamList, 'MusicMain'>;
 
@@ -32,7 +34,6 @@ const MusicScreen: React.FC = () => {
   const navigation = useNavigation<MusicScreenNavigationProp>();
   const [title, setTitle] = useState('');
   const [lyrics, setLyrics] = useState('');
-  const [selectedStyles, setSelectedStyles] = useState<string[]>([]);
   const [musicStyles, setMusicStyles] = useState<string[]>([]);
   const [musicStylesInput, setMusicStylesInput] = useState<string>("");
   const { show } = useMessageModal()
@@ -42,9 +43,10 @@ const MusicScreen: React.FC = () => {
   const [rightLanguage, setRightLanguage] = useState<string>("zh");
   const [type, setType] = useState<string>("");
   const [supportedLanguageList, setSupportedLanguageList] = useState([])
+  const [languageList, setLanguageList] = useState<any[]>([]);
   const { t } = useLanguage();
   const [loading, setLoading] = useState(false);
-
+  const refreshPointsBalance = usePointsStore.getState().refreshPointsBalance;
   // 歌词润饰
   const handleAiPolish = async () => {
     try {
@@ -66,12 +68,10 @@ const MusicScreen: React.FC = () => {
   // 获取推荐曲风
   const getRecommendStylesRequest = async () => {
     try {
-      const res = await recommendGenres({
-        work_lyrics: lyrics,
-      });
+      const res = await getMusicSegmentation();
       console.log(res);
-      setMusicStyles(res.work_genres)
-      return res.work_genres;
+      setMusicStyles(res.genres)
+      return res.genres;
     } catch (error: any) {
       show({
         message: t('music.get_recommend_styles_failed') + (error.message || t('common.unknown_error')),
@@ -105,7 +105,9 @@ const MusicScreen: React.FC = () => {
     setShowLanguageModal(false);
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
+
+
     if (lyrics.trim() === "") {
       show({ message: t('music.lyrics_empty') });
       return;
@@ -114,6 +116,14 @@ const MusicScreen: React.FC = () => {
       show({ message: t('music.select_music_style') });
       return;
     }
+
+    // 判断语言是否符合要求
+    const detectedLanguage = await getLanguageDetection();
+    if (supportedLanguageList.findIndex((language: any) => language.code === detectedLanguage) === -1) {
+      show({ message: "The current lyrics do not support song generation. Please rephrase them and try again." });
+      return;
+    }
+
     useMusicStore.getState().setMusicGenerateInfo({
       title: title,
       lyrics: lyrics,
@@ -148,6 +158,11 @@ const MusicScreen: React.FC = () => {
 
   const handleLanguageSwitch = (type: string) => {
     setType(type);
+    if (type === "left") {
+      setLanguageList(supportedLanguages);
+    } else {
+      setLanguageList(supportedLanguageList);
+    }
     setShowLanguageModal(true);
   }
 
@@ -172,11 +187,29 @@ const MusicScreen: React.FC = () => {
     setIsLoading(false);
   }
 
+  // 判断语言是否符合要求
+  const getLanguageDetection = async () => {
+    setLoading(true);
+    try {
+      const res = await languageDetection({
+        source_text: lyrics,
+      });
+      console.log(res);
+      return res.detected_language;
+    } catch (error) {
+      console.log(error);
+      return "";
+    } finally {
+      setLoading(false);
+    }
+  }
+
   const handleRefreshRecommendStyles = async () => {
     setLoading(true);
     await getRecommendStylesRequest();
     setLoading(false);
   }
+
 
   const refreshAIStyles = async () => {
     setLoading(true);
@@ -188,13 +221,19 @@ const MusicScreen: React.FC = () => {
   // 获取支持语言
   const getSupportedLanguagesRequest = async () => {
     const res = await getSupportedLanguages();
-    setSupportedLanguageList(res.support_language);
+    const formatLanguageList = res.support_language.map((language: any) => ({ code: language }));
+    setSupportedLanguageList(formatLanguageList);
     console.log(res);
   }
 
   useEffect(() => {
     getSupportedLanguagesRequest();
+    refreshPointsBalance();
   }, []);
+
+  useEffect(() => {
+    getRecommendStylesRequest();
+  }, [lyrics]);
 
   return (
     <SafeAreaView edges={['top', 'bottom']} style={styles.container}>
@@ -399,13 +438,13 @@ const MusicScreen: React.FC = () => {
             </View>
 
             <ScrollView style={styles.languageList}>
-              {supportedLanguageList?.map((language: any, index: number) => (
+              {languageList?.map((language: any, index: number) => (
                 <TouchableOpacity
                   key={index}
                   style={styles.languageOption}
-                  onPress={() => handleLanguageSelect(language.code)}
+                  onPress={() => handleLanguageSelect(language?.code)}
                 >
-                  <Text style={styles.languageOptionText}>{t(`languageNames.${language.code}`)}</Text>
+                  <Text style={styles.languageOptionText}>{t(`languageNames.${language?.code}`)}</Text>
                 </TouchableOpacity>
               ))}
             </ScrollView>

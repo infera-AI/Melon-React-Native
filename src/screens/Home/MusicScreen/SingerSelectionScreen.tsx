@@ -111,12 +111,14 @@ const SingerSelectionScreen: React.FC<any> = ({ route }: any) => {
   const [personalVoiceprints, setPersonalVoiceprints] = useState<any[]>([]);
   const [recordModalVisible, setRecordModalVisible] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const { setGenerateMusicType, musicGenerateInfo, coverMusicFile, setIsSelectedVoice, isSelectedVoice } = useMusicStore.getState();
+  const { setGenerateMusicType, musicGenerateInfo, coverMusicFile, setIsSelectedVoice } = useMusicStore.getState();
+  const isSelectedVoice = useMusicStore.getState().isSelectedVoice;
   const { refreshPointsBalance, pointsBalance } = usePointsStore.getState();
   const {
     isPlayIndex,
     togglePlayPause,
     cleanup,
+    isPlayingUrl,
   } = useAudioPlayer();
   // 处理Tab切换
   const handleTabChange = (tab: TabType) => {
@@ -145,6 +147,7 @@ const SingerSelectionScreen: React.FC<any> = ({ route }: any) => {
 
   // 处理歌手选择
   const handleSingerSelect = (singer: Singer) => {
+    console.log(singer, 'singer')
     setIsSelectedVoice(true);
     setSelectedSinger(singer);
     setSelectedId(singer.id);
@@ -159,7 +162,6 @@ const SingerSelectionScreen: React.FC<any> = ({ route }: any) => {
     } else {
       setPointsLimitModalVisible(true);
     }
-    // handleToMusicGenerate(true);
   };
 
   // 处理上一步
@@ -170,11 +172,11 @@ const SingerSelectionScreen: React.FC<any> = ({ route }: any) => {
   // 处理下一步
   const handleNextStep = () => {
 
-    if (checkPointsBalance(isSelectedVoice)) {
-      setModalVisible(true);
-    } else {
-      setPointsLimitModalVisible(true);
-    }
+    // if (checkPointsBalance(isSelectedVoice)) {
+    setModalVisible(true);
+    // } else {
+    //   setPointsLimitModalVisible(true);
+    // }
     // if (selectedSinger) {
     //   console.log('选择的歌手:', selectedSinger);
     //   console.log('当前Tab:', activeTab);
@@ -201,6 +203,9 @@ const SingerSelectionScreen: React.FC<any> = ({ route }: any) => {
   useEffect(() => {
     getPublicVoiceprintsRequest();
     getPersonalVoiceprintsRequest();
+    return () => {
+      cleanup();
+    }
   }, []);
 
   // 渲染Tab栏
@@ -315,7 +320,7 @@ const SingerSelectionScreen: React.FC<any> = ({ route }: any) => {
             {singer.status === 2 && <TouchableOpacity
               onPress={() => handlePlayMaterial(singer)}
             >
-              <Image source={isPlayIndex === singer.merge_file ? require('@/assets/music/music_pause_icon.png') : require('@/assets/music/music_play_icon.png')} style={styles.playIcon} />
+              <Image source={isPlayingUrl(singer.merge_file) ? require('@/assets/music/music_pause_icon.png') : require('@/assets/music/music_play_icon.png')} style={styles.playIcon} />
             </TouchableOpacity>}
             {singer.status !== 2 && <Text style={styles.trainingText}>Training...</Text>}
           </TouchableOpacity>
@@ -408,7 +413,7 @@ const SingerSelectionScreen: React.FC<any> = ({ route }: any) => {
 
   const handleGenerateMusicAction = () => {
     if (type === 'generate') {
-      handleToMusicGenerate(isSelectedVoice);
+      handleToMusicGenerate(!isSelectedVoice);
     } else if (type === 'cover') {
       handleCoverSingToMusic();
     }

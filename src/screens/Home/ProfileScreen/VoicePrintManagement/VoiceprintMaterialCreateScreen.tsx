@@ -92,6 +92,7 @@ const VoiceprintMaterialCreateScreen: React.FC = () => {
     isPlayIndex,
     togglePlayPause,
     cleanup,
+    isPlayingUrl,
   } = useAudioPlayer();
 
   // const cleanupAudioData = React.useCallback(() => {
@@ -175,12 +176,13 @@ const VoiceprintMaterialCreateScreen: React.FC = () => {
   // 保存声纹素材
   const handleSaveMaterialsRequest = async () => {
     setIsLoading(true);
-    const resFile = await handleUploadFile(materials);
-    if (!resFile.url_list) {
-      return;
-    }
-    const file_list = resFile.url_list
     try {
+      const resFile = await handleUploadFile(materials);
+      if (!resFile.url_list) {
+        console.log(resFile, 'resFile')
+        throw new Error('upload files failed');
+      }
+      const file_list = resFile.url_list
       const res = await saveMaterials({
         name: materialsNameInput,
         file_list,
@@ -188,12 +190,14 @@ const VoiceprintMaterialCreateScreen: React.FC = () => {
       });
       show({ message: "save material successfully" });
       return res;
-    } catch (error) {
+    } catch (error: any) {
       console.log(error, 'error');
-      return {};
+      throw new Error(error.message || 'Unknown error occurred');
     } finally {
       setIsLoading(false);
     }
+
+
   }
 
   const handleStoreMaterials = async () => {
@@ -221,17 +225,25 @@ const VoiceprintMaterialCreateScreen: React.FC = () => {
   // 上传文件
   const handleUploadFile = async (files: any[]) => {
 
+    // 分离出服务器文件和本地文件
+    const serverFiles = files.filter(file => !file.type);
+    const localFiles = files.filter(file => file.type !== undefined);
+    if (localFiles.length <= 0) {
+      return { url_list: serverFiles };
+    }
     try {
       // 转换文档
-      const convertedFiles = await FilePathConverter.convertFilePaths(files);
+      const convertedFiles = await FilePathConverter.convertFilePaths(localFiles);
       const res = await uploadFiles({
         files: convertedFiles,
       });
       console.log(res, 'res');
-      return res;
+      return { url_list: [...serverFiles, ...res.url_list] };
     } catch (error) {
+      console.error('Upload files failed:', error);
       show({ message: "upload files failed" });
-      return {};
+      // 抛出错误让上层捕捉
+      throw new Error('upload files failed');
     }
   };
 
@@ -283,26 +295,30 @@ const VoiceprintMaterialCreateScreen: React.FC = () => {
   };
 
   const handleSaveMaterialsAction = () => {
-    if (!materialsId) {
-      setShowAddModal(true);
-      setType('save');
-    } else {
-      handleStoreMaterials()
-    }
+    setShowAddModal(true);
+    setType('save');
   }
 
   const handleSendTrainingAction = () => {
-    if (!materialsId) {
-      setShowAddModal(true);
-      setType('send');
-    } else {
-      if (pointsBalance >= 200) {
-        setModalVisible(true);
-      } else {
-        setShowPointsListModal(true);
-      }
-    }
+    setShowAddModal(true);
+    setType('send');
+    // if (!materialsId) {
+    //   setShowAddModal(true);
+    //   setType('send');
+    // } else {
+    //   if (pointsBalance >= 200) {
+    //     setPurchaseModalVisible(true);
+    //   } else {
+    //     setShowPointsListModal(true);
+    //   }
+    // }
   }
+
+  useEffect(() => {
+    return () => {
+      cleanup();
+    }
+  }, []);
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
@@ -375,7 +391,7 @@ const VoiceprintMaterialCreateScreen: React.FC = () => {
                       onPress={() => handlePlayMaterial(material)}
                     >
                       <Image
-                        source={isPlayIndex === material.uri ? require('@/assets/music/music_pause_icon.png') : require('@/assets/music/music_play_icon.png')}
+                        source={isPlayingUrl(material.uri) ? require('@/assets/music/music_pause_icon.png') : require('@/assets/music/music_play_icon.png')}
                         style={styles.deleteIcon}
                       />
                     </TouchableOpacity>
@@ -433,7 +449,7 @@ const VoiceprintMaterialCreateScreen: React.FC = () => {
                   handleStoreMaterials()
                 } else {
                   if (pointsBalance >= 200) {
-                    setModalVisible(true);
+                    setPurchaseModalVisible(true);
                   } else {
                     setShowPointsListModal(true);
                   }
@@ -457,7 +473,7 @@ const VoiceprintMaterialCreateScreen: React.FC = () => {
         visible={showPointsListModal}
         onClose={() => setShowPointsListModal(false)}
         onConfirm={() => {
-          navigation.navigate('Profile' as never, {
+          navigation.navigate('Profile', {
             screen: 'Purchase'
           } as never);
         }}

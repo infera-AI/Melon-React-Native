@@ -16,23 +16,23 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ProfileStackParamList } from '../ProfileNavigator';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import theme from '@/utils/theme';
-import { getVoiceprintDemoConfig } from '@/api/profile';
 import { useVoiceStore } from '@/store';
 import { VoiceType } from '@/store/modules/voice.store';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { normalize, normalizeFontSize } from '@/utils/stylesUtil';
 import { pick } from '@react-native-documents/picker';
 import { useMessageModal } from '@/contexts/MessageModalContext';
+import { getSupportedLanguages } from '@/api/music';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
-const langs={
-  zh:'中文简体',
-  en:'English',
-  ja:'日语',
-  de:'德语',
-  fr:'法语',
-  es:'西班牙语',
+const langs = {
+  zh: '中文简体',
+  en: 'English',
+  ja: '日语',
+  de: '德语',
+  fr: '法语',
+  es: '西班牙语',
 }
 
 type CreateVoiceScreenNavigationProp = NativeStackNavigationProp<ProfileStackParamList, 'CreateVoice'>;
@@ -82,7 +82,7 @@ const iosAudioTypes = [
 const CreateVoiceScreen: React.FC = () => {
   const navigation = useNavigation<CreateVoiceScreenNavigationProp>();
   const { materials, setMaterials } = useVoiceStore();
-  const [selectedLanguage, setSelectedLanguage] = useState<string>('English');
+  const [selectedLanguage, setSelectedLanguage] = useState<string>(useVoiceStore.getState().local || 'zh');
   const [languageList, setLanguageList] = useState<any[]>([]);
   const [showLanguageModal, setShowLanguageModal] = useState(false);
   const { t } = useLanguage();
@@ -110,7 +110,7 @@ const CreateVoiceScreen: React.FC = () => {
         }),
       ])
     );
-    
+
     const middleAnimation = Animated.loop(
       Animated.sequence([
         Animated.timing(middleAnim, {
@@ -124,8 +124,8 @@ const CreateVoiceScreen: React.FC = () => {
           useNativeDriver: true,
         }),
       ])
-    );  
-    
+    );
+
     const innerAnimation = Animated.loop(
       Animated.sequence([
         Animated.timing(innerAnim, {
@@ -140,7 +140,7 @@ const CreateVoiceScreen: React.FC = () => {
         }),
       ])
     );
-    
+
     // 错开动画开始时间，创造层次感
     setTimeout(() => outerAnimation.start(), 0);
     setTimeout(() => middleAnimation.start(), 500);
@@ -154,17 +154,13 @@ const CreateVoiceScreen: React.FC = () => {
     };
   }, [outerAnim, middleAnim, innerAnim]);
 
-  useEffect(() => {
-    useVoiceStore.getState().setLocal(selectedLanguage);
-  }, [selectedLanguage]);
-
   const getLanguageListRequest = async () => {
-    try{
-      const res = await getVoiceprintDemoConfig();
-      setLanguageList(res.supported_languages);
-      setSelectedLanguage(res.supported_languages?.[0]);
-
-    }catch(error){
+    try {
+      // 获取支持语言
+      const res = await getSupportedLanguages();
+      const formatLanguageList = res.support_language.map((language: any) => ({ code: language }));
+      setLanguageList(formatLanguageList);
+    } catch (error) {
       console.log(error);
     }
   }
@@ -186,7 +182,7 @@ const CreateVoiceScreen: React.FC = () => {
       }
 
       const file = res[0];
-      
+
       // 验证文件类型
       if (!androidAudioTypes.includes(file.type ?? '')) {
         show({
@@ -216,8 +212,14 @@ const CreateVoiceScreen: React.FC = () => {
   };
 
   const handleStartRecording = () => {
+    if (!selectedLanguage) {
+      show({
+        message: t('Please select a language')
+      });
+      return;
+    }
     // 导航到录音页面
-    navigation.navigate('VoiceprintRecording',{locale: selectedLanguage});
+    navigation.navigate('VoiceprintRecording', { locale: selectedLanguage });
   };
 
   const handleLanguageToggle = () => {
@@ -232,136 +234,136 @@ const CreateVoiceScreen: React.FC = () => {
   return (
     <SafeAreaView style={styles.safeContainer} edges={['top',]}>
       <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      {/* 顶部导航栏 */}
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-          <Image 
-            source={require('@/assets/main/page_return_icon.png')} 
-            style={styles.backIcon}
-          />
-        </TouchableOpacity>
-        <Text style={styles.title}>{useVoiceStore.getState().type === VoiceType.CREATE ? t('create_voice.create_your_own_voice') : t('create_voice.voiceprint_optimization')}</Text>
-        <View style={styles.headerSpacer} />
-      </View>
-
-      {/* 主要内容区域 */}
-      <View style={styles.content}>
-        {/* 说明文字 */}
-        <View style={styles.descriptionContainer}>
-         {/* Timer动画显示 */}
-        <View style={styles.recordingContainer}>
-          <View style={styles.recordingAnimation}>
-             {/* Timer动画圆圈 - 使用timer图标 */}
-             <Animated.View style={styles.recordingCircle}>
-               <Animated.View 
-                 style={[
-                   styles.timerIconContainer,
-                   {
-                     transform: [{ scale: outerAnim }]
-                   }
-                 ]} 
-               >
-                 <Image 
-                   source={require('@/assets/profile/timer_create_icon1.png')} 
-                   style={styles.timerIcon}
-                 />
-               </Animated.View>
-               <Animated.View 
-                 style={[
-                   styles.timerIconContainer,
-                   {
-                     transform: [{ scale: middleAnim }]
-                   }
-                 ]} 
-               >
-                 <Image 
-                   source={require('@/assets/profile/timer_create_icon2.png')} 
-                   style={styles.timerIcon}
-                 />
-               </Animated.View>
-               <Animated.View 
-                 style={[
-                   styles.timerIconContainer,
-                   {
-                     transform: [{ scale: innerAnim }]
-                   }
-                 ]} 
-               >
-                 <Image 
-                   source={require('@/assets/profile/timer_create_icon3.png')} 
-                   style={styles.timerIcon}
-                 />
-               </Animated.View>
-               {/* 中间的voice图标 */}
-               <View style={styles.centerVoiceIcon}>
-                 <Image 
-                   source={require('@/assets/profile/timer_create_voice.png')} 
-                   style={styles.voiceIconCenter}
-                 />
-               </View>
-             </Animated.View>
-          </View>
+        {/* 顶部导航栏 */}
+        <View style={styles.header}>
+          <TouchableOpacity style={styles.backButton} onPress={handleBack}>
+            <Image
+              source={require('@/assets/main/page_return_icon.png')}
+              style={styles.backIcon}
+            />
+          </TouchableOpacity>
+          <Text style={styles.title}>{useVoiceStore.getState().type === VoiceType.CREATE ? t('create_voice.create_your_own_voice') : t('create_voice.voiceprint_optimization')}</Text>
+          <View style={styles.headerSpacer} />
         </View>
-          <Text style={styles.descriptionText}>
-            {t('create_voice.personalize_your_voice')}
+
+        {/* 主要内容区域 */}
+        <View style={styles.content}>
+          {/* 说明文字 */}
+          <View style={styles.descriptionContainer}>
+            {/* Timer动画显示 */}
+            <View style={styles.recordingContainer}>
+              <View style={styles.recordingAnimation}>
+                {/* Timer动画圆圈 - 使用timer图标 */}
+                <Animated.View style={styles.recordingCircle}>
+                  <Animated.View
+                    style={[
+                      styles.timerIconContainer,
+                      {
+                        transform: [{ scale: outerAnim }]
+                      }
+                    ]}
+                  >
+                    <Image
+                      source={require('@/assets/profile/timer_create_icon1.png')}
+                      style={styles.timerIcon}
+                    />
+                  </Animated.View>
+                  <Animated.View
+                    style={[
+                      styles.timerIconContainer,
+                      {
+                        transform: [{ scale: middleAnim }]
+                      }
+                    ]}
+                  >
+                    <Image
+                      source={require('@/assets/profile/timer_create_icon2.png')}
+                      style={styles.timerIcon}
+                    />
+                  </Animated.View>
+                  <Animated.View
+                    style={[
+                      styles.timerIconContainer,
+                      {
+                        transform: [{ scale: innerAnim }]
+                      }
+                    ]}
+                  >
+                    <Image
+                      source={require('@/assets/profile/timer_create_icon3.png')}
+                      style={styles.timerIcon}
+                    />
+                  </Animated.View>
+                  {/* 中间的voice图标 */}
+                  <View style={styles.centerVoiceIcon}>
+                    <Image
+                      source={require('@/assets/profile/timer_create_voice.png')}
+                      style={styles.voiceIconCenter}
+                    />
+                  </View>
+                </Animated.View>
+              </View>
+            </View>
+            <Text style={styles.descriptionText}>
+              {t('create_voice.personalize_your_voice')}
+            </Text>
+          </View>
+
+          {/* 录音指导 */}
+          <Text style={styles.guidanceTitle}>
+            {t('create_voice.to_accurately_clone')}
           </Text>
-        </View>
 
-        {/* 录音指导 */}
-        <Text style={styles.guidanceTitle}>
-          {t('create_voice.to_accurately_clone')}
-        </Text>
-
-        <View style={styles.guidanceContainer}>
-          <Image 
-            source={require('@/assets/profile/profile_unvoice_icon.png')} 
-            style={styles.guidanceImage}
-          />
-          <Text style={styles.guidanceText}> {t('create_voice.conduct_recording_quiet')}</Text>
-        </View>
-
-        <View style={styles.guidanceContainer}>
-          <Image 
-            source={require('@/assets/profile/profile_record_icon.png')} 
-            style={styles.guidanceImage}
-          />
-          <Text style={styles.guidanceText}>{t('create_voice.read_text_natural')}</Text>
-        </View>
-
-        <View style={styles.guidanceContainer}>
-          <Image 
-            source={require('@/assets/profile/profile_unrecord_icon.png')} 
-            style={styles.guidanceImage}
-          />
-          <Text style={styles.guidanceText}>{t('create_voice.face_microphone_directly')}</Text>
-        </View>
-
-
-        {/* 录音语言选择器 */}
-        <TouchableOpacity style={styles.languageSelector} onPress={handleLanguageToggle}>
-          <View style={styles.languageContainer}>
-            <Image 
-              source={require('@/assets/main/language_icon.png')} 
-              style={styles.voiceIcon}
+          <View style={styles.guidanceContainer}>
+            <Image
+              source={require('@/assets/profile/profile_unvoice_icon.png')}
+              style={styles.guidanceImage}
             />
-            <Text style={styles.languageText}>{langs[selectedLanguage as keyof typeof langs]}</Text>
-            <Image 
-              source={require('@/assets/main/dropdown_icon.png')} 
-              style={styles.arrowIcon}
-            />
+            <Text style={styles.guidanceText}> {t('create_voice.conduct_recording_quiet')}</Text>
           </View>
-        </TouchableOpacity>
 
-        {/* 底部按钮 */}
-        <View style={styles.buttonContainer}>
-        <TouchableOpacity style={[styles.startButton,styles.uploadButton]} onPress={handleUploadRecording}>
-            <Text style={styles.uploadButtonText}>Upload recording</Text>
+          <View style={styles.guidanceContainer}>
+            <Image
+              source={require('@/assets/profile/profile_record_icon.png')}
+              style={styles.guidanceImage}
+            />
+            <Text style={styles.guidanceText}>{t('create_voice.read_text_natural')}</Text>
+          </View>
+
+          <View style={styles.guidanceContainer}>
+            <Image
+              source={require('@/assets/profile/profile_unrecord_icon.png')}
+              style={styles.guidanceImage}
+            />
+            <Text style={styles.guidanceText}>{t('create_voice.face_microphone_directly')}</Text>
+          </View>
+
+
+          {/* 录音语言选择器 */}
+          <TouchableOpacity style={styles.languageSelector} onPress={handleLanguageToggle}>
+            <View style={styles.languageContainer}>
+              <Image
+                source={require('@/assets/main/language_icon.png')}
+                style={styles.voiceIcon}
+              />
+              <Text style={styles.languageText}>{selectedLanguage ? t(`languageNames.${selectedLanguage}`) : ''}</Text>
+              <Image
+                source={require('@/assets/main/dropdown_icon.png')}
+                style={styles.arrowIcon}
+              />
+            </View>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.startButton} onPress={handleStartRecording}>
-            <Text style={styles.startButtonText}>Start recording</Text>
-          </TouchableOpacity>
+
+          {/* 底部按钮 */}
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity style={[styles.startButton, styles.uploadButton]} onPress={handleUploadRecording}>
+              <Text style={styles.uploadButtonText}>Upload recording</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.startButton} onPress={handleStartRecording}>
+              <Text style={styles.startButtonText}>Start recording</Text>
+            </TouchableOpacity>
+          </View>
         </View>
-      </View>
       </ScrollView>
 
       {/* 语言选择弹窗 */}
@@ -379,15 +381,15 @@ const CreateVoiceScreen: React.FC = () => {
                 <Text style={styles.modalClose}>✕</Text>
               </TouchableOpacity>
             </View>
-            
+
             <ScrollView style={styles.languageList}>
               {languageList?.map((language: any, index: number) => (
-                <TouchableOpacity 
+                <TouchableOpacity
                   key={index}
-                  style={styles.languageOption} 
-                  onPress={() => handleLanguageSelect(language)}
+                  style={styles.languageOption}
+                  onPress={() => handleLanguageSelect(language?.code)}
                 >
-                  <Text style={styles.languageOptionText}>{langs[language as keyof typeof langs]}</Text>
+                  <Text style={styles.languageOptionText}>{language?.code ? t(`languageNames.${language?.code}`) : ''}</Text>
                 </TouchableOpacity>
               ))}
             </ScrollView>
@@ -459,35 +461,35 @@ const styles = StyleSheet.create({
     marginBottom: normalize(12),
     lineHeight: normalize(20),
   },
-     guidanceContainer: {
-     flexDirection: 'row',
-     alignItems: 'flex-start',
-     gap: normalize(12),
-     marginBottom: normalize(16),
-   },
-   guidanceImage: {
-     width: normalize(24),
-     height: normalize(24),
-     marginTop: normalize(2),
-   },
-   guidanceText: {
-     fontSize: normalizeFontSize(14),
-     fontWeight: '400',
-     color: '#B0B0B0',
-     lineHeight: normalize(20),
-     flex: 1,
-   },
-   guidanceTextColor: {
+  guidanceContainer: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: normalize(12),
+    marginBottom: normalize(16),
+  },
+  guidanceImage: {
+    width: normalize(24),
+    height: normalize(24),
+    marginTop: normalize(2),
+  },
+  guidanceText: {
+    fontSize: normalizeFontSize(14),
+    fontWeight: '400',
+    color: '#B0B0B0',
+    lineHeight: normalize(20),
+    flex: 1,
+  },
+  guidanceTextColor: {
     color: theme.primary,
-   },
+  },
   languageSelector: {
-    alignItems:'center',
+    alignItems: 'center',
     width: "100%",
     marginBottom: normalize(20),
     marginTop: normalize(26),
   },
   languageContainer: {
-    width:normalize(244),
+    width: normalize(244),
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#262626',
@@ -537,22 +539,22 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-     timerIcon: {
-     width: normalize(110),
-     height: normalize(110),
-     resizeMode: 'contain',
-   },
-   centerVoiceIcon: {
-     position: 'absolute',
-     alignItems: 'center',
-     justifyContent: 'center',
-     zIndex: 10,
-   },
-   voiceIconCenter: {
-     width: normalize(60),
-     height: normalize(60),
-     resizeMode: 'contain',
-   },
+  timerIcon: {
+    width: normalize(110),
+    height: normalize(110),
+    resizeMode: 'contain',
+  },
+  centerVoiceIcon: {
+    position: 'absolute',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 10,
+  },
+  voiceIconCenter: {
+    width: normalize(60),
+    height: normalize(60),
+    resizeMode: 'contain',
+  },
   buttonContainer: {
     marginBottom: normalize(10),
   },
@@ -564,8 +566,8 @@ const styles = StyleSheet.create({
     lineHeight: normalize(20),
   },
   uploadButton: {
-   backgroundColor: theme.backgroundTertiary,
-   marginBottom: normalize(16),
+    backgroundColor: theme.backgroundTertiary,
+    marginBottom: normalize(16),
   },
   startButton: {
     backgroundColor: '#85F380',

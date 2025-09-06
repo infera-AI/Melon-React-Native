@@ -41,7 +41,7 @@ const PointsLimitModal: React.FC<PointsConfirmModalProps> = ({
 
   const handleConfirm = () => {
     onConfirm();
-    navigation.navigate('Profile' as never, {
+    navigation.navigate('Profile', {
       screen: 'Purchase'
     } as never);
     onClose();

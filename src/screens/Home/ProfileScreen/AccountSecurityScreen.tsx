@@ -149,23 +149,22 @@ const AccountSecurityScreen: React.FC = () => {
             />
           </View>
         </TouchableOpacity>
-
-        <TouchableOpacity style={[styles.card, styles.logoutCard]} onPress={handleLogout}>
-          <View style={styles.cardContent}>
-            <View style={styles.cardLeft}>
-              <Image
-                source={require('../../../assets/main/shutdown_icon.png')}
-                style={styles.cardIcon}
-              />
-              <Text style={[styles.cardTitle, styles.logoutCardText]}>{t('account_security.logout')}</Text>
-            </View>
-            <Image
-              source={require('../../../assets/main/right_arrow_icon.png')}
-              style={styles.arrowIcon}
-            />
-          </View>
-        </TouchableOpacity>
       </ScrollView>
+      <TouchableOpacity style={styles.logoutCard} onPress={handleLogout}>
+        <View style={styles.cardContent}>
+          <View style={styles.cardLeft}>
+            <Image
+              source={require('../../../assets/main/shutdown_icon.png')}
+              style={styles.cardIcon}
+            />
+            <Text style={[styles.cardTitle, styles.logoutCardText]}>{t('account_security.logout')}</Text>
+          </View>
+          <Image
+            source={require('../../../assets/main/right_arrow_icon.png')}
+            style={styles.arrowIcon}
+          />
+        </View>
+      </TouchableOpacity>
     </SafeAreaView>
   );
 };
@@ -212,8 +211,15 @@ const styles = StyleSheet.create({
     height: normalize(52),
   },
   logoutCard: {
+    borderRadius: normalize(12),
+    marginBottom: normalize(16),
+    height: normalize(52),
+    marginHorizontal: normalize(24),
     backgroundColor: theme.primary,
-    marginTop: normalize(180),
+    position: 'absolute',
+    bottom: normalize(10),
+    left: 0,
+    right: 0,
   },
   logoutCardText: {
     color: theme.backgroundTertiary,

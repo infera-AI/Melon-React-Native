@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
   Text,
@@ -13,6 +13,16 @@ import { useNavigation } from '@react-navigation/native';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { normalize, normalizeFontSize } from '@/utils/stylesUtil';
 import theme from '@/utils/theme';
+import { getPointsRecord } from '@/api/profile/profile';
+import FullScreenLoading from '@/components/FullScreenLoader';
+
+
+type recordType = {
+  "time": string,
+  "delta": number,
+  "reason": string,
+  "detail": string
+}
 
 const PointsDetailScreen: React.FC = () => {
   const navigation = useNavigation();
@@ -22,6 +32,15 @@ const PointsDetailScreen: React.FC = () => {
   const [isRechargeExpanded, setIsRechargeExpanded] = useState(true);
   const [isUsageExpanded, setIsUsageExpanded] = useState(true);
   const [isAwardExpanded, setIsAwardExpanded] = useState(true);
+  const [dataTypes, setDataTypes] = useState({
+    award: [] as recordType[],
+    usage: [] as recordType[],
+    recharge: [] as recordType[],
+  })
+  const [rechargeTotal, setRechargeTotal] = useState(0)
+  const [usageTotal, setUsageTotal] = useState(0)
+  const [awardTotal, setAwardTotal] = useState(0)
+  const [loading, setLoading] = useState(false)
 
   // 动画值 - 使用useRef保持引用
   const rechargeAnimation = useRef(new Animated.Value(1)).current;
@@ -29,7 +48,7 @@ const PointsDetailScreen: React.FC = () => {
   const awardAnimation = useRef(new Animated.Value(1)).current;
 
   // 充值记录数据
-  const rechargeRecords = [
+  const rechargeRecords: recordType[] = [
     {
       id: '1',
       title: 'Base Package',
@@ -137,14 +156,55 @@ const PointsDetailScreen: React.FC = () => {
     }).start();
   };
 
+  // 获取积分记录
+  const getPointsRecordRequest = async () => {
+    setLoading(true)
+    const res = await getPointsRecord();
+    const RecordTypes = {
+      award: [] as recordType[],
+      usage: [] as recordType[],
+      recharge: [] as recordType[],
+    }
+    let rechargeTotal = 0
+    let usageTotal = 0
+    let awardTotal = 0
+    const list = res
+    list.forEach((item: recordType) => {
+      if (item.reason === 'Award record') {
+        RecordTypes.award.push(item)
+        awardTotal += item.delta
+      }
+
+      if (item.reason === 'Usage Record') {
+        RecordTypes.usage.push(item)
+        usageTotal += item.delta
+      }
+
+      if (item.reason === 'Recharge Record') {
+        RecordTypes.recharge.push(item)
+        rechargeTotal += item.delta
+      }
+    })
+    setDataTypes(RecordTypes)
+    console.log('res-----', res);
+    setRechargeTotal(rechargeTotal)
+    setUsageTotal(usageTotal)
+    setAwardTotal(awardTotal)
+    setLoading(false)
+  };
+
+  useEffect(() => {
+    getPointsRecordRequest();
+  }, []);
+
   return (
     <SafeAreaView edges={['top']} style={styles.container}>
-      
+
       {/* 顶部导航栏 */}
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Points Details</Text>
         <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-          <Image 
+          <Image
             source={require('@/assets/main/page_return_icon.png')}
             style={styles.backIcon}
           />
@@ -152,36 +212,35 @@ const PointsDetailScreen: React.FC = () => {
       </View>
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        
+
         {/* 充值记录卡片 */}
         <View style={styles.recordCard}>
           <View style={styles.recordHeader}>
             <Text style={styles.recordTitle}>Recharge record</Text>
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.recordSummary}
               onPress={handleRechargeToggle}
               activeOpacity={0.7}
             >
-           <View style={styles.recordTextGroup}>
-                 <Text style={styles.recordLabel}>Total recharge</Text>
-                 <Text style={styles.recordValue}>300</Text>
-               </View>
-                <Animated.View style={styles.recordIconContainer}>
-                  {isRechargeExpanded ? (
-                    <Image 
-                      source={require('@/assets/profile/points_dropup_icon.png')}
-                      style={styles.recordIcon}
-                    />
-                  ) : (
-                    <Image 
-                      source={require('@/assets/profile/points_dropdown_icon.png')}
-                      style={styles.recordIcon}
-                    />
-                  )}
-                </Animated.View>
+              <View style={styles.recordTextGroup}>
+                <Text style={styles.recordValueSecondary}>Total recharge {rechargeTotal}</Text>
+              </View>
+              <Animated.View style={styles.recordIconContainer}>
+                {isRechargeExpanded ? (
+                  <Image
+                    source={require('@/assets/profile/points_dropup_icon.png')}
+                    style={styles.recordIcon}
+                  />
+                ) : (
+                  <Image
+                    source={require('@/assets/profile/points_dropdown_icon.png')}
+                    style={styles.recordIcon}
+                  />
+                )}
+              </Animated.View>
             </TouchableOpacity>
           </View>
-          
+
           {/* 充值记录列表 */}
           <Animated.View
             style={{
@@ -193,13 +252,13 @@ const PointsDetailScreen: React.FC = () => {
               overflow: 'hidden',
             }}
           >
-            {rechargeRecords.map((record) => (
-              <View key={record.id} style={styles.recordItem}>
+            {dataTypes.recharge.map((record) => (
+              <View key={record.time} style={styles.recordItem}>
                 <View style={styles.recordItemContent}>
-                  <Text style={styles.recordItemTitle}>{record.title}</Text>
-                  <Text style={styles.recordItemDate}>{record.date}</Text>
+                  <Text style={styles.recordItemTitle}>{record.detail}</Text>
+                  <Text style={styles.recordItemDate}>{record.time}</Text>
                 </View>
-                <Text style={styles.recordItemPoints}>{record.points}</Text>
+                <Text style={styles.recordItemPoints}>{record.delta}</Text>
               </View>
             ))}
           </Animated.View>
@@ -209,28 +268,28 @@ const PointsDetailScreen: React.FC = () => {
         <View style={styles.recordCard}>
           <View style={styles.recordHeader}>
             <Text style={styles.recordTitle}>Usage record</Text>
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.recordSummary}
               onPress={handleUsageToggle}
               activeOpacity={0.7}
             >
-                             <Text style={styles.recordValueSecondary}>Total consumption 800</Text>
-                               <Animated.View style={styles.recordIconContainer}>
-                  {isUsageExpanded ? (
-                    <Image 
-                      source={require('@/assets/profile/points_dropup_icon.png')}
-                      style={styles.recordIcon}
-                    />
-                  ) : (
-                    <Image 
-                      source={require('@/assets/profile/points_dropdown_icon.png')}
-                      style={styles.recordIcon}
-                    />
-                  )}
-                </Animated.View>
+              <Text style={styles.recordValueSecondary}>Total consumption {usageTotal}</Text>
+              <Animated.View style={styles.recordIconContainer}>
+                {isUsageExpanded ? (
+                  <Image
+                    source={require('@/assets/profile/points_dropup_icon.png')}
+                    style={styles.recordIcon}
+                  />
+                ) : (
+                  <Image
+                    source={require('@/assets/profile/points_dropdown_icon.png')}
+                    style={styles.recordIcon}
+                  />
+                )}
+              </Animated.View>
             </TouchableOpacity>
           </View>
-          
+
           {/* 使用记录列表 */}
           <Animated.View
             style={{
@@ -242,13 +301,13 @@ const PointsDetailScreen: React.FC = () => {
               overflow: 'hidden',
             }}
           >
-            {usageRecords.map((record) => (
-              <View key={record.id} style={styles.recordItem}>
+            {dataTypes.usage.map((record) => (
+              <View key={record.time} style={styles.recordItem}>
                 <View style={styles.recordItemContent}>
-                  <Text style={styles.recordItemTitle}>{record.title}</Text>
-                  <Text style={styles.recordItemDate}>{record.date}</Text>
+                  <Text style={styles.recordItemTitle}>{record.detail}</Text>
+                  <Text style={styles.recordItemDate}>{record.time}</Text>
                 </View>
-                <Text style={styles.recordItemPointsUsage}>{record.points}</Text>
+                <Text style={styles.recordItemPointsUsage}>{record.delta}</Text>
               </View>
             ))}
           </Animated.View>
@@ -258,28 +317,28 @@ const PointsDetailScreen: React.FC = () => {
         <View style={styles.recordCard}>
           <View style={styles.recordHeader}>
             <Text style={styles.recordTitle}>Award record</Text>
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.recordSummary}
               onPress={handleAwardToggle}
               activeOpacity={0.7}
             >
-                             <Text style={styles.recordValueSecondary}>Total reward 800</Text>
-                               <Animated.View style={styles.recordIconContainer}>
-                  {isAwardExpanded ? (
-                    <Image 
-                      source={require('@/assets/profile/points_dropup_icon.png')}
-                      style={styles.recordIcon}
-                    />
-                  ) : (
-                    <Image 
-                      source={require('@/assets/profile/points_dropdown_icon.png')}
-                      style={styles.recordIcon}
-                    />
-                  )}
-                </Animated.View>
+              <Text style={styles.recordValueSecondary}>Total reward {awardTotal}</Text>
+              <Animated.View style={styles.recordIconContainer}>
+                {isAwardExpanded ? (
+                  <Image
+                    source={require('@/assets/profile/points_dropup_icon.png')}
+                    style={styles.recordIcon}
+                  />
+                ) : (
+                  <Image
+                    source={require('@/assets/profile/points_dropdown_icon.png')}
+                    style={styles.recordIcon}
+                  />
+                )}
+              </Animated.View>
             </TouchableOpacity>
           </View>
-          
+
           {/* 奖励记录列表 */}
           <Animated.View
             style={{
@@ -291,19 +350,20 @@ const PointsDetailScreen: React.FC = () => {
               overflow: 'hidden',
             }}
           >
-            {awardRecords.map((record) => (
-              <View key={record.id} style={styles.recordItem}>
+            {dataTypes.award.map((record) => (
+              <View key={record.time} style={styles.recordItem}>
                 <View style={styles.recordItemContent}>
-                  <Text style={styles.recordItemTitle}>{record.title}</Text>
-                  <Text style={styles.recordItemDate}>{record.date}</Text>
+                  <Text style={styles.recordItemTitle}>{record.detail}</Text>
+                  <Text style={styles.recordItemDate}>{record.time}</Text>
                 </View>
-                <Text style={styles.recordItemPoints}>{record.points}</Text>
+                <Text style={styles.recordItemPoints}>{record.delta}</Text>
               </View>
             ))}
           </Animated.View>
         </View>
 
       </ScrollView>
+      <FullScreenLoading visible={loading} />
     </SafeAreaView>
   );
 };

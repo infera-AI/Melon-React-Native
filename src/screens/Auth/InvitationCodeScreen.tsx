@@ -14,7 +14,7 @@ import theme from '../../utils/theme';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { normalize, normalizeFontSize } from '../../utils/stylesUtil';
-
+import { verifyInvitationCode } from '../../api/profile/profile';
 type InvitationCodeScreenNavigationProp = StackNavigationProp<AuthStackParamList, 'InvitationCode'>;
 
 const InvitationCodeScreen: React.FC = () => {
@@ -26,17 +26,22 @@ const InvitationCodeScreen: React.FC = () => {
     navigation.goBack();
   };
 
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
     if (invitationCode.trim()) {
+      //验证邀请码
+      const response = await verifyInvitationCode({
+        invitation_code: invitationCode,
+      });
+      console.log('Verify invitation code:', response);
       // 处理邀请码确认逻辑
-      console.log('确认邀请码:', invitationCode);
-      // 这里可以添加API调用
+      navigation.reset({ index: 0, routes: [{ name: 'MainApp' }] })
+
     }
   };
 
   const handleSkip = () => {
     // 跳过邀请码填写
-    console.log('跳过邀请码');
+    navigation.reset({ index: 0, routes: [{ name: 'MainApp' }] })
     // 导航到下一个页面
   };
 
@@ -45,8 +50,8 @@ const InvitationCodeScreen: React.FC = () => {
       {/* 导航栏 */}
       <View style={styles.navBar}>
         <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-          <Image 
-            source={require('@/assets/main/page_return_icon.png')} 
+          <Image
+            source={require('@/assets/main/page_return_icon.png')}
             style={styles.backIcon}
           />
         </TouchableOpacity>
@@ -72,8 +77,8 @@ const InvitationCodeScreen: React.FC = () => {
       </View>
 
       {/* 确认按钮 */}
-      <TouchableOpacity 
-        style={[styles.confirmButton, !invitationCode.trim() && styles.disabledButton]} 
+      <TouchableOpacity
+        style={[styles.confirmButton, !invitationCode.trim() && styles.disabledButton]}
         onPress={handleConfirm}
         disabled={!invitationCode.trim()}
       >
