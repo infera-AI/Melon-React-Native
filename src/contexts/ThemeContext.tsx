@@ -25,13 +25,13 @@ interface ThemeColors {
   text: string;
   textSecondary: string;
   border: string;
-  
+
   // 功能颜色
   success: string;
   warning: string;
   error: string;
   info: string;
-  
+
   // 特殊颜色
   card: string;
   overlay: string;
@@ -76,7 +76,7 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const systemColorScheme = useColorScheme();
-  const [themeMode, setThemeModeState] = useState<ThemeMode>('system');
+  const [themeMode, setThemeModeState] = useState<ThemeMode>('dark');
   const [isDark, setIsDark] = useState(false);
 
   // 从存储中加载主题设置
@@ -86,10 +86,10 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   // 根据主题模式更新颜色
   useEffect(() => {
-    const shouldBeDark = 
-      themeMode === 'dark' || 
+    const shouldBeDark =
+      themeMode === 'dark' ||
       (themeMode === 'system' && systemColorScheme === 'dark');
-    
+
     setIsDark(shouldBeDark);
   }, [themeMode, systemColorScheme]);
 
@@ -97,7 +97,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     try {
       const savedMode = await AsyncStorage.getItem('themeMode');
       if (savedMode && ['light', 'dark', 'system'].includes(savedMode)) {
-        setThemeModeState(savedMode as ThemeMode);
+        // setThemeModeState(savedMode as ThemeMode);
       }
     } catch (error) {
       console.error('加载主题设置失败:', error);
@@ -107,7 +107,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const setThemeMode = async (mode: ThemeMode) => {
     try {
       await AsyncStorage.setItem('themeMode', mode);
-      setThemeModeState(mode);
+      // setThemeModeState(mode);
     } catch (error) {
       console.error('保存主题设置失败:', error);
     }
