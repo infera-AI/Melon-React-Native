@@ -406,7 +406,7 @@ const MyWorkScreen = ({ navigation }: any) => {
         renderItem={({ item }: { item: Music }) => (
           <TouchableOpacity
             style={styles.itemCard}
-            onPress={() => navigation.navigate('MyWorkMusicPlay', { music: item, myWorkIds: filteredWorks.map((item: Music) => item.id) })}
+            onPress={() => navigation.navigate('MyWorkMusicPlay', { music: item, songList: filteredWorks, myWorkIds: filteredWorks.map((item: Music) => item.id) })}
           >
             <Image source={item.cover ? { uri: item.cover } : require('@/assets/music/music_avatar_icon.png')} style={styles.avatar} />
             <View style={styles.itemInfo}>

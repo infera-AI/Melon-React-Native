@@ -50,7 +50,7 @@ const img_music_save = require("@/assets/music/music_cover_icon.png");
 const { width } = Dimensions.get("window");
 
 const MyWorkMusicPlay = ({ navigation, route }: any) => {
-  const { music = {}, myWorkIds = [] } = route.params || {};
+  const { music = {}, songList = [], myWorkIds = [] } = route.params || {};
   const [sound, setSound] = useState<Sound | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -442,30 +442,36 @@ const MyWorkMusicPlay = ({ navigation, route }: any) => {
     }
   };
   // 获取作品信息
-  const getMusicWorkInfoRequest = useCallback(async (id?: number) => {
-    try {
-      const workId = id || musicInfo.id;
-      if (!workId) return;
+  // const getMusicWorkInfoRequest = useCallback(async (id?: number) => {
+  //   try {
+  //     const workId = id || musicInfo.id;
+  //     if (!workId) return;
 
-      const res = await getMusicWorkInfo({ work_id: workId.toString() })
-      console.log(res, 'res');
-      const info = {
-        id: res.work_id,
-        title: res.work_title,
-        url: res.work_url,
-        lyrics: res.work_lyrics,
-        genres: res.work_genres,
-        cover: res.work_cover,
-      }
-      setMusicInfo(info);
-      console.log(info, 'info')
-      // console.log(buildShareUrl(), 'buildShareUrl')
-      return info; // 返回获取到的音乐信息
-    } catch (error) {
-      console.log(error);
-      return null;
-    }
-  }, [musicInfo.id,]);
+  //     const res = await getMusicWorkInfo({ work_id: workId.toString() })
+  //     console.log(res, 'res');
+  //     const info = {
+  //       id: res.work_id,
+  //       title: res.work_title,
+  //       url: res.work_url,
+  //       lyrics: res.work_lyrics,
+  //       genres: res.work_genres,
+  //       cover: res.work_cover,
+  //     }
+  //     setMusicInfo(info);
+  //     console.log(info, 'info')
+  //     // console.log(buildShareUrl(), 'buildShareUrl')
+  //     return info; // 返回获取到的音乐信息
+  //   } catch (error) {
+  //     console.log(error);
+  //     return null;
+  //   }
+  // }, [musicInfo.id,]);
+
+  const getMusicWorkInfoRequest = useCallback(async (id?: number) => {
+    const info = songList.find((item: any) => item.id === id);
+    setMusicInfo({ ...info });
+    return info;
+  }, [songList]);
 
   const handleDownload = async () => {
     setDownloading(true);
