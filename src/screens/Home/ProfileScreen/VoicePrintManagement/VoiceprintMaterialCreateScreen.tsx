@@ -226,7 +226,7 @@ const VoiceprintMaterialCreateScreen: React.FC = () => {
   const handleUploadFile = async (files: any[]) => {
 
     // 分离出服务器文件和本地文件
-    const serverFiles = files.filter(file => !file.type);
+    const serverFiles = files.filter(file => !file.type).map(file => file.uri);
     const localFiles = files.filter(file => file.type !== undefined);
     if (localFiles.length <= 0) {
       return { url_list: serverFiles };

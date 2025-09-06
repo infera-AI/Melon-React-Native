@@ -40,7 +40,6 @@ const AudioMaterialLibraryScreen: React.FC = () => {
       return {
         uri: file,
         name: name_list[index],
-        server: true,
       }
     });
     console.log('Select material:', fileList);
@@ -227,6 +226,7 @@ const styles = StyleSheet.create({
   },
   materialList: {
     width: "100%",
+    marginBottom: normalize(16),
   },
   materialListContent: {
     paddingHorizontal: normalize(16),
