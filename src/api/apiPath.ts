@@ -24,7 +24,7 @@ export const API_ENDPOINTS = {
       GET_MUSIC_TASK_STATUS: '/opensource/get_generate_music_os_status',
       SING_TO_MUSIC: '/music/sing',
       SAVE_MUSIC_WORK: '/music/save',
-      POLISH_LYRICS: '/music/lyrics',
+      POLISH_LYRICS: '/opensource/lyric_polish_os',
       COVER_MUSIC: '/opensource/cover_music_os',
       GET_COVER_MUSIC_STATUS: '/opensource/get_cover_music_os_status',
       GENERATE_MUSIC_OS: '/opensource/generate_music_os',

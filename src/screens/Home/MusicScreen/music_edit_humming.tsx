@@ -170,9 +170,9 @@ const MusicEditHummingScreen: React.FC<{ route: any }> = ({ route }) => {
     try {
       setIsLoading(true);
       const res = await polishLyrics({
-        work_lyrics: lyrics,
+        lyrics: lyrics,
       });
-      setLyrics(res.work_lyrics)
+      setLyrics(res.lyrics)
       setTitle(res.work_title)
     } catch (error: any) {
       console.log(error);

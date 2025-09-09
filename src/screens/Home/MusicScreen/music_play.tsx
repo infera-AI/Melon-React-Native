@@ -111,7 +111,7 @@ const MusicPlayScreen = ({ navigation, route }: any) => {
     //   });
     // }
     if (type === 'cover') {
-      return ["暂无歌词"];
+      return [t('music.no_lyrics_available')];
     }
     return [music.lyrics]
   }, [currentMusic.lyrics]);
@@ -378,7 +378,7 @@ const MusicPlayScreen = ({ navigation, route }: any) => {
               numberOfLines={2}
               ellipsizeMode="tail"
             >
-              {currentMusic.title || '暂无'}
+              {currentMusic.title || t('music.no_title_placeholder')}
             </Text>
           </View>
         </View>
@@ -386,9 +386,9 @@ const MusicPlayScreen = ({ navigation, route }: any) => {
           {/* <TouchableOpacity onPress={handleSaveMusic}>
             <Image source={img_music_save} style={styles.infoIcon} />
           </TouchableOpacity> */}
-          <TouchableOpacity onPress={() => setShowShareModal(true)}>
+          {/* <TouchableOpacity onPress={() => setShowShareModal(true)}>
             <Image source={img_music_share} style={styles.infoIcon} />
-          </TouchableOpacity>
+          </TouchableOpacity> */}
         </View>
       </View>
 
@@ -689,7 +689,6 @@ const styles = StyleSheet.create({
     top: normalize(0),
     zIndex: 1,  // 确保按钮在最上层
     backgroundColor: theme.backgroundSecondary,  // 添加背景色，防止文本穿透
-    padding: normalize(4),  // 添加内边距
   },
   expandButtonImg: {
     width: normalize(20),

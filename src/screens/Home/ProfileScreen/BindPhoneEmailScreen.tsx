@@ -33,7 +33,7 @@ const BindPhoneEmailScreen: React.FC = () => {
   const { t } = useLanguage();
   const { show } = useMessageModal();
   const userInfo = useUserStore(s => s.userInfo);
-  
+
   const [bindingInfo, setBindingInfo] = useState<UserBindingInfo>({});
   const [loading, setLoading] = useState(true);
 
@@ -52,10 +52,10 @@ const BindPhoneEmailScreen: React.FC = () => {
       }
 
       response.binding_infos.map((item: any) => {
-        if(item.auth_type === 'phone') {
+        if (item.auth_type === 'phone') {
           info.phone = item.identifier;
           info.is_phone_bound = true
-        } else if(item.auth_type === 'email') {
+        } else if (item.auth_type === 'email') {
           info.is_email_bound = true
         }
       })
@@ -66,7 +66,7 @@ const BindPhoneEmailScreen: React.FC = () => {
       show({
         message: error.message || t('bind_phone_email.load_failed'),
       });
-      
+
       // 使用store中的信息作为备选
       setBindingInfo({
         phone: userInfo?.phone,
@@ -105,7 +105,7 @@ const BindPhoneEmailScreen: React.FC = () => {
   if (loading) {
     return (
       <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
-        <View style={styles.container}>          
+        <View style={styles.container}>
           {/* 加载状态 */}
           <View style={styles.loadingContainer}>
             <Text style={styles.loadingText}>{t('common.loading')}</Text>
@@ -122,8 +122,8 @@ const BindPhoneEmailScreen: React.FC = () => {
         {/* 导航栏 */}
         <View style={styles.navBar}>
           <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-            <Image 
-              source={require('../../../assets/main/page_return_icon.png')} 
+            <Image
+              source={require('../../../assets/main/page_return_icon.png')}
               style={styles.backIcon}
             />
           </TouchableOpacity>
@@ -140,8 +140,8 @@ const BindPhoneEmailScreen: React.FC = () => {
               <Text style={styles.itemValue}>
                 {bindingInfo.is_phone_bound ? bindingInfo.phone : '当前未绑定手机号'}
               </Text>
-              <Image 
-                source={require('../../../assets/main/right_arrow_icon.png')} 
+              <Image
+                source={require('../../../assets/main/right_arrow_icon.png')}
                 style={styles.arrowIcon}
               />
             </View>
@@ -157,8 +157,8 @@ const BindPhoneEmailScreen: React.FC = () => {
               ]}>
                 {bindingInfo.is_email_bound ? bindingInfo.email : '当前未绑定邮箱'}
               </Text>
-              <Image 
-                source={require('../../../assets/main/right_arrow_icon.png')} 
+              <Image
+                source={require('../../../assets/main/right_arrow_icon.png')}
                 style={styles.arrowIcon}
               />
             </View>

@@ -69,7 +69,7 @@ const MusicEditScreen: React.FC = () => {
           </View>
           <TextInput
             style={styles.lyricInput}
-            placeholder="Enter the lyrics in your mind."
+            placeholder={t('music.enter_lyrics_placeholder')}
             placeholderTextColor="#666"
             value={lyrics}
             onChangeText={setLyrics}

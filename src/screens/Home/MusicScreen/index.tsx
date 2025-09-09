@@ -30,7 +30,6 @@ import { usePointsStore } from '@/store/modules/points.store';
 type MusicScreenNavigationProp = NativeStackNavigationProp<MusicStackParamList, 'MusicMain'>;
 
 const MusicScreen: React.FC = () => {
-  useBackHandler('再按一次退出')
   const navigation = useNavigation<MusicScreenNavigationProp>();
   const [title, setTitle] = useState('');
   const [lyrics, setLyrics] = useState('');
@@ -46,16 +45,17 @@ const MusicScreen: React.FC = () => {
   const [languageList, setLanguageList] = useState<any[]>([]);
   const { t } = useLanguage();
   const [loading, setLoading] = useState(false);
+
+  useBackHandler(t('music.back_handler_message'));
   const refreshPointsBalance = usePointsStore.getState().refreshPointsBalance;
   // 歌词润饰
   const handleAiPolish = async () => {
     try {
       setIsLoading(true);
       const res = await polishLyrics({
-        work_lyrics: lyrics,
+        lyrics: lyrics,
       });
-      setLyrics(res.work_lyrics)
-      setTitle(res.work_title)
+      setLyrics(res.lyrics)
     } catch (error: any) {
       console.log(error);
       show({
@@ -88,6 +88,9 @@ const MusicScreen: React.FC = () => {
     if (musicStylesInput.includes(style)) {
       setMusicStylesInput(removeExtraCommas(musicStylesInput.replace(style, "")));
     } else {
+      if (musicStylesInput.length >= 200) {
+        return;
+      }
       if (musicStylesInput.endsWith(",")) {
         setMusicStylesInput(musicStylesInput + style);
       } else {
@@ -120,7 +123,7 @@ const MusicScreen: React.FC = () => {
     // 判断语言是否符合要求
     const detectedLanguage = await getLanguageDetection();
     if (supportedLanguageList.findIndex((language: any) => language.code === detectedLanguage) === -1) {
-      show({ message: "The current lyrics do not support song generation. Please rephrase them and try again." });
+      show({ message: t('music.lyrics_not_supported') });
       return;
     }
 
@@ -214,7 +217,13 @@ const MusicScreen: React.FC = () => {
   const refreshAIStyles = async () => {
     setLoading(true);
     const res = await getRecommendStylesRequest();
-    setMusicStylesInput(res.join(","));
+    const stylesStr = res.join(",");
+    if (stylesStr.length >= 200) {
+      setMusicStylesInput(stylesStr.slice(0, 200));
+    } else {
+      setMusicStylesInput(stylesStr);
+    }
+    console.log(musicStyles, '----')
     setLoading(false);
   }
 
@@ -356,16 +365,19 @@ const MusicScreen: React.FC = () => {
             </View>
             <TextInput
               style={styles.lyricInput}
-              placeholder={'Enter style tags, separated by commas. Example: pop,rock,......'}
+              placeholder={t('music.style_tags_placeholder')}
               placeholderTextColor="#666"
               value={musicStylesInput}
-              onChangeText={setMusicStylesInput}
+              onChangeText={(text) => text.length <= 200 && setMusicStylesInput(text)}
               numberOfLines={10}
               multiline
             />
-            {musicStylesInput.length > 0 && <TouchableOpacity style={[styles.clearIconContainer, { bottom: normalize(68) }]} onPress={() => setMusicStylesInput("")}>
+            {musicStylesInput.length > 0 && <TouchableOpacity style={[styles.clearIconContainer, { bottom: normalize(100) }]} onPress={() => setMusicStylesInput("")}>
               <Image source={require('@/assets/music/music_delete_icon.png')} style={styles.clearIcon} />
             </TouchableOpacity>}
+            <TouchableOpacity style={[styles.clearIconContainer, { bottom: normalize(68) }]} onPress={() => setMusicStylesInput("")}>
+              <Text style={styles.limitInputText}>{musicStylesInput.length}/200</Text>
+            </TouchableOpacity>
             {/* 音频可视化 */}
             {lyrics.length > 0 && <View style={styles.audioVisualization}>
               <TouchableOpacity onPress={handleRefreshRecommendStyles}>
@@ -566,6 +578,10 @@ const styles = StyleSheet.create({
   clearIcon: {
     width: normalize(22),
     height: normalize(22),
+  },
+  limitInputText: {
+    color: '#fff',
+    fontSize: normalizeFontSize(15),
   },
   // 曲风选择卡片样式
   musicStyleCard: {

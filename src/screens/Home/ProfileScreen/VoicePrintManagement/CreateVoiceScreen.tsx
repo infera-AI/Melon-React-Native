@@ -214,7 +214,7 @@ const CreateVoiceScreen: React.FC = () => {
   const handleStartRecording = () => {
     if (!selectedLanguage) {
       show({
-        message: t('Please select a language')
+        message: t('music.please_select_language')
       });
       return;
     }
@@ -357,10 +357,10 @@ const CreateVoiceScreen: React.FC = () => {
           {/* 底部按钮 */}
           <View style={styles.buttonContainer}>
             <TouchableOpacity style={[styles.startButton, styles.uploadButton]} onPress={handleUploadRecording}>
-              <Text style={styles.uploadButtonText}>Upload recording</Text>
+              <Text style={styles.uploadButtonText}>{t('music.upload_recording')}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.startButton} onPress={handleStartRecording}>
-              <Text style={styles.startButtonText}>Start recording</Text>
+              <Text style={styles.startButtonText}>{t('music.start_recording')}</Text>
             </TouchableOpacity>
           </View>
         </View>

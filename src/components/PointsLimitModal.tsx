@@ -41,9 +41,9 @@ const PointsLimitModal: React.FC<PointsConfirmModalProps> = ({
 
   const handleConfirm = () => {
     onConfirm();
-    navigation.navigate('Profile', {
+    (navigation as any).navigate('Profile', {
       screen: 'Purchase'
-    } as never);
+    });
     onClose();
   };
 
@@ -78,14 +78,14 @@ const PointsLimitModal: React.FC<PointsConfirmModalProps> = ({
           {/* 内容 */}
           <View style={styles.contentContainer}>
             <Text style={[styles.contentText, text]}>
-              The current credit limit is insufficient. Please watch the advertisement or go to recharge
+              {t('music.credit_limit_insufficient')}
             </Text>
           </View>
 
           {/* 积分余额 */}
           <View style={styles.balanceContainer}>
             <Text style={[styles.balanceLabel]}>
-              Points balance:
+              {t('music.points_balance')}
             </Text>
             <Text style={[styles.balanceValue, { color: theme.primary }]}>
               &nbsp;{pointsBalance || 0}
@@ -100,7 +100,7 @@ const PointsLimitModal: React.FC<PointsConfirmModalProps> = ({
               activeOpacity={0.7}
             >
               <Text style={[styles.cancelButtonText, text]}>
-                Watch ads
+                {t('music.watch_ads')}
               </Text>
             </TouchableOpacity>
 
@@ -110,7 +110,7 @@ const PointsLimitModal: React.FC<PointsConfirmModalProps> = ({
               activeOpacity={0.7}
             >
               <Text style={styles.confirmButtonText}>
-                Points Top-up
+                {t('music.points_topup')}
               </Text>
             </TouchableOpacity>
           </View>

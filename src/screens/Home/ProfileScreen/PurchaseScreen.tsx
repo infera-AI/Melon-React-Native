@@ -39,103 +39,109 @@ const PurchaseScreen: React.FC = () => {
         </View>
 
         <ScrollView style={styles.content}>
-        <View style={styles.packagesContainer}>
-          {/* 第一行套餐 */}
-          <View style={styles.packageRow}>
-                         {packages.slice(0, 3).map((pkg) => (
-               <TouchableOpacity
-                 key={pkg.id}
-                 style={styles.packageCard}
-                 onPress={() => setSelectedPackage(pkg.id)}
-               >
-                 {selectedPackage === pkg.id ? (
-                   <LinearGradient
-                     colors={['#85F380', '#FFFFFF']}
-                     start={{ x: 0, y: 0 }}
-                     end={{ x: 0.3, y: 1 }}
-                     style={[styles.packageCard, styles.selectedCard]}
-                   >
-                     <View style={styles.packageContent}>
-                       <View style={styles.pointsContainer}>
-                         <Text style={styles.pointsText}>{pkg.points}</Text>
-                         <Text style={styles.pointsLabel}>point</Text>
-                       </View>
-                       <Text style={styles.selectedPriceText}>
-                         {pkg.price}
-                       </Text>
-                     </View>
-                   </LinearGradient>
-                 ) : (
-                   <View style={styles.packageContent}>
-                     <View style={styles.pointsContainer}>
-                       <Text style={styles.pointsText}>{pkg.points}</Text>
-                       <Text style={styles.pointsLabel}>point</Text>
-                     </View>
-                     <Text style={styles.unselectedPriceText}>
-                       {pkg.price}
-                     </Text>
-                   </View>
-                 )}
-               </TouchableOpacity>
-             ))}
+          <View style={styles.packagesContainer}>
+            {/* 第一行套餐 */}
+            <View style={styles.packageRow}>
+              {packages.slice(0, 3).map((pkg) => (
+                <TouchableOpacity
+                  key={pkg.id}
+                  style={styles.packageCard}
+                  onPress={() => setSelectedPackage(pkg.id)}
+                >
+                  {selectedPackage === pkg.id ? (
+                    <LinearGradient
+                      colors={['#85F380', '#FFFFFF']}
+                      start={{ x: 0, y: 0 }}
+                      end={{ x: 0.3, y: 1 }}
+                      style={[styles.packageCard, styles.selectedCard]}
+                    >
+                      <View style={styles.packageContent}>
+                        <View style={styles.pointsContainer}>
+                          <Text style={styles.pointsText}>{pkg.points}</Text>
+                          <Text style={styles.pointsLabel}>point</Text>
+                        </View>
+                        <Text style={styles.selectedPriceText}>
+                          {pkg.price}
+                        </Text>
+                      </View>
+                    </LinearGradient>
+                  ) : (
+                    <View style={styles.packageContent}>
+                      <View style={styles.pointsContainer}>
+                        <Text style={styles.pointsText}>{pkg.points}</Text>
+                        <Text style={styles.pointsLabel}>point</Text>
+                      </View>
+                      <Text style={styles.unselectedPriceText}>
+                        {pkg.price}
+                      </Text>
+                    </View>
+                  )}
+                </TouchableOpacity>
+              ))}
+            </View>
+
+            {/* 第二行套餐 */}
+            <View style={styles.packageRow}>
+              {packages.slice(3, 6).map((pkg) => (
+                <TouchableOpacity
+                  key={pkg.id}
+                  style={styles.packageCard}
+                  onPress={() => setSelectedPackage(pkg.id)}
+                >
+                  {selectedPackage === pkg.id ? (
+                    <LinearGradient
+                      colors={['#85F380', '#FFFFFF']}
+                      start={{ x: 0, y: 0 }}
+                      end={{ x: 0.3, y: 1 }}
+                      style={[styles.packageCard, styles.selectedCard]}
+                    >
+                      <View style={styles.packageContent}>
+                        <View style={styles.pointsContainer}>
+                          <Text style={styles.pointsText}>{pkg.points}</Text>
+                          <Text style={styles.pointsLabel}>point</Text>
+                        </View>
+                        <Text style={styles.selectedPriceText}>
+                          {pkg.price}
+                        </Text>
+                      </View>
+                    </LinearGradient>
+                  ) : (
+                    <View style={styles.packageContent}>
+                      <View style={styles.pointsContainer}>
+                        <Text style={styles.pointsText}>{pkg.points}</Text>
+                        <Text style={styles.pointsLabel}>point</Text>
+                      </View>
+                      <Text style={styles.unselectedPriceText}>
+                        {pkg.price}
+                      </Text>
+                    </View>
+                  )}
+                </TouchableOpacity>
+              ))}
+            </View>
           </View>
-          
-                     {/* 第二行套餐 */}
-           <View style={styles.packageRow}>
-             {packages.slice(3, 6).map((pkg) => (
-               <TouchableOpacity
-                 key={pkg.id}
-                 style={styles.packageCard}
-                 onPress={() => setSelectedPackage(pkg.id)}
-               >
-                 {selectedPackage === pkg.id ? (
-                   <LinearGradient
-                     colors={['#85F380', '#FFFFFF']}
-                     start={{ x: 0, y: 0 }}
-                     end={{ x: 0.3, y: 1 }}
-                     style={[styles.packageCard, styles.selectedCard]}
-                   >
-                     <View style={styles.packageContent}>
-                       <View style={styles.pointsContainer}>
-                         <Text style={styles.pointsText}>{pkg.points}</Text>
-                         <Text style={styles.pointsLabel}>point</Text>
-                       </View>
-                       <Text style={styles.selectedPriceText}>
-                         {pkg.price}
-                       </Text>
-                     </View>
-                   </LinearGradient>
-                 ) : (
-                   <View style={styles.packageContent}>
-                     <View style={styles.pointsContainer}>
-                       <Text style={styles.pointsText}>{pkg.points}</Text>
-                       <Text style={styles.pointsLabel}>point</Text>
-                     </View>
-                     <Text style={styles.unselectedPriceText}>
-                       {pkg.price}
-                     </Text>
-                   </View>
-                 )}
-               </TouchableOpacity>
-             ))}
-           </View>
-        </View>
 
-        <View style={styles.paymentContainer}>
-          <Text style={styles.paymentTitle}>Choose payment</Text>
-          <TouchableOpacity style={styles.paymentRow} onPress={() => setSelectedPayment('melon')}>
-            <Text style={styles.paymentName}>Melon Pay</Text>
-            {selectedPayment === 'melon' ?<Image source={require('@/assets/profile/points_selected_icon.png')} style={styles.radio} /> : <View style={styles.radio} />}
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.paymentRow} onPress={() => setSelectedPayment('apple')}>
-            <Text style={styles.paymentName}>Apple Pay</Text>
-            {selectedPayment === 'apple' ?<Image source={require('@/assets/profile/points_selected_icon.png')} style={styles.radio} /> : <View style={styles.radio} />}
-          </TouchableOpacity>
-        </View>
+          <View style={styles.paymentContainer}>
+            <Text style={styles.paymentTitle}>Choose payment</Text>
+            <TouchableOpacity style={styles.paymentRow} onPress={() => setSelectedPayment('melon')}>
+              <View style={styles.paymentIconContainer}>
+                <Image source={require('@/assets/profile/melon_pay_icon.png')} style={styles.paymentIcon} />
+                <Text style={styles.paymentName}>Melon Pay</Text>
+              </View>
+              {selectedPayment === 'melon' ? <Image source={require('@/assets/profile/points_selected_icon.png')} style={styles.radio} /> : <View style={styles.radio} />}
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.paymentRow} onPress={() => setSelectedPayment('apple')}>
+              <View style={styles.paymentIconContainer}>
+                <Image source={require('@/assets/profile/apple_pay_icon.png')} style={styles.paymentIcon} />
+                <Text style={styles.paymentName}>Apple Pay</Text>
+              </View>
+              {selectedPayment === 'apple' ? <Image source={require('@/assets/profile/points_selected_icon.png')} style={styles.radio} /> : <View style={styles.radio} />}
+            </TouchableOpacity>
+          </View>
 
-        <TouchableOpacity style={styles.confirmButton} onPress={handleConfirm}>
-          <Text style={styles.confirmText}>Confirm Purchase</Text>
-        </TouchableOpacity>
+          <TouchableOpacity style={styles.confirmButton} onPress={handleConfirm}>
+            <Text style={styles.confirmText}>Confirm Purchase</Text>
+          </TouchableOpacity>
         </ScrollView>
       </SafeAreaView>
     </LinearGradient>
@@ -243,6 +249,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: normalize(24),
   },
+  paymentIcon: {
+    width: normalize(22),
+    height: normalize(22),
+    marginRight: normalize(8)
+  },
+  paymentIconContainer: { flexDirection: 'row', alignItems: 'center' },
   paymentName: {
     fontSize: normalizeFontSize(16),
     fontWeight: '600',

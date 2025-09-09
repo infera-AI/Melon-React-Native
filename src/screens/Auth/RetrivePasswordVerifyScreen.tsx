@@ -19,19 +19,19 @@ import { normalize, normalizeFontSize } from '../../utils/stylesUtil';
 import { AuthStackParamList } from './AuthNavigator';
 
 import { useMessageModal } from '../../contexts/MessageModalContext';
-import { verifyCode } from '../../api/login/auth';
+import { verifyCode, getLoginCodeApi } from '../../api/login/auth';
 
 type RetrivePasswordVerifyScreenNavigationProp = NativeStackNavigationProp<AuthStackParamList, 'RetrivePasswordVerify'>;
 
 const CODE_LENGTH = 6;
 const COUNTDOWN_SECONDS = 60;
 
-const RetrivePasswordVerifyScreen: React.FC = ({route}:any) => {
-  const {type,email,phoneNumber,countryCode="+86",actionToken} = route.params;
+const RetrivePasswordVerifyScreen: React.FC = ({ route }: any) => {
+  const { type, email, phoneNumber, countryCode = "+86", actionToken } = route.params;
   const navigation = useNavigation<RetrivePasswordVerifyScreenNavigationProp>();
   const { t } = useLanguage();
   const { show } = useMessageModal();
-  
+
   const [code, setCode] = useState<string[]>(Array(CODE_LENGTH).fill(''));
   const [countdown, setCountdown] = useState(COUNTDOWN_SECONDS);
   const [isResending, setIsResending] = useState(false);
@@ -97,41 +97,29 @@ const RetrivePasswordVerifyScreen: React.FC = ({route}:any) => {
   const handleResend = async () => {
     if (countdown === 0 && !isResending) {
       setIsResending(true);
-      
+
       try {
-        let response;
-        
-        if (type === 'email') {
-          // 发送邮箱验证码
-          response = await verifyCode({
-            identifier: email,
-            verification_code: '',
-            auth_purpose: 'forgot_password',
-            recipient_type: 'email',
-          });
-          console.log('重新发送邮箱验证码成功:', response);
-        } else {
-          // 发送手机验证码
-          response = await verifyCode({
-            identifier: phoneNumber,
-            verification_code: '',
-            auth_purpose: 'forgot_password',
-            recipient_type: 'phone',
-          });
-          console.log('重新发送手机验证码成功:', response);
-        }
-        
-        show({
-          message: t('bind_phone_verify.code_sent_success'),
-        });
-        
+        // 从路由参数获取账户信息
+        const account = route.params?.type === 'phone' ? phoneNumber : email;
+        const type = route.params?.type || 'phone';
+
+
+        const params = {
+          recipient_type: type, // 'phone' 或 'email'
+          identifier: account,
+          auth_purpose: 'forgot_password' as const, // 根据页面用途设置
+        };
+
+        console.log('重新发送验证码参数:', params);
+
+        const response = await getLoginCodeApi(params);
+        console.log('验证码重新发送成功:', response);
+
         setCountdown(COUNTDOWN_SECONDS);
-        
-      } catch (error: any) {
+
+      } catch (error) {
         console.error('重新发送验证码失败:', error);
-        show({
-          message: error.message || t('bind_phone_verify.code_sent_failed'),
-        });
+        // 这里可以添加错误提示
       } finally {
         setIsResending(false);
       }
@@ -148,7 +136,7 @@ const RetrivePasswordVerifyScreen: React.FC = ({route}:any) => {
     }
 
     _setIsSubmitting(true);
-    
+
     try {
       // 根据type判断是手机号还是邮箱验证
       if (type === 'email') {
@@ -159,13 +147,13 @@ const RetrivePasswordVerifyScreen: React.FC = ({route}:any) => {
           auth_purpose: 'forgot_password',
           recipient_type: 'email',
         });
-        
+
         console.log('邮箱验证码验证成功:', response);
-        
+
         show({
           message: t('bind_phone_verify.bind_success'),
         });
-        
+
         // 绑定成功，跳转到成功页面
         navigation.navigate('RetriveResetPassword', {
           bindType: 'email',
@@ -180,13 +168,13 @@ const RetrivePasswordVerifyScreen: React.FC = ({route}:any) => {
           auth_purpose: 'forgot_password',
           recipient_type: 'phone',
         });
-        
+
         console.log('手机验证码验证成功:', response);
-        
+
         show({
           message: t('bind_phone_verify.bind_success'),
         });
-        
+
         // 绑定成功，跳转到成功页面
         navigation.navigate('RetriveResetPassword', {
           bindType: 'phone',
@@ -194,7 +182,7 @@ const RetrivePasswordVerifyScreen: React.FC = ({route}:any) => {
           actionToken: response.action_token,
         });
       }
-      
+
     } catch (error: any) {
       console.error('验证码验证失败:', error);
       show({
@@ -211,7 +199,7 @@ const RetrivePasswordVerifyScreen: React.FC = ({route}:any) => {
     <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
       <View style={styles.container}>
         <StatusBar barStyle="light-content" backgroundColor={theme.background} />
-        
+
         <KeyboardAvoidingView
           style={{ flex: 1 }}
           behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -219,9 +207,9 @@ const RetrivePasswordVerifyScreen: React.FC = ({route}:any) => {
           {/* 顶部返回和标题 */}
           <View style={styles.header}>
             <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-              <Image 
-                source={require('@/assets/main/page_return_icon.png')} 
-                style={styles.backArrow} 
+              <Image
+                source={require('@/assets/main/page_return_icon.png')}
+                style={styles.backArrow}
               />
             </TouchableOpacity>
             <Text style={styles.headerTitle}>Enter confirmation code</Text>
@@ -234,7 +222,7 @@ const RetrivePasswordVerifyScreen: React.FC = ({route}:any) => {
             <Text style={styles.instructionText}>
               {type === 'phone' ? 'Verification code has been sent to your phone' : 'Verification code has been sent to the email'}
             </Text>
-            
+
             {/* 手机号显示 */}
             <Text style={styles.phoneNumberText}>
               {type === 'phone' ? fullPhoneNumber : email}
@@ -290,10 +278,10 @@ const RetrivePasswordVerifyScreen: React.FC = ({route}:any) => {
                   (countdown > 0 || isResending) && styles.resendButtonTextDisabled
                 ]}>
                   Get verification code again  {countdown > 0 && (
-                <Text style={styles.countdownText}>
-                  {countdown}s
-                </Text>
-              )}
+                    <Text style={styles.countdownText}>
+                      {countdown}s
+                    </Text>
+                  )}
                 </Text>
               </TouchableOpacity>
             </View>

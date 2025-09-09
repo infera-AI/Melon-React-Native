@@ -219,7 +219,7 @@ const CoverUploadScreen: React.FC = () => {
   const handleNextStep = () => {
     setCoverMusicFile(selectedFile);
     setGenerateMusicType('cover');
-    navigation.navigate('SingerSelection', { type: 'cover' } as never);
+    (navigation as any).navigate('SingerSelection', { type: 'cover' });
   };
 
   useEffect(() => {
@@ -264,17 +264,7 @@ const CoverUploadScreen: React.FC = () => {
             {/* 音频波形图 */}
             <View style={styles.audioWaveform}>
               <Image
-                source={require('../../../../assets/images/long_wave.png')}
-                style={styles.waveformImage}
-                resizeMode="contain"
-              />
-              <Image
-                source={require('../../../../assets/images/long_wave.png')}
-                style={styles.waveformImage}
-                resizeMode="contain"
-              />
-              <Image
-                source={require('../../../../assets/images/long_wave.png')}
+                source={require('@/assets/music/music_wave_icon.png')}
                 style={styles.waveformImage}
                 resizeMode="contain"
               />
@@ -283,7 +273,7 @@ const CoverUploadScreen: React.FC = () => {
             {/* 进度条 */}
             <View style={styles.progressSection}>
               <View style={styles.audioProgressBar}>
-                <View style={[styles.audioProgressFill, { width: `${(currentTime / duration) * 100}%` }]} />
+                <View style={[styles.audioProgressFill, { width: `${((currentTime || 0) / (duration || 1)) * 100}%` }]} />
               </View>
             </View>
 
@@ -303,7 +293,7 @@ const CoverUploadScreen: React.FC = () => {
           </View>
         ) : (
           <Text style={[styles.descriptionText, textSecondary]}>
-            Supported formats: .mp3, .wav, .m4a, etc. (within 100M)
+            {t('music.supported_formats_description')}
           </Text>
         )}
 
@@ -316,7 +306,7 @@ const CoverUploadScreen: React.FC = () => {
                     style={styles.successIcon}
               />
             </View>
-            <Text style={styles.successText}>Upload Successful !</Text>
+            <Text style={styles.successText}>{t('music.upload_successful')}</Text>
           </View>
         )} */}
 
@@ -332,8 +322,8 @@ const CoverUploadScreen: React.FC = () => {
         >
           <Text style={[styles.uploadButtonText, selectedFile && styles.uploadButtonTextDisabled]}>
             {selectedFile
-              ? 'Re-upload'
-              : 'Upload original song '
+              ? t('music.re_upload')
+              : t('music.upload_original_song')
             }
           </Text>
         </TouchableOpacity>
@@ -453,7 +443,7 @@ const styles = StyleSheet.create({
     backgroundColor: theme.backgroundTertiary,
   },
   uploadButtonDisabled: {
-    backgroundColor: theme.background,
+    backgroundColor: theme.backgroundSecondary,
     borderWidth: 1,
     borderColor: theme.primary,
   },
@@ -508,7 +498,7 @@ const styles = StyleSheet.create({
     marginRight: normalize(33),
   },
   waveformImage: {
-    width: normalize(86),
+    width: normalize(260),
     height: normalize(32),
     marginRight: normalize(2),
   },

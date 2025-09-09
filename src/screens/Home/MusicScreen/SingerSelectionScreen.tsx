@@ -32,8 +32,7 @@ import { usePointsStore } from '@/store/modules/points.store';
 
 // 歌手数据接口
 interface Singer {
-  id: string;
-  id: number;
+  id: string | number;
   name: string;
   language: string;
   avatar: any;
@@ -96,7 +95,7 @@ type TabType = 'public' | 'voiceprint';
 // ];
 
 const SingerSelectionScreen: React.FC<any> = ({ route }: any) => {
-  const { type, } = route.params || {};
+  const { type } = route.params || {};
   const navigation = useNavigation();
   const { t } = useLanguage();
   const { show } = useMessageModal()
@@ -110,7 +109,7 @@ const SingerSelectionScreen: React.FC<any> = ({ route }: any) => {
   const [commonVoiceprints, setCommonVoiceprints] = useState<any[]>([]);
   const [personalVoiceprints, setPersonalVoiceprints] = useState<any[]>([]);
   const [recordModalVisible, setRecordModalVisible] = useState(false);
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [selectedId, setSelectedId] = useState<number | null>(null);
   const { setGenerateMusicType, musicGenerateInfo, coverMusicFile, setIsSelectedVoice } = useMusicStore.getState();
   const isSelectedVoice = useMusicStore.getState().isSelectedVoice;
   const { refreshPointsBalance, pointsBalance } = usePointsStore.getState();
@@ -222,7 +221,7 @@ const SingerSelectionScreen: React.FC<any> = ({ route }: any) => {
           styles.tabText,
           activeTab === 'public' && styles.activeTabText
         ]}>
-          Public singer
+          {t('music.public_singer')}
         </Text>
         {activeTab === 'public' && <View style={styles.tabIndicator} />}
       </TouchableOpacity>
@@ -238,7 +237,7 @@ const SingerSelectionScreen: React.FC<any> = ({ route }: any) => {
           styles.tabText,
           activeTab === 'voiceprint' && styles.activeTabText
         ]}>
-          My voiceprint
+          {t('music.my_voiceprint')}
         </Text>
         {activeTab === 'voiceprint' && <View style={styles.tabIndicator} />}
       </TouchableOpacity>
@@ -274,7 +273,7 @@ const SingerSelectionScreen: React.FC<any> = ({ route }: any) => {
         >
           <View style={styles.addButtonContent}>
             <Image source={require('@/assets/music/music_add_icon.png')} style={styles.plusIcon} />
-            <Text style={styles.addButtonText}>Go record</Text>
+            <Text style={styles.addButtonText}>{t('music.go_record')}</Text>
           </View>
         </TouchableOpacity>
       </View>}
@@ -282,12 +281,12 @@ const SingerSelectionScreen: React.FC<any> = ({ route }: any) => {
       <ScrollView style={[styles.singerList, activeTab === 'public' && styles.commonList]} showsVerticalScrollIndicator={false}>
         {activeTab === 'public' && commonVoiceprints.length < 1 && <View style={styles.CommonvoiceprintContent}>
           <Text style={[styles.voiceprintSubtext, textSecondary]}>
-            No Content
+            {t('music.no_content')}
           </Text>
         </View>}
         {activeTab === 'voiceprint' && personalVoiceprints.length < 1 && <View style={styles.voiceprintContent}>
           <Text style={[styles.voiceprintSubtext, textSecondary]}>
-            No Content
+            {t('music.no_content')}
           </Text>
         </View>}
         {(activeTab === 'public' ? commonVoiceprints : personalVoiceprints)?.map((singer, index) => (
@@ -308,21 +307,21 @@ const SingerSelectionScreen: React.FC<any> = ({ route }: any) => {
                 style={styles.singerAvatar}
               />
               <Text style={[styles.singerName, text]}>
-                {singer.name} - {singer.language}
+                {singer.name}
               </Text>
             </View>
             {activeTab === 'public' && singer.status === 2 && <TouchableOpacity
               style={styles.languageButton}
               onPress={() => { }}
             >
-              <Text style={styles.languageButtonText}>Chinese</Text>
+              <Text style={styles.languageButtonText}>{singer.language}</Text>
             </TouchableOpacity>}
             {singer.status === 2 && <TouchableOpacity
               onPress={() => handlePlayMaterial(singer)}
             >
               <Image source={isPlayingUrl(singer.merge_file) ? require('@/assets/music/music_pause_icon.png') : require('@/assets/music/music_play_icon.png')} style={styles.playIcon} />
             </TouchableOpacity>}
-            {singer.status !== 2 && <Text style={styles.trainingText}>Training...</Text>}
+            {singer.status !== 2 && <Text style={styles.trainingText}>{t('music.training')}</Text>}
           </TouchableOpacity>
         ))}
       </ScrollView>
@@ -336,7 +335,7 @@ const SingerSelectionScreen: React.FC<any> = ({ route }: any) => {
       work_title: musicGenerateInfo.title,
       lyrics: musicGenerateInfo.lyrics,
       genres: musicGenerateInfo.musicStyles,
-      voice_print_id: skip ? null : selectedSinger?.id || 0,
+      voice_print_id: skip ? 0 : Number(selectedSinger?.id) || 0,
     }).then((rsp) => {
       setIsLoading(false);
       if (!rsp.task_id) {
@@ -347,7 +346,7 @@ const SingerSelectionScreen: React.FC<any> = ({ route }: any) => {
       }
       refreshPointsBalance();
       setGenerateMusicType('generate');
-      navigation.navigate('GeneratingMusic' as never, {
+      (navigation as any).navigate('GeneratingMusic', {
         taskId: rsp.task_id,
         createTaskTime: Math.floor(performance.now())
       });
@@ -370,7 +369,7 @@ const SingerSelectionScreen: React.FC<any> = ({ route }: any) => {
       console.log(res, 'res');
       return res;
     } catch (error) {
-      show({ message: "upload files failed" });
+      show({ message: t('music.upload_files_failed') });
       return {};
     }
   };
@@ -379,7 +378,7 @@ const SingerSelectionScreen: React.FC<any> = ({ route }: any) => {
   const handleCoverSingToMusic = async () => {
     setIsLoading(true);
     coverMusic({
-      voice_print_id: selectedSinger?.id || 0,
+      voice_print_id: String(selectedSinger?.id) || '0',
       music_file: coverMusicFile,
     }).then((rsp) => {
       if (!rsp.task_id) {
@@ -390,7 +389,7 @@ const SingerSelectionScreen: React.FC<any> = ({ route }: any) => {
       }
       setGenerateMusicType('cover');
       refreshPointsBalance();
-      navigation.navigate('GeneratingMusic' as never, {
+      (navigation as any).navigate('GeneratingMusic', {
         taskId: rsp.task_id,
         createTaskTime: Math.floor(performance.now())
       });
@@ -420,7 +419,7 @@ const SingerSelectionScreen: React.FC<any> = ({ route }: any) => {
   }
 
   return (
-    <SafeAreaView style={apply(styles.container)} edges={['top', 'bottom']}>
+    <SafeAreaView style={apply(styles.container)}>
 
       {/* Tab栏 */}
       {renderTabBar()}
@@ -432,7 +431,7 @@ const SingerSelectionScreen: React.FC<any> = ({ route }: any) => {
       {type === 'generate' && <View style={styles.skipContainer}>
         <TouchableOpacity onPress={handleSkipSelection}>
           <Text style={[styles.skipText]}>
-            Skip selection &gt;&gt;
+            {t('music.skip_selection')}
           </Text>
         </TouchableOpacity>
       </View>}
@@ -440,10 +439,10 @@ const SingerSelectionScreen: React.FC<any> = ({ route }: any) => {
       {/* 底部按钮 */}
       <View style={styles.buttonContainer}>
         <TouchableOpacity
-          style={[styles.button, styles.previousButton, applyItem(styles.button)]}
+          style={[styles.button, styles.previousButton]}
           onPress={handlePreviousStep}
         >
-          <Text style={[styles.buttonText, text]}>Previous step</Text>
+          <Text style={[styles.buttonText, text]}>{type === 'cover' ? t('music.cancel') : t('music.previous_step')}</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -456,16 +455,16 @@ const SingerSelectionScreen: React.FC<any> = ({ route }: any) => {
           disabled={!selectedSinger}
         >
           <Text style={[styles.buttonText, styles.nextButtonText]}>
-            Next
+            {t('music.start_production')}
           </Text>
         </TouchableOpacity>
       </View>
       <PointsConfirmModal
         visible={modalVisible}
-        onClose={() => setModalVisible(false)}
+        onClose={handleGenerateMusicAction}
         onConfirm={handleGenerateMusicAction}
         onCancel={() => setModalVisible(false)}
-        title={<Text>Generating your song will cost <Text style={{ color: theme.primary }}>{isSelectedVoice ? 110 : 50}</Text> points. You can choose to generate it for free by watching an advertisement.</Text>}
+        title={t('music.generating_your_song_will_cost').replace('{points}', (isSelectedVoice ? 110 : 50).toString())}
         onDontShowAgain={() => { }}
       />
       <PointsLimitModal
@@ -479,18 +478,18 @@ const SingerSelectionScreen: React.FC<any> = ({ route }: any) => {
         visible={recordModalVisible}
         onClose={() => setRecordModalVisible(false)}
         config={{
-          title: 'Creating a voiceprint will leave this page',
-          content: 'Here are the rules for voiceprint recording，Includes consumption points, audio format, total duration of audio materials, consistency of audio sound, and failure to generate points will result in a refund',
+          title: t('music.creating_voiceprint_will_leave_page'),
+          content: t('music.voiceprint_recording_rules_content'),
           buttons: [
             {
-              text: 'Cancel',
+              text: t('music.cancel'),
               onPress: () => { setRecordModalVisible(false) },
               type: 'border' as const,
             },
             {
-              text: 'Go record',
+              text: t('music.go_record_button'),
               onPress: () => {
-                navigation.reset({
+                (navigation as any).reset({
                   index: 0,
                   routes: [
                     {
@@ -773,7 +772,7 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     fontSize: normalizeFontSize(16),
-    fontWeight: '600',
+    fontWeight: '500',
   },
   nextButtonText: {
     color: theme.background,
@@ -801,9 +800,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   plusIcon: {
-    width: normalize(16),
-    height: normalize(16),
-    marginRight: normalize(8),
+    width: normalize(12),
+    height: normalize(12),
+    marginRight: normalize(6),
   },
   addButtonText: {
     fontSize: normalizeFontSize(16),

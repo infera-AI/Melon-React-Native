@@ -188,7 +188,7 @@ const VoiceprintMaterialCreateScreen: React.FC = () => {
         file_list,
         name_list: materials.map(material => material.name),
       });
-      show({ message: "save material successfully" });
+      show({ message: t('music.save_material_successfully') });
       return res;
     } catch (error: any) {
       console.log(error, 'error');
@@ -260,7 +260,7 @@ const VoiceprintMaterialCreateScreen: React.FC = () => {
         id = resMaterials?.id;
       }
       const resSave = await saveVoiceprint({
-        material_id: id,
+        material_id: Number(id),
         name: name,
       });
 
@@ -268,7 +268,7 @@ const VoiceprintMaterialCreateScreen: React.FC = () => {
         const res = await trainVoiceprint({
           voice_print_id: resSave?.id,
         });
-        show({ message: "train voiceprint successfully" });
+        show({ message: t('music.train_voiceprint_successfully') });
         console.log(res, 'res');
         clearAction();
         navigation.replace('VoiceprintTrainingSuccess' as any);
@@ -326,7 +326,7 @@ const VoiceprintMaterialCreateScreen: React.FC = () => {
         {/* 页面标题和返回按钮 */}
         <View style={styles.navBar}>
           <View style={styles.titleContainer}>
-            <Text style={styles.titleText}>Voiceprint Management</Text>
+            <Text style={styles.titleText}>{t('music.voiceprint_management')}</Text>
             <TouchableOpacity style={styles.backButton} onPress={handleBackIconPress}>
               <Image
                 source={require('@/assets/main/page_return_icon.png')}
@@ -352,7 +352,7 @@ const VoiceprintMaterialCreateScreen: React.FC = () => {
                 style={styles.optionIcon}
               />
             </View>
-            <Text style={styles.optionText}>Add File</Text>
+            <Text style={styles.optionText}>{t('music.add_file')}</Text>
           </TouchableOpacity>
 
           {/* 直接录音卡片 */}
@@ -369,7 +369,7 @@ const VoiceprintMaterialCreateScreen: React.FC = () => {
                 style={styles.optionIcon}
               />
             </View>
-            <Text style={styles.optionText}>Direct Recording</Text>
+            <Text style={styles.optionText}>{t('music.direct_recording')}</Text>
           </TouchableOpacity>
         </View>
 
@@ -414,10 +414,10 @@ const VoiceprintMaterialCreateScreen: React.FC = () => {
         {/* 底部按钮 */}
         <View style={styles.bottomButtonsContainer}>
           <TouchableOpacity style={styles.storeButton} onPress={handleSaveMaterialsAction}>
-            <Text style={styles.storeButtonText}>Save</Text>
+            <Text style={styles.storeButtonText}>{t('music.save')}</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.sendButton} onPress={handleSendTrainingAction}>
-            <Text style={styles.sendButtonText}>Upload training</Text>
+            <Text style={styles.sendButtonText}>{t('music.upload_training')}</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -426,24 +426,24 @@ const VoiceprintMaterialCreateScreen: React.FC = () => {
         visible={showAddModal}
         onClose={() => setShowAddModal(false)}
         config={{
-          title: 'Rename',
+          title: t('music.rename'),
           customContent: <View style={styles.renameInputContainer}>
             <TextInput
               value={materialsNameInput}
               style={styles.renameInput}
-              placeholder="1.My voiceprint"
+              placeholder={t('music.my_voiceprint_placeholder')}
               placeholderTextColor={theme.textTertiary}
               onChangeText={setMaterialsNameInput}
             />
           </View> as React.ReactNode,
           buttons: [
             {
-              text: 'Cancel',
+              text: t('music.cancel'),
               onPress: () => { setShowAddModal(false) },
               type: 'border' as const,
             },
             {
-              text: 'Next',
+              text: t('music.next'),
               onPress: () => {
                 if (type === 'save') {
                   handleStoreMaterials()
@@ -465,7 +465,7 @@ const VoiceprintMaterialCreateScreen: React.FC = () => {
         onClose={() => setPurchaseModalVisible(false)}
         onConfirm={handleSendTraining}
         onCancel={() => setPurchaseModalVisible(false)}
-        title={<Text>We are about to generate voiceprints for you spending <Text style={{ color: theme.primary }}>200</Text> points</Text>}
+        title={<Text>{t('music.we_are_about_to_generate_voiceprints').replace('{points}', '200')}</Text>}
         onDontShowAgain={() => { }}
       />
       {/* 积分不足 */}
@@ -473,9 +473,9 @@ const VoiceprintMaterialCreateScreen: React.FC = () => {
         visible={showPointsListModal}
         onClose={() => setShowPointsListModal(false)}
         onConfirm={() => {
-          navigation.navigate('Profile', {
+          (navigation as any).navigate('Profile', {
             screen: 'Purchase'
-          } as never);
+          });
         }}
         onCancel={() => {
           setShowPointsListModal(false);
@@ -487,15 +487,15 @@ const VoiceprintMaterialCreateScreen: React.FC = () => {
         onClose={() => setNotSaveModalVisible(false)}
         config={{
           title: '',
-          content: 'The current voiceprint material has not been saved yet',
+          content: t('music.current_voiceprint_material_not_saved'),
           buttons: [
             {
-              text: 'Exit directly',
+              text: t('music.exit_directly'),
               onPress: () => { handleBack() },
               type: 'border' as const,
             },
             {
-              text: 'Save and Exit',
+              text: t('music.save_and_exit'),
               onPress: () => { handleStoreMaterials() },
               type: 'primary' as const,
             },

@@ -561,7 +561,7 @@ const MyWorkMusicPlay = ({ navigation, route }: any) => {
           <TouchableOpacity onPress={() => setShowDeleteModal(true)}>
             <Image source={img_music_delete} style={styles.infoIcon} />
           </TouchableOpacity>
-          <TouchableOpacity onPress={handleCoverMusic} disabled={!musicInfo.lyrics}>
+          <TouchableOpacity onPress={handleCoverMusic} style={{ opacity: !musicInfo.lyrics ? 0.5 : 1 }} disabled={!musicInfo.lyrics}>
             <Image source={img_music_save} style={styles.infoIcon} />
           </TouchableOpacity>
           <TouchableOpacity onPress={() => setShowShareModal(true)}>
@@ -717,7 +717,7 @@ const MyWorkMusicPlay = ({ navigation, route }: any) => {
           <Pressable style={styles.blurMask} onPress={() => setShowShareModal(false)} />
           <View style={styles.bottomModal}>
             <Text style={styles.modalTitle} numberOfLines={1} ellipsizeMode="tail">
-              Share {musicInfo.title}
+              {t('music.share_music_title').replace('{title}', musicInfo.title)}
             </Text>
             <Text style={styles.shareLink} numberOfLines={1} ellipsizeMode="tail">{musicInfo.url}</Text>
             <View style={styles.modalBtnRow}>
@@ -1186,9 +1186,9 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   editInput: {
-    width: "100%",
-    height: normalize(48),
-    backgroundColor: "#333",
+    width: normalize(259),
+    height: normalize(38),
+    backgroundColor: theme.background,
     borderRadius: normalize(12),
     paddingHorizontal: normalize(16),
     color: "#fff",

@@ -18,11 +18,13 @@ import { getAllMaterials } from '@/api/profile/profile';
 import { useVoiceStore } from '@/store/modules/voice.store';
 import { deleteMaterials } from '@/api/profile/profile';
 import FullScreenLoader from '@/components/FullScreenLoader';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 type AudioMaterialLibraryScreenNavigationProp = NativeStackNavigationProp<ProfileStackParamList, 'AudioMaterialLibrary'>;
 
 const AudioMaterialLibraryScreen: React.FC = () => {
   const navigation = useNavigation<AudioMaterialLibraryScreenNavigationProp>();
+  const { t } = useLanguage();
   const [showAddModal, setShowAddModal] = useState(false);
   const { materials, setMaterials, setMaterialsId, materialsName, setMaterialsName } = useVoiceStore();
   const [isLoading, setIsLoading] = useState(false);
@@ -64,9 +66,11 @@ const AudioMaterialLibraryScreen: React.FC = () => {
 
 
   const getMaterialsRequest = async () => {
+    setIsLoading(true);
     const res = await getAllMaterials();
     console.log(res, 'res');
     setList(res.data_list || []);
+    setIsLoading(false);
   };
 
   useEffect(() => {
@@ -77,7 +81,7 @@ const AudioMaterialLibraryScreen: React.FC = () => {
     <SafeAreaView style={styles.container}>
       {/* 导航栏 */}
       <View style={styles.navBar}>
-        <Text style={styles.titleText}>Audio materials</Text>
+        <Text style={styles.titleText}>{t('music.audio_materials')}</Text>
         <TouchableOpacity style={styles.backButton} onPress={handleBack}>
           <Image
             source={require('@/assets/main/page_return_icon.png')}
@@ -119,25 +123,25 @@ const AudioMaterialLibraryScreen: React.FC = () => {
         </ScrollView>
         {/* 添加按钮 */}
         <TouchableOpacity style={styles.addButton} onPress={handleAdd}>
-          <Text style={styles.addButtonText}>Add</Text>
+          <Text style={styles.addButtonText}>{t('music.add')}</Text>
         </TouchableOpacity>
       </View>}
 
       {list.length === 0 && <View style={styles.emptyContainer}>
-        <Text style={styles.emptyText}>No materials</Text>
+        <Text style={styles.emptyText}>{t('music.no_materials')}</Text>
       </View>}
 
       <CommonModal visible={showAddModal} onClose={() => { setShowAddModal(false) }} config={{
-        title: 'Add materials',
-        content: 'Supported formats: .mp3, .wav, .m4a, etc. (within 100M)',
+        title: t('music.add_materials'),
+        content: t('music.supported_formats_description'),
         buttons: [
           {
-            text: 'Add file',
+            text: t('music.add_file'),
             onPress: () => { navigation.navigate('VoiceprintMaterialCreate') },
             type: 'border' as const,
           },
           {
-            text: 'Direct recording',
+            text: t('music.direct_recording'),
             onPress: () => { navigation.navigate('VoiceprintMaterialCreate') },
             type: 'primary',
           },
@@ -289,7 +293,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   addButtonText: {
-    width: normalize(30),
     height: normalize(21),
     color: 'rgba(12, 12, 13, 0.7)',
     fontSize: normalizeFontSize(16),
