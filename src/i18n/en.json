@@ -501,7 +501,8 @@
     "current_song_not_saved": "The current song has not been saved yet",
     "exit": "Exit",
     "save_and_exit": "Save and Exit",
-    "no_title_placeholder": "No title"
+    "no_title_placeholder": "No title",
+    "cover_song": "Cover Song"
   },
   "profile_screen": "Profile Screen",
   "select_language": "Select Language",

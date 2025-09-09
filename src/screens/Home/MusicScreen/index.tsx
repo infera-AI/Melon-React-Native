@@ -258,13 +258,13 @@ const MusicScreen: React.FC = () => {
             <Text style={styles.topCardText}>{t('music.my_works')}</Text>
             <Image source={require('@/assets/main/right_arrow_icon.png')} style={styles.topCardArrow} />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.topCard} onPress={() => navigation.navigate('HummingMusic' as never)}>
+          <TouchableOpacity style={styles.topCard} onPress={() => navigation.navigate('CoverUpload' as never)}>
             <Image
               source={require('../../../../assets/images/humming_music.png')}
               style={styles.topCardIcon}
               resizeMode="contain"
             />
-            <Text style={styles.topCardText}>{t('music.humming_music')}</Text>
+            <Text style={styles.topCardText}>{t('music.cover_song')}</Text>
             <Image source={require('@/assets/main/right_arrow_icon.png')} style={styles.topCardArrow} />
           </TouchableOpacity>
         </View>

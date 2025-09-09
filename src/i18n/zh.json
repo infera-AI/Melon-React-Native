@@ -500,7 +500,8 @@
     "current_song_not_saved": "当前歌曲尚未保存",
     "exit": "退出",
     "save_and_exit": "保存并退出",
-    "no_title_placeholder": "暂无"
+    "no_title_placeholder": "暂无",
+    "cover_song": "翻唱歌曲"
   },
   "profile_screen": "个人资料页面",
   "select_language": "选择语言",
