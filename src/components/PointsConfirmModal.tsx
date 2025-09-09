@@ -78,7 +78,7 @@ const PointsConfirmModal: React.FC<PointsConfirmModalProps> = ({
           {/* 积分余额 */}
           <View style={styles.balanceContainer}>
             <Text style={[styles.balanceLabel]}>
-              Points balance:
+              {t('music.points_balance')}
             </Text>
             <Text style={[styles.balanceValue, { color: theme.primary }]}>
               &nbsp;{pointsBalance}
@@ -93,7 +93,7 @@ const PointsConfirmModal: React.FC<PointsConfirmModalProps> = ({
               activeOpacity={0.7}
             >
               <Text style={[styles.cancelButtonText, text]}>
-                Refuse
+                {t('music.use_points')}
               </Text>
             </TouchableOpacity>
 
@@ -103,7 +103,7 @@ const PointsConfirmModal: React.FC<PointsConfirmModalProps> = ({
               activeOpacity={0.7}
             >
               <Text style={styles.confirmButtonText}>
-                Free generation
+                {t('music.free_generation')}
               </Text>
             </TouchableOpacity>
           </View>

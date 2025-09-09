@@ -187,6 +187,7 @@ const styles = StyleSheet.create({
     lineHeight: normalize(20),
     fontFamily: 'SF Pro-Regular',
     fontWeight: 'normal',
+    height: normalize(56),
   },
   confirmButton: {
     backgroundColor: 'rgba(133, 243, 128, 0.8)',

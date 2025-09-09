@@ -360,24 +360,24 @@ const GeneratingMusicScreen: React.FC = () => {
           </View>
 
           {/* 进度百分比 */}
-          <Text style={styles.progressText}>{"Estimated time " + (isSelectedVoice ? "2 - 3" : "1") + " minute，" + Math.round(progress)}%</Text>
+          <Text style={styles.progressText}>{t('music.estimated_time').replace('{time}', isSelectedVoice ? '2 - 3' : '1').replace('{progress}', Math.round(progress).toString())}</Text>
 
           {/* 状态文本根据时间进度切换文字 */}
           <View style={styles.statusContainer}>
             {progress >= 0 && progress < 25 && <Text style={styles.statusText}>
-              In the process of arranging music...
+              {t('music.arranging_music')}
             </Text>}
             {progress >= 25 && progress < 50 && <Text style={styles.statusText}>
-              In the process of Vocal singing...
+              {t('music.vocal_singing')}
             </Text>}
             {progress >= 50 && progress < 75 && <Text style={styles.statusText}>
-              In the process of Editing fine-tuning...
+              {t('music.editing_fine_tuning')}
             </Text>}
             {progress >= 75 && progress < 100 && <Text style={styles.statusText}>
-              In the process of reverberating music...
+              {t('music.reverberating_music')}
             </Text>}
             {progress >= 100 && <Text style={styles.statusText}>
-              In the process of reverberating music...
+              {t('music.reverberating_music')}
             </Text>}
           </View>
         </ScrollView>

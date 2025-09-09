@@ -14,24 +14,41 @@ import { ProfileStackParamList } from './ProfileNavigator';
 import theme from '../../../utils/theme';
 import { normalize, normalizeFontSize } from '@/utils/stylesUtil';
 import CountryFlag from 'react-native-country-flag';
-import { languageToCountryCode, supportedLanguages } from "@/i18n/languages"
+import { languageToCountryCode } from "@/i18n/languages"
 
 type OfflineVoicePackageScreenNavigationProp = NativeStackNavigationProp<ProfileStackParamList, 'OfflineVoicePackage'>;
 
 const OfflineVoicePackageScreen: React.FC = () => {
   const navigation = useNavigation<OfflineVoicePackageScreenNavigationProp>();
-  const [selectedLanguages, setSelectedLanguages] = useState<string[]>([]);
+  const [_selectedLanguages, setSelectedLanguages] = useState<string[]>([]);
 
   const handleBack = () => {
     navigation.goBack();
   };
 
   const handleLanguageToggle = (language: string) => {
-    setSelectedLanguages(prev => 
-      prev.includes(language) 
+    setSelectedLanguages(prev =>
+      prev.includes(language)
         ? prev.filter(lang => lang !== language)
         : [...prev, language]
     );
+  };
+
+  // 语言显示名称到语言代码的映射
+  const languageDisplayToCode: Record<string, string> = {
+    '简体中文': 'zh',
+    '繁體中文(臺灣)': 'zh',
+    '繁體中文(香港)': 'zh',
+    'English': 'en',
+    'Bahasa Indonesia': 'id',
+    'Bahasa Melayu': 'ms',
+    'Español': 'es',
+    'Italiano': 'it',
+    '日本語': 'ja',
+    'Português': 'pt',
+    'Русский': 'ru',
+    'ไทย': 'th',
+    'Tiếng Việt': 'vi',
   };
 
   const languages = [
@@ -59,8 +76,8 @@ const OfflineVoicePackageScreen: React.FC = () => {
         <View style={styles.titleContainer}>
           <Text style={styles.titleText}>Offline language packs</Text>
           <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-            <Image 
-              source={require('@/assets/main/page_return_icon.png')} 
+            <Image
+              source={require('@/assets/main/page_return_icon.png')}
               style={styles.backIcon}
             />
           </TouchableOpacity>
@@ -87,17 +104,21 @@ const OfflineVoicePackageScreen: React.FC = () => {
                 onPress={() => handleLanguageToggle(language)}
               >
                 <View style={styles.languageContent}>
-                <View style={styles.languageContentLeft}>
-                  <View style={styles.flagOutView}>
-                      <CountryFlag isoCode={languageToCountryCode[language]} size={25} style={styles.flag}/>
+                  <View style={styles.languageContentLeft}>
+                    <View style={styles.flagOutView}>
+                      <CountryFlag
+                        isoCode={languageToCountryCode[languageDisplayToCode[language] as keyof typeof languageToCountryCode] || 'US'}
+                        size={25}
+                        style={styles.flag}
+                      />
+                    </View>
+                    <Text style={[
+                      styles.languageText,
+                    ]}>
+                      {language}
+                    </Text>
                   </View>
-                  <Text style={[
-                    styles.languageText,
-                  ]}>
-                    {language}
-                  </Text>
-                </View>
-                  <Image source={require('@/assets/profile/download_unclick_icon.png')} style={styles.selectedIndicator}/>
+                  <Image source={require('@/assets/profile/download_unclick_icon.png')} style={styles.selectedIndicator} />
                 </View>
                 {index < languages.length - 1 && <View style={styles.divider} />}
               </TouchableOpacity>
@@ -107,12 +128,12 @@ const OfflineVoicePackageScreen: React.FC = () => {
 
         {/* 底部图标 */}
         <View style={styles.bottomIcons}>
-          <Image 
-            source={require('../../../assets/main/right_arrow_icon.png')} 
+          <Image
+            source={require('../../../assets/main/right_arrow_icon.png')}
             style={styles.bottomIcon}
           />
-          <Image 
-            source={require('../../../assets/main/right_arrow_icon.png')} 
+          <Image
+            source={require('../../../assets/main/right_arrow_icon.png')}
             style={styles.bottomIcon}
           />
         </View>

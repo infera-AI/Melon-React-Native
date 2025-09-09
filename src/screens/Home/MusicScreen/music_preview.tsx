@@ -118,7 +118,7 @@ const MusicPreviewScreen: React.FC<{ route: RouteProp<MusicStackParamList, 'Musi
     console.log(music, 'music')
     setSelectedMusic(music);
     // handlePlayAudio(music.url);
-    navigation.navigate('MusicPlay', { music: music, songs: songs });
+    (navigation as any).navigate('MusicPlay', { music: music, songs: songs });
   }
 
   const getDuration = async (url: string) => {
@@ -171,10 +171,10 @@ const MusicPreviewScreen: React.FC<{ route: RouteProp<MusicStackParamList, 'Musi
 
   const modalConfig = {
     title: "",
-    content: 'The current song has not been saved yet',
+    content: t('music.current_song_not_saved'),
     buttons: [
       {
-        text: 'Exit',
+        text: t('music.exit'),
         onPress: () => {
           setIsShowModal(false);
           navigation.reset({
@@ -187,7 +187,7 @@ const MusicPreviewScreen: React.FC<{ route: RouteProp<MusicStackParamList, 'Musi
         type: 'secondary' as const,
       },
       {
-        text: 'Save and Exit',
+        text: t('music.save_and_exit'),
         onPress: handleSaveMusic,
         type: 'primary' as const,
       },
@@ -221,7 +221,7 @@ const MusicPreviewScreen: React.FC<{ route: RouteProp<MusicStackParamList, 'Musi
         {/* 风格标签 */}
         <View>
           <Text style={styles.lyricText}>
-            Music style
+            {t('music.musical_style')}
           </Text>
           <View style={[styles.lyricCard, styles.genresCard]}>
             <ScrollView
@@ -237,7 +237,7 @@ const MusicPreviewScreen: React.FC<{ route: RouteProp<MusicStackParamList, 'Musi
         </View>
         {/* 歌词/文本卡片 */}
         <Text style={styles.lyricText}>
-          Lyrics
+          {t('music.lyrics')}
         </Text>
         <View style={styles.lyricCard}>
           <ScrollView
@@ -246,7 +246,7 @@ const MusicPreviewScreen: React.FC<{ route: RouteProp<MusicStackParamList, 'Musi
             contentContainerStyle={styles.lyricScrollContent}
           >
             <Text style={styles.lyricContent}>
-              {selectedMusic?.lyrics || 'lyrics'}
+              {selectedMusic?.lyrics || t('music.lyrics_placeholder')}
             </Text>
           </ScrollView>
         </View>

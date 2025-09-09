@@ -18,17 +18,21 @@ import { getCommonVoiceprints, getPersonalVoiceprints, renameVoiceprint, deleteV
 import { useAudioPlayer } from '@/hooks/useAudioPlayer';
 import CommonModal from '@/components/CommonModal';
 import { useMessageModal } from '@/contexts/MessageModalContext';
+import FullScreenLoader from '@/components/FullScreenLoader';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 type VoiceprintManagementListScreenNavigationProp = NativeStackNavigationProp<ProfileStackParamList, 'VoiceprintManagementList'>;
 
 const VoiceprintManagementListScreen: React.FC = () => {
   const navigation = useNavigation<VoiceprintManagementListScreenNavigationProp>();
+  const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState<'voiceprint' | 'dataset'>('voiceprint');
   const [commonVoiceprints, setCommonVoiceprints] = useState<any[]>([]);
   const [personalVoiceprints, setPersonalVoiceprints] = useState<any[]>([]);
   const [showRenameModal, setShowRenameModal] = useState(false);
   const [renameNameInput, setRenameNameInput] = useState('');
-  const [selectedId, setSelectedId] = useState('');
+  const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
   const { show } = useMessageModal();
   const {
     isPlayIndex,
@@ -47,12 +51,14 @@ const VoiceprintManagementListScreen: React.FC = () => {
   };
 
   const handleRename = async () => {
+    if (!selectedId) return;
+    setIsLoading(true);
     const res = await renameVoiceprint({
-      id: Number(selectedId),
+      id: selectedId,
       name: renameNameInput,
     });
     personalVoiceprints.forEach(voiceprint => {
-      if (voiceprint.id === Number(selectedId)) {
+      if (voiceprint.id === selectedId) {
         voiceprint.name = renameNameInput;
       }
     });
@@ -60,7 +66,8 @@ const VoiceprintManagementListScreen: React.FC = () => {
     console.log(res, 'res');
     setShowRenameModal(false);
     setRenameNameInput('');
-    setSelectedId('');
+    setSelectedId(null);
+    setIsLoading(false);
   };
 
   const voiceprints = [
@@ -82,25 +89,31 @@ const VoiceprintManagementListScreen: React.FC = () => {
   };
 
   const handleDelete = async (id: number) => {
+    setIsLoading(true);
     console.log('Delete voiceprint:', id);
     const res = await deleteVoiceprint({
       id_list: [id],
     });
-    show({ message: 'Delete voiceprint successfully' });
+    show({ message: t('music.delete_voiceprint_successfully') });
     console.log(res, 'res');
     getPersonalMaterialsRequest();
+    setIsLoading(false);
   };
 
   const getCommonMaterialsRequest = async () => {
+    setIsLoading(true);
     const res = await getCommonVoiceprints();
     console.log(res, 'res');
-    setCommonVoiceprints(res.data || []);
+    setCommonVoiceprints(res.data_list || []);
+    setIsLoading(false);
   };
 
   const getPersonalMaterialsRequest = async () => {
+    setIsLoading(true);
     const res = await getPersonalVoiceprints();
     console.log(res, 'res');
     setPersonalVoiceprints(res.data_list || []);
+    setIsLoading(false);
   };
 
   // 播放素材
@@ -138,7 +151,7 @@ const VoiceprintManagementListScreen: React.FC = () => {
           styles.tabText,
           activeTab === 'dataset' && styles.activeTabText
         ]}>
-          Public singer
+          {t('music.public_singer')}
         </Text>
         {activeTab === 'dataset' && <View style={styles.tabIndicator} />}
       </TouchableOpacity>
@@ -154,7 +167,7 @@ const VoiceprintManagementListScreen: React.FC = () => {
           styles.tabText,
           activeTab === 'voiceprint' && styles.activeTabText
         ]}>
-          My voiceprint
+          {t('music.my_voiceprint')}
         </Text>
         {/* 红色小圆点 */}
         {personalVoiceprints.find(voiceprint => voiceprint.status === 1) && <View style={styles.redDot} />}
@@ -169,7 +182,7 @@ const VoiceprintManagementListScreen: React.FC = () => {
         {/* 页面标题和返回按钮 */}
         <View style={styles.navBar}>
           <View style={styles.titleContainer}>
-            <Text style={styles.titleText}>Voiceprint Management</Text>
+            <Text style={styles.titleText}>{t('music.voiceprint_management')}</Text>
             <TouchableOpacity style={styles.backButton} onPress={handleBack}>
               <Image
                 source={require('@/assets/main/page_return_icon.png')}
@@ -190,7 +203,7 @@ const VoiceprintManagementListScreen: React.FC = () => {
                 source={require('@/assets/profile/voiceprint_library_icon.png')}
                 style={styles.materialLibraryIcon}
               />
-              <Text style={styles.materialLibraryText}>Audio materials</Text>
+              <Text style={styles.materialLibraryText}>{t('music.audio_materials')}</Text>
             </View>
             <Image
               source={require('@/assets/main/right_arrow_icon.png')}
@@ -226,7 +239,7 @@ const VoiceprintManagementListScreen: React.FC = () => {
                       style={styles.languageButton}
                       onPress={() => handlePlayMaterial({})}
                     >
-                      <Text style={styles.languageButtonText}>Chinese</Text>
+                      <Text style={styles.languageButtonText}>{voiceprint.language}</Text>
                     </TouchableOpacity>}
                     {voiceprint.status === 2 && <TouchableOpacity
                       style={styles.actionButton}
@@ -255,7 +268,7 @@ const VoiceprintManagementListScreen: React.FC = () => {
                         style={styles.actionIcon}
                       />
                     </TouchableOpacity>}
-                    {voiceprint.status !== 2 && <Text style={styles.trainingText}>Training...</Text>}
+                    {voiceprint.status !== 2 && <Text style={styles.trainingText}>{t('music.training')}</Text>}
                   </View>
                 </View>
               </View>
@@ -265,7 +278,7 @@ const VoiceprintManagementListScreen: React.FC = () => {
 
         {/* 创建按钮 */}
         <TouchableOpacity style={styles.createButton} onPress={handleCreate}>
-          <Text style={styles.createButtonText}>Create</Text>
+          <Text style={styles.createButtonText}>{t('music.create')}</Text>
         </TouchableOpacity>
       </ScrollView>
       {/* 重命名 */}
@@ -273,24 +286,24 @@ const VoiceprintManagementListScreen: React.FC = () => {
         visible={showRenameModal}
         onClose={() => setShowRenameModal(false)}
         config={{
-          title: 'Rename',
+          title: t('music.rename'),
           customContent: <View style={styles.renameInputContainer}>
             <TextInput
               value={renameNameInput}
               style={styles.renameInput}
-              placeholder="1.My voiceprint"
+              placeholder={t('music.my_voiceprint_placeholder')}
               placeholderTextColor={theme.textTertiary}
               onChangeText={setRenameNameInput}
             />
           </View> as React.ReactNode,
           buttons: [
             {
-              text: 'Cancel',
+              text: t('music.cancel'),
               onPress: () => { setShowRenameModal(false) },
               type: 'border' as const,
             },
             {
-              text: 'Next',
+              text: t('music.next'),
               onPress: () => {
                 handleRename()
               },
@@ -299,6 +312,7 @@ const VoiceprintManagementListScreen: React.FC = () => {
           ],
         }}
       />
+      <FullScreenLoader visible={isLoading} />
     </SafeAreaView>
   );
 };

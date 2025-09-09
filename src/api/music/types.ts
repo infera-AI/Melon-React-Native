@@ -88,7 +88,7 @@ export interface SaveMusicWorkParams {
 }
 
 export interface PolishLyricsParams {
-  work_lyrics: string;
+  lyrics: string;
   [property: string]: any;
 }
 

@@ -80,11 +80,9 @@ export function saveMusicWork(params: SaveMusicWorkParams) {
 
 // 歌词润饰
 export function polishLyrics(params: PolishLyricsParams) {
-  const formData = new FormData();
-  formData.append('work_lyrics', params.work_lyrics);
   return http.post<PolishLyricsResponse>(
     API_ENDPOINTS.MUSIC.POLISH_LYRICS,
-    formData,
+    params,
     { headers: { 'Content-Type': 'multipart/form-data' } }
   );
 }

@@ -383,7 +383,7 @@ const MyWorkScreen = ({ navigation }: any) => {
         </View>
         {/* 上传按钮 */}
         <TouchableOpacity style={styles.uploadBtn} onPress={() => navigation.navigate('CoverUpload' as never)}>
-          <Text style={styles.uploadBtnText}>Upload</Text>
+          <Text style={styles.uploadBtnText}>{t('music.upload')}</Text>
         </TouchableOpacity>
       </View>
 
@@ -410,7 +410,7 @@ const MyWorkScreen = ({ navigation }: any) => {
           >
             <Image source={item.cover ? { uri: item.cover } : require('@/assets/music/music_avatar_icon.png')} style={styles.avatar} />
             <View style={styles.itemInfo}>
-              <Text style={styles.itemName}>{item.title || '暂无'}</Text>
+              <Text style={styles.itemName}>{item.title || t('music.no_title')}</Text>
               <Text style={styles.itemTags} numberOfLines={1} ellipsizeMode="tail">{item.genres}</Text>
             </View>
             {item.playing ? (

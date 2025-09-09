@@ -71,9 +71,9 @@ const ProfileScreen: React.FC = () => {
       hasArrow: true,
     },
     {
-      id: 'general_settings',
-      title: t('profile.general_settings'),
-      icon: require('@/assets/profile/profile_setting_icon.png'),
+      id: 'language_selection',
+      title: t('general_settings.system_language_selection'),
+      icon: require('@/assets/profile/profile_setting_language.png'),
       hasArrow: true,
     },
     // {
@@ -97,8 +97,8 @@ const ProfileScreen: React.FC = () => {
       case 'ai_voiceprint':
         navigation.navigate('VoiceprintManagementList' as any);
         break;
-      case 'general_settings':
-        navigation.navigate('GeneralSettings');
+      case 'language_selection':
+        navigation.navigate('SystemLanguage');
         break;
       case 'account_security':
         navigation.navigate('AccountSecurity');
@@ -140,11 +140,7 @@ const ProfileScreen: React.FC = () => {
   // 邀请码弹窗配置
   const invitationModalConfig = {
     title: 'Invitation Code',
-    customContent: (
-      <View style={styles.invitationCodeContainer}>
-        <Text style={styles.invitationCodeText}>{inviteCode}</Text>
-      </View>
-    ),
+    content: inviteCode,
     buttons: [
       {
         text: 'Cancle',
@@ -157,7 +153,7 @@ const ProfileScreen: React.FC = () => {
         text: 'Copy',
         onPress: () => {
           // 这里可以添加复制到剪贴板的功能
-          console.log('Copy pressed');
+          handleInvitationCode();
         },
         type: 'primary' as const,
       },
@@ -214,7 +210,7 @@ const ProfileScreen: React.FC = () => {
       </View>
 
       <View style={styles.invitationCodeContainer}>
-        <Text style={styles.invitationCodeText} ellipsizeMode="middle" numberOfLines={1}>Invitation code: {inviteCode}</Text>
+        <Text style={styles.invitationCodeText} onPress={() => setShowInvitationModal(true)} ellipsizeMode="middle" numberOfLines={1}>Invitation code: {inviteCode}</Text>
         <TouchableOpacity style={styles.invitationCodeCopyButton} onPress={handleInvitationCode}>
           <Image source={require('@/assets/main/copy_icon.png')} style={styles.arrowIcon} />
         </TouchableOpacity>
@@ -222,10 +218,10 @@ const ProfileScreen: React.FC = () => {
 
       {/* 功能菜单 */}
       <ScrollView style={styles.menuContainer} showsVerticalScrollIndicator={false}>
-        {menuItems.slice(0, 4).map((item, index) => (
+        {menuItems.slice(0, 3).map((item, index) => (
           <TouchableOpacity
             key={item.id}
-            style={[styles.menuItem, index === 0 && styles.menuItemFirst, index === 3 && styles.menuItemLast]}
+            style={[styles.menuItem, index === 0 && styles.menuItemFirst, index === 2 && styles.menuItemLast]}
             onPress={() => handleMenuItemPress(item.id)}
           >
             <View style={styles.menuItemLeft}>
@@ -242,10 +238,10 @@ const ProfileScreen: React.FC = () => {
         ))}
 
         {/* 其他菜单项 */}
-        {menuItems.slice(4).map((item, index) => (
+        {menuItems.slice(3).map((item, index) => (
           <TouchableOpacity
             key={item.id}
-            style={[styles.menuItem, index === 0 && styles.menuItemFirst, index === 3 && styles.menuItemLast]}
+            style={[styles.menuItem, index === 0 && styles.menuItemFirst, index === 2 && styles.menuItemLast]}
             onPress={() => handleMenuItemPress(item.id)}
           >
             <View style={styles.menuItemLeft}>

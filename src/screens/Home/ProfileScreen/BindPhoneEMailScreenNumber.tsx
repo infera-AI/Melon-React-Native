@@ -126,11 +126,11 @@ const countries = [
   { id: 'zu', name: 'Zulu', code: '+27', flag: '🇿🇦' }
 ];
 
-const BindPhoneEMailScreenNumber: React.FC = ({type}:any) => {
+const BindPhoneEMailScreenNumber: React.FC = ({ type }: any) => {
   const navigation = useNavigation<BindPhoneScreenNavigationProp>();
   const { t } = useLanguage();
   const { show } = useMessageModal();
-  
+
   const [selectedCountry, setSelectedCountry] = useState(countries[0]);
   const [showCountryModal, setShowCountryModal] = useState(false);
   const [phoneNumber, setPhoneNumber] = useState('');
@@ -168,7 +168,7 @@ const BindPhoneEMailScreenNumber: React.FC = ({type}:any) => {
       }
 
       setIsSubmitting(true);
-      
+
       try {
         if (!actionToken) {
           show({
@@ -183,13 +183,13 @@ const BindPhoneEMailScreenNumber: React.FC = ({type}:any) => {
           new_identifier: email.trim(),
           recipient_type: 'email',
         });
-        
+
         console.log('发送邮箱验证码成功:', response);
-        
+
         show({
           message: t('bind_phone.code_sent_success'),
         });
-        
+
         // 跳转到验证码页面
         navigation.navigate('BindPhoneVerify', {
           type: 'email',
@@ -198,7 +198,7 @@ const BindPhoneEMailScreenNumber: React.FC = ({type}:any) => {
           countryCode: '',
           actionToken: actionToken,
         });
-        
+
       } catch (error: any) {
         console.error('发送邮箱验证码失败:', error);
         show({
@@ -226,7 +226,7 @@ const BindPhoneEMailScreenNumber: React.FC = ({type}:any) => {
       }
 
       setIsSubmitting(true);
-      
+
       try {
         if (!actionToken) {
           show({
@@ -241,13 +241,13 @@ const BindPhoneEMailScreenNumber: React.FC = ({type}:any) => {
           new_identifier: `${selectedCountry.code}${phoneNumber.trim()}`,
           recipient_type: 'phone',
         });
-        
+
         console.log('发送手机验证码成功:', response);
-        
+
         show({
           message: t('bind_phone.code_sent_success'),
         });
-        
+
         // 跳转到验证码页面
         navigation.navigate('BindPhoneVerify', {
           type: 'phone',
@@ -256,7 +256,7 @@ const BindPhoneEMailScreenNumber: React.FC = ({type}:any) => {
           countryCode: selectedCountry.code,
           actionToken: actionToken,
         });
-        
+
       } catch (error: any) {
         console.error('发送手机验证码失败:', error);
         show({
@@ -272,12 +272,12 @@ const BindPhoneEMailScreenNumber: React.FC = ({type}:any) => {
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
-      <View style={styles.container}>        
+      <View style={styles.container}>
         <KeyboardAvoidingView
           style={{ flex: 1 }}
           behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         >
-          <ScrollView 
+          <ScrollView
             style={styles.scrollView}
             showsVerticalScrollIndicator={false}
             keyboardShouldPersistTaps="handled"
@@ -285,9 +285,9 @@ const BindPhoneEMailScreenNumber: React.FC = ({type}:any) => {
             {/* 顶部返回和标题 */}
             <View style={styles.header}>
               <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-                <Image 
-                  source={require('../../../assets/main/page_return_icon.png')} 
-                  style={styles.backArrow} 
+                <Image
+                  source={require('../../../assets/main/page_return_icon.png')}
+                  style={styles.backArrow}
                 />
               </TouchableOpacity>
               <Text style={styles.headerTitle}>{type === 'phone' ? 'Bind mobile number' : 'Bind email'}</Text>
@@ -336,10 +336,10 @@ const BindPhoneEMailScreenNumber: React.FC = ({type}:any) => {
                 styles.sendCodeButtonText,
                 isInputValid && countdown === 0 ? styles.sendCodeButtonTextActive : null
               ]}>
-                {countdown > 0 
-                  ? `Resend code (${countdown}s)` 
-                  : isSubmitting 
-                    ? 'Sending...' 
+                {countdown > 0
+                  ? `Resend code (${countdown}s)`
+                  : isSubmitting
+                    ? 'Sending...'
                     : 'Send verification code'
                 }
               </Text>
@@ -357,7 +357,7 @@ const BindPhoneEMailScreenNumber: React.FC = ({type}:any) => {
                   <Text style={styles.modalCloseButton}>{t('common.cancel')}</Text>
                 </TouchableOpacity>
               </View>
-              
+
               <ScrollView style={styles.countryList}>
                 {countries.map((country) => (
                   <TouchableOpacity

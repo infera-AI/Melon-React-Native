@@ -27,7 +27,7 @@ const ResetPasswordScreen: React.FC = () => {
   const navigation = useNavigation<ResetPasswordScreenNavigationProp>();
   const { show } = useMessageModal();
   const { t } = useLanguage();
-  
+
   const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -43,32 +43,32 @@ const ResetPasswordScreen: React.FC = () => {
 
   const handleComplete = async () => {
     setError('');
-    
+
     // 验证原密码
     if (!oldPassword.trim()) {
       setError('Please enter the original password');
       return;
     }
-    
+
     // 验证新密码长度和格式：6-20个字符，包含字母和数字
     if (newPassword.length < 6 || newPassword.length > 20) {
       setError('6-20 characters, including letters and numbers');
       return;
     }
-    
+
     if (!/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,20}$/.test(newPassword)) {
       setError('Please enter a password between 6 and 20 characters');
       return;
     }
-    
+
     // 验证确认密码
     if (newPassword !== confirmPassword) {
       setError('The passwords do not match');
       return;
     }
-    
+
     setIsSubmitting(true);
-    
+
     try {
       // 调用修改密码API
       const response = await modifyPassword({
@@ -76,9 +76,9 @@ const ResetPasswordScreen: React.FC = () => {
         new_password: newPassword,
         confirm_password: confirmPassword,
       });
-      
+
       console.log('修改密码成功:', response);
-      
+
       // 显示成功消息
       show({
         message: 'Password updated successfully',
@@ -92,10 +92,14 @@ const ResetPasswordScreen: React.FC = () => {
     }
   };
 
-  const isFormValid = oldPassword.trim() && 
-  newPassword.length >= 6 && 
-  confirmPassword.length >= 6 && 
-  newPassword === confirmPassword;
+  const handleForgotPassword = () => {
+    navigation.navigate('Auth', { screen: 'RetrivePassword' });
+  };
+
+  const isFormValid = oldPassword.trim() &&
+    newPassword.length >= 6 &&
+    confirmPassword.length >= 6 &&
+    newPassword === confirmPassword;
 
   return (
     <SafeAreaView style={{ flex: 1 }} edges={['top', 'bottom', 'left', 'right']}>
@@ -104,16 +108,16 @@ const ResetPasswordScreen: React.FC = () => {
           style={{ flex: 1 }}
           behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         >
-          <ScrollView 
+          <ScrollView
             contentContainerStyle={styles.scrollContent}
             showsVerticalScrollIndicator={false}
           >
             {/* 顶部返回和标题 */}
             <View style={styles.header}>
               <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-                <Image 
-                  source={require('@/assets/main/page_return_icon.png')} 
-                  style={styles.backArrow} 
+                <Image
+                  source={require('@/assets/main/page_return_icon.png')}
+                  style={styles.backArrow}
                 />
               </TouchableOpacity>
               <Text style={styles.headerTitle}>Change Password</Text>
@@ -122,7 +126,7 @@ const ResetPasswordScreen: React.FC = () => {
 
             {/* 说明文字 */}
             <Text style={styles.subtitle}>
-            Please set a secure login password for your Melon account.
+              Please set a secure login password for your Melon account.
             </Text>
 
             {/* 原密码输入框 */}
@@ -137,9 +141,9 @@ const ResetPasswordScreen: React.FC = () => {
                   secureTextEntry={!showOldPassword}
                 />
                 <TouchableOpacity onPress={() => setShowOldPassword(!showOldPassword)}>
-                  <Image 
-                    source={!showOldPassword ? require('@/assets/login/login_eye_icon.png') : require('@/assets/login/login_eyeshow_icon.png')} 
-                    style={styles.inputIcon} 
+                  <Image
+                    source={!showOldPassword ? require('@/assets/login/login_eye_icon.png') : require('@/assets/login/login_eyeshow_icon.png')}
+                    style={styles.inputIcon}
                   />
                 </TouchableOpacity>
               </View>
@@ -157,9 +161,9 @@ const ResetPasswordScreen: React.FC = () => {
                   secureTextEntry={!showNewPassword}
                 />
                 <TouchableOpacity onPress={() => setShowNewPassword(!showNewPassword)}>
-                  <Image 
-                    source={showNewPassword ? require('@/assets/login/login_eyeshow_icon.png') : require('@/assets/login/login_eye_icon.png')} 
-                    style={styles.inputIcon} 
+                  <Image
+                    source={showNewPassword ? require('@/assets/login/login_eyeshow_icon.png') : require('@/assets/login/login_eye_icon.png')}
+                    style={styles.inputIcon}
                   />
                 </TouchableOpacity>
               </View>
@@ -180,9 +184,9 @@ const ResetPasswordScreen: React.FC = () => {
                   secureTextEntry={!showConfirmPassword}
                 />
                 <TouchableOpacity onPress={() => setShowConfirmPassword(!showConfirmPassword)}>
-                  <Image 
-                    source={showConfirmPassword ? require('@/assets/login/login_eye_icon.png') : require('@/assets/login/login_eye_icon.png')} 
-                    style={styles.inputIcon} 
+                  <Image
+                    source={showConfirmPassword ? require('@/assets/login/login_eyeshow_icon.png') : require('@/assets/login/login_eye_icon.png')}
+                    style={styles.inputIcon}
                   />
                 </TouchableOpacity>
               </View>
@@ -194,18 +198,21 @@ const ResetPasswordScreen: React.FC = () => {
             {/* 完成修改按钮 */}
             <TouchableOpacity
               style={[
-                styles.completeButton, 
+                styles.completeButton,
                 isFormValid ? styles.completeButtonActive : null
               ]}
               onPress={handleComplete}
               disabled={isSubmitting || !isFormValid}
             >
               <Text style={[
-                styles.completeButtonText, 
+                styles.completeButtonText,
                 isFormValid ? styles.completeButtonTextActive : null
               ]}>
                 {isSubmitting ? 'Updating...' : 'Complete modifications'}
               </Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={handleForgotPassword}>
+              <Text style={styles.forgotPasswordText}>{t('login_phone.forgot_password')} </Text>
             </TouchableOpacity>
           </ScrollView>
         </KeyboardAvoidingView>
@@ -319,6 +326,12 @@ const styles = StyleSheet.create({
   },
   completeButtonTextActive: {
     color: theme.backgroundTertiary,
+  },
+  forgotPasswordText: {
+    fontSize: normalizeFontSize(13),
+    color: theme.textSecondary,
+    textAlign: 'center',
+    marginTop: normalize(16),
   },
 });
 

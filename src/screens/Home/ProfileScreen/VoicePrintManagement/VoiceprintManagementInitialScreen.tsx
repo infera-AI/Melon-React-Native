@@ -13,11 +13,13 @@ import { ProfileStackParamList } from '../ProfileNavigator';
 
 import { normalize, normalizeFontSize } from '@/utils/stylesUtil';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 type VoiceprintManagementInitialScreenNavigationProp = NativeStackNavigationProp<ProfileStackParamList, 'VoiceprintManagementInitial'>;
 
 const VoiceprintManagementInitialScreen: React.FC = () => {
   const navigation = useNavigation<VoiceprintManagementInitialScreenNavigationProp>();
+  const { t } = useLanguage();
 
   const handleBack = () => {
     navigation.goBack();
@@ -29,7 +31,7 @@ const VoiceprintManagementInitialScreen: React.FC = () => {
 
       {/* 页面标题和返回按钮 */}
       <View style={styles.navBar}>
-        <Text style={styles.titleText}>Voiceprint recording rules</Text>
+        <Text style={styles.titleText}>{t('music.voiceprint_recording_rules')}</Text>
         <TouchableOpacity style={styles.backButton} onPress={handleBack}>
           <Image
             source={require('@/assets/main/page_return_icon.png')}
@@ -43,17 +45,17 @@ const VoiceprintManagementInitialScreen: React.FC = () => {
         <View style={styles.textContent}>
           <Text style={styles.contentText}>
             <Text style={styles.paragraph1}>
-              Here are the rules for voiceprint recording{'\n'}
+              {t('music.voiceprint_recording_rules_intro')}{'\n'}
             </Text>
             <Text style={styles.paragraph2}>
-              {'\n'}Article 1 Ownership of Rights {'\n'}
+              {'\n'}{t('music.article_1_ownership_of_rights')} {'\n'}
             </Text>
             <Text style={styles.paragraph3}>
-              1.1 This Agreement is between you and Melon…{'\n'}
+              {t('music.agreement_between_you_and_melon')}{'\n'}
               {'\n'}
             </Text>
             <Text style={styles.paragraph4}>
-              Article 2 Authorized Use{'\n'}
+              {t('music.article_2_authorized_use')}{'\n'}
             </Text>
             <Text style={styles.paragraph5}>
               2.1{'\n'}
@@ -65,7 +67,7 @@ const VoiceprintManagementInitialScreen: React.FC = () => {
               {'\n'}
             </Text>
             <Text style={styles.copyrightText}>
-              © 2025 Melon. All Rights Reserved
+              {t('music.copyright_2025_melon')}
             </Text>
           </Text>
         </View>

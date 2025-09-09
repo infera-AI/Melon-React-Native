@@ -36,7 +36,7 @@ type RecordingScreenNavigationProp = NativeStackNavigationProp<ProfileStackParam
 
 const MAXDURATION = 1000;
 
-const RecordingScreen: React.FC = ({ route }: { route: { params: { locale: string } } }) => {
+const RecordingScreen: React.FC<{ route: { params: { locale: string } } }> = ({ route }) => {
   const navigation = useNavigation<RecordingScreenNavigationProp>();
   const { locale } = route.params;
   const [isRecording, setIsRecording] = useState(false);
@@ -81,9 +81,9 @@ const RecordingScreen: React.FC = ({ route }: { route: { params: { locale: strin
           {
             title: t('recording.recording_permission'),
             message: t('recording.recording_permission_message'),
-            buttonNeutral: '稍后询问',
-            buttonNegative: '取消',
-            buttonPositive: '确定',
+            buttonNeutral: t('music.ask_later'),
+            buttonNegative: t('music.cancel'),
+            buttonPositive: t('music.confirm'),
           }
         );
         return granted === PermissionsAndroid.RESULTS.GRANTED;
@@ -423,13 +423,13 @@ const RecordingScreen: React.FC = ({ route }: { route: { params: { locale: strin
               style={styles.backIcon}
             />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Recording timbre</Text>
+          <Text style={styles.headerTitle}>{t('music.recording_timbre')}</Text>
           <View style={styles.headerSpacer} />
         </View>
 
         <View style={styles.recordingStatus}>
           <Text style={styles.recordingStatusText}>
-            After reading all the content aloud, click Next
+            {t('music.after_reading_content_click_next')}
           </Text>
         </View>
 
@@ -480,7 +480,7 @@ const RecordingScreen: React.FC = ({ route }: { route: { params: { locale: strin
 
         <View style={styles.buttonContainer}>
           <TouchableOpacity style={styles.rerecordButton} onPress={handleRerecord}>
-            <Text style={styles.rerecordButtonText}>Re-record</Text>
+            <Text style={styles.rerecordButtonText}>{t('music.re_record')}</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -494,7 +494,7 @@ const RecordingScreen: React.FC = ({ route }: { route: { params: { locale: strin
               styles.nextButtonText,
               !isRecording && styles.nextButtonTextActive
             ]}>
-              Done
+              {t('music.done')}
             </Text>
           </TouchableOpacity>
         </View>
