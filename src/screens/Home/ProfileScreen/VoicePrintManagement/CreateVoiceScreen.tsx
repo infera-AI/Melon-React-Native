@@ -1,0 +1,664 @@
+import React, { useState, useEffect, useRef } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Dimensions,
+  Image,
+  Animated,
+  ScrollView,
+  Modal,
+  Platform,
+} from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { ProfileStackParamList } from '../ProfileNavigator';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import theme from '@/utils/theme';
+import { useVoiceStore } from '@/store';
+import { VoiceType } from '@/store/modules/voice.store';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { normalize, normalizeFontSize } from '@/utils/stylesUtil';
+import { pick } from '@react-native-documents/picker';
+import { useMessageModal } from '@/contexts/MessageModalContext';
+import { getSupportedLanguages } from '@/api/music';
+
+const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
+
+const langs = {
+  zh: '中文简体',
+  en: 'English',
+  ja: '日语',
+  de: '德语',
+  fr: '法语',
+  es: '西班牙语',
+}
+
+type CreateVoiceScreenNavigationProp = NativeStackNavigationProp<ProfileStackParamList, 'CreateVoice'>;
+
+interface AudioFile {
+  name: string;
+  size: number;
+  uri: string;
+  type: string;
+  fileCopyUri?: string;
+}
+
+const MAX_FILE_SIZE_MB = 100; // 文件大小限制（MB）
+
+// 支持的文件类型
+const audioFileTypes = [
+  'audio/mpeg',           // .mp3
+  'audio/wav',            // .wav
+  'audio/mp4',            // .m4a
+  'audio/aac',            // .aac
+  'audio/ogg',            // .ogg
+  'audio/flac',           // .flac
+  'audio/x-m4a',          // .m4a (alternative MIME type)
+];
+// Android 支持的文件类型
+const androidAudioTypes = [
+  'audio/mpeg',
+  'audio/wav',
+  'audio/mp4',
+  'audio/aac',
+  'audio/ogg',
+  'audio/flac',
+  'audio/x-m4a',
+];
+
+// iOS 支持的文件类型
+const iosAudioTypes = [
+  'public.audio',
+  'public.mp3',
+  'public.wav',
+  'public.m4a',
+  'public.aac',
+  'public.ogg',
+  'public.flac',
+];
+
+const CreateVoiceScreen: React.FC = () => {
+  const navigation = useNavigation<CreateVoiceScreenNavigationProp>();
+  const { materials, setMaterials } = useVoiceStore();
+  const [selectedLanguage, setSelectedLanguage] = useState<string>(useVoiceStore.getState().local || 'zh');
+  const [languageList, setLanguageList] = useState<any[]>([]);
+  const [showLanguageModal, setShowLanguageModal] = useState(false);
+  const { t } = useLanguage();
+  const { show } = useMessageModal();
+  // 动画值 - 根据Figma设计稿的三个椭圆
+  const outerAnim = useRef(new Animated.Value(1)).current;
+  const middleAnim = useRef(new Animated.Value(1)).current;
+  const innerAnim = useRef(new Animated.Value(1)).current;
+
+  // 页面加载时启动动画
+  useEffect(() => {
+    getLanguageListRequest();
+    // 启动动画
+    const outerAnimation = Animated.loop(
+      Animated.sequence([
+        Animated.timing(outerAnim, {
+          toValue: 1.2,
+          duration: 1500,
+          useNativeDriver: true,
+        }),
+        Animated.timing(outerAnim, {
+          toValue: 1,
+          duration: 1500,
+          useNativeDriver: true,
+        }),
+      ])
+    );
+
+    const middleAnimation = Animated.loop(
+      Animated.sequence([
+        Animated.timing(middleAnim, {
+          toValue: 1.15,
+          duration: 1200,
+          useNativeDriver: true,
+        }),
+        Animated.timing(middleAnim, {
+          toValue: 1,
+          duration: 1200,
+          useNativeDriver: true,
+        }),
+      ])
+    );
+
+    const innerAnimation = Animated.loop(
+      Animated.sequence([
+        Animated.timing(innerAnim, {
+          toValue: 1.1,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(innerAnim, {
+          toValue: 1,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+      ])
+    );
+
+    // 错开动画开始时间，创造层次感
+    setTimeout(() => outerAnimation.start(), 0);
+    setTimeout(() => middleAnimation.start(), 500);
+    setTimeout(() => innerAnimation.start(), 1000);
+
+    // 清理动画
+    return () => {
+      outerAnim.stopAnimation();
+      middleAnim.stopAnimation();
+      innerAnim.stopAnimation();
+    };
+  }, [outerAnim, middleAnim, innerAnim]);
+
+  const getLanguageListRequest = async () => {
+    try {
+      // 获取支持语言
+      const res = await getSupportedLanguages();
+      const formatLanguageList = res.support_language.map((language: any) => ({ code: language }));
+      setLanguageList(formatLanguageList);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  const handleBack = () => {
+    navigation.goBack();
+  };
+
+  const handleUploadRecording = async () => {
+    try {
+      const res = await pick({
+        type: Platform.OS === 'ios' ? iosAudioTypes : audioFileTypes,
+        allowMultiSelection: false,
+      });
+
+      if (!res || res.length === 0) {
+        console.log('用户取消选择文件');
+        return;
+      }
+
+      const file = res[0];
+
+      // 验证文件类型
+      if (!androidAudioTypes.includes(file.type ?? '')) {
+        show({
+          message: t('music.unsupported_file_format')
+        });
+        return;
+      }
+
+      // 验证文件大小
+      const fileSizeMB = (file.size ?? 0) / (1024 * 1024);
+      if (fileSizeMB > MAX_FILE_SIZE_MB) {
+        show({
+          message: t('music.file_size_exceeded').replace('{maxSize}', MAX_FILE_SIZE_MB.toString())
+        });
+        return;
+      }
+
+      console.log('✅ 选中的音频文件:', file);
+      setMaterials([...materials, file as AudioFile]);
+      navigation.goBack();
+    } catch (error) {
+      console.error('文件选择失败:', error);
+      show({
+        message: t('music.file_selection_failed')
+      });
+    }
+  };
+
+  const handleStartRecording = () => {
+    if (!selectedLanguage) {
+      show({
+        message: t('music.please_select_language')
+      });
+      return;
+    }
+    // 导航到录音页面
+    navigation.navigate('VoiceprintRecording', { locale: selectedLanguage });
+  };
+
+  const handleLanguageToggle = () => {
+    setShowLanguageModal(true);
+  };
+
+  const handleLanguageSelect = (language: string) => {
+    setSelectedLanguage(language);
+    setShowLanguageModal(false);
+  };
+
+  return (
+    <SafeAreaView style={styles.safeContainer} edges={['top',]}>
+      <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+        {/* 顶部导航栏 */}
+        <View style={styles.header}>
+          <TouchableOpacity style={styles.backButton} onPress={handleBack}>
+            <Image
+              source={require('@/assets/main/page_return_icon.png')}
+              style={styles.backIcon}
+            />
+          </TouchableOpacity>
+          <Text style={styles.title}>{useVoiceStore.getState().type === VoiceType.CREATE ? t('create_voice.create_your_own_voice') : t('create_voice.voiceprint_optimization')}</Text>
+          <View style={styles.headerSpacer} />
+        </View>
+
+        {/* 主要内容区域 */}
+        <View style={styles.content}>
+          {/* 说明文字 */}
+          <View style={styles.descriptionContainer}>
+            {/* Timer动画显示 */}
+            <View style={styles.recordingContainer}>
+              <View style={styles.recordingAnimation}>
+                {/* Timer动画圆圈 - 使用timer图标 */}
+                <Animated.View style={styles.recordingCircle}>
+                  <Animated.View
+                    style={[
+                      styles.timerIconContainer,
+                      {
+                        transform: [{ scale: outerAnim }]
+                      }
+                    ]}
+                  >
+                    <Image
+                      source={require('@/assets/profile/timer_create_icon1.png')}
+                      style={styles.timerIcon}
+                    />
+                  </Animated.View>
+                  <Animated.View
+                    style={[
+                      styles.timerIconContainer,
+                      {
+                        transform: [{ scale: middleAnim }]
+                      }
+                    ]}
+                  >
+                    <Image
+                      source={require('@/assets/profile/timer_create_icon2.png')}
+                      style={styles.timerIcon}
+                    />
+                  </Animated.View>
+                  <Animated.View
+                    style={[
+                      styles.timerIconContainer,
+                      {
+                        transform: [{ scale: innerAnim }]
+                      }
+                    ]}
+                  >
+                    <Image
+                      source={require('@/assets/profile/timer_create_icon3.png')}
+                      style={styles.timerIcon}
+                    />
+                  </Animated.View>
+                  {/* 中间的voice图标 */}
+                  <View style={styles.centerVoiceIcon}>
+                    <Image
+                      source={require('@/assets/profile/timer_create_voice.png')}
+                      style={styles.voiceIconCenter}
+                    />
+                  </View>
+                </Animated.View>
+              </View>
+            </View>
+            <Text style={styles.descriptionText}>
+              {t('create_voice.personalize_your_voice')}
+            </Text>
+          </View>
+
+          {/* 录音指导 */}
+          <Text style={styles.guidanceTitle}>
+            {t('create_voice.to_accurately_clone')}
+          </Text>
+
+          <View style={styles.guidanceContainer}>
+            <Image
+              source={require('@/assets/profile/profile_unvoice_icon.png')}
+              style={styles.guidanceImage}
+            />
+            <Text style={styles.guidanceText}> {t('create_voice.conduct_recording_quiet')}</Text>
+          </View>
+
+          <View style={styles.guidanceContainer}>
+            <Image
+              source={require('@/assets/profile/profile_record_icon.png')}
+              style={styles.guidanceImage}
+            />
+            <Text style={styles.guidanceText}>{t('create_voice.read_text_natural')}</Text>
+          </View>
+
+          <View style={styles.guidanceContainer}>
+            <Image
+              source={require('@/assets/profile/profile_unrecord_icon.png')}
+              style={styles.guidanceImage}
+            />
+            <Text style={styles.guidanceText}>{t('create_voice.face_microphone_directly')}</Text>
+          </View>
+
+
+          {/* 录音语言选择器 */}
+          <TouchableOpacity style={styles.languageSelector} onPress={handleLanguageToggle}>
+            <View style={styles.languageContainer}>
+              <Image
+                source={require('@/assets/main/language_icon.png')}
+                style={styles.voiceIcon}
+              />
+              <Text style={styles.languageText}>{selectedLanguage ? t(`languageNames.${selectedLanguage}`) : ''}</Text>
+              <Image
+                source={require('@/assets/main/dropdown_icon.png')}
+                style={styles.arrowIcon}
+              />
+            </View>
+          </TouchableOpacity>
+
+          {/* 底部按钮 */}
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity style={[styles.startButton, styles.uploadButton]} onPress={handleUploadRecording}>
+              <Text style={styles.uploadButtonText}>{t('music.upload_recording')}</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.startButton} onPress={handleStartRecording}>
+              <Text style={styles.startButtonText}>{t('music.start_recording')}</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </ScrollView>
+
+      {/* 语言选择弹窗 */}
+      <Modal
+        visible={showLanguageModal}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setShowLanguageModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>{t('create_voice.select_recording_language')}</Text>
+              <TouchableOpacity onPress={() => setShowLanguageModal(false)}>
+                <Text style={styles.modalClose}>✕</Text>
+              </TouchableOpacity>
+            </View>
+
+            <ScrollView style={styles.languageList}>
+              {languageList?.map((language: any, index: number) => (
+                <TouchableOpacity
+                  key={index}
+                  style={styles.languageOption}
+                  onPress={() => handleLanguageSelect(language?.code)}
+                >
+                  <Text style={styles.languageOptionText}>{language?.code ? t(`languageNames.${language?.code}`) : ''}</Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
+    </SafeAreaView>
+  );
+};
+
+const styles = StyleSheet.create({
+  safeContainer: {
+    flex: 1,
+    backgroundColor: theme.background,
+  },
+  container: {
+    flex: 1,
+    backgroundColor: theme.background,
+    paddingHorizontal: normalize(24),
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginTop: normalize(10),
+    marginBottom: normalize(16),
+  },
+  backButton: {
+    width: normalize(40),
+    height: normalize(40),
+    backgroundColor: '#3E3E3E',
+    borderRadius: normalize(12),
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  backIcon: {
+    width: normalize(16),
+    height: normalize(16),
+  },
+  headerSpacer: {
+    width: normalize(40),
+  },
+  title: {
+    fontSize: normalizeFontSize(18),
+    fontWeight: '700',
+    color: '#FFFFFF',
+    textAlign: 'center',
+  },
+  content: {
+    flex: 1,
+    paddingTop: normalize(20),
+  },
+  descriptionContainer: {
+    alignItems: 'center',
+    marginBottom: normalize(32),
+  },
+  descriptionText: {
+    fontSize: normalizeFontSize(15),
+    fontWeight: '400',
+    color: '#B0B0B0',
+    textAlign: 'center',
+    lineHeight: normalize(20),
+    letterSpacing: -0.4,
+  },
+  guidanceTitle: {
+    fontSize: normalizeFontSize(16),
+    fontWeight: '500',
+    color: '#FFFFFF',
+    marginBottom: normalize(12),
+    lineHeight: normalize(20),
+  },
+  guidanceContainer: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: normalize(12),
+    marginBottom: normalize(16),
+  },
+  guidanceImage: {
+    width: normalize(24),
+    height: normalize(24),
+    marginTop: normalize(2),
+  },
+  guidanceText: {
+    fontSize: normalizeFontSize(14),
+    fontWeight: '400',
+    color: '#B0B0B0',
+    lineHeight: normalize(20),
+    flex: 1,
+  },
+  guidanceTextColor: {
+    color: theme.primary,
+  },
+  languageSelector: {
+    alignItems: 'center',
+    width: "100%",
+    marginBottom: normalize(20),
+    marginTop: normalize(26),
+  },
+  languageContainer: {
+    width: normalize(244),
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#262626',
+    borderRadius: normalize(12),
+    padding: normalize(16),
+    borderWidth: 1,
+    borderColor: '#85F380',
+  },
+  voiceIcon: {
+    width: normalize(20),
+    height: normalize(20),
+    marginRight: normalize(8),
+  },
+  languageText: {
+    flex: 1,
+    fontSize: normalizeFontSize(14),
+    fontWeight: '400',
+    color: 'rgba(255, 255, 255, 0.5)',
+  },
+  arrowIcon: {
+    width: normalize(10.67),
+    height: normalize(6),
+  },
+  recordingContainer: {
+    alignItems: 'center',
+  },
+  recordingAnimation: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  recordingCircle: {
+    width: normalize(153.6),
+    height: normalize(153.6),
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#708A6F',
+    shadowOffset: {
+      width: 0,
+      height: normalize(3.4),
+    },
+    shadowOpacity: 1,
+    shadowRadius: normalize(23),
+    elevation: 8,
+  },
+  timerIconContainer: {
+    position: 'absolute',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  timerIcon: {
+    width: normalize(110),
+    height: normalize(110),
+    resizeMode: 'contain',
+  },
+  centerVoiceIcon: {
+    position: 'absolute',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 10,
+  },
+  voiceIconCenter: {
+    width: normalize(60),
+    height: normalize(60),
+    resizeMode: 'contain',
+  },
+  buttonContainer: {
+    marginBottom: normalize(10),
+  },
+  bottomText: {
+    fontSize: normalizeFontSize(14),
+    fontWeight: '400',
+    color: theme.primary,
+    textAlign: 'center',
+    lineHeight: normalize(20),
+  },
+  uploadButton: {
+    backgroundColor: theme.backgroundTertiary,
+    marginBottom: normalize(16),
+  },
+  startButton: {
+    backgroundColor: '#85F380',
+    borderRadius: normalize(12),
+    paddingVertical: normalize(12),
+    paddingHorizontal: normalize(16),
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  startButtonText: {
+    fontSize: normalizeFontSize(16),
+    fontWeight: '500',
+    color: 'rgba(12, 12, 13, 0.7)',
+    letterSpacing: -0.4,
+  },
+  uploadButtonText: {
+    fontSize: normalizeFontSize(16),
+    fontWeight: '500',
+    color: '#FFFFFF',
+    letterSpacing: -0.4,
+  },
+  recordingText: {
+    fontSize: normalizeFontSize(14),
+    fontWeight: '400',
+    color: '#85F380',
+    textAlign: 'center',
+    lineHeight: normalize(21),
+    letterSpacing: -0.4,
+  },
+  recordingControls: {
+    alignItems: 'center',
+    gap: normalize(16),
+  },
+  stopButton: {
+    backgroundColor: '#FF6B6B',
+    borderRadius: normalize(12),
+    paddingVertical: normalize(12),
+    paddingHorizontal: normalize(16),
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  stopButtonText: {
+    fontSize: normalizeFontSize(16),
+    fontWeight: '500',
+    color: '#FFFFFF',
+    letterSpacing: -0.4,
+  },
+  // 弹窗样式
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    backgroundColor: '#262626',
+    borderRadius: normalize(12),
+    width: normalize(300),
+    maxHeight: normalize(400),
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: normalize(16),
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  modalTitle: {
+    fontSize: normalizeFontSize(16),
+    fontWeight: '600',
+    color: '#FFFFFF',
+  },
+  modalClose: {
+    fontSize: normalizeFontSize(18),
+    color: '#FFFFFF',
+    fontWeight: 'bold',
+  },
+  languageList: {
+    maxHeight: normalize(300),
+  },
+  languageOption: {
+    padding: normalize(16),
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  languageOptionText: {
+    fontSize: normalizeFontSize(14),
+    color: '#FFFFFF',
+    textAlign: 'center',
+  },
+});
+
+export default CreateVoiceScreen; 

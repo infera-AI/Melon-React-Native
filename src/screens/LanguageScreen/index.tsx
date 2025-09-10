@@ -93,18 +93,18 @@ const LanguageScreen: React.FC = () => {
     }).start();
   }, [slideAnim]);
 
-  // 物理返回键：如可返回则 goBack，否则不拦截
-  useEffect(() => {
-    const onBackPress = () => {
-      if (navigation.canGoBack && navigation.canGoBack()) {
-        navigation.goBack();
-        return true; // 已处理
-      }
-      return false; // 交由系统处理
-    };
-    const subscription = BackHandler.addEventListener('hardwareBackPress', onBackPress);
-    return () => subscription.remove();
-  }, [navigation]);
+  // 物理返回键：如可返回则 goBack，否则不拦截，会导致android中嵌套子页面不能互相回退
+  // useEffect(() => {
+  //   const onBackPress = () => {
+  //     if (navigation.canGoBack && navigation.canGoBack()) {
+  //       navigation.goBack();
+  //       return true; // 已处理
+  //     }
+  //     return false; // 交由系统处理
+  //   };
+  //   const subscription = BackHandler.addEventListener('hardwareBackPress', onBackPress);
+  //   return () => subscription.remove();
+  // }, [navigation]);
 
   const vibrateSelect = () => {
     Vibration.vibrate(30);
@@ -164,7 +164,7 @@ onPress={() => {
           style={styles.nextBtn}
           onPress={() => {
             setLanguage(selected as 'en' | 'zh');
-            navigation.navigate('Auth', { screen: 'Initial' });
+            navigation.navigate('Auth', { screen: 'Welcome' });
           }}
         >
           <Text style={styles.nextBtnText}>{t('next') || 'Next'}</Text>
@@ -247,8 +247,7 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     textAlign: 'center',
-    minHeight: 40,
-    maxHeight: 40,
+    height: 48,
     marginTop: 8,
     marginBottom: 24,
     opacity: 0.7,
