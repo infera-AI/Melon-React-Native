@@ -822,6 +822,8 @@ const styles = StyleSheet.create({
     borderRadius: normalize(8),
     alignItems: 'center',
     marginHorizontal: normalize(8),
+    width: "48%",
+    height: normalize(48),
   },
   previousButton: {
     borderWidth: 1,
