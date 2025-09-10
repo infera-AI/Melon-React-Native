@@ -27,7 +27,6 @@ import SystemLanguageScreen from './SystemLanguageScreen';
 import HelpFeedbackScreen from './HelpFeedbackScreen';
 import ProductFeedbackScreen from './ProductFeedbackScreen';
 import AboutScreen from './AboutScreen';
-import UserServiceAgreementScreen from './UserServiceAgreementScreen';
 import CopyrightStatementScreen from './CopyrightStatementScreen';
 import ResetPasswordScreen from './ResetPasswordScreen';
 import BindPhoneEmailScreen from './BindPhoneEmailScreen';
@@ -62,7 +61,6 @@ export type ProfileStackParamList = {
   HelpFeedback: undefined;
   ProductFeedback: undefined;
   About: undefined;
-  UserServiceAgreement: undefined;
   CopyrightStatement: undefined;
   OptimizVoice: undefined;
   ProfileResetPassword: undefined;
@@ -124,7 +122,6 @@ const ProfileNavigator: React.FC = () => {
       <Stack.Screen name="HelpFeedback" component={HelpFeedbackScreen} />
       <Stack.Screen name="ProductFeedback" component={ProductFeedbackScreen} />
       <Stack.Screen name="About" component={AboutScreen} />
-      <Stack.Screen name="UserServiceAgreement" component={UserServiceAgreementScreen} />
       <Stack.Screen name="CopyrightStatement" component={CopyrightStatementScreen} />
       <Stack.Screen name="ResetPassword" component={ResetPasswordScreen} />
       <Stack.Screen name="BindPhoneEmail" component={BindPhoneEmailScreen} />
