@@ -466,7 +466,7 @@ const SingerSelectionScreen: React.FC<any> = ({ route }: any) => {
         >
           <View style={styles.addButtonContent}>
             <Image source={require('@/assets/music/music_add_icon.png')} style={styles.addPlusIcon} />
-            <Text style={[styles.addButtonText, styles.uploadButtonText]} numberOfLines={1} ellipsizeMode="tail">{selectedFile ? selectedFile.name : 'Upload original song'}</Text>
+            <Text style={[styles.addButtonText, styles.uploadButtonText]} numberOfLines={1} ellipsizeMode="tail">{selectedFile ? selectedFile.name : t('music.upload_original_song')}</Text>
           </View>
         </TouchableOpacity>
       </View>
@@ -497,7 +497,7 @@ const SingerSelectionScreen: React.FC<any> = ({ route }: any) => {
           onPress={handleNextStep}
         >
           <Text style={[styles.buttonText, styles.nextButtonText]}>
-            Singer production
+            {t('music.use_voice')}
           </Text>
         </TouchableOpacity>
       </View>

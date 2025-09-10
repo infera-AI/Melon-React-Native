@@ -417,7 +417,7 @@ const MyWorkMusicPlay = ({ navigation, route }: any) => {
 
   // 构建分享URL，将音乐信息作为参数传递
   const buildShareUrl = () => {
-    const baseUrl = 'https://xiguapopo67.github.io/musishare/';
+    const baseUrl = 'https://infera-ai.github.io/melon-music-share/';
     const params = new URLSearchParams({
       // 也可以单独传递关键参数
       workTitle: musicInfo.title,
