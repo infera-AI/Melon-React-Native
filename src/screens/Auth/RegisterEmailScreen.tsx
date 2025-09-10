@@ -20,6 +20,8 @@ import { getLoginCodeApi } from '../../api/login/auth';
 import { useMessageModal } from '../../contexts/MessageModalContext';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { normalize, normalizeFontSize } from '../../utils/stylesUtil';
+import { useAppStore } from '../../store';
+import { APP_SIGN_ENUM } from '../../utils/constants';
 
 type RegisterEmailScreenNavigationProp = StackNavigationProp<AuthStackParamList, 'RegisterEmail'>;
 
@@ -172,7 +174,7 @@ const RegisterEmailScreen: React.FC = () => {
         const countryInfo = getSelectedCountryInfo();
         identifier = phone;
         recipientType = 'phone';
-        
+
         console.log('注册信息:', {
           type: 'phone',
           country: countryInfo.country.name,
@@ -184,7 +186,7 @@ const RegisterEmailScreen: React.FC = () => {
       } else {
         identifier = email;
         recipientType = 'email';
-        
+
         console.log('注册信息:', {
           type: 'email',
           email,
@@ -201,14 +203,14 @@ const RegisterEmailScreen: React.FC = () => {
       };
 
       console.log('发送验证码参数:', params);
-      
+
       const response = await getLoginCodeApi(params);
       console.log('验证码发送成功:', response);
 
       // 发送成功后跳转到验证码输入页面
-      navigation.navigate('VerifyCode', { 
+      navigation.navigate('VerifyCode', {
         account: identifier,
-        type: activeTab 
+        type: activeTab
       });
 
     } catch (error) {
@@ -254,8 +256,8 @@ const RegisterEmailScreen: React.FC = () => {
   };
 
   return (
-    <SafeAreaView style={{flex: 1}} edges={['top','bottom','left','right']}>
-    <View style={styles.container}>
+    <SafeAreaView style={{ flex: 1 }} edges={['top', 'bottom', 'left', 'right']}>
+      <View style={styles.container}>
         <StatusBar barStyle="light-content" backgroundColor={theme.background} />
         <KeyboardAvoidingView
           style={{ flex: 1 }}
@@ -266,7 +268,7 @@ const RegisterEmailScreen: React.FC = () => {
             <TouchableOpacity style={styles.backButton} onPress={handleBack}>
               <Image source={require('../../../src/assets/main/page_return_icon.png')} style={styles.backArrow} />
             </TouchableOpacity>
-              <Text style={styles.headerTitle}>{t('register.register_melon_account')}</Text>
+            <Text style={styles.headerTitle}>{t('register.register_melon_account')}</Text>
             <View style={{ width: normalize(40) }} />
           </View>
 
@@ -274,7 +276,7 @@ const RegisterEmailScreen: React.FC = () => {
           <View style={styles.tabRow}>
             <TouchableOpacity onPress={() => handleTabChange('phone')}>
               <View style={styles.tabItem}>
-                  <Text style={[styles.tabText, activeTab === 'phone' && styles.tabTextActive]}>
+                <Text style={[styles.tabText, activeTab === 'phone' && styles.tabTextActive]}>
                   {t('register.phone_number')}
                 </Text>
                 {activeTab === 'phone' && <View style={styles.tabDot} />}
@@ -282,7 +284,7 @@ const RegisterEmailScreen: React.FC = () => {
             </TouchableOpacity>
             <TouchableOpacity onPress={() => handleTabChange('email')}>
               <View style={styles.tabItem}>
-                  <Text style={[styles.tabText, activeTab === 'email' && styles.tabTextActive]}>
+                <Text style={[styles.tabText, activeTab === 'email' && styles.tabTextActive]}>
                   {t('register.e_mail')}
                 </Text>
                 {activeTab === 'email' && <View style={styles.tabDot} />}
@@ -312,19 +314,19 @@ const RegisterEmailScreen: React.FC = () => {
               <>
                 {/* 国家选择框 */}
                 <View style={styles.inputBox}>
-                  <TouchableOpacity style={styles.countrySelector} onPress={handleCountrySelect}>
+                  <TouchableOpacity style={styles.countrySelector} disabled={useAppStore.getState().appSign === APP_SIGN_ENUM.TYPE_MELON} onPress={handleCountrySelect}>
                     <View style={styles.locationIcon}>
                       <Image source={require('../../../src/assets/login/login_area_icon.png')} style={styles.locationIcon} />
                     </View>
                     <Text style={styles.areaText}>
-                      {t(`languageNames.${selectedCountry.id}`)} ({selectedCountry.code})
+                      {useAppStore.getState().appSign === APP_SIGN_ENUM.TYPE_MELON ? t(`languageNames.${"zh"}`) : t(`languageNames.${selectedCountry.id}`)} ({useAppStore.getState().appSign === APP_SIGN_ENUM.TYPE_MELON ? "+86" : selectedCountry.code})
                     </Text>
                   </TouchableOpacity>
                 </View>
                 {/* 手机号输入框 */}
                 <View style={styles.inputBox}>
                   <Image source={require('../../../src/assets/login/login_phone_icon.png')} style={styles.inputIcon} />
-                                  <TextInput
+                  <TextInput
                     style={styles.input}
                     placeholder={t('register.phone_placeholder')}
                     placeholderTextColor={theme.textSecondary}
@@ -342,7 +344,7 @@ const RegisterEmailScreen: React.FC = () => {
             <Text style={styles.registerButtonText}>{t('register.send_verification_code')}</Text>
           </TouchableOpacity>
 
-            {/* 协议提示 */}
+          {/* 协议提示 */}
           <View style={styles.agreementContainer}>
             <TouchableOpacity style={styles.checkboxContainer} onPress={handleAgreementToggle}>
               <View style={[styles.checkbox, agreementChecked && styles.checkboxChecked]}>
@@ -350,14 +352,14 @@ const RegisterEmailScreen: React.FC = () => {
               </View>
             </TouchableOpacity>
             <View style={styles.agreementTextContainer}>
-                <Text style={styles.agreementText}>{t('register.agreement_text')} 
+              <Text style={styles.agreementText}>{t('register.agreement_text')}
                 <Text style={styles.agreementLink} onPress={handleUserAgreement}>{t('register.user_service_agreement')}</Text>
                 <Text style={styles.agreementText}> {t('register.and')} </Text>
-                  <Text style={styles.agreementLink} onPress={handlePrivacyPolicy}>{t('register.privacy_policy')}</Text>
+                <Text style={styles.agreementLink} onPress={handlePrivacyPolicy}>{t('register.privacy_policy')}</Text>
                 <Text style={styles.agreementText}>.</Text>
-                </Text>
-                
-              </View>
+              </Text>
+
+            </View>
           </View>
 
           {/* 国家选择弹窗 - 使用 View 模拟 Modal */}
@@ -406,8 +408,8 @@ const RegisterEmailScreen: React.FC = () => {
           )}
 
         </KeyboardAvoidingView>
-    </View>
-    </SafeAreaView>   
+      </View>
+    </SafeAreaView>
   );
 };
 
