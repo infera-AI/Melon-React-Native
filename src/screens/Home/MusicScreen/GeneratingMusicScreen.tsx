@@ -464,7 +464,14 @@ const styles = StyleSheet.create({
   },
   backgroundImage: {
     position: 'absolute',
-    backgroundColor: 'transparent',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    width: '100%',
+    height: '100%',
+    resizeMode: 'cover',
+    zIndex: -1,
   },
   header: {
     marginTop: normalize(84),
