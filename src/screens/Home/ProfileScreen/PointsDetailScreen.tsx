@@ -21,7 +21,11 @@ type recordType = {
   "time": string,
   "delta": number,
   "reason": string,
-  "detail": string
+  "detail": string,
+  "id"?: string,
+  "title"?: string,
+  "date"?: string,
+  "points"?: string
 }
 
 const PointsDetailScreen: React.FC = () => {
@@ -42,82 +46,16 @@ const PointsDetailScreen: React.FC = () => {
   const [awardTotal, setAwardTotal] = useState(0)
   const [loading, setLoading] = useState(false)
 
+  // 内容高度状态
+  const [rechargeContentHeight, setRechargeContentHeight] = useState(0);
+  const [usageContentHeight, setUsageContentHeight] = useState(0);
+  const [awardContentHeight, setAwardContentHeight] = useState(0);
+
   // 动画值 - 使用useRef保持引用
   const rechargeAnimation = useRef(new Animated.Value(1)).current;
   const usageAnimation = useRef(new Animated.Value(1)).current;
   const awardAnimation = useRef(new Animated.Value(1)).current;
 
-  // 充值记录数据
-  const rechargeRecords: recordType[] = [
-    {
-      id: '1',
-      title: 'Base Package',
-      date: '2025-09-01',
-      points: '+300',
-    },
-    {
-      id: '2',
-      title: 'Base Package',
-      date: '2025-09-01',
-      points: '+300',
-    },
-  ];
-
-  // 使用记录数据
-  const usageRecords = [
-    {
-      id: '1',
-      title: 'Song generation',
-      date: '2025-09-01',
-      points: '50',
-    },
-    {
-      id: '2',
-      title: 'Voiceprint Clone',
-      date: '2025-09-01',
-      points: '80',
-    },
-    {
-      id: '3',
-      title: 'Online translation',
-      date: '2025-09-01',
-      points: '200',
-    },
-    {
-      id: '4',
-      title: 'Voiceprint Clone',
-      date: '2025-09-01',
-      points: '300',
-    },
-  ];
-
-  // 奖励记录数据
-  const awardRecords = [
-    {
-      id: '1',
-      title: 'User invitation',
-      date: '2025-09-01',
-      points: '+50',
-    },
-    {
-      id: '2',
-      title: 'User invitation',
-      date: '2025-09-01',
-      points: '+80',
-    },
-    {
-      id: '3',
-      title: 'User invitation',
-      date: '2025-09-01',
-      points: '+200',
-    },
-    {
-      id: '4',
-      title: 'First registration',
-      date: '2025-09-01',
-      points: '+300',
-    },
-  ];
 
   const handleBack = () => {
     navigation.goBack();
@@ -175,12 +113,12 @@ const PointsDetailScreen: React.FC = () => {
         awardTotal += item.delta
       }
 
-      if (item.reason === 'Usage Record') {
+      if (item.reason === 'Usage record') {
         RecordTypes.usage.push(item)
         usageTotal += item.delta
       }
 
-      if (item.reason === 'Recharge Record') {
+      if (item.reason === 'Recharge record') {
         RecordTypes.recharge.push(item)
         rechargeTotal += item.delta
       }
@@ -190,6 +128,12 @@ const PointsDetailScreen: React.FC = () => {
     setRechargeTotal(rechargeTotal)
     setUsageTotal(usageTotal)
     setAwardTotal(awardTotal)
+
+    // 重置高度状态，让组件重新计算高度
+    setRechargeContentHeight(0);
+    setUsageContentHeight(0);
+    setAwardContentHeight(0);
+
     setLoading(false)
   };
 
@@ -246,21 +190,30 @@ const PointsDetailScreen: React.FC = () => {
             style={{
               maxHeight: rechargeAnimation.interpolate({
                 inputRange: [0, 1],
-                outputRange: [0, 200],
+                outputRange: [0, rechargeContentHeight || 200],
               }),
               opacity: rechargeAnimation,
               overflow: 'hidden',
             }}
           >
-            {dataTypes.recharge.map((record) => (
-              <View key={record.time} style={styles.recordItem}>
-                <View style={styles.recordItemContent}>
-                  <Text style={styles.recordItemTitle}>{record.detail}</Text>
-                  <Text style={styles.recordItemDate}>{record.time}</Text>
+            <View
+              onLayout={(event) => {
+                const { height } = event.nativeEvent.layout;
+                if (height > 0 && rechargeContentHeight === 0) {
+                  setRechargeContentHeight(height);
+                }
+              }}
+            >
+              {dataTypes.recharge.map((record) => (
+                <View key={record.time} style={styles.recordItem}>
+                  <View style={styles.recordItemContent}>
+                    <Text style={styles.recordItemTitle}>{record.detail}</Text>
+                    <Text style={styles.recordItemDate}>{record.time}</Text>
+                  </View>
+                  <Text style={styles.recordItemPoints}>{record.delta}</Text>
                 </View>
-                <Text style={styles.recordItemPoints}>{record.delta}</Text>
-              </View>
-            ))}
+              ))}
+            </View>
           </Animated.View>
         </View>
 
@@ -295,21 +248,30 @@ const PointsDetailScreen: React.FC = () => {
             style={{
               maxHeight: usageAnimation.interpolate({
                 inputRange: [0, 1],
-                outputRange: [0, 300],
+                outputRange: [0, usageContentHeight || 300],
               }),
               opacity: usageAnimation,
               overflow: 'hidden',
             }}
           >
-            {dataTypes.usage.map((record) => (
-              <View key={record.time} style={styles.recordItem}>
-                <View style={styles.recordItemContent}>
-                  <Text style={styles.recordItemTitle}>{record.detail}</Text>
-                  <Text style={styles.recordItemDate}>{record.time}</Text>
+            <View
+              onLayout={(event) => {
+                const { height } = event.nativeEvent.layout;
+                if (height > 0 && usageContentHeight === 0) {
+                  setUsageContentHeight(height);
+                }
+              }}
+            >
+              {dataTypes.usage.map((record) => (
+                <View key={record.time} style={styles.recordItem}>
+                  <View style={styles.recordItemContent}>
+                    <Text style={styles.recordItemTitle}>{record.detail}</Text>
+                    <Text style={styles.recordItemDate}>{record.time}</Text>
+                  </View>
+                  <Text style={styles.recordItemPointsUsage}>{record.delta}</Text>
                 </View>
-                <Text style={styles.recordItemPointsUsage}>{record.delta}</Text>
-              </View>
-            ))}
+              ))}
+            </View>
           </Animated.View>
         </View>
 
@@ -344,21 +306,30 @@ const PointsDetailScreen: React.FC = () => {
             style={{
               maxHeight: awardAnimation.interpolate({
                 inputRange: [0, 1],
-                outputRange: [0, 300],
+                outputRange: [0, awardContentHeight || 300],
               }),
               opacity: awardAnimation,
               overflow: 'hidden',
             }}
           >
-            {dataTypes.award.map((record) => (
-              <View key={record.time} style={styles.recordItem}>
-                <View style={styles.recordItemContent}>
-                  <Text style={styles.recordItemTitle}>{record.detail}</Text>
-                  <Text style={styles.recordItemDate}>{record.time}</Text>
+            <View
+              onLayout={(event) => {
+                const { height } = event.nativeEvent.layout;
+                if (height > 0 && awardContentHeight === 0) {
+                  setAwardContentHeight(height);
+                }
+              }}
+            >
+              {dataTypes.award.map((record) => (
+                <View key={record.time} style={styles.recordItem}>
+                  <View style={styles.recordItemContent}>
+                    <Text style={styles.recordItemTitle}>{record.detail}</Text>
+                    <Text style={styles.recordItemDate}>{record.time}</Text>
+                  </View>
+                  <Text style={styles.recordItemPoints}>{record.delta}</Text>
                 </View>
-                <Text style={styles.recordItemPoints}>{record.delta}</Text>
-              </View>
-            ))}
+              ))}
+            </View>
           </Animated.View>
         </View>
 
