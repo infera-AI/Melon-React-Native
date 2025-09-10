@@ -76,7 +76,7 @@ export const API_ENDPOINTS = {
           DELETE_MATERIALS: '/opensource/delete_vpm_os',
           SAVE_MATERIALS: '/opensource/save_vpm_os',
           TRAIN_VOICEPRINT: '/opensource/train_vp_os',
-          GET_INTEGRAL_BALANCE: '/points',
+          GET_INTEGRAL_BALANCE: '/points/',
           GET_INTEGRAL_RECORD: '/points/log',
           GET_INVITATION_CODE: '/accounts/generate_invitation_code',
           VERIFY_INVITATION_CODE: '/accounts/verify_invitation_code',

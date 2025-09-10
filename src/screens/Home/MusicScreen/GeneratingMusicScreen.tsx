@@ -332,7 +332,7 @@ const GeneratingMusicScreen: React.FC = () => {
       }}
       presentationStyle="fullScreen"
     >
-      <SafeAreaView style={styles.container} edges={[]}>
+      <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
         <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
           {/* 背景图片 */}
           <Image
@@ -349,7 +349,6 @@ const GeneratingMusicScreen: React.FC = () => {
           />
         </TouchableOpacity> */}
             <Text style={styles.title}>{t('music.generating_music')}</Text>
-            <View style={styles.headerSpacer} />
           </View>
 
           {/* 动画容器 */}
@@ -465,17 +464,10 @@ const styles = StyleSheet.create({
   },
   backgroundImage: {
     position: 'absolute',
-    top: normalize(0),
-    left: normalize(-224),
-    width: normalize(831),
-    height: normalize(747),
     backgroundColor: 'transparent',
   },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginTop: normalize(24),
+    marginTop: normalize(84),
   },
   backButton: {
     width: normalize(40),
@@ -515,10 +507,12 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#FFFFFF',
     textAlign: 'center',
+    marginHorizontal: normalize(16),
   },
   statusContainer: {
     alignItems: 'center',
     marginTop: normalize(20),
+    marginHorizontal: normalize(16),
   },
   statusText: {
     fontSize: normalizeFontSize(16),

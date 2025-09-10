@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import MaskedView from '@react-native-masked-view/masked-view';
 import LinearGradient from 'react-native-linear-gradient';
@@ -45,6 +45,7 @@ const MusicScreen: React.FC = () => {
   const [languageList, setLanguageList] = useState<any[]>([]);
   const { t } = useLanguage();
   const [loading, setLoading] = useState(false);
+  const pageCurrent = useRef(0);
 
   useBackHandler(t('music.back_handler_message'));
   const refreshPointsBalance = usePointsStore.getState().refreshPointsBalance;
@@ -65,12 +66,25 @@ const MusicScreen: React.FC = () => {
     setIsLoading(false);
   };
 
+  //翻页取曲风
+  const randomGenerateMusic =  (styles:Array<string>) => {
+    const prePage = pageCurrent.current
+    if((10*prePage+10 )>= styles.length){
+      pageCurrent.current = 0;
+    }else{
+      pageCurrent.current = prePage + 1;
+    }
+    const result = styles.slice(prePage*10, (10*prePage)+10);
+    console.log(result,pageCurrent.current,prePage*10, (10*prePage)+10);
+    return result;
+  }
+
   // 获取推荐曲风
   const getRecommendStylesRequest = async () => {
+
     try {
       const res = await getMusicSegmentation();
-      const genres = res.genres.splice(0, 10)
-      console.log(genres);
+      const genres = randomGenerateMusic(res.genres)
       setMusicStyles(genres)
       return genres;
     } catch (error: any) {
@@ -110,7 +124,6 @@ const MusicScreen: React.FC = () => {
   };
 
   const handleNext = async () => {
-
 
     if (lyrics.trim() === "") {
       show({ message: t('music.lyrics_empty') });
@@ -219,11 +232,7 @@ const MusicScreen: React.FC = () => {
     setLoading(true);
     const res = await getRecommendStylesRequest();
     const stylesStr = res.join(",");
-    if (stylesStr.length >= 200) {
-      setMusicStylesInput(stylesStr.slice(0, 200));
-    } else {
-      setMusicStylesInput(stylesStr);
-    }
+    setMusicStylesInput(stylesStr);
     console.log(musicStyles, '----')
     setLoading(false);
   }
@@ -373,12 +382,15 @@ const MusicScreen: React.FC = () => {
               numberOfLines={10}
               multiline
             />
-            {musicStylesInput.length > 0 && <TouchableOpacity style={[styles.clearIconContainer, { bottom: normalize(46) }]} onPress={() => setMusicStylesInput("")}>
-              <Image source={require('@/assets/music/music_delete_icon.png')} style={styles.clearIcon} />
-            </TouchableOpacity>}
-            <TouchableOpacity style={[styles.clearIconContainer, { bottom: normalize(16) }]} onPress={() => setMusicStylesInput("")}>
-              <Text style={styles.limitInputText}>{musicStylesInput.length}/200</Text>
-            </TouchableOpacity>
+            <View style={styles.clearDeleteConttainer}> 
+              {musicStylesInput.length > 0 && <TouchableOpacity style={[styles.clearIconContainer,{marginBottom:normalize(22)}]} onPress={() => setMusicStylesInput("")}>
+                <Image source={require('@/assets/music/music_delete_icon.png')} style={styles.clearIcon} />
+              </TouchableOpacity>}
+              <TouchableOpacity style={[styles.clearIconContainer]} onPress={() => setMusicStylesInput("")}>
+                <Text style={styles.limitInputText}>{musicStylesInput.length}/200</Text>
+              </TouchableOpacity>
+            </View>
+           
             {/* 曲风选择 */}
 
           </View>
@@ -564,14 +576,22 @@ const styles = StyleSheet.create({
     marginTop: normalize(2),
     textAlignVertical: 'top',
   },
+
+  clearDeleteConttainer:{
+    position: 'relative',
+    marginBottom: normalize(10),
+    height: normalize(56),
+
+  },
   clearIconContainer: {
     position: 'absolute',
-    right: normalize(16),
-    bottom: normalize(16),
+    bottom: normalize(0),
+    right: normalize(0),
   },
   clearIcon: {
     width: normalize(22),
     height: normalize(22),
+    marginBottom:normalize(4),
   },
   limitInputText: {
     color: '#fff',
@@ -582,7 +602,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#262626',
     borderRadius: normalize(12),
     padding: normalize(16),
-    height: normalize(388),
+    // height: normalize(388),
     paddingBottom: normalize(0),
     borderBottomLeftRadius: normalize(0),
     borderBottomRightRadius: normalize(0),

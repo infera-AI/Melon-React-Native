@@ -456,7 +456,7 @@ const SingerSelectionScreen: React.FC<any> = ({ route }: any) => {
           style={[styles.button, styles.previousButton, type !== 'cover' && !selectedSinger && { opacity: 0.3 }]}
           onPress={type === 'cover' ? handlePreviousStep : handleNextStep}
         >
-          <Text style={[styles.buttonText, text]}>{type === 'cover' ? t('music.cancel') : "Singer production"}</Text>
+          <Text style={[styles.buttonText, text]}>{type === 'cover' ? t('music.cancel') : t('music.use_voice')}</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
