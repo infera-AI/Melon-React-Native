@@ -19,3 +19,13 @@ export const APP_SIGN_ENUM = {
   TYPE_MOMOR: 'momor', // 免费国内版
   TYPE_MOMORS: 'momors', // 免费海外版
 } as const
+
+// 积分扣除
+export const POINTS_DEDUCTION = {
+  GENERATE_MUSIC: 50,
+  COVER_MUSIC: 60,
+  CLONE_VOICEPRINT: 200,
+  TRANSLATE_VIDEO: 15,
+  TRANSLATE_DOCUMENT: 5,
+  TRANSLATE_EXTERNAL_SPEAKER: 1,
+} as const

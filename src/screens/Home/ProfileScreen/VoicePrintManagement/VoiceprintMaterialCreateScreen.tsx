@@ -28,6 +28,7 @@ import FullScreenLoader from '@/components/FullScreenLoader';
 import { useAudioPlayer } from '@/hooks/useAudioPlayer';
 import { usePointsStore } from '@/store/modules/points.store';
 import PointsConfirmModal from '@/components/PointsConfirmModal';
+import { POINTS_DEDUCTION } from '@/utils/constants';
 
 type VoiceprintMaterialCreateScreenNavigationProp = NativeStackNavigationProp<ProfileStackParamList, 'VoiceprintMaterialCreate'>;
 
@@ -448,7 +449,7 @@ const VoiceprintMaterialCreateScreen: React.FC = () => {
                 if (type === 'save') {
                   handleStoreMaterials()
                 } else {
-                  if (pointsBalance >= 200) {
+                  if (pointsBalance >= POINTS_DEDUCTION.CLONE_VOICEPRINT) {
                     setPurchaseModalVisible(true);
                   } else {
                     setShowPointsListModal(true);
@@ -465,7 +466,7 @@ const VoiceprintMaterialCreateScreen: React.FC = () => {
         onClose={() => setPurchaseModalVisible(false)}
         onConfirm={handleSendTraining}
         onCancel={() => setPurchaseModalVisible(false)}
-        title={<Text>{t('music.we_are_about_to_generate_voiceprints').replace('{points}', '200')}</Text>}
+        title={<Text>{t('music.we_are_about_to_generate_voiceprints').replace('{points}', POINTS_DEDUCTION.CLONE_VOICEPRINT.toString())}</Text>}
         onDontShowAgain={() => { }}
       />
       {/* 积分不足 */}

@@ -111,8 +111,12 @@ const GeneratingMusicScreen: React.FC = () => {
   const generRationFailed = () => {
     setIsGenerating(false);
     show({ message: t('music.generation_failed') });
+    if (generateMusicType === 'generate') {
+      navigation.replace('SingerSelection', { type: 'generate' });
+    } else {
+      navigation.replace('CoverUpload');
+    }
     // 由于禁用了返回功能，改为跳转到主页面
-    navigation.replace('SingerSelection', { type: 'generate' });
     // 发生错误时清理轮询
     cleanupPolling();
     clearTimeout(getTaskInfoTimer);

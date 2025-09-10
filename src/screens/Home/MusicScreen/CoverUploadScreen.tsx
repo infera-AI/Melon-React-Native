@@ -1,27 +1,57 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+// src/screens/SingerSelectionScreen/index.tsx
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
   Image,
+  ScrollView,
+  SafeAreaView,
+  StatusBar,
   Platform,
 } from 'react-native';
-
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useGlobalTheme } from '@/hooks/useGlobalTheme';
 import { normalize, normalizeFontSize } from '@/utils/stylesUtil';
 import theme from '@/utils/theme';
+import PointsLimitModal from '@/components/PointsLimitModal';
+import PointsConfirmModal from '@/components/PointsConfirmModal';
 import { pick } from '@react-native-documents/picker';
-import { useMessageModal } from '@/contexts/MessageModalContext';
-import FullScreenLoader from '@/components/FullScreenLoader';
-import { formatTime } from '@/utils/helpers';
-import { AudioPlayer, quickValidateAudio, getAudioDuration } from '@/utils/audioUtils';
-import { useNavigation } from '@react-navigation/native';
+import { polishLyrics, recommendGenres, generateMusic, coverMusic } from '@/api/music/music';
+import { getPersonalVoiceprints, getCommonVoiceprints } from '@/api/profile/profile';
 import { useMusicStore } from '@/store/modules/music.store';
+import FullScreenLoader from '@/components/FullScreenLoader';
+import { useMessageModal } from '@/contexts/MessageModalContext';
+import CommonModal from '@/components/CommonModal';
+import { useAudioPlayer } from '@/hooks/useAudioPlayer';
+import { FilePathConverter } from '@/utils/filePathConverter';
+import { uploadFiles } from '@/api/file/file';
+import { usePointsStore } from '@/store/modules/points.store';
+import { POINTS_DEDUCTION } from '@/utils/constants';
 
-const img_pause_btn = require("../../../../assets/images/music_pause.png");
+
+// 歌手数据接口
+interface Singer {
+  id: string | number;
+  name: string;
+  language: string;
+  avatar: any;
+  isSelected?: boolean;
+}
+
+// Tab类型
+type TabType = 'public' | 'voiceprint';
+interface AudioFile {
+  name: string;
+  size: number;
+  uri: string;
+  type: string;
+  fileCopyUri?: string;
+}
+
 
 // 支持的文件类型
 const audioFileTypes = [
@@ -33,6 +63,7 @@ const audioFileTypes = [
   'audio/flac',           // .flac
   'audio/x-m4a',          // .m4a (alternative MIME type)
 ];
+
 
 // Android 支持的文件类型
 const androidAudioTypes = [
@@ -56,111 +87,328 @@ const iosAudioTypes = [
   'public.flac',
 ];
 
-const MAX_FILE_SIZE_MB = 100; // 文件大小限制（MB）
+const img_music_back_btn = require("../../../../assets/images/music_back_btn.png");
 
-interface AudioFile {
-  name: string;
-  size: number;
-  uri: string;
-  type: string;
-  fileCopyUri?: string;
-}
 
-const CoverUploadScreen: React.FC = () => {
-  const { t } = useLanguage();
-  const { text, textSecondary } = useGlobalTheme();
-  const { show } = useMessageModal();
-  const [duration, setDuration] = useState(0);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [selectedFile, setSelectedFile] = useState<AudioFile | null>(null);
-  const [isUploading, _setIsUploading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(0);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const audioPlayerRef = useRef<AudioPlayer | null>(null);
+const SingerSelectionScreen: React.FC<any> = ({ route }: any) => {
+  const { type } = route.params || {};
   const navigation = useNavigation();
-  const { setCoverMusicFile, setGenerateMusicType } = useMusicStore.getState();
+  const { t } = useLanguage();
+  const { show } = useMessageModal()
+  const { apply, applyItem, text, textSecondary } = useGlobalTheme();
+  const [selectedSinger, setSelectedSinger] = useState<Singer | null>(null);
+  const [singersList, setSingersList] = useState<Singer[]>([]);
+  const [activeTab, setActiveTab] = useState<TabType>('public');
+  const [modalVisible, setModalVisible] = useState(false);
+  const [pointsLimitModalVisible, setPointsLimitModalVisible] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [commonVoiceprints, setCommonVoiceprints] = useState<any[]>([]);
+  const [personalVoiceprints, setPersonalVoiceprints] = useState<any[]>([]);
+  const [selectedFile, setSelectedFile] = useState<AudioFile | null>(null);
+  const [recordModalVisible, setRecordModalVisible] = useState(false);
+  const [selectedId, setSelectedId] = useState<number | null>(null);
+  const { setGenerateMusicType, musicGenerateInfo, coverMusicFile, setIsSelectedVoice } = useMusicStore.getState();
+  const isSelectedVoice = useMusicStore.getState().isSelectedVoice;
+  const { refreshPointsBalance, pointsBalance } = usePointsStore.getState();
+  const {
+    isPlayIndex,
+    togglePlayPause,
+    cleanup,
+    isPlayingUrl,
+  } = useAudioPlayer();
+  // 处理Tab切换
+  const handleTabChange = (tab: TabType) => {
+    setActiveTab(tab);
+    // 切换Tab时清空选择
+    setSelectedSinger(null);
+    setSingersList(prev =>
+      prev.map(singer => ({
+        ...singer,
+        isSelected: false
+      }))
+    );
+  };
+
+  const MAX_FILE_SIZE_MB = 100; // 文件大小限制（MB）
 
 
-  // 清空播放器
-  const clearAudioPlayer = () => {
-    if (audioPlayerRef.current) {
-      audioPlayerRef.current.stopAudio();
-      audioPlayerRef.current = null;
-      setIsPlaying(false);
-      setCurrentTime(0);
+  // 播放素材
+  const handlePlayMaterial = (material: any) => {
+    console.log('Play material:', material);
+    const materialCopy = { ...material, uri: material.merge_file };
+    handlePlayPause(materialCopy);
+  };
+
+  // 暂停/恢复
+  const handlePlayPause = (music: any) => {
+    togglePlayPause(music);
+  };
+
+  // 处理歌手选择
+  const handleSingerSelect = (singer: Singer) => {
+    console.log(singer, 'singer')
+    setIsSelectedVoice(true);
+    setSelectedSinger(singer);
+    setSelectedId(singer.id);
+  };
+
+  // 处理跳过选择
+  const handleSkipSelection = () => {
+    // 跳过选择逻辑
+    setIsSelectedVoice(false);
+    if (checkPointsBalance(false)) {
+      setModalVisible(true);
+    } else {
+      setPointsLimitModalVisible(true);
     }
   };
 
-  const fetchDuration = useCallback(async () => {
-    if (!selectedFile?.uri) {
-      console.log('没有选择文件，跳过时长获取');
-      return;
+  // 处理上一步
+  const handlePreviousStep = () => {
+    navigation.goBack();
+  };
+
+  // 处理下一步
+  const handleNextStep = () => {
+
+    // if (checkPointsBalance(isSelectedVoice)) {
+    setModalVisible(true);
+    // } else {
+    //   setPointsLimitModalVisible(true);
+    // }
+    // if (selectedSinger) {
+    //   console.log('选择的歌手:', selectedSinger);
+    //   console.log('当前Tab:', activeTab);
+    //   // navigation.navigate('NextScreen', { selectedSinger, tab: activeTab });
+    // } else {
+    //   // 提示用户选择歌手
+    //   console.log('请选择歌手');
+    // }
+  };
+
+  // 获取公用声纹
+  const getPublicVoiceprintsRequest = async () => {
+    const res = await getCommonVoiceprints();
+    setCommonVoiceprints(res.data_list || []);
+    console.log('res', res);
+  }
+  // 获取个人声纹
+  const getPersonalVoiceprintsRequest = async () => {
+    const res = await getPersonalVoiceprints();
+    setPersonalVoiceprints(res.data_list || []);
+    console.log('res', res);
+  }
+
+  useEffect(() => {
+    getPublicVoiceprintsRequest();
+    getPersonalVoiceprintsRequest();
+    return () => {
+      cleanup();
     }
+  }, []);
 
-    console.log('开始获取音频时长，URI:', selectedFile.uri);
+  // 渲染Tab栏
+  const renderTabBar = () => (
+    <View style={styles.tabBar}>
+      <TouchableOpacity
+        style={[
+          styles.tabItem,
+          activeTab === 'public' && styles.activeTabItem
+        ]}
+        onPress={() => handleTabChange('public')}
+      >
+        <Text style={[
+          styles.tabText,
+          activeTab === 'public' && styles.activeTabText
+        ]}>
+          {t('music.public_singer')}
+        </Text>
+        {activeTab === 'public' && <View style={styles.tabIndicator} />}
+      </TouchableOpacity>
 
-    // 先进行快速验证
-    const isValid = await quickValidateAudio(selectedFile.uri);
-    console.log('快速验证结果:', isValid);
+      <TouchableOpacity
+        style={[
+          styles.tabItem,
+          activeTab === 'voiceprint' && styles.activeTabItem
+        ]}
+        onPress={() => handleTabChange('voiceprint')}
+      >
+        <Text style={[
+          styles.tabText,
+          activeTab === 'voiceprint' && styles.activeTabText
+        ]}>
+          {t('music.my_voiceprint')}
+        </Text>
+        {activeTab === 'voiceprint' && <View style={styles.tabIndicator} />}
+      </TouchableOpacity>
+    </View>
+  );
 
-    if (!isValid) {
-      console.error('音频文件验证失败，无法获取时长');
-      setDuration(0);
-      return;
+  // 判断积分余额是否足够
+  const checkPointsBalance = (selectedVoice: boolean) => {
+    if (selectedVoice) {
+      return pointsBalance >= 110;
+    } else {
+      return pointsBalance >= 50;
     }
+  }
 
-    try {
-      const durationValue = await getAudioDuration(selectedFile.uri);
-      console.log('获取到的音频时长:', durationValue);
-      setDuration(durationValue);
-    } catch (error) {
-      console.error('获取音频时长失败:', error);
-      setDuration(0);
-    }
-  }, [selectedFile?.uri]);
+  // 渲染内容区域
+  const renderContent = () => {
+    return <>
+      {activeTab === 'voiceprint' && <View
+        style={[
+          styles.addButtonContainer,
+        ]}
+      >
+        {/* 增加按钮 */}
+        <TouchableOpacity
+          style={styles.addButton}
+          activeOpacity={0.7}
+          onPress={() => {
+            // 处理添加录音逻辑
+            setRecordModalVisible(true)
+            console.log('Go record pressed');
+          }}
+        >
+          <View style={styles.addButtonContent}>
+            <Image source={require('@/assets/music/music_add_icon.png')} style={styles.plusIcon} />
+            <Text style={styles.addButtonText}>{t('music.go_record')}</Text>
+          </View>
+        </TouchableOpacity>
+      </View>}
+      {/* 歌手列表 */}
+      <ScrollView style={[styles.singerList, activeTab === 'public' && styles.commonList]} showsVerticalScrollIndicator={false}>
+        {activeTab === 'public' && commonVoiceprints.length < 1 && <View style={styles.CommonvoiceprintContent}>
+          <Text style={[styles.voiceprintSubtext, textSecondary]}>
+            {t('music.no_content')}
+          </Text>
+        </View>}
+        {activeTab === 'voiceprint' && personalVoiceprints.length < 1 && <View style={styles.voiceprintContent}>
+          <Text style={[styles.voiceprintSubtext, textSecondary]}>
+            {t('music.no_content')}
+          </Text>
+        </View>}
+        {(activeTab === 'public' ? commonVoiceprints : personalVoiceprints)?.map((singer, index) => (
+          <TouchableOpacity
+            key={singer.id}
+            disabled={singer.status !== 2}
+            style={[
+              styles.singerItem,
+              index === singersList.length - 1 && styles.lastSingerItem,
+              selectedId === singer.id && styles.selectedSingerItem,
+              { opacity: singer.status === 2 ? 1 : 0.4 }
+            ]}
+            onPress={() => handleSingerSelect(singer)}
+          >
+            <View style={styles.singerInfo}>
+              <Image
+                source={require('@/assets/profile/profile_voice_icon.png')}
+                style={styles.singerAvatar}
+              />
+              <Text style={[styles.singerName, text]}>
+                {singer.name}
+              </Text>
+            </View>
+            {activeTab === 'public' && singer.status === 2 && <TouchableOpacity
+              style={styles.languageButton}
+              onPress={() => { }}
+            >
+              <Text style={styles.languageButtonText}>{singer.language}</Text>
+            </TouchableOpacity>}
+            {singer.status === 2 && <TouchableOpacity
+              onPress={() => handlePlayMaterial(singer)}
+            >
+              <Image source={isPlayingUrl(singer.merge_file) ? require('@/assets/music/music_pause_icon.png') : require('@/assets/music/music_play_icon.png')} style={styles.playIcon} />
+            </TouchableOpacity>}
+            {singer.status !== 2 && <Text style={styles.trainingText}>{t('music.training')}</Text>}
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
+    </>
+  };
 
-  const handlePlayAudio = async () => {
-    if (!selectedFile?.uri) {
-      console.log('没有选择文件，无法播放');
-      return;
-    }
-
-    if (isPlaying) {
-      // 暂停播放
-      if (audioPlayerRef.current) {
-        audioPlayerRef.current.pauseAudio();
+  // 跳转到音乐生成页面 skip跳过声纹
+  const handleToMusicGenerate = (skip: boolean = false) => {
+    setIsLoading(true);
+    generateMusic({
+      work_title: musicGenerateInfo.title,
+      lyrics: musicGenerateInfo.lyrics,
+      genres: musicGenerateInfo.musicStyles,
+      voice_print_id: skip ? 0 : Number(selectedSinger?.id) || 0,
+    }).then((rsp) => {
+      setIsLoading(false);
+      if (!rsp.task_id) {
+        show({
+          message: t('translate_screen.failed_again')
+        })
+        return
       }
-      setIsPlaying(false);
-      return;
-    }
-
-    // 如果已经有播放器实例，说明之前暂停过，直接恢复播放
-    if (audioPlayerRef.current) {
-      audioPlayerRef.current.resumeAudio();
-      setIsPlaying(true);
-      return;
-    }
-
-    // 首次播放，创建新的播放器实例
-    console.log('开始播放音频，URI:', selectedFile.uri);
-    audioPlayerRef.current = AudioPlayer.getInstance();
-
-    // 设置播放完成的回调
-    audioPlayerRef.current.setFinishCallback(() => {
-      audioPlayerRef.current = null;
-      setIsPlaying(false);
-      setCurrentTime(0); // 重置播放时间
+      refreshPointsBalance();
+      setGenerateMusicType('generate');
+      (navigation as any).navigate('GeneratingMusic', {
+        taskId: rsp.task_id,
+        createTaskTime: Math.floor(performance.now())
+      });
+    }).catch(() => {
+      setIsLoading(false);
+      show({
+        message: t('http_service_error')
+      })
     });
+  }
 
-    // 设置播放进度更新的回调
-    audioPlayerRef.current.setProgressCallback((currentTime: number) => {
-      setCurrentTime(currentTime);
-    });
-
-    const success = await audioPlayerRef.current.playAudio(selectedFile.uri);
-    setIsPlaying(true);
-    console.log('播放成功:', success);
+  // 上传文件
+  const handleUploadFile = async (file: any) => {
+    try {
+      // 转换文档
+      const convertedFileuri = await FilePathConverter.convertContentUriToFilePath(file.uri);
+      const res = await uploadFiles({
+        files: [{ name: file.name, type: file.type, uri: convertedFileuri }],
+      });
+      console.log(res, 'res');
+      return res;
+    } catch (error) {
+      show({ message: t('music.upload_files_failed') });
+      return {};
+    }
   };
+
+  // 翻唱歌曲
+  const handleCoverSingToMusic = async () => {
+    setIsLoading(true);
+    coverMusic({
+      voice_print_id: String(selectedSinger?.id) || '0',
+      music_file: selectedFile,
+    }).then((rsp) => {
+      if (!rsp.task_id) {
+        show({
+          message: t('translate_screen.failed_again')
+        })
+        return
+      }
+      setGenerateMusicType('cover');
+      refreshPointsBalance();
+      (navigation as any).navigate('GeneratingMusic', {
+        taskId: rsp.task_id,
+        createTaskTime: Math.floor(performance.now())
+      });
+    }).catch(() => {
+      setIsLoading(false);
+      show({
+        message: t('http_service_error')
+      })
+    }).finally(() => {
+      setIsLoading(false);
+    });
+  }
+  const handlePointsTopup = () => {
+    // navigation.navigate('PointsTopup');
+  }
+
+  const handleWatchAds = () => {
+    // navigation.navigate('AI');
+  }
 
   const handleFileSelect = async () => {
     try {
@@ -195,9 +443,6 @@ const CoverUploadScreen: React.FC = () => {
 
       console.log('✅ 选中的音频文件:', file);
       setSelectedFile(file as AudioFile);
-      clearAudioPlayer();
-      // 自动开始上传
-      // handleUpload(file as AudioFile);
 
     } catch (error) {
       console.error('文件选择失败:', error);
@@ -207,152 +452,105 @@ const CoverUploadScreen: React.FC = () => {
     }
   };
 
-  const _handleUpload = async (_file: AudioFile) => {
+  const handleGenerateMusicAction = () => {
+    handleCoverSingToMusic();
+  }
 
-  };
-
-  const handleReupload = () => {
-    setSelectedFile(null);
-    clearAudioPlayer();
-  };
-
-  const handleNextStep = () => {
-    setCoverMusicFile(selectedFile);
-    setGenerateMusicType('cover');
-    (navigation as any).navigate('SingerSelection', { type: 'cover' });
-  };
-
-  useEffect(() => {
-    if (selectedFile) {
-      fetchDuration();
-    }
-  }, [selectedFile, fetchDuration]);
-
-  useEffect(() => {
-    return () => {
-      clearAudioPlayer();
-    };
-  }, []);
   return (
-    <SafeAreaView edges={['top']} style={styles.container}>
-      {/* 主要内容区域 */}
-      <View style={styles.mainContent}>
-        {/* 上传区域 */}
-        <View style={styles.uploadArea}>
-          {/* 圆形背景 */}
-          {!selectedFile ? <View style={styles.circleBackground}>
-            {/* 音乐图标 */}
-            <View style={styles.musicIconContainer}>
-              <Image
-                source={require('@/assets/music/music_mp3_icon.png')}
-                style={styles.musicIcon}
-              />
-            </View>
-          </View> : <View style={styles.fileInfoContainer}>
-            <Text style={[styles.fileName, text]} numberOfLines={1}>
-              {selectedFile.name}
-            </Text>
-            {/* <Text style={[styles.fileSize, textSecondary]}>
-                  {(selectedFile.size / (1024 * 1024)).toFixed(2)} MB
-                </Text> */}
-          </View>}
-        </View>
-
-        {/* 选择文件后展示音频播放器，没选择展示说明文字 */}
-        {selectedFile ? (
-          <View style={styles.audioBarContainer}>
-            {/* 音频波形图 */}
-            <View style={styles.audioWaveform}>
-              <Image
-                source={require('@/assets/music/music_wave_icon.png')}
-                style={styles.waveformImage}
-                resizeMode="contain"
-              />
-            </View>
-
-            {/* 进度条 */}
-            <View style={styles.progressSection}>
-              <View style={styles.audioProgressBar}>
-                <View style={[styles.audioProgressFill, { width: `${((currentTime || 0) / (duration || 1)) * 100}%` }]} />
-              </View>
-            </View>
-
-            {/* 时间显示 */}
-            <View style={styles.timeWrapper}>
-              <Text style={styles.timeText}>{formatTime(currentTime)}</Text>
-              <Text style={styles.timeText}>{formatTime(duration)}</Text>
-            </View>
-
-            {/* 播放按钮 */}
-            <TouchableOpacity style={styles.playButton} activeOpacity={0.7} onPress={handlePlayAudio}>
-              <Image
-                source={isPlaying ? img_pause_btn : require('../../../../assets/images/music_play.png')}
-                style={styles.playIcon}
-              />
-            </TouchableOpacity>
-          </View>
-        ) : (
-          <Text style={[styles.descriptionText, textSecondary]}>
-            {t('music.supported_formats_description')}
-          </Text>
-        )}
-
-        {/* 上传成功文案 */}
-        {/* {selectedFile && (
-          <View style={styles.successContainer}>
-            <View style={styles.successIconContainer}>
-              <Image 
-                    source={require('@/assets/profile/profile_langguage_selected.png')}
-                    style={styles.successIcon}
-              />
-            </View>
-            <Text style={styles.successText}>{t('music.upload_successful')}</Text>
-          </View>
-        )} */}
-
-        {/* 上传按钮 */}
+    <SafeAreaView style={apply(styles.container)}>
+      <View style={styles.headerRow}>
         <TouchableOpacity
-          style={[
-            styles.uploadButton,
-            selectedFile && styles.uploadButtonDisabled
-          ]}
-          onPress={selectedFile ? handleReupload : handleFileSelect}
+          style={[styles.addButton, styles.uploadButton]}
           activeOpacity={0.7}
-          disabled={isUploading}
+          onPress={handleFileSelect}
         >
-          <Text style={[styles.uploadButtonText, selectedFile && styles.uploadButtonTextDisabled]}>
-            {selectedFile
-              ? t('music.re_upload')
-              : t('music.upload_original_song')
-            }
-          </Text>
-        </TouchableOpacity>
-
-        {/* 没有选择文件置灰下一步按钮 */}
-        {selectedFile && <TouchableOpacity disabled={!selectedFile} style={[styles.uploadButton, styles.nextButton, !selectedFile && styles.nextBtnDisabled]} onPress={handleNextStep}>
-          <Text style={[styles.uploadButtonText]}>{t('music.next')}</Text>
-        </TouchableOpacity>}
-
-        {/* 上传进度 */}
-        {isUploading && (
-          <View style={styles.progressContainer}>
-            <View style={styles.progressBar}>
-              <View
-                style={[
-                  styles.progressFill,
-                  { width: `${uploadProgress}%` }
-                ]}
-              />
-            </View>
-            <Text style={[styles.progressText, textSecondary]}>
-              {t('music.uploading')} {uploadProgress}%
-            </Text>
+          <View style={styles.addButtonContent}>
+            <Image source={require('@/assets/music/music_add_icon.png')} style={styles.addPlusIcon} />
+            <Text style={[styles.addButtonText, styles.uploadButtonText]} numberOfLines={1} ellipsizeMode="tail">{selectedFile ? selectedFile.name : 'Upload original song'}</Text>
           </View>
-        )}
+        </TouchableOpacity>
       </View>
 
-      {/* 全屏加载器 */}
-      <FullScreenLoader visible={isUploading} />
+      {/* Tab栏 */}
+      {renderTabBar()}
+
+      {/* 内容区域 */}
+      {renderContent()}
+
+
+      {/* 底部按钮 */}
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity
+          style={[styles.button, styles.previousButton]}
+          onPress={handlePreviousStep}
+        >
+          <Text style={[styles.buttonText, text]}>{t('music.cancel')}</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[
+            styles.button,
+            styles.nextButton,
+            (!selectedFile || !selectedId) && { opacity: 0.3 }
+          ]}
+          disabled={!selectedFile || !selectedId}
+          onPress={handleNextStep}
+        >
+          <Text style={[styles.buttonText, styles.nextButtonText]}>
+            Singer production
+          </Text>
+        </TouchableOpacity>
+      </View>
+      <PointsConfirmModal
+        visible={modalVisible}
+        onClose={() => setModalVisible(false)}
+        onConfirm={handleGenerateMusicAction}
+        onCancel={handleGenerateMusicAction}
+        title={t('music.generating_your_song_will_cost').replace('{points}', (isSelectedVoice ? POINTS_DEDUCTION.COVER_MUSIC : POINTS_DEDUCTION.GENERATE_MUSIC).toString())}
+        onDontShowAgain={() => { }}
+      />
+      <PointsLimitModal
+        visible={pointsLimitModalVisible}
+        onClose={() => setPointsLimitModalVisible(false)}
+        onConfirm={handlePointsTopup}
+        onCancel={() => setModalVisible(false)}
+        onDontShowAgain={() => { }}
+      />
+      <CommonModal
+        visible={recordModalVisible}
+        onClose={() => setRecordModalVisible(false)}
+        config={{
+          title: t('music.creating_voiceprint_will_leave_page'),
+          content: t('music.voiceprint_recording_rules_content'),
+          buttons: [
+            {
+              text: t('music.cancel'),
+              onPress: () => { setRecordModalVisible(false) },
+              type: 'border' as const,
+            },
+            {
+              text: t('music.go_record_button'),
+              onPress: () => {
+                (navigation as any).reset({
+                  index: 0,
+                  routes: [
+                    {
+                      name: 'Profile',
+                      params: {
+                        screen: 'VoiceprintMaterialCreate'
+                      }
+                    },
+                  ]
+                });
+              },
+              type: 'primary' as const,
+            },
+          ],
+        }}
+      />
+      <FullScreenLoader
+        visible={isLoading}
+      />
     </SafeAreaView>
   );
 };
@@ -360,227 +558,341 @@ const CoverUploadScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: theme.background,
+    paddingTop: normalize(30),
   },
-  mainContent: {
+  headerRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: normalize(16),
+    marginBottom: normalize(8),
+  },
+  backBtn: {
+    width: normalize(36),
+    height: normalize(36),
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  backIcon: {
+    color: "#fff",
+    fontSize: normalizeFontSize(28),
+    fontWeight: "500",
+  },
+  backIconImg: {
+    width: normalize(28),
+    height: normalize(28),
+    // resizeMode: "contain",
+  },
+  // Tab栏样式
+  tabBar: {
+    flexDirection: 'row',
+  },
+  tabItem: {
     flex: 1,
-    backgroundColor: theme.backgroundSecondary,
-    marginHorizontal: normalize(24),
-    marginTop: normalize(30),
-    borderRadius: normalize(12),
     alignItems: 'center',
-    paddingTop: normalize(76),
+    paddingVertical: normalize(10),
+    position: 'relative',
   },
-  uploadArea: {
-    alignItems: 'center',
+  activeTabItem: {
+    // 激活状态的Tab样式
   },
-  circleBackground: {
-    width: normalize(184),
-    height: normalize(184),
-    borderRadius: normalize(47),
-    backgroundColor: theme.backgroundTertiary,
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: 'rgba(22, 52, 80, 0.1)',
-    shadowOffset: {
-      width: 0,
-      height: normalize(24),
-    },
-    shadowOpacity: 1,
-    shadowRadius: normalize(89),
-    elevation: 8,
-  },
-  musicIconContainer: {
-    position: 'absolute',
-    top: normalize(49),
-    left: normalize(59),
-    width: normalize(68),
-    height: normalize(85),
-  },
-  musicIcon: {
-    width: '100%',
-    height: '100%',
-  },
-  fileInfoContainer: {
-    alignItems: 'center',
-    marginTop: normalize(26),
-  },
-  fileName: {
-    width: normalize(184),
-    fontSize: normalizeFontSize(14),
+  tabText: {
+    fontSize: normalizeFontSize(16),
+    color: theme.textSecondary,
     fontWeight: '500',
     textAlign: 'center',
-    marginBottom: normalize(4),
   },
-  fileSize: {
+  activeTabText: {
+    fontWeight: '600',
+    color: theme.primary,
+  },
+  tabIndicator: {
+    position: 'absolute',
+    bottom: -15,
+    left: '50%',
+    marginLeft: normalize(-10),
+    width: normalize(20),
+    height: normalize(3),
+    backgroundColor: theme.primary,
+    borderRadius: normalize(1.5),
+  },
+
+  // 状态栏样式
+  statusBar: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: normalize(20),
+    paddingTop: normalize(10),
+    paddingBottom: normalize(5),
+  },
+  timeText: {
+    fontSize: normalizeFontSize(16),
+    fontWeight: '600',
+  },
+  statusIcons: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  signalIcon: {
+    width: normalize(20),
+    height: normalize(12),
+    backgroundColor: '#FFFFFF',
+    marginRight: normalize(4),
+    borderRadius: normalize(2),
+  },
+  wifiIcon: {
+    width: normalize(16),
+    height: normalize(12),
+    backgroundColor: '#FFFFFF',
+    marginRight: normalize(4),
+    borderRadius: normalize(2),
+  },
+  batteryIcon: {
+    width: normalize(24),
+    height: normalize(12),
+  },
+
+  // 标题栏样式
+  titleBar: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: normalize(20),
+    paddingVertical: normalize(15),
+  },
+  titleText: {
+    fontSize: normalizeFontSize(18),
+    fontWeight: '600',
+  },
+  subtitleText: {
+    fontSize: normalizeFontSize(16),
+    fontWeight: '500',
+  },
+
+  // 头像容器
+  avatarContainer: {
+    alignItems: 'center',
+    paddingVertical: normalize(20),
+  },
+  userAvatar: {
+    width: normalize(80),
+    height: normalize(80),
+    borderRadius: normalize(40),
+  },
+
+  // 跳过选择
+  skipContainer: {
+    alignItems: 'center',
+    paddingVertical: normalize(10),
+  },
+  skipText: {
+    fontSize: normalizeFontSize(14),
+    color: theme.primary,
+  },
+  addButtonContainer: {
+    height: normalize(72),
+    backgroundColor: theme.backgroundSecondary,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    borderRadius: normalize(12),
+    borderBottomLeftRadius: 0,
+    borderBottomRightRadius: 0,
+    borderTopWidth: 1,
+    borderLeftWidth: 1,
+    borderRightWidth: 1,
+    margin: normalize(24),
+    marginBottom: normalize(0),
+  },
+  // 歌手列表
+  singerList: {
+    flex: 1,
+    borderRadius: normalize(12),
+    borderWidth: 1,
+    borderColor: 'transparent',
+    borderTopLeftRadius: 0,
+    borderTopRightRadius: 0,
+    backgroundColor: theme.backgroundSecondary,
+    margin: normalize(24),
+    marginBottom: normalize(15),
+    marginTop: normalize(0),
+  },
+  commonList: {
+    borderTopLeftRadius: normalize(12),
+    borderTopRightRadius: normalize(12),
+    marginTop: normalize(24),
+  },
+  singerItem: {
+    width: '100%',
+    height: normalize(72),
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: normalize(15),
+    paddingHorizontal: normalize(20),
+    borderBottomWidth: 1,
+    borderColor: theme.background,
+  },
+  selectedSingerItem: {
+    backgroundColor: 'rgba(133,243,128,0.4)',
+    flex: 1,
+  },
+  lastSingerItem: {
+    borderBottomWidth: 0,
+  },
+  singerInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  languageButton: {
+    width: normalize(60),
+    height: normalize(24),
+    borderRadius: normalize(8),
+    borderWidth: 1,
+    borderColor: '#454545',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: normalize(16),
+  },
+  languageButtonText: {
     fontSize: normalizeFontSize(12),
     fontWeight: '400',
-    textAlign: 'center',
-  },
-  descriptionText: {
-    fontSize: normalizeFontSize(15),
-    fontWeight: '400',
-    textAlign: 'center',
-    lineHeight: normalize(20),
+    color: theme.primary,
     letterSpacing: -0.4,
-    marginTop: normalize(32),
-    paddingHorizontal: normalize(18),
-    maxWidth: normalize(291),
-    marginBottom: normalize(70),
   },
-  uploadButton: {
-    backgroundColor: theme.primary,
-    borderRadius: normalize(12),
-    height: normalize(48),
-    width: normalize(295),
+  trainingText: {
+    fontSize: normalizeFontSize(14),
+    fontWeight: '500',
+    color: theme.textPrimary,
+    letterSpacing: -0.4,
+    height: normalize(20),
+  },
+  playIcon: {
+    width: normalize(26),
+    height: normalize(26),
+  },
+  singerAvatar: {
+    width: normalize(22),
+    height: normalize(22),
+    borderRadius: normalize(20),
+    marginRight: normalize(12),
+  },
+  singerName: {
+    fontSize: normalizeFontSize(16),
+    fontWeight: '500',
+  },
+  checkIcon: {
+    width: normalize(20),
+    height: normalize(20),
+  },
+
+  CommonvoiceprintContent: {
+    height: normalize(400),
     justifyContent: 'center',
     alignItems: 'center',
   },
-  nextButton: {
-    marginTop: normalize(12),
+  voiceprintContent: {
+    height: normalize(300),
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  nextBtnDisabled: {
-    backgroundColor: theme.backgroundTertiary,
+  voiceprintText: {
+    fontSize: normalizeFontSize(18),
+    fontWeight: '600',
+    textAlign: 'center',
+    marginBottom: normalize(10),
   },
-  uploadButtonDisabled: {
-    backgroundColor: theme.backgroundSecondary,
+  voiceprintSubtext: {
+    fontSize: normalizeFontSize(14),
+    textAlign: 'center',
+  },
+
+  // 底部按钮
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: normalize(10),
+    paddingHorizontal: normalize(20),
+  },
+  button: {
+    flex: 1,
+    paddingVertical: normalize(12),
+    paddingHorizontal: normalize(20),
+    borderRadius: normalize(8),
+    alignItems: 'center',
+    marginHorizontal: normalize(8),
+  },
+  previousButton: {
     borderWidth: 1,
     borderColor: theme.primary,
+  },
+  nextButton: {
+    backgroundColor: theme.primary,
+  },
+  disabledButton: {
+    backgroundColor: theme.backgroundTertiary,
+  },
+  buttonText: {
+    fontSize: normalizeFontSize(16),
+    fontWeight: '500',
+  },
+  nextButtonText: {
+    color: theme.background,
+  },
+  addButton: {
+    flex: 1,
+    backgroundColor: theme.backgroundTertiary,
+    height: normalize(48),
+    borderRadius: normalize(12),
+    justifyContent: 'center',
+    alignItems: 'center',
+    margin: normalize(16),
+    marginBottom: normalize(15),
+    shadowColor: '#000000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  addButtonContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: "80%",
+  },
+  plusIcon: {
+    width: normalize(12),
+    height: normalize(12),
+    marginRight: normalize(6),
+  },
+  addButtonText: {
+    fontSize: normalizeFontSize(16),
+    fontWeight: '500',
+    color: theme.primary,
+  },
+  uploadButton: {
+    // borderWidth: 2,
+    // borderColor: theme.textPrimary,
+    borderRadius: normalize(12),
+    paddingHorizontal: normalize(12),
+    paddingVertical: normalize(6),
+    backgroundColor: theme.primary,
   },
   uploadButtonText: {
     fontSize: normalizeFontSize(16),
     fontWeight: '500',
     color: theme.background,
-    letterSpacing: -0.4,
-    lineHeight: normalize(21),
   },
-  uploadButtonTextDisabled: {
-    color: theme.textPrimary,
-  },
-  progressContainer: {
-    width: normalize(295),
-    alignItems: 'center',
-    marginBottom: normalize(30),
-  },
-  progressBar: {
-    width: '100%',
-    height: normalize(4),
-    backgroundColor: theme.backgroundTertiary,
-    borderRadius: normalize(2),
-    marginBottom: normalize(8),
-  },
-  progressFill: {
-    height: '100%',
-    backgroundColor: theme.primary,
-    borderRadius: normalize(2),
-  },
-  progressText: {
-    fontSize: normalizeFontSize(14),
-    fontWeight: '400',
-    textAlign: 'center',
-  },
-  audioBarContainer: {
-    backgroundColor: 'rgba(38, 38, 38, 1)',
-    borderRadius: normalize(12),
-    width: normalize(327),
-    height: normalize(156),
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: normalize(16),
-    marginBottom: normalize(25),
-  },
-  audioWaveform: {
-    flexDirection: 'row',
-    width: normalize(260),
-    height: normalize(32),
-    marginTop: normalize(16),
-    marginLeft: normalize(34),
-    marginRight: normalize(33),
-  },
-  waveformImage: {
-    width: normalize(260),
-    height: normalize(32),
-    marginRight: normalize(2),
-  },
-  progressSection: {
-    backgroundColor: 'rgba(51, 51, 51, 1)',
-    borderRadius: normalize(4),
-    height: normalize(2),
-    width: normalize(287),
-    marginTop: normalize(16),
-    marginLeft: normalize(20),
-    marginRight: normalize(20),
-  },
-  audioProgressBar: {
-    width: '100%',
-    height: '100%',
-    borderRadius: normalize(4),
-  },
-  audioProgressFill: {
-    backgroundColor: 'rgba(52, 199, 89, 1)',
-    borderRadius: normalize(4),
-    height: '100%',
-  },
-  timeWrapper: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: normalize(287),
-    height: normalize(18),
-    marginTop: normalize(3),
-    marginLeft: normalize(20),
-    marginRight: normalize(20),
-  },
-  timeText: {
-    width: normalize(43),
-    height: normalize(18),
-    color: 'rgba(255, 255, 255, 1)',
-    fontSize: normalizeFontSize(10),
-    letterSpacing: -0.4,
-    fontFamily: 'SF Pro-Medium',
-    fontWeight: '500',
-    textAlign: 'left',
-    lineHeight: normalize(18),
-  },
-  playButton: {
-    width: normalize(39),
-    height: normalize(38),
-    marginTop: normalize(15),
-    marginBottom: normalize(16),
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  playIcon: {
-    width: normalize(39),
-    height: normalize(38),
-  },
-  successContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderRadius: normalize(12),
-    paddingHorizontal: normalize(16),
-    paddingVertical: normalize(12),
-    marginTop: normalize(16),
-    marginBottom: normalize(8),
-  },
-  successIconContainer: {
-    width: normalize(24),
-    height: normalize(24),
-    borderRadius: normalize(12),
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: normalize(12),
-  },
-  successIcon: {
-    width: normalize(16),
-    height: normalize(16),
-    tintColor: theme.primary,
-  },
-  successText: {
-    color: theme.primary,
-    fontSize: normalizeFontSize(16),
-    fontWeight: '500',
-    letterSpacing: -0.4,
+  addPlusIcon: {
+    width: normalize(12),
+    height: normalize(12),
+    marginRight: normalize(6),
+    tintColor: theme.background,
   },
 });
 
-export default CoverUploadScreen;
+export default SingerSelectionScreen;

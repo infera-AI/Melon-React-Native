@@ -28,6 +28,7 @@ import { useAudioPlayer } from '@/hooks/useAudioPlayer';
 import { FilePathConverter } from '@/utils/filePathConverter';
 import { uploadFiles } from '@/api/file/file';
 import { usePointsStore } from '@/store/modules/points.store';
+import { POINTS_DEDUCTION } from '@/utils/constants';
 
 
 // 歌手数据接口
@@ -93,6 +94,8 @@ type TabType = 'public' | 'voiceprint';
 //     avatar: require('@/assets/profile/profile_voice_icon.png'),
 //   },
 // ];
+const img_music_back_btn = require("../../../../assets/images/music_back_btn.png");
+
 
 const SingerSelectionScreen: React.FC<any> = ({ route }: any) => {
   const { type } = route.params || {};
@@ -102,7 +105,7 @@ const SingerSelectionScreen: React.FC<any> = ({ route }: any) => {
   const { apply, applyItem, text, textSecondary } = useGlobalTheme();
   const [selectedSinger, setSelectedSinger] = useState<Singer | null>(null);
   const [singersList, setSingersList] = useState<Singer[]>([]);
-  const [activeTab, setActiveTab] = useState<TabType>('voiceprint');
+  const [activeTab, setActiveTab] = useState<TabType>('public');
   const [modalVisible, setModalVisible] = useState(false);
   const [pointsLimitModalVisible, setPointsLimitModalVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -247,9 +250,9 @@ const SingerSelectionScreen: React.FC<any> = ({ route }: any) => {
   // 判断积分余额是否足够
   const checkPointsBalance = (selectedVoice: boolean) => {
     if (selectedVoice) {
-      return pointsBalance >= 110;
+      return pointsBalance >= POINTS_DEDUCTION.COVER_MUSIC;
     } else {
-      return pointsBalance >= 50;
+      return pointsBalance >= POINTS_DEDUCTION.GENERATE_MUSIC;
     }
   }
 
@@ -420,6 +423,16 @@ const SingerSelectionScreen: React.FC<any> = ({ route }: any) => {
 
   return (
     <SafeAreaView style={apply(styles.container)}>
+      <View style={styles.headerRow}>
+        <TouchableOpacity
+          onPress={() => {
+            navigation.goBack();
+          }}
+          style={styles.backBtn}
+        >
+          <Image source={img_music_back_btn} style={styles.backIconImg} />
+        </TouchableOpacity>
+      </View>
 
       {/* Tab栏 */}
       {renderTabBar()}
@@ -428,31 +441,30 @@ const SingerSelectionScreen: React.FC<any> = ({ route }: any) => {
       {renderContent()}
 
       {/* 跳过选择 */}
-      {type === 'generate' && <View style={styles.skipContainer}>
-        <TouchableOpacity onPress={handleSkipSelection}>
+      {/* {type === 'generate' && <View style={styles.skipContainer}>
+        <TouchableOpacity onPress={handleNextStep}>
           <Text style={[styles.skipText]}>
             {t('music.skip_selection')}
           </Text>
         </TouchableOpacity>
-      </View>}
+      </View>} */}
 
       {/* 底部按钮 */}
       <View style={styles.buttonContainer}>
         <TouchableOpacity
-          style={[styles.button, styles.previousButton]}
-          onPress={handlePreviousStep}
+          disabled={type !== 'cover' && !selectedSinger}
+          style={[styles.button, styles.previousButton, type !== 'cover' && !selectedSinger && { opacity: 0.3 }]}
+          onPress={type === 'cover' ? handlePreviousStep : handleNextStep}
         >
-          <Text style={[styles.buttonText, text]}>{type === 'cover' ? t('music.cancel') : t('music.previous_step')}</Text>
+          <Text style={[styles.buttonText, text]}>{type === 'cover' ? t('music.cancel') : "Singer production"}</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
           style={[
             styles.button,
             styles.nextButton,
-            !selectedSinger && styles.disabledButton
           ]}
-          onPress={handleNextStep}
-          disabled={!selectedSinger}
+          onPress={type === 'cover' ? handleNextStep : handleSkipSelection}
         >
           <Text style={[styles.buttonText, styles.nextButtonText]}>
             {t('music.start_production')}
@@ -461,10 +473,10 @@ const SingerSelectionScreen: React.FC<any> = ({ route }: any) => {
       </View>
       <PointsConfirmModal
         visible={modalVisible}
-        onClose={handleGenerateMusicAction}
+        onClose={() => setModalVisible(false)}
         onConfirm={handleGenerateMusicAction}
-        onCancel={() => setModalVisible(false)}
-        title={t('music.generating_your_song_will_cost').replace('{points}', (isSelectedVoice ? 110 : 50).toString())}
+        onCancel={handleGenerateMusicAction}
+        title={t('music.generating_your_song_will_cost').replace('{points}', (isSelectedVoice ? POINTS_DEDUCTION.COVER_MUSIC : POINTS_DEDUCTION.GENERATE_MUSIC).toString())}
         onDontShowAgain={() => { }}
       />
       <PointsLimitModal
@@ -518,7 +530,28 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingTop: normalize(30),
   },
-
+  headerRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: normalize(16),
+    marginBottom: normalize(8),
+  },
+  backBtn: {
+    width: normalize(36),
+    height: normalize(36),
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  backIcon: {
+    color: "#fff",
+    fontSize: normalizeFontSize(28),
+    fontWeight: "500",
+  },
+  backIconImg: {
+    width: normalize(28),
+    height: normalize(28),
+    // resizeMode: "contain",
+  },
   // Tab栏样式
   tabBar: {
     flexDirection: 'row',
@@ -759,6 +792,8 @@ const styles = StyleSheet.create({
     borderRadius: normalize(8),
     alignItems: 'center',
     marginHorizontal: normalize(8),
+    height: normalize(48),
+    width: "48%",
   },
   previousButton: {
     borderWidth: 1,

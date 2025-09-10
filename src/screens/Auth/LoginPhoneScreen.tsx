@@ -21,7 +21,9 @@ import { useUserStore } from '../../store';
 import { useMessageModal } from '../../contexts/MessageModalContext';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { getUserInfo } from '../../api/profile/profile';
-import { normalize,normalizeFontSize } from '@/utils/stylesUtil';
+import { normalize, normalizeFontSize } from '@/utils/stylesUtil';
+import { useAppStore } from '../../store';
+import { APP_SIGN_ENUM } from '../../utils/constants';
 
 
 // type LoginPhoneScreenNavigationProp = StackNavigationProp<any, 'MainApp'>;
@@ -166,7 +168,7 @@ const LoginPhoneScreen: React.FC = () => {
   const getUserInfoRequest = async () => {
     const res = await getUserInfo({});
     console.log('UserInfo', res);
-    if(res.data){
+    if (res.data) {
       useUserStore.getState().setUserInfo(res.data);
     }
   }
@@ -181,38 +183,38 @@ const LoginPhoneScreen: React.FC = () => {
     if (!password) {
       return;
     }
-    console.log('account',phoneNumber,email,password);
+    console.log('account', phoneNumber, email, password);
 
-     // 获取当前设备的真实信息
-     const deviceInfo = getDeviceInfo();
-     console.log('deviceInfo', deviceInfo);
-     try{
-       // 调用登录接口并传入当前设备的真实信息
-       const loginResult = await loginWithDevice({
+    // 获取当前设备的真实信息
+    const deviceInfo = getDeviceInfo();
+    console.log('deviceInfo', deviceInfo);
+    try {
+      // 调用登录接口并传入当前设备的真实信息
+      const loginResult = await loginWithDevice({
         auth_type: activeTab,
-        identifier: activeTab === 'phone'?phoneNumber:email,
-        password: password, 
+        identifier: activeTab === 'phone' ? phoneNumber : email,
+        password: password,
         device_info: deviceInfo
       });
       if (loginResult) {
         // 保存登录返回的token到
         console.log('登录成功:', loginResult);
-       // 保存token到zustand
-       useUserStore.getState().setToken(loginResult.token);
-       getUserInfoRequest();
+        // 保存token到zustand
+        useUserStore.getState().setToken(loginResult.token);
+        getUserInfoRequest();
         // 跳转到首页
-        navigation.reset({index: 0, routes: [{name: 'MainApp'}]})
+        navigation.reset({ index: 0, routes: [{ name: 'MainApp' }] })
       } else {
         show({
-         message: t('verify_code.login_failed'),
-       });
+          message: t('verify_code.login_failed'),
+        });
       }
-      } catch (error:any) {
-        console.log('error', error);
-       show({
-         message: `${t('verify_code.login_failed')}: ${error.message || t('common.unknown_error')}`,
-       });
-      }
+    } catch (error: any) {
+      console.log('error', error);
+      show({
+        message: `${t('verify_code.login_failed')}: ${error.message || t('common.unknown_error')}`,
+      });
+    }
     setIsSubmitting(true);
     // TODO: 登录API
     setTimeout(() => {
@@ -226,161 +228,162 @@ const LoginPhoneScreen: React.FC = () => {
   };
 
   return (
-    <SafeAreaView style={{flex: 1}} edges={['top','bottom','left','right']}>
-    <View style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor={theme.background} />
-      {/* 国家选择模态框 - 使用 View 模拟 Modal */}
-      {showCountryModal && (
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>{t('login_phone.select_country')}</Text>
-              <TouchableOpacity onPress={() => setShowCountryModal(false)}>
-                <Text style={styles.modalClose}>✕</Text>
-              </TouchableOpacity>
-            </View>
-            <ScrollView style={styles.countryList}>
-              {countries.map((country, index) => (
-                <TouchableOpacity
-                  key={index}
-                  style={styles.countryItem}
-                  onPress={() => handleCountrySelect(country)}
-                >
-                  <Text style={styles.countryItemFlag}>{country.flag}</Text>
-                  <Text style={styles.countryItemName}>{t(`languageNames.${country.id}`)}</Text>
-                  <Text style={styles.countryItemCode}>{country.code}</Text>
+    <SafeAreaView style={{ flex: 1 }} edges={['top', 'bottom', 'left', 'right']}>
+      <View style={styles.container}>
+        <StatusBar barStyle="light-content" backgroundColor={theme.background} />
+        {/* 国家选择模态框 - 使用 View 模拟 Modal */}
+        {showCountryModal && (
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContent}>
+              <View style={styles.modalHeader}>
+                <Text style={styles.modalTitle}>{t('login_phone.select_country')}</Text>
+                <TouchableOpacity onPress={() => setShowCountryModal(false)}>
+                  <Text style={styles.modalClose}>✕</Text>
                 </TouchableOpacity>
-              ))}
-            </ScrollView>
+              </View>
+              <ScrollView style={styles.countryList}>
+                {countries.map((country, index) => (
+                  <TouchableOpacity
+                    key={index}
+                    style={styles.countryItem}
+                    onPress={() => handleCountrySelect(country)}
+                  >
+                    <Text style={styles.countryItemFlag}>{country.flag}</Text>
+                    <Text style={styles.countryItemName}>{t(`languageNames.${country.id}`)}</Text>
+                    <Text style={styles.countryItemCode}>{country.code}</Text>
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+            </View>
           </View>
-        </View>
-      )}
-      {/* 主体内容 */}
-      <KeyboardAvoidingView
-        style={{ flex: 1 }}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      >
-        {/* 顶部返回和标题 */}
-        <View style={styles.header}>
-          <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-            <Image source={require('../../../src/assets/main/page_return_icon.png')} style={styles.backArrow} />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>{t('login_phone.title')}</Text>
-          <View style={{ width: normalize(40) }} />
-        </View>
-
-        {/* 标签切换 */}
-        <View style={styles.tabContainer}>
-          <TouchableOpacity 
-            style={styles.tabButton} 
-            onPress={() => handleTabSwitch('phone')}
-          >
-            <Text style={activeTab === 'phone' ? styles.activeTab : styles.inactiveTab}>
-              {t('login_phone.phone_number')}
-            </Text>
-            {activeTab === 'phone' && <View style={styles.tabIndicator} />}
-          </TouchableOpacity>
-          <TouchableOpacity 
-            style={styles.tabButton} 
-            onPress={() => handleTabSwitch('email')}
-          >
-            <Text style={activeTab === 'email' ? styles.activeTab : styles.inactiveTab}>
-              {t('login_phone.e_mail')}
-            </Text>
-            {activeTab === 'email' && <View style={styles.tabIndicator} />}
-          </TouchableOpacity>
-        </View>
-
-        {/* 手机号登录 */}
-        {activeTab === 'phone' && (
-          <>
-            {/* 国家选择 */}
-            <TouchableOpacity 
-              style={styles.countrySelector} 
-              onPress={() => {
-                console.log('Country selector pressed, setting showCountryModal to true');
-                setShowCountryModal(true);
-              }}
-            >
-              <Image source={require('../../../src/assets/login/login_area_icon.png')} style={styles.inputIcon} />
-              <Text style={styles.countryName}>{t(`languageNames.${selectedCountry.id}`)}</Text>
-              <Text style={styles.countryCode}>{selectedCountry.code}</Text>
-              <Image source={require('../../../src/assets/main/dropdown_icon.png')} style={styles.dropdownArrow} />
+        )}
+        {/* 主体内容 */}
+        <KeyboardAvoidingView
+          style={{ flex: 1 }}
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        >
+          {/* 顶部返回和标题 */}
+          <View style={styles.header}>
+            <TouchableOpacity style={styles.backButton} onPress={handleBack}>
+              <Image source={require('../../../src/assets/main/page_return_icon.png')} style={styles.backArrow} />
             </TouchableOpacity>
+            <Text style={styles.headerTitle}>{t('login_phone.title')}</Text>
+            <View style={{ width: normalize(40) }} />
+          </View>
 
-            {/* 手机号输入框 */}
+          {/* 标签切换 */}
+          <View style={styles.tabContainer}>
+            <TouchableOpacity
+              style={styles.tabButton}
+              onPress={() => handleTabSwitch('phone')}
+            >
+              <Text style={activeTab === 'phone' ? styles.activeTab : styles.inactiveTab}>
+                {t('login_phone.phone_number')}
+              </Text>
+              {activeTab === 'phone' && <View style={styles.tabIndicator} />}
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.tabButton}
+              onPress={() => handleTabSwitch('email')}
+            >
+              <Text style={activeTab === 'email' ? styles.activeTab : styles.inactiveTab}>
+                {t('login_phone.e_mail')}
+              </Text>
+              {activeTab === 'email' && <View style={styles.tabIndicator} />}
+            </TouchableOpacity>
+          </View>
+
+          {/* 手机号登录 */}
+          {activeTab === 'phone' && (
+            <>
+              {/* 国家选择 */}
+              <TouchableOpacity
+                disabled={useAppStore.getState().appSign === APP_SIGN_ENUM.TYPE_MELON}
+                style={styles.countrySelector}
+                onPress={() => {
+                  console.log('Country selector pressed, setting showCountryModal to true');
+                  setShowCountryModal(true);
+                }}
+              >
+                <Image source={require('../../../src/assets/login/login_area_icon.png')} style={styles.inputIcon} />
+                <Text style={styles.countryName}>{useAppStore.getState().appSign === APP_SIGN_ENUM.TYPE_MELON ? t(`languageNames.${"zh"}`) : t(`languageNames.${selectedCountry.id}`)}</Text>
+                <Text style={styles.countryCode}>{useAppStore.getState().appSign === APP_SIGN_ENUM.TYPE_MELON ? "+86" : selectedCountry.code}</Text>
+                <Image source={require('../../../src/assets/main/dropdown_icon.png')} style={styles.dropdownArrow} />
+              </TouchableOpacity>
+
+              {/* 手机号输入框 */}
+              <View style={styles.inputBox}>
+                <Image source={require('../../../src/assets/login/login_phone_icon.png')} style={styles.inputIcon} />
+                <TextInput
+                  style={styles.input}
+                  placeholder={t('login_phone.phone_placeholder')}
+                  placeholderTextColor={theme.textSecondary}
+                  value={phoneNumber}
+                  onChangeText={setPhoneNumber}
+                  keyboardType="phone-pad"
+                />
+              </View>
+            </>
+          )}
+
+          {/* 邮箱登录 */}
+          {activeTab === 'email' && (
             <View style={styles.inputBox}>
-              <Image source={require('../../../src/assets/login/login_phone_icon.png')} style={styles.inputIcon} />
+              <Image source={require('../../../src/assets/login/login_email_icon.png')} style={styles.inputIcon} />
               <TextInput
                 style={styles.input}
-                placeholder={t('login_phone.phone_placeholder')}
+                placeholder={t('login_phone.email_placeholder')}
                 placeholderTextColor={theme.textSecondary}
-                value={phoneNumber}
-                onChangeText={setPhoneNumber}
-                keyboardType="phone-pad"
+                value={email}
+                onChangeText={setEmail}
+                keyboardType="email-address"
+                autoCapitalize="none"
               />
             </View>
-          </>
-        )}
+          )}
 
-        {/* 邮箱登录 */}
-        {activeTab === 'email' && (
+          {/* 密码输入框 */}
           <View style={styles.inputBox}>
-            <Image source={require('../../../src/assets/login/login_email_icon.png')} style={styles.inputIcon} />
+            <Image source={require('../../../src/assets/login/login_lock_icon.png')} style={styles.inputIcon} />
             <TextInput
               style={styles.input}
-              placeholder={t('login_phone.email_placeholder')}
+              placeholder={t('login_phone.password_placeholder')}
               placeholderTextColor={theme.textSecondary}
-              value={email}
-              onChangeText={setEmail}
-              keyboardType="email-address"
-              autoCapitalize="none"
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry
             />
           </View>
-        )}
 
-        {/* 密码输入框 */}
-        <View style={styles.inputBox}>
-          <Image source={require('../../../src/assets/login/login_lock_icon.png')} style={styles.inputIcon} />
-          <TextInput
-            style={styles.input}
-            placeholder={t('login_phone.password_placeholder')}
-            placeholderTextColor={theme.textSecondary}
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry
-          />
-        </View>
-
-        {/* 登录按钮 */}
-        <TouchableOpacity
-          style={[
-            styles.loginButton, 
-            ((activeTab === 'phone' && phoneNumber) || (activeTab === 'email' && email)) && password 
-              ? styles.loginButtonActive 
-              : null
-          ]}
-          onPress={handleLogin}
-          disabled={
-            (activeTab === 'phone' && !phoneNumber) || 
-            (activeTab === 'email' && !email) || 
-            !password || 
-            isSubmitting
-          }
-        >
-          <Text style={[styles.loginButtonText,((activeTab === 'phone' && phoneNumber) || (activeTab === 'email' && email)) && password 
-             ?styles.loginButtonTextActive:null]}>{t('login_phone.log_in')}</Text>
-        </TouchableOpacity>
-
-        {/* 忘记密码链接 */}
-        <View style={styles.forgotPasswordContainer}>
-          <Text style={styles.forgotPasswordText}>{t('login_phone.forgot_password')} </Text>
-          <TouchableOpacity onPress={handleForgotPassword}>
-            <Text style={styles.forgotPasswordLink}>{t('login_phone.forgot_password_link')}</Text>
+          {/* 登录按钮 */}
+          <TouchableOpacity
+            style={[
+              styles.loginButton,
+              ((activeTab === 'phone' && phoneNumber) || (activeTab === 'email' && email)) && password
+                ? styles.loginButtonActive
+                : null
+            ]}
+            onPress={handleLogin}
+            disabled={
+              (activeTab === 'phone' && !phoneNumber) ||
+              (activeTab === 'email' && !email) ||
+              !password ||
+              isSubmitting
+            }
+          >
+            <Text style={[styles.loginButtonText, ((activeTab === 'phone' && phoneNumber) || (activeTab === 'email' && email)) && password
+              ? styles.loginButtonTextActive : null]}>{t('login_phone.log_in')}</Text>
           </TouchableOpacity>
-        </View>
-      </KeyboardAvoidingView>
-    </View>
+
+          {/* 忘记密码链接 */}
+          <View style={styles.forgotPasswordContainer}>
+            <Text style={styles.forgotPasswordText}>{t('login_phone.forgot_password')} </Text>
+            <TouchableOpacity onPress={handleForgotPassword}>
+              <Text style={styles.forgotPasswordLink}>{t('login_phone.forgot_password_link')}</Text>
+            </TouchableOpacity>
+          </View>
+        </KeyboardAvoidingView>
+      </View>
     </SafeAreaView>
   );
 };

@@ -26,7 +26,7 @@ type VoiceprintManagementListScreenNavigationProp = NativeStackNavigationProp<Pr
 const VoiceprintManagementListScreen: React.FC = () => {
   const navigation = useNavigation<VoiceprintManagementListScreenNavigationProp>();
   const { t } = useLanguage();
-  const [activeTab, setActiveTab] = useState<'voiceprint' | 'dataset'>('voiceprint');
+  const [activeTab, setActiveTab] = useState<'voiceprint' | 'dataset'>('dataset');
   const [commonVoiceprints, setCommonVoiceprints] = useState<any[]>([]);
   const [personalVoiceprints, setPersonalVoiceprints] = useState<any[]>([]);
   const [showRenameModal, setShowRenameModal] = useState(false);
