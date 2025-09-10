@@ -69,9 +69,10 @@ const MusicScreen: React.FC = () => {
   const getRecommendStylesRequest = async () => {
     try {
       const res = await getMusicSegmentation();
-      console.log(res);
-      setMusicStyles(res.genres)
-      return res.genres;
+      const genres = res.genres.splice(0, 10)
+      console.log(genres);
+      setMusicStyles(genres)
+      return genres;
     } catch (error: any) {
       show({
         message: t('music.get_recommend_styles_failed') + (error.message || t('common.unknown_error')),
@@ -372,45 +373,38 @@ const MusicScreen: React.FC = () => {
               numberOfLines={10}
               multiline
             />
-            {musicStylesInput.length > 0 && <TouchableOpacity style={[styles.clearIconContainer, { bottom: normalize(100) }]} onPress={() => setMusicStylesInput("")}>
+            {musicStylesInput.length > 0 && <TouchableOpacity style={[styles.clearIconContainer, { bottom: normalize(46) }]} onPress={() => setMusicStylesInput("")}>
               <Image source={require('@/assets/music/music_delete_icon.png')} style={styles.clearIcon} />
             </TouchableOpacity>}
-            <TouchableOpacity style={[styles.clearIconContainer, { bottom: normalize(68) }]} onPress={() => setMusicStylesInput("")}>
+            <TouchableOpacity style={[styles.clearIconContainer, { bottom: normalize(16) }]} onPress={() => setMusicStylesInput("")}>
               <Text style={styles.limitInputText}>{musicStylesInput.length}/200</Text>
             </TouchableOpacity>
-            {/* 音频可视化 */}
-            {lyrics.length > 0 && <View style={styles.audioVisualization}>
-              <TouchableOpacity onPress={handleRefreshRecommendStyles}>
-                <Image source={require('@/assets/main/refresh_icon.png')} style={styles.musicStyleInputIcon} />
-              </TouchableOpacity>
-              {/* 曲风选择芯片 */}
-              <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                style={styles.styleChipsContainer}
-                contentContainerStyle={styles.styleChipsContent}
-              >
-                {musicStyles.map((style) => (
-                  <TouchableOpacity
-                    key={style}
-                    style={[
-                      styles.styleChip,
-                      musicStylesInput.includes(style) && styles.styleChipSelected
-                    ]}
-                    onPress={() => handleStyleSelect(style)}
-                  >
-                    <Text style={[
-                      styles.styleChipText,
-                      musicStylesInput.includes(style) && styles.styleChipTextSelected
-                    ]}>
-                      {style}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </ScrollView>
-            </View>}
+            {/* 曲风选择 */}
 
-
+          </View>
+          <View style={styles.audioVisualization}>
+            <TouchableOpacity onPress={handleRefreshRecommendStyles}>
+              <Image source={require('@/assets/main/refresh_icon.png')} style={styles.musicStyleInputIcon} />
+            </TouchableOpacity>
+            <View style={styles.styleChipsContainer}>
+              {musicStyles.map((style) => (
+                <TouchableOpacity
+                  key={style}
+                  style={[
+                    styles.styleChip,
+                    musicStylesInput.includes(style) && styles.styleChipSelected
+                  ]}
+                  onPress={() => handleStyleSelect(style)}
+                >
+                  <Text style={[
+                    styles.styleChipText,
+                    musicStylesInput.includes(style) && styles.styleChipTextSelected
+                  ]}>
+                    {style}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
           </View>
 
           {/* Next 按钮 */}
@@ -588,9 +582,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#262626',
     borderRadius: normalize(12),
     padding: normalize(16),
-    marginBottom: normalize(18),
     height: normalize(388),
-    paddingBottom: normalize(16),
+    paddingBottom: normalize(0),
+    borderBottomLeftRadius: normalize(0),
+    borderBottomRightRadius: normalize(0),
   },
   musicStyleHeader: {
     flexDirection: 'row',
@@ -606,14 +601,18 @@ const styles = StyleSheet.create({
   },
   // 音频可视化样式
   audioVisualization: {
-    position: 'absolute',
-    height: normalize(36),
-    bottom: normalize(16),
-    left: normalize(16),
-    right: normalize(16),
+    width: "100%",
+    minHeight: normalize(36),
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     justifyContent: 'space-between',
+    marginBottom: normalize(18),
+    backgroundColor: '#262626',
+    borderRadius: normalize(12),
+    borderTopLeftRadius: normalize(0),
+    borderTopRightRadius: normalize(0),
+    paddingHorizontal: normalize(16),
+    paddingBottom: normalize(12),
   },
   musicStyleInputIcon: {
     width: normalize(22),
@@ -630,7 +629,12 @@ const styles = StyleSheet.create({
   },
   // 曲风选择芯片样式
   styleChipsContainer: {
-    height: normalize(36),
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+    flexWrap: 'wrap',
+    gap: normalize(8),
   },
   styleChipsContent: {
     position: 'absolute',

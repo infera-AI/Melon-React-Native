@@ -19,6 +19,8 @@ import { useLanguage } from '../../contexts/LanguageContext';
 import { getLoginCodeApi } from '../../api/login/auth';
 import { useMessageModal } from '../../contexts/MessageModalContext';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useAppStore } from '../../store';
+import { APP_SIGN_ENUM } from '../../utils/constants';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 const normalize = (size: number, based: 'width' | 'height' = 'width') => {
@@ -163,29 +165,29 @@ const LoginWithCodeScreen: React.FC = () => {
   const handleSendCode = async () => {
     if (activeTab === 'phone' && !phoneNumber) return;
     if (activeTab === 'email' && !email) return;
-    
+
     setIsSubmitting(true);
-    
+
     try {
       const params = {
         recipient_type: activeTab, // 'phone' 或 'email'
         identifier: activeTab === 'phone' ? phoneNumber : email,
         auth_purpose: 'login' as const, // 根据页面用途设置
       };
-      
+
       console.log('发送验证码参数:', params);
-      
+
       const response = await getLoginCodeApi(params);
       console.log('验证码发送成功:', response);
-      
+
       // 发送成功后跳转到验证码输入页面
-      navigation.navigate('VerifyCodeLogin', { 
+      navigation.navigate('VerifyCodeLogin', {
         account: activeTab === 'phone' ? phoneNumber : email,
         type: activeTab,
         countryCode: selectedCountry.code,
       });
-      
-    } catch (error:any) {
+
+    } catch (error: any) {
       show({
         message: `${t('login_with_code.send_code_failed')}: ${error.message || t('common.unknown_error')}`,
       });
@@ -195,14 +197,14 @@ const LoginWithCodeScreen: React.FC = () => {
     }
   };
 
-  
+
 
   const handleForgotPassword = () => {
     navigation.navigate('RetrivePassword');
   };
 
   return (
-    <SafeAreaView style={{flex: 1}} edges={['top','bottom','left','right']}>
+    <SafeAreaView style={{ flex: 1 }} edges={['top', 'bottom', 'left', 'right']}>
       <View style={styles.container}>
         <StatusBar barStyle="light-content" backgroundColor={theme.background} />
         {/* 顶部返回和标题 */}
@@ -232,10 +234,10 @@ const LoginWithCodeScreen: React.FC = () => {
         {activeTab === 'phone' && (
           <>
             {/* 国家选择 */}
-            <TouchableOpacity style={styles.countrySelector} onPress={() => setShowCountryModal(true)}>
+            <TouchableOpacity style={styles.countrySelector} disabled={useAppStore.getState().appSign === APP_SIGN_ENUM.TYPE_MELON} onPress={() => setShowCountryModal(true)}>
               <Image source={require('../../../src/assets/login/login_area_icon.png')} style={styles.inputIcon} />
-              <Text style={styles.countryName}>{t(`languageNames.${selectedCountry.id}`)}</Text>
-              <Text style={styles.countryCode}>{selectedCountry.code}</Text>
+              <Text style={styles.countryName}>{useAppStore.getState().appSign === APP_SIGN_ENUM.TYPE_MELON ? t(`languageNames.${"zh"}`) : t(`languageNames.${selectedCountry.id}`)}</Text>
+              <Text style={styles.countryCode}>{useAppStore.getState().appSign === APP_SIGN_ENUM.TYPE_MELON ? "+86" : selectedCountry.code}</Text>
               <Image source={require('../../../src/assets/main/dropdown_icon.png')} style={styles.dropdownArrow} />
             </TouchableOpacity>
             {/* 手机号输入框 */}
@@ -282,9 +284,9 @@ const LoginWithCodeScreen: React.FC = () => {
             isSubmitting
           }
         >
-          <Text style={[styles.sendButtonText,((activeTab === 'phone' && phoneNumber) || (activeTab === 'email' && email)) && !isSubmitting
-              ? styles.sendButtonTextActive
-              : null,]}>{t('login_with_code.send_verification_code')}</Text>
+          <Text style={[styles.sendButtonText, ((activeTab === 'phone' && phoneNumber) || (activeTab === 'email' && email)) && !isSubmitting
+            ? styles.sendButtonTextActive
+            : null,]}>{t('login_with_code.send_verification_code')}</Text>
         </TouchableOpacity>
         <Text style={styles.forgotPasswordText} onPress={handleForgotPassword}>{t('login_phone.forgot_password')} </Text>
 

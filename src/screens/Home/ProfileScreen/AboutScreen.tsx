@@ -27,7 +27,7 @@ const AboutScreen: React.FC = () => {
   };
 
   const handleUserServiceAgreement = () => {
-    console.log('Navigate to User Service Agreement');
+    navigation.navigate('UserServiceAgreement');
   };
 
   const handlePrivacyPolicy = () => {
@@ -51,8 +51,8 @@ const AboutScreen: React.FC = () => {
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
           <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-            <Image 
-              source={require('../../../assets/main/page_return_icon.png')} 
+            <Image
+              source={require('../../../assets/main/page_return_icon.png')}
               style={styles.backIcon}
             />
           </TouchableOpacity>
@@ -61,8 +61,8 @@ const AboutScreen: React.FC = () => {
         </View>
 
         <View style={styles.appIconContainer}>
-          <Image 
-            source={require('../../../assets/login/welcome_logo.png')} 
+          <Image
+            source={require('../../../assets/login/welcome_logo.png')}
             style={styles.appIcon}
           />
         </View>
@@ -76,8 +76,8 @@ const AboutScreen: React.FC = () => {
         </View>
 
         <View style={styles.legalSection}>
-          <TouchableOpacity 
-            style={styles.legalCard} 
+          <TouchableOpacity
+            style={styles.legalCard}
             onPress={handleUserServiceAgreement}
             activeOpacity={1}
           >
@@ -86,16 +86,16 @@ const AboutScreen: React.FC = () => {
                 <Text style={styles.legalTitle}>{t('about.user_service_agreement')}</Text>
               </View>
               <View style={styles.legalRight}>
-                <Image 
-                  source={require('../../../assets/main/right_arrow_icon.png')} 
+                <Image
+                  source={require('../../../assets/main/right_arrow_icon.png')}
                   style={styles.arrowIcon}
                 />
               </View>
             </View>
           </TouchableOpacity>
 
-          <TouchableOpacity 
-            style={styles.legalCard} 
+          <TouchableOpacity
+            style={styles.legalCard}
             onPress={handlePrivacyPolicy}
             activeOpacity={1}
           >
@@ -104,16 +104,16 @@ const AboutScreen: React.FC = () => {
                 <Text style={styles.legalTitle}>{t('about.privacy_policy')}</Text>
               </View>
               <View style={styles.legalRight}>
-                <Image 
-                  source={require('../../../assets/main/right_arrow_icon.png')} 
+                <Image
+                  source={require('../../../assets/main/right_arrow_icon.png')}
                   style={styles.arrowIcon}
                 />
               </View>
             </View>
           </TouchableOpacity>
 
-          <TouchableOpacity 
-            style={styles.legalCard} 
+          <TouchableOpacity
+            style={styles.legalCard}
             onPress={handleCopyrightStatement}
             activeOpacity={1}
           >
@@ -122,21 +122,21 @@ const AboutScreen: React.FC = () => {
                 <Text style={styles.legalTitle}>{t('about.copyright_statement')}</Text>
               </View>
               <View style={styles.legalRight}>
-                <Image 
-                  source={require('../../../assets/main/right_arrow_icon.png')} 
+                <Image
+                  source={require('../../../assets/main/right_arrow_icon.png')}
                   style={styles.arrowIcon}
                 />
               </View>
             </View>
           </TouchableOpacity>
         </View>
-
+        {/* TODO: 官网和邮箱待添加 */}
         <View style={styles.contactContainer}>
           <TouchableOpacity onPress={handleWebsiteClick} activeOpacity={1}>
-            <Text style={styles.contactText}>{t('about.official_website')}</Text>
+            <Text style={styles.contactText}></Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={handleEmailClick} activeOpacity={1}>
-            <Text style={styles.contactText}>{t('about.customer_service_email')}</Text>
+            <Text style={styles.contactText}></Text>
           </TouchableOpacity>
         </View>
 

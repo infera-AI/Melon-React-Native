@@ -6,18 +6,16 @@ import LinearGradient from 'react-native-linear-gradient';
 import { normalize, normalizeFontSize } from '@/utils/stylesUtil';
 import theme from '@/utils/theme';
 
-const PurchaseScreen: React.FC = () => {
+const PurchaseScreen: React.FC = ({ route }: any) => {
   const navigation = useNavigation();
-  const [selectedPackage, setSelectedPackage] = useState('300');
+  const [selectedPackage, setSelectedPackage] = useState(route.params.points);
   const [selectedPayment, setSelectedPayment] = useState('melon');
 
   const packages = [
     { id: '300', points: '300', price: '$0.99' },
-    { id: '750', points: '750', price: '$1.99' },
-    { id: '2250', points: '2250', price: '$4.99' },
-    { id: '300_2', points: '300', price: '$0.99' },
-    { id: '750_2', points: '750', price: '$1.99' },
-    { id: '2250_2', points: '2250', price: '$4.99' },
+    { id: '700+50', points: '750', price: '$1.99' },
+    { id: '2000+250', points: '2250', price: '$4.99' },
+    { id: '5000+1000', points: '6000', price: '$12.99' },
   ];
 
   const handleBack = () => navigation.goBack();

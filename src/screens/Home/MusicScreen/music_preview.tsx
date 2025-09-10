@@ -280,7 +280,7 @@ const MusicPreviewScreen: React.FC<{ route: RouteProp<MusicStackParamList, 'Musi
           onPress={handleGoBack}
           activeOpacity={0.7}
         >
-          <Text style={styles.homeBtnText}>{t('music.back_to_homepage')}</Text>
+          <Text style={styles.homeBtnText}>Back</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.okBtn}
@@ -457,6 +457,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   okBtnText: {
+    width: "100%",
     color: '#0C0C0D',
     fontSize: normalizeFontSize(20),
     fontWeight: 'bold',

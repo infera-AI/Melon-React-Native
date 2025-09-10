@@ -13,6 +13,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { normalize, normalizeFontSize } from '@/utils/stylesUtil';
 import theme from '@/utils/theme';
 import { usePointsStore } from '@/store/modules/points.store';
+import { POINTS_DEDUCTION } from '@/utils/constants';
 
 const MyPointsScreen: React.FC = () => {
   const navigation = useNavigation();
@@ -56,7 +57,7 @@ const MyPointsScreen: React.FC = () => {
   };
 
   const handleBuy = () => {
-    navigation.navigate('Purchase' as never);
+    navigation.navigate('Purchase', { points: selectedPackage });
   };
 
   const handleDetails = () => {
@@ -108,9 +109,9 @@ const MyPointsScreen: React.FC = () => {
               style={[
                 styles.packageCard,
                 styles.packageCardMargin,
-                selectedPackage === pkg.id && styles.basicPackCard,
+                selectedPackage === pkg.points && styles.basicPackCard,
               ]}
-              onPress={() => handlePackageSelect(pkg.id)}
+              onPress={() => handlePackageSelect(pkg.points)}
               activeOpacity={0.7}
             >
               <View style={styles.packageContent}>
@@ -134,12 +135,12 @@ const MyPointsScreen: React.FC = () => {
         {/* 积分规则内容 */}
         <View style={styles.rulesContainer}>
           <Text style={styles.rulesText}>
-            Generate song: 1 time/50 points{'\n'}
-            Generate song (using specified tone): 1 time/60 points{'\n'}
-            Voiceprint Clone: 1 time/200 points{'\n'}
-            Online translation (video/voice): 1 minute/15 points{'\n'}
-            Translation of documents/recordings/files images: 1 time/5 points{'\n'}
-            External speakers/headphones/simultaneous translation: 100 characters/1 point
+            Generate song: 1 time/{POINTS_DEDUCTION.GENERATE_MUSIC} points{'\n'}
+            Generate song (using specified tone): 1 time/{POINTS_DEDUCTION.COVER_MUSIC} points{'\n'}
+            Voiceprint Clone: 1 time/{POINTS_DEDUCTION.CLONE_VOICEPRINT} points{'\n'}
+            Online translation (video/voice): 1 minute/{POINTS_DEDUCTION.TRANSLATE_VIDEO} points{'\n'}
+            Translation of documents/recordings/files images: 1 time/{POINTS_DEDUCTION.TRANSLATE_DOCUMENT} points{'\n'}
+            External speakers/headphones/simultaneous translation: 100 characters/{POINTS_DEDUCTION.TRANSLATE_EXTERNAL_SPEAKER} point
           </Text>
         </View>
 
