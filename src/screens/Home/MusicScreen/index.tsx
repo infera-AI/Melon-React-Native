@@ -319,7 +319,7 @@ const MusicScreen: React.FC = () => {
             numberOfLines={10}
             multiline
           />
-          {lyrics.length > 0 && <TouchableOpacity style={styles.clearIconContainer} onPress={() => setLyrics("")}>
+          {lyrics.length > 0 && <TouchableOpacity style={styles.clearIconContainerInput} onPress={() => setLyrics("")}>
             <Image source={require('@/assets/music/music_delete_icon.png')} style={styles.clearIcon} />
           </TouchableOpacity>}
         </View>
@@ -582,6 +582,11 @@ const styles = StyleSheet.create({
     marginBottom: normalize(10),
     height: normalize(56),
 
+  },
+  clearIconContainerInput:{
+    position: 'absolute',
+    bottom: normalize(16),
+    right: normalize(16),
   },
   clearIconContainer: {
     position: 'absolute',
