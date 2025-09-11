@@ -38,6 +38,8 @@ import MyPointsScreen from './MyPointsScreen';
 import PointsDetailScreen from './PointsDetailScreen';
 import PurchaseScreen from './PurchaseScreen';
 import OfflineVoicePackageScreen from './OfflineVoicePackageScreen';
+import UserServiceAgreementScreen from '@/screens/Auth/UserServiceAgreementScreen';
+import PrivacyPolicyScreen from '@/screens/Auth/PrivacyPolicyScreen';
 
 import BindSuccessScreen from './BindSuccessScreen';
 // import ProfileResetPasswordScreen from './ProfileResetPasswordScreen';
@@ -92,6 +94,8 @@ export type ProfileStackParamList = {
     bindType: 'phone' | 'email';
     bindValue: string;
   };
+  UserServiceAgreement: undefined;
+  PrivacyPolicy: undefined;
 };
 
 const Stack = createNativeStackNavigator<ProfileStackParamList>();
@@ -140,6 +144,8 @@ const ProfileNavigator: React.FC = () => {
       <Stack.Screen name="VoiceprintTrainingSuccess" component={VoiceprintTrainingSuccessScreen} />
       <Stack.Screen name="VoiceprintRecording" component={VoiceprintRecordingScreen} />
       <Stack.Screen name="BindSuccess" component={BindSuccessScreen} />
+      <Stack.Screen name="UserServiceAgreement" component={UserServiceAgreementScreen} />
+      <Stack.Screen name="PrivacyPolicy" component={PrivacyPolicyScreen} />
       {/* <Stack.Screen name="ProfileResetPassword" component={ProfileResetPasswordScreen} /> */}
     </Stack.Navigator>
   );

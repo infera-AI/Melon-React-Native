@@ -12,6 +12,9 @@ import {
   TextInput,
   ScrollView,
   ImageBackground,
+  Platform,
+  PermissionsAndroid,
+  NativeModules
 } from "react-native";
 import { useFocusEffect } from '@react-navigation/native';
 import Sound from "react-native-sound";
@@ -26,6 +29,9 @@ import { normalize, normalizeFontSize } from '@/utils/stylesUtil';
 import { MusicDownloader } from '@/utils/MusicDownloader';
 import FullScreenLoading from "@/components/FullScreenLoader";
 import { useMusicStore } from '@/store/modules/music.store';
+
+import RNFS from 'react-native-fs';
+import Share from 'react-native-share';
 
 type Music = {
   id: number;
@@ -473,32 +479,160 @@ const MyWorkMusicPlay = ({ navigation, route }: any) => {
     return info;
   }, [songList]);
 
-  const handleDownload = async () => {
-    setDownloading(true);
-    setProgress(0);
+  /**
+   * 请求 Android 存储权限
+   */
+  const requestStoragePermission = async () => {
+    if (Platform.OS !== 'android') return true;
 
     try {
-      await downloader.downloadMusic(
-        musicInfo.url,
-        musicInfo.title,
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
         {
-          onProgress: (progress) => {
-            setProgress(progress);
-          },
-          onComplete: (result) => {
-            setDownloading(false);
-            console.log('下载完成:', result.localPath);
-            show({ message: t('music.download_success') });
-          },
-          onError: (error) => {
-            setDownloading(false);
-            console.log('下载失败:', error);
-          }
+          title: t('translate_screen.audio_permission_title'),
+          message: t('translate_screen.audio_permission_desc'),
+          buttonNeutral: t('translate_screen.audio_permission_btn1'),
+          buttonNegative: t('translate_screen.document_cancel'),
+          buttonPositive: t('translate_screen.camera_permission_ok'),
         }
       );
-    } catch (error) {
+      return granted === PermissionsAndroid.RESULTS.GRANTED;
+    } catch (err) {
+      console.warn('权限请求失败:', err);
+      return false;
+    }
+  };
+
+  const downloadToDownloads = async (url: string, name: string) => {
+    const { FileSaver } = NativeModules;
+
+    try {
+      const savedPath = await FileSaver.saveFileToDownloadsUsingMediaStore(url, name);
+      console.log('下载成功', `文件已保存到：\nDownload`);
       setDownloading(false);
-      console.error('下载出错:', error);
+      show({
+        message: `${t('translate_screen.download_file_success')}: /Download`
+      })
+    } catch (e: any) {
+      setDownloading(false);
+      console.log('下载失败', e.message || '未知错误');
+      show({
+        message: t('translate_screen.download_file_error')
+      })
+    }
+  };
+
+  const handleDownload = async () => {
+    // console.log('musicInfo.url---', musicInfo.url);
+    // console.log('musicInfo.title---', musicInfo.title);
+    setShowShareModal(false)
+    if (Platform.OS === 'android') {
+      const isPermission = requestStoragePermission()
+      if (!isPermission) {
+        console.log('无权限');
+        return
+      }
+      setDownloading(true);
+      downloadToDownloads(musicInfo.url, `${musicInfo.title}.${musicInfo.url.split(/\.(?=[^\.]+$)/)[1]}`)
+      return
+    }
+
+    // ios保存文件代码
+    setDownloading(true);
+    // 获取存储路径
+    let localFilePath = `${RNFS.DocumentDirectoryPath}/${musicInfo.title}.${musicInfo.url.split(/\.(?=[^\.]+$)/)[1]}`;
+    const options = {
+      fromUrl: musicInfo.url, // 网络文件地址
+      toFile: localFilePath, // 本地保存路径
+    };
+
+    try {
+      const result = await RNFS.downloadFile(options).promise;
+
+      if (result.statusCode === 200) {
+        console.log('下载成功:', localFilePath);
+        shareFile(localFilePath)
+        return localFilePath;
+      } else {
+        console.warn('下载失败，状态码:', result.statusCode);
+        return null;
+      }
+    } catch (err) {
+      console.error('下载失败:', err);
+      return null;
+    }
+
+
+
+    // setDownloading(true);
+    // setProgress(0);
+
+    // try {
+    //   await downloader.downloadMusic(
+    //     musicInfo.url,
+    //     musicInfo.title,
+    //     {
+    //       onProgress: (progress) => {
+    //         setProgress(progress);
+    //       },
+    //       onComplete: (result) => {
+    //         setDownloading(false);
+    //         console.log('下载完成:', result.localPath);
+    //         show({ message: t('music.download_success') });
+    //       },
+    //       onError: (error) => {
+    //         setDownloading(false);
+    //         console.log('下载失败:', error);
+    //       }
+    //     }
+    //   );
+    // } catch (error) {
+    //   setDownloading(false);
+    //   console.error('下载出错:', error);
+    // }
+  };
+
+  const shareFile = async (filePath: string) => {
+
+    try {
+      const fileExists = await RNFS.exists(filePath);
+      if (!fileExists) {
+        console.warn('文件不存在，无法分享');
+        setDownloading(false);
+        return;
+      }
+
+      // 2. 提取文件扩展名，确定具体MIME类型
+      const fileExt = filePath.split('.').pop()?.toLowerCase();
+      let mimeType = 'audio/*';
+      if (fileExt === 'mp3') mimeType = 'audio/mpeg';
+      if (fileExt === 'wav') mimeType = 'audio/wav';
+      if (fileExt === 'flac') mimeType = 'audio/flac';
+      if (fileExt === 'aac') mimeType = 'audio/aac';
+
+      // 3. 直接使用Documents目录的文件路径分享（无需复制到Caches）
+      const shareUrl = `file://${filePath}`;
+      console.log('准备分享路径:', shareUrl);
+      // setDownloading(false);
+
+      // 4. 执行分享（使用具体MIME类型）
+      const res = await Share.open({
+        url: shareUrl,
+        type: mimeType, // 精确的MIME类型
+        showAppsToView: true,
+        title: '分享音频文件', // 增加标题参数提升兼容性
+      });
+
+      console.log('分享结果:', res);
+      setDownloading(false);
+      if (res?.success) {
+        show({
+          message: t('translate_screen.save_file_success')
+        });
+      }
+    } catch (error) {
+      console.error('分享失败:', error);
+      setDownloading(false);
     }
   };
 
@@ -813,7 +947,10 @@ const MyWorkMusicPlay = ({ navigation, route }: any) => {
           </View>
         </View>
       </Modal>
-      <FullScreenLoading visible={downloading} progress={progress} />
+      <FullScreenLoading
+        visible={downloading}
+        text={t('translate_screen.loading_text')}
+      />
     </View>
   );
 };

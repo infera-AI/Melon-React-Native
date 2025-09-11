@@ -20,27 +20,27 @@ class MainActivity : ReactActivity() {
 
         if ((BuildConfig.APP_SIGN == "melon" || BuildConfig.APP_SIGN == "momor") && BuildConfig.DEBUG) { // 国内版使用穿山甲
             // RN 容器是 android.R.id.content
-            val content = findViewById<ViewGroup>(android.R.id.content)
-
-            val button = Button(this).apply {
-                text = "测试工具"
-                setBackgroundColor(Color.parseColor("blue"))
-                setOnClickListener {
-                    Toast.makeText(this@MainActivity, "点击了原生按钮", Toast.LENGTH_SHORT).show()
-                    ToolsUtil.start(this@MainActivity);
-                }
-            }
-
-            val params = FrameLayout.LayoutParams(
-                FrameLayout.LayoutParams.WRAP_CONTENT,
-                FrameLayout.LayoutParams.WRAP_CONTENT,
-                Gravity.BOTTOM or Gravity.END
-            ).apply {
-                marginEnd = 50
-                bottomMargin = 260
-            }
-
-            content.addView(button, params)
+//            val content = findViewById<ViewGroup>(android.R.id.content)
+//
+//            val button = Button(this).apply {
+//                text = "测试工具"
+//                setBackgroundColor(Color.parseColor("blue"))
+//                setOnClickListener {
+//                    Toast.makeText(this@MainActivity, "点击了原生按钮", Toast.LENGTH_SHORT).show()
+//                    ToolsUtil.start(this@MainActivity);
+//                }
+//            }
+//
+//            val params = FrameLayout.LayoutParams(
+//                FrameLayout.LayoutParams.WRAP_CONTENT,
+//                FrameLayout.LayoutParams.WRAP_CONTENT,
+//                Gravity.BOTTOM or Gravity.END
+//            ).apply {
+//                marginEnd = 50
+//                bottomMargin = 260
+//            }
+//
+//            content.addView(button, params)
         }
     }
 

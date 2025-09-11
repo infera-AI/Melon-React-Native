@@ -32,6 +32,7 @@ const AboutScreen: React.FC = () => {
 
   const handlePrivacyPolicy = () => {
     console.log('Navigate to Privacy Policy');
+    navigation.navigate('PrivacyPolicy');
   };
 
   const handleCopyrightStatement = () => {
