@@ -145,7 +145,7 @@ export function saveGenerateMusicOS(params: { task_id: string }) {
 }
 
 // 获取个人作品
-export function getPersonalWorks(params: { page_number: number, page_size: number,title:string}) {
+export function getPersonalWorks(params: { page_num: number, page_size: number,title:string}) {
   return http.get<any>(API_ENDPOINTS.MUSIC.GET_PERSONAL_WORKS, params);
 }
 

@@ -8,6 +8,7 @@ import {
   FlatList,
   Image,
   Dimensions,
+  ActivityIndicator,
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { getPersonalWorks } from '@/api/music/music';
@@ -42,6 +43,14 @@ const MyWorkScreen = ({ navigation }: any) => {
   const audioPlayerRef = useRef<AudioPlayer>(null);
   const [isPlayMusic, setIsPlayMusic] = useState('');
   const [isProcessing, setIsProcessing] = useState(false); // 添加处理状态
+
+  // 分页相关状态
+  const [currentPage, setCurrentPage] = useState(1);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [hasMoreData, setHasMoreData] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const pageSize = 10; // 每页数据量
+
   const { show } = useMessageModal();
   const { t } = useLanguage();
 
@@ -74,13 +83,31 @@ const MyWorkScreen = ({ navigation }: any) => {
   }, [sound]);
 
   // 获取作品
-  const getMyWorks = async () => {
+  const getMyWorks = async (page: number = 1, isLoadMore: boolean = false) => {
     try {
-      const response = await getPersonalWorks({ page_number: 1, page_size: 10, title: searchText });
-      // setMyWorks(transformMyWorks(response.data_list));
-      setFilteredWorks(transformMyWorks(response.data_list)); // 初始化过滤后的作品
+      const response = await getPersonalWorks({
+        page_num: page,
+        page_size: pageSize,
+        title: searchText
+      });
+
+      const newWorks = transformMyWorks(response.data_list || []);
+
+      if (isLoadMore) {
+        // 加载更多时追加数据
+        setFilteredWorks(prevWorks => [...prevWorks, ...newWorks]);
+      } else {
+        // 首次加载或搜索时替换数据
+        setFilteredWorks(newWorks);
+      }
+
+      // 检查是否还有更多数据
+      setHasMoreData(newWorks.length === pageSize);
+
+      return newWorks;
     } catch (error) {
       console.error('Error fetching my works:', error);
+      show({ message: t('music.load_failed') });
       return [];
     }
   }
@@ -100,49 +127,66 @@ const MyWorkScreen = ({ navigation }: any) => {
     }));
   }
 
+  // 加载更多数据
+  const loadMoreData = async () => {
+    if (isLoadingMore || !hasMoreData) {
+      return;
+    }
+
+    setIsLoadingMore(true);
+    const nextPage = currentPage + 1;
+
+    try {
+      await getMyWorks(nextPage, true);
+      setCurrentPage(nextPage);
+    } catch (error) {
+      console.error('加载更多数据失败:', error);
+    } finally {
+      setIsLoadingMore(false);
+    }
+  };
+
+  // 下拉刷新
+  const handleRefresh = async () => {
+    if (isRefreshing) {
+      return;
+    }
+
+    setIsRefreshing(true);
+    setCurrentPage(1);
+    setHasMoreData(true);
+
+    try {
+      await getMyWorks(1, false);
+    } catch (error) {
+      console.error('刷新数据失败:', error);
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+
   // 搜索功能
   const handleSearch = (text: string) => {
     setSearchText(text);
-    // if (text.trim() === '') {
-    //   setFilteredWorks(myWorks);
-    // } else {
-    //   const filtered = myWorks.filter((work: Music) => {
-    //     const searchLower = text.toLowerCase();
-    //     return (
-    //       work.title?.toLowerCase().includes(searchLower) ||
-    //       (Array.isArray(work.genres) && work.genres.some((genre: string) =>
-    //         genre.toLowerCase().includes(searchLower)
-    //       ))
-    //     );
-    //   });
-    //   setFilteredWorks(filtered);
-    // }
-    getMyWorks();
+    setCurrentPage(1);
+    setHasMoreData(true);
+    getMyWorks(1, false);
   };
 
   // 清除搜索
   const clearSearch = () => {
     setSearchText('');
-    getMyWorks();
+    setCurrentPage(1);
+    setHasMoreData(true);
+    getMyWorks(1, false);
   };
 
-  // 当 myWorks 更新时，同步更新 filteredWorks
+  // 当搜索文本变化时，重新加载数据
   useEffect(() => {
-    getMyWorks();
-    // if (searchText.trim() === '') {
-    //   setFilteredWorks(myWorks);
-    // } else {
-    //   const filtered = myWorks.filter((work: Music) => {
-    //     const searchLower = searchText.toLowerCase();
-    //     return (
-    //       work.title.toLowerCase().includes(searchLower) ||
-    //       (Array.isArray(work.genres) && work.genres.some((genre: string) =>
-    //         genre.toLowerCase().includes(searchLower)
-    //       ))
-    //     );
-    //   });
-    //   setFilteredWorks(filtered);
-    // }
+    // 搜索文本变化时，重置分页状态并重新加载
+    setCurrentPage(1);
+    setHasMoreData(true);
+    getMyWorks(1, false);
   }, [searchText]);
 
   // 播放音乐
@@ -301,7 +345,9 @@ const MyWorkScreen = ({ navigation }: any) => {
   useFocusEffect(
     React.useCallback(() => {
       console.log('页面获得焦点，执行getMyWorks');
-      getMyWorks();
+      setCurrentPage(1);
+      setHasMoreData(true);
+      getMyWorks(1, false);
 
       // 页面失去焦点时的清理函数
       return () => {
@@ -338,7 +384,10 @@ const MyWorkScreen = ({ navigation }: any) => {
   }, [isPlayMusic, sound]);
 
   useEffect(() => {
-    getMyWorks();
+    // 组件初始化时加载第一页数据
+    setCurrentPage(1);
+    setHasMoreData(true);
+    getMyWorks(1, false);
   }, []);
   return (
     <View style={styles.container}>
@@ -435,9 +484,35 @@ const MyWorkScreen = ({ navigation }: any) => {
             </TouchableOpacity>
           </TouchableOpacity>
         )}
-        ListEmptyComponent={<View style={styles.emptyContainer}>
-          <Text style={styles.emptyText}>{t('music.no_works_found')}</Text>
-        </View>}
+        ListEmptyComponent={
+          !isRefreshing ? (
+            <View style={styles.emptyContainer}>
+              <Text style={styles.emptyText}>{t('music.no_works_found')}</Text>
+            </View>
+          ) : null
+        }
+        ListFooterComponent={() => {
+          if (isLoadingMore) {
+            return (
+              <View style={styles.loadingContainer}>
+                <ActivityIndicator size="small" color="#85F380" />
+                <Text style={styles.loadingText}>{t('music.loading_more')}</Text>
+              </View>
+            );
+          }
+          if (!hasMoreData && filteredWorks.length > 0) {
+            return (
+              <View style={styles.noMoreContainer}>
+                <Text style={styles.noMoreText}>{t('music.no_more_data')}</Text>
+              </View>
+            );
+          }
+          return null;
+        }}
+        onEndReached={loadMoreData}
+        onEndReachedThreshold={0.1}
+        onRefresh={handleRefresh}
+        refreshing={isRefreshing}
         contentContainerStyle={{ paddingBottom: 24 }}
         showsVerticalScrollIndicator={false}
       />
@@ -603,6 +678,26 @@ const styles = StyleSheet.create({
     color: theme.background,
     fontSize: normalizeFontSize(16),
     fontWeight: '500',
+  },
+  loadingContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: normalize(20),
+  },
+  loadingText: {
+    color: '#85F380',
+    fontSize: normalizeFontSize(14),
+    marginLeft: normalize(8),
+  },
+  noMoreContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: normalize(20),
+  },
+  noMoreText: {
+    color: '#888',
+    fontSize: normalizeFontSize(14),
   },
 });
 
