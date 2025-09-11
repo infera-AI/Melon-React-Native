@@ -37,7 +37,7 @@ class MainActivity : ReactActivity() {
                 Gravity.BOTTOM or Gravity.END
             ).apply {
                 marginEnd = 50
-                bottomMargin = 50
+                bottomMargin = 260
             }
 
             content.addView(button, params)

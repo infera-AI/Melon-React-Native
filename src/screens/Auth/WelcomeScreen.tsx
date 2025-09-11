@@ -289,7 +289,7 @@ const WelcomeScreen: React.FC = () => {
                   resizeMode="contain"
                 />
             </View>
-            <TouchableOpacity
+            {/* <TouchableOpacity
               style={{
                 width: 50,
                 height: 50,
@@ -301,7 +301,7 @@ const WelcomeScreen: React.FC = () => {
               }}
               onPress={handleInitAd}
             >
-            </TouchableOpacity>
+            </TouchableOpacity> */}
               {/* Melon 标题 - 渐变色文字 */}
              <View style={styles.titleContainer}>
                <Image source={require('../../../src/assets/login/login_title_icon.png')} resizeMode="contain" style={styles.titleIcon} />

@@ -45,7 +45,7 @@ class SplashAdViewManager(
 
         // 新增：重复注册防护逻辑（仅开发环境生效，不影响生产）
         instanceCount++
-        if (BuildConfig.DEBUG && isRegistered) {
+        if (isRegistered) {
             Log.w(TAG, "SplashAdViewManager: CSJSplashAdView已注册（实例数：$instanceCount），跳过重复初始化")
             // 直接创建基础实例（复用原有Activity获取和回调设置逻辑）
             val currentActivity: Activity? = this.reactContext.currentActivity
@@ -163,7 +163,7 @@ class SplashAdViewManager(
         instanceCount--
         Log.d(TAG, "SplashAdViewManager: 实例销毁，剩余实例数：$instanceCount")
         // 所有实例销毁后，重置注册状态（下次创建可重新执行首次注册流程）
-        if (BuildConfig.DEBUG && instanceCount <= 0) {
+        if (instanceCount <= 0) {
             isRegistered = false
             Log.d(TAG, "SplashAdViewManager: 所有实例已销毁，重置注册状态")
         }

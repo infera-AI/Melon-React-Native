@@ -229,24 +229,24 @@ const TranslateScreen: React.FC = () => {
             </View>
             <Text style={styles.modeCardText}>{t('translate_screen.speaker_mode')}</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.modeCard} onPress={handlePress('HeadphoneMode')}>
+          {/* <TouchableOpacity style={styles.modeCard} onPress={handlePress('HeadphoneMode')}>
             <View style={styles.modeIconBox}>
               <Image source={require('../../../../assets/images/Home_Translate_erji.png')} style={styles.iconSpeaker}/>
             </View>
             <Text style={styles.modeCardText}>{t('translate_screen.headPhone_mode')}</Text>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
           <TouchableOpacity style={styles.modeCard} onPress={handlePress('ListeningMode')}>
             <View style={styles.modeIconBox}>
               <Image source={require('../../../../assets/images/Home_Translate_lingdang.png')} style={styles.iconSpeaker}/>
             </View>
             <Text style={styles.modeCardText}>{t('translate_screen.listening_mode')}</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.modeCard} onPress={handlePress('OnlineCall')}>
+          {/* <TouchableOpacity style={styles.modeCard} onPress={handlePress('OnlineCall')}>
             <View style={styles.modeIconBox}>
               <Image source={require('../../../../assets/images/Home_Translate_video.png')} style={styles.iconSpeaker}/>
             </View>
             <Text style={styles.modeCardText}>{t('translate_screen.online_call')}</Text>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
         </View>
 
         {/* 翻译工具 */}

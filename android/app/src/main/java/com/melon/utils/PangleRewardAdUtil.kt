@@ -304,7 +304,7 @@ class PangleRewardAdUtil private constructor() {
         })
 
         // 再看一个功能（文档高级功能，可选）
-        setPlayAgainConfig(ad)
+//        setPlayAgainConfig(ad)
     }
 
     private fun setPlayAgainConfig(ad: TTRewardVideoAd) {
