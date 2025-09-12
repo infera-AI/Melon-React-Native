@@ -462,16 +462,9 @@ const MyWorkScreen = ({ navigation }: any) => {
       if (!isMounted.current) {
         isMounted.current = true;
       } else {
-        console.log('页面获得焦点---执行getMyWorks');
+        console.log('页面获得焦点---');
 
-        // setCurrentPage(1);
-        // setHasMoreData(true);
-        // getMyWorks(1, false);
       }
-      // setCurrentPage(1);
-      // setHasMoreData(true);
-      // getMyWorks(1, false);
-
       // 页面失去焦点时的清理函数
       return () => {
         console.log('页面失去焦点，清理音频数据');
@@ -480,9 +473,9 @@ const MyWorkScreen = ({ navigation }: any) => {
     }, [cleanupAudioData])
   );
 
-  const handleToPlayMusic = (music: Music) => {
+  const handleToPlayMusic = (item: Music) => {
     cleanupAudioData();
-    navigation.navigate('MyWorkMusicPlay', { music: filteredWorks[0], songList: filteredWorks, myWorkIds: filteredWorks.map((item: Music) => item.id) });
+    navigation.navigate('MyWorkMusicPlay', { music: item, songList: filteredWorks, myWorkIds: filteredWorks.map((item: Music) => item.id) })
   }
 
   useEffect(() => {

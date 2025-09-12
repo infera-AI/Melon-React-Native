@@ -635,7 +635,12 @@ const MyWorkMusicPlay = ({ navigation, route }: any) => {
         <TouchableOpacity
           onPress={() => {
             cleanupAudioData();
-            navigation.goBack();
+            navigation.reset({
+              index: 0,
+              routes: [
+                { name: 'MyWork' }
+              ]
+            });
           }}
           style={styles.backBtn}
         >
