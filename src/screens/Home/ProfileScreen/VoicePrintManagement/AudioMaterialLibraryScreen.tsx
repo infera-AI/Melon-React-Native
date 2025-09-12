@@ -29,7 +29,7 @@ const AudioMaterialLibraryScreen: React.FC = () => {
   const { materials, setMaterials, setMaterialsId, materialsName, setMaterialsName } = useVoiceStore();
   const [isLoading, setIsLoading] = useState(false);
   const handleBack = () => {
-    navigation.goBack();
+    navigation.reset({ index: 0, routes: [{ name: 'VoiceprintManagementList' }] });
   };
 
   const handleAdd = () => {

@@ -235,7 +235,7 @@ export function deleteMaterials(params: { id_list: number[] }) {
 }
 
 // 保存声纹素材
-export function saveMaterials(params: { name: string; file_list: any[] ,name_list:string[]}) {
+export function saveMaterials(params: { material_id?:string,name: string; file_list: any[] ,name_list:string[]}) {
   return http.post<CommonResult>(API_ENDPOINTS.PROFILE.SAVE_MATERIALS, params);
 }
 

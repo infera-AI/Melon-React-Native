@@ -185,6 +185,7 @@ const VoiceprintMaterialCreateScreen: React.FC = () => {
       }
       const file_list = resFile.url_list
       const res = await saveMaterials({
+        material_id: materialsId,
         name: materialsNameInput,
         file_list,
         name_list: materials.map(material => material.name),
@@ -206,7 +207,7 @@ const VoiceprintMaterialCreateScreen: React.FC = () => {
     try {
       await handleSaveMaterialsRequest();
       clearAction();
-      navigation.navigate('AudioMaterialLibrary' as any);
+      navigation.reset({ index: 0, routes: [{ name: 'AudioMaterialLibrary' }] });
     } catch (error) {
       console.log(error, 'error');
     }

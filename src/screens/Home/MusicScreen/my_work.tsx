@@ -22,6 +22,7 @@ import theme from '@/utils/theme';
 
 interface Music {
   id: number;
+  music_url: string;
   url: string;
   cover: string;
   title: string;
@@ -30,6 +31,7 @@ interface Music {
   duration: number;
   genres: string[];
   playing: boolean;
+  type: string;
 }
 
 
@@ -138,6 +140,8 @@ const MyWorkScreen = ({ navigation }: any) => {
       lyrics: item.lyrics,
       taskId: item.task_id,
       url: item.cover_url || item.music_url,
+      music_url: item.music_url,
+      type: item.type,
       playing: false,
     }));
   }

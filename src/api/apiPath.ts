@@ -36,6 +36,7 @@ export const API_ENDPOINTS = {
       GET_MUSIC_SEGMENTATION: '/opensource/get_music_genres_os',
       DELETE_MUSIC: '/opensource/delete_generate_music_os',
       RENAME_MUSIC: '/opensource/rename_m_os',
+      GET_SHARE_LINK: '/opensource/get_share_music_url_os',
     },
     TRANSLATE: {
       TRANLATE_DOCUMENT: '/translations/translate/docs',

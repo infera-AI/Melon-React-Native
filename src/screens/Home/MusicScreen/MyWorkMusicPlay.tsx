@@ -20,7 +20,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import Sound from "react-native-sound";
 import { useMessageModal } from "@/contexts/MessageModalContext";
 import { AudioDurationManager } from '@/utils/AudioPlayerUtils';
-import { deleteMusicWork, getMusicWorkInfo, renameMusic, deleteMusic } from "@/api/music/music";
+import { deleteMusicWork, getMusicWorkInfo, renameMusic, deleteMusic, getShareLink } from "@/api/music/music";
 import { useLanguage } from '@/contexts/LanguageContext';
 import Slider from "@react-native-community/slider";
 import Clipboard from "@react-native-clipboard/clipboard";
@@ -40,6 +40,8 @@ type Music = {
   title: string;
   lyrics: string;
   genres: string[];
+  music_url: string;
+  type: number;
 }
 
 // 控制按钮图片资源
@@ -72,6 +74,7 @@ const MyWorkMusicPlay = ({ navigation, route }: any) => {
   const [progress, setProgress] = useState(0);
   const downloader = MusicDownloader.getInstance();
   const [isGenresExpanded, setIsGenresExpanded] = useState(false);
+  const shareLink = useRef('');
 
 
 
@@ -334,7 +337,6 @@ const MyWorkMusicPlay = ({ navigation, route }: any) => {
       setMusicInfo({ ...musicInfo, title: editTitle });
       setShowEditModal(false);
       setEditTitle('');
-      handleRefreshMusicInfo();
     } catch (error) {
       show({ message: t('music.modify_failed') });
     }
@@ -417,29 +419,21 @@ const MyWorkMusicPlay = ({ navigation, route }: any) => {
     }
   }
 
-  const handleRefreshMusicInfo = async () => {
-    await getMusicWorkInfoRequest(musicInfo.id);
+  // 获取分享链接
+  const handleGetShareLink = async () => {
+    try {
+      const res = await getShareLink({ id: musicInfo.id });
+      console.log(res, 'res');
+      shareLink.current = res.share_url;
+    } catch (error) {
+      console.log(error);
+    }
   }
-
-  // 构建分享URL，将音乐信息作为参数传递
-  const buildShareUrl = () => {
-    const baseUrl = 'https://infera-ai.github.io/melon-music-share/';
-    const params = new URLSearchParams({
-      // 也可以单独传递关键参数
-      workTitle: musicInfo.title,
-      workCover: musicInfo.cover,
-      workUrl: musicInfo.url,
-      workGenres: (musicInfo.genres || []).join(','),
-      workLyrics: JSON.stringify(musicInfo.lyrics),
-    });
-
-    return `${baseUrl}?${params.toString()}`;
-  };
 
   // 删除歌曲
   const handleDeleteMusic = async () => {
     try {
-      await deleteMusic({ work_ids: [music.id] })
+      await deleteMusic({ id_list: [music.id] })
       show({ message: t('music.delete_success') });
       setShowDeleteModal(false);
       navigation.goBack();
@@ -447,31 +441,6 @@ const MyWorkMusicPlay = ({ navigation, route }: any) => {
       show({ message: t('music.delete_failed') });
     }
   };
-  // 获取作品信息
-  // const getMusicWorkInfoRequest = useCallback(async (id?: number) => {
-  //   try {
-  //     const workId = id || musicInfo.id;
-  //     if (!workId) return;
-
-  //     const res = await getMusicWorkInfo({ work_id: workId.toString() })
-  //     console.log(res, 'res');
-  //     const info = {
-  //       id: res.work_id,
-  //       title: res.work_title,
-  //       url: res.work_url,
-  //       lyrics: res.work_lyrics,
-  //       genres: res.work_genres,
-  //       cover: res.work_cover,
-  //     }
-  //     setMusicInfo(info);
-  //     console.log(info, 'info')
-  //     // console.log(buildShareUrl(), 'buildShareUrl')
-  //     return info; // 返回获取到的音乐信息
-  //   } catch (error) {
-  //     console.log(error);
-  //     return null;
-  //   }
-  // }, [musicInfo.id,]);
 
   const getMusicWorkInfoRequest = useCallback(async (id?: number) => {
     const info = songList.find((item: any) => item.id === id);
@@ -637,18 +606,25 @@ const MyWorkMusicPlay = ({ navigation, route }: any) => {
   };
 
   const handleCoverMusic = () => {
-    setGenerateMusicType('generate');
+    setGenerateMusicType('cover');
     setMusicGenerateInfo({
       title: musicInfo.title,
       lyrics: musicInfo.lyrics,
       musicStyles: musicInfo.genres,
     });
-    navigation.navigate('SingerSelection', { type: 'generate' });
+    console.log(musicInfo, 'musicInfo.type');
+    // 类型：0生成，1翻唱，2生成+翻唱，3手动上传
+    if (musicInfo.type === 0 || musicInfo.type === 2) {
+      navigation.navigate('SingerSelection', { type: 'generate' });
+    } else {
+      navigation.navigate('CoverUpload', { musicInfo });
+    }
   }
 
   useEffect(() => {
     if (music.id) {
       getMusicWorkInfoRequest(music.id);
+      handleGetShareLink();
     }
   }, [music.id, getMusicWorkInfoRequest]);
 
@@ -695,7 +671,7 @@ const MyWorkMusicPlay = ({ navigation, route }: any) => {
           <TouchableOpacity onPress={() => setShowDeleteModal(true)}>
             <Image source={img_music_delete} style={styles.infoIcon} />
           </TouchableOpacity>
-          <TouchableOpacity onPress={handleCoverMusic} style={{ opacity: !musicInfo.lyrics ? 0.5 : 1 }} disabled={!musicInfo.lyrics}>
+          <TouchableOpacity onPress={handleCoverMusic}>
             <Image source={img_music_save} style={styles.infoIcon} />
           </TouchableOpacity>
           <TouchableOpacity onPress={() => setShowShareModal(true)}>
@@ -868,7 +844,7 @@ const MyWorkMusicPlay = ({ navigation, route }: any) => {
                     title: t('music.copy_success'),
                     message: t('music.link_copied'),
                   });
-                  Clipboard.setString(buildShareUrl());
+                  Clipboard.setString(shareLink.current);
                   setShowShareModal(false)
                 }}
               >

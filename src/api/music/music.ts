@@ -88,18 +88,10 @@ export function polishLyrics(params: PolishLyricsParams) {
 }
 
 // 翻唱歌曲
-export function coverMusic(params: { voice_print_id?: string; music_file?: any }) {
-  const formData = new FormData();
-  formData.append('voice_print_id', params.voice_print_id);
-  formData.append('music_file',{
-    uri: params.music_file.uri,
-    name: params.music_file.name,
-    type: params.music_file.type,
-  });
+export function coverMusic(params: { voice_print_id?: string; music_url?: any }) {
   return http.post<any>(
     API_ENDPOINTS.MUSIC.COVER_MUSIC,
-    formData,
-    { headers: { 'Content-Type': 'multipart/form-data' } }
+    params,
   );
 }
 
@@ -169,3 +161,7 @@ export function renameMusic(params: { id: number, name: string }) {
   return http.post<any>(API_ENDPOINTS.MUSIC.RENAME_MUSIC, params);
 }
 
+// 获取分享链接
+export function getShareLink(params: { id: number }) {
+  return http.get<any>(API_ENDPOINTS.MUSIC.GET_SHARE_LINK, params);
+}

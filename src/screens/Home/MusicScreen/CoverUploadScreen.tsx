@@ -91,7 +91,7 @@ const img_music_back_btn = require("../../../../assets/images/music_back_btn.png
 
 
 const SingerSelectionScreen: React.FC<any> = ({ route }: any) => {
-  const { type } = route.params || {};
+  const { musicInfo } = route.params || {};
   const navigation = useNavigation();
   const { t } = useLanguage();
   const { show } = useMessageModal()
@@ -167,6 +167,7 @@ const SingerSelectionScreen: React.FC<any> = ({ route }: any) => {
   const handlePreviousStep = () => {
     navigation.goBack();
   };
+
 
   // 处理下一步
   const handleNextStep = () => {
@@ -375,12 +376,38 @@ const SingerSelectionScreen: React.FC<any> = ({ route }: any) => {
   };
 
   // 翻唱歌曲
+  const handleCoverMusic = async () => {
+    setIsLoading(true);
+    const rsp = await coverMusic({
+      voice_print_id: String(selectedSinger?.id) || '0',
+      music_url: musicInfo.music_url,
+    });
+    if (!rsp.task_id) {
+      show({
+        message: t('translate_screen.failed_again')
+      })
+      setIsLoading(false);
+      return
+    }
+    setGenerateMusicType('cover');
+    refreshPointsBalance();
+    (navigation as any).navigate('GeneratingMusic', {
+      taskId: rsp.task_id,
+      createTaskTime: Math.floor(performance.now())
+    });
+    setIsLoading(false);
+  }
+
+
+  // 翻唱歌曲
   const handleCoverSingToMusic = async () => {
     setIsLoading(true);
-    coverMusic({
-      voice_print_id: String(selectedSinger?.id) || '0',
-      music_file: selectedFile,
-    }).then((rsp) => {
+    try {
+      const resFile = await handleUploadFile(selectedFile);
+      const rsp = await coverMusic({
+        voice_print_id: String(selectedSinger?.id) || '0',
+        music_url: resFile.url_list?.[0],
+      });
       if (!rsp.task_id) {
         show({
           message: t('translate_screen.failed_again')
@@ -393,14 +420,15 @@ const SingerSelectionScreen: React.FC<any> = ({ route }: any) => {
         taskId: rsp.task_id,
         createTaskTime: Math.floor(performance.now())
       });
-    }).catch(() => {
+    } catch (error) {
+      console.log(error, 'error')
       setIsLoading(false);
       show({
         message: t('http_service_error')
       })
-    }).finally(() => {
+    } finally {
       setIsLoading(false);
-    });
+    }
   }
   const handlePointsTopup = () => {
     // navigation.navigate('PointsTopup');
@@ -453,13 +481,19 @@ const SingerSelectionScreen: React.FC<any> = ({ route }: any) => {
   };
 
   const handleGenerateMusicAction = () => {
-    handleCoverSingToMusic();
+    if (musicInfo !== undefined) {
+      handleCoverMusic();
+    } else {
+      handleCoverSingToMusic();
+    }
   }
 
   return (
     <SafeAreaView style={apply(styles.container)}>
       <View style={styles.headerRow}>
-        <TouchableOpacity
+        {musicInfo !== undefined && <Text style={styles.titleText} >{t('music.cover_song')}</Text>}
+
+        {musicInfo === undefined && <TouchableOpacity
           style={[styles.addButton, styles.uploadButton]}
           activeOpacity={0.7}
           onPress={handleFileSelect}
@@ -468,7 +502,7 @@ const SingerSelectionScreen: React.FC<any> = ({ route }: any) => {
             <Image source={require('@/assets/music/music_add_icon.png')} style={styles.addPlusIcon} />
             <Text style={[styles.addButtonText, styles.uploadButtonText]} numberOfLines={1} ellipsizeMode="tail">{selectedFile ? selectedFile.name : t('music.upload_original_song')}</Text>
           </View>
-        </TouchableOpacity>
+        </TouchableOpacity>}
       </View>
 
       {/* Tab栏 */}
@@ -491,9 +525,9 @@ const SingerSelectionScreen: React.FC<any> = ({ route }: any) => {
           style={[
             styles.button,
             styles.nextButton,
-            (!selectedFile || !selectedId) && { opacity: 0.3 }
+            ((!selectedFile && musicInfo === undefined) || !selectedId) && { opacity: 0.3 }
           ]}
-          disabled={!selectedFile || !selectedId}
+          disabled={(!selectedFile && musicInfo === undefined) || !selectedId}
           onPress={handleNextStep}
         >
           <Text style={[styles.buttonText, styles.nextButtonText]}>
@@ -661,8 +695,13 @@ const styles = StyleSheet.create({
     paddingVertical: normalize(15),
   },
   titleText: {
+    width: '100%',
     fontSize: normalizeFontSize(18),
-    fontWeight: '600',
+    fontWeight: '700',
+    color: '#FFFFFF',
+    textAlign: 'center',
+    letterSpacing: -0.4,
+    lineHeight: normalize(21),
   },
   subtitleText: {
     fontSize: normalizeFontSize(16),
