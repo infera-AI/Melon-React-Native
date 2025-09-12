@@ -47,6 +47,8 @@ const App = () => {
       } else {
         setIsInitialized(true);
       }
+      // 应用打开初始化时，先检查是否有音乐生成任务在进行中
+      useAppStore.getState().pollingGetStatusBycoverTaskId()
     });
     
     // 使Zustand主动同步AsyncStorage中的数据，Zustand主动会同步持久化数据，所以不写也可
