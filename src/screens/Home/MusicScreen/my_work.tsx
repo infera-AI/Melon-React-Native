@@ -36,6 +36,9 @@ interface Music {
 const MyWorkScreen = ({ navigation }: any) => {
   const [filteredWorks, setFilteredWorks] = useState<Music[]>([]);
   const [searchText, setSearchText] = useState('');
+
+  const searchTextRef = useRef('');
+
   const [isPlaying, setIsPlaying] = useState(false);
   const [duration, setDuration] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
@@ -45,11 +48,18 @@ const MyWorkScreen = ({ navigation }: any) => {
   const [isProcessing, setIsProcessing] = useState(false); // 添加处理状态
 
   // 分页相关状态
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState(0);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [isRequestList, setIsRequestList] = useState(false);
   const [hasMoreData, setHasMoreData] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const pageSize = 10; // 每页数据量
+
+  // 新增临时标记：标记是否需要执行查询
+  const [shouldFetch, setShouldFetch] = useState(false);
+
+  // 标记页面是否已完成首次挂载
+  const isMounted = useRef(false);
 
   const { show } = useMessageModal();
   const { t } = useLanguage();
@@ -84,11 +94,12 @@ const MyWorkScreen = ({ navigation }: any) => {
 
   // 获取作品
   const getMyWorks = async (page: number = 1, isLoadMore: boolean = false) => {
+    setIsRequestList(true);
     try {
       const response = await getPersonalWorks({
         page_num: page,
         page_size: pageSize,
-        title: searchText
+        title: searchTextRef.current
       });
 
       const newWorks = transformMyWorks(response.data_list || []);
@@ -102,10 +113,14 @@ const MyWorkScreen = ({ navigation }: any) => {
       }
 
       // 检查是否还有更多数据
-      setHasMoreData(newWorks.length === pageSize);
-
+      // setHasMoreData(newWorks.length === pageSize);
+      setHasMoreData(page < response.total_count);
+      setIsRequestList(false);
+      setShouldFetch(false);
       return newWorks;
     } catch (error) {
+      setIsRequestList(false);
+      setShouldFetch(false);
       console.error('Error fetching my works:', error);
       show({ message: t('music.load_failed') });
       return [];
@@ -129,16 +144,19 @@ const MyWorkScreen = ({ navigation }: any) => {
 
   // 加载更多数据
   const loadMoreData = async () => {
-    if (isLoadingMore || !hasMoreData) {
+    if (isLoadingMore || !hasMoreData || isRefreshing || isRequestList || shouldFetch) {
+      console.log('loadMoreData---退出方法, 不执行逻辑');
+      
       return;
     }
+    console.log('loadMoreData---执行loadMoreData方法逻辑');
 
     setIsLoadingMore(true);
     const nextPage = currentPage + 1;
 
     try {
       await getMyWorks(nextPage, true);
-      setCurrentPage(nextPage);
+    //   setCurrentPage(nextPage);
     } catch (error) {
       console.error('加载更多数据失败:', error);
     } finally {
@@ -167,27 +185,37 @@ const MyWorkScreen = ({ navigation }: any) => {
 
   // 搜索功能
   const handleSearch = (text: string) => {
+    searchTextRef.current = text;
     setSearchText(text);
     setCurrentPage(1);
     setHasMoreData(true);
-    getMyWorks(1, false);
+    setShouldFetch(true);
   };
+
+  const inputSubmitEditing = (e: any) => {
+    console.log('inputSubmitEditing---', e?.nativeEvent?.text);
+    handleSearch(e.nativeEvent.text)
+  }
 
   // 清除搜索
   const clearSearch = () => {
+    searchTextRef.current = '';
     setSearchText('');
     setCurrentPage(1);
     setHasMoreData(true);
-    getMyWorks(1, false);
+    setShouldFetch(true);
   };
 
   // 当搜索文本变化时，重新加载数据
   useEffect(() => {
     // 搜索文本变化时，重置分页状态并重新加载
-    setCurrentPage(1);
-    setHasMoreData(true);
-    getMyWorks(1, false);
-  }, [searchText]);
+    // setCurrentPage(1);
+    // setHasMoreData(true);
+    // getMyWorks(1, false);
+    if (shouldFetch) {
+      getMyWorks(currentPage, false);
+    }
+  }, [shouldFetch]);
 
   // 播放音乐
   const handlePlayAudio = async (music: Music) => {
@@ -344,10 +372,22 @@ const MyWorkScreen = ({ navigation }: any) => {
   // 监听页面焦点变化，当页面重新获得焦点时执行getMyWorks
   useFocusEffect(
     React.useCallback(() => {
-      console.log('页面获得焦点，执行getMyWorks');
-      setCurrentPage(1);
-      setHasMoreData(true);
-      getMyWorks(1, false);
+      console.log('页面获得焦点');
+      console.log('isMounted--', isMounted.current);
+      
+      // 页面首次渲染完成后标记为已挂载
+      if (!isMounted.current) {
+        isMounted.current = true;
+      } else {
+        console.log('页面获得焦点---执行getMyWorks');
+        
+        setCurrentPage(1);
+        setHasMoreData(true);
+        getMyWorks(1, false);
+      }
+      // setCurrentPage(1);
+      // setHasMoreData(true);
+      // getMyWorks(1, false);
 
       // 页面失去焦点时的清理函数
       return () => {
@@ -385,9 +425,10 @@ const MyWorkScreen = ({ navigation }: any) => {
 
   useEffect(() => {
     // 组件初始化时加载第一页数据
-    setCurrentPage(1);
-    setHasMoreData(true);
-    getMyWorks(1, false);
+    // setCurrentPage(1);
+    // setHasMoreData(true);
+    // setIsRefreshing(true);
+    // getMyWorks(1, false);
   }, []);
   return (
     <View style={styles.container}>
@@ -422,7 +463,7 @@ const MyWorkScreen = ({ navigation }: any) => {
             placeholderTextColor="#888"
             value={searchText}
             onChangeText={handleSearch}
-            onSubmitEditing={clearSearch}
+            onSubmitEditing={inputSubmitEditing}
           />
           {searchText.length > 0 && (
             <TouchableOpacity onPress={clearSearch} style={styles.clearSearchBtn}>
