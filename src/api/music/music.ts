@@ -165,3 +165,24 @@ export function renameMusic(params: { id: number, name: string }) {
 export function getShareLink(params: { id: number }) {
   return http.get<any>(API_ENDPOINTS.MUSIC.GET_SHARE_LINK, params);
 }
+
+// 上传歌曲文件
+export function uploadAudioFile(audioFile: SingToMusicFileInfo) {
+  const formData = new FormData();
+  console.log('audioFile', audioFile);
+  formData.append('files', {
+    uri: audioFile.uri,
+    name: audioFile.name,
+    type: audioFile.type,
+  });
+  return http.post<any>(
+    API_ENDPOINTS.FILE.UPLOAD_FILE,
+    formData,
+    { headers: { 'Content-Type': 'multipart/form-data' } }
+  );
+}
+
+//保存歌曲到我的作品列表
+export function saveMusicByLink(params: { title: string, file_url: string }) {
+  return http.post<any>(API_ENDPOINTS.MUSIC.SAVE_MUSIC_FILE, params);
+}

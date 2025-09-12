@@ -9,9 +9,14 @@ import {
   Image,
   Dimensions,
   ActivityIndicator,
+  Platform
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
-import { getPersonalWorks } from '@/api/music/music';
+import {
+  getPersonalWorks,
+  uploadAudioFile,
+  saveMusicByLink
+} from '@/api/music/music';
 import { AudioPlayer } from '@/utils/audioUtils';
 import Sound from "react-native-sound";
 import { useMessageModal } from '@/contexts/MessageModalContext';
@@ -19,6 +24,8 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { formatTime } from '@/utils/helpers';
 import { normalize, normalizeFontSize } from '@/utils/stylesUtil';
 import theme from '@/utils/theme';
+import { pick } from '@react-native-documents/picker';
+import FullScreenLoader from '@/components/FullScreenLoader';
 
 interface Music {
   id: number;
@@ -33,6 +40,27 @@ interface Music {
   playing: boolean;
   type: string;
 }
+
+const iosTypes = [
+  'public.mp3',
+  'com.microsoft.waveform-audio',
+  'public.wav',
+  'public.mpeg-4-audio',
+];
+
+const androidTypes = [
+  'audio/mpeg',    // mp3
+  'audio/wav', // wav 常用简化版	
+  'audio/vnd.wave', // wav 官方标准    
+  'audio/x-wav',   // wav 历史兼容版
+  'audio/mp4',     // m4a
+  'audio/x-m4a',   // m4a 另一种写法
+]
+
+const fileTypes = Platform.select({
+  ios: iosTypes,
+  android: androidTypes,
+});
 
 
 const MyWorkScreen = ({ navigation }: any) => {
@@ -49,6 +77,8 @@ const MyWorkScreen = ({ navigation }: any) => {
   const [isPlayMusic, setIsPlayMusic] = useState('');
   const [isProcessing, setIsProcessing] = useState(false); // 添加处理状态
 
+  const [loading, setLoading] = useState(false)
+
   // 分页相关状态
   const [currentPage, setCurrentPage] = useState(0);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
@@ -62,6 +92,8 @@ const MyWorkScreen = ({ navigation }: any) => {
 
   // 标记页面是否已完成首次挂载
   const isMounted = useRef(false);
+
+  const totalDataCount = useRef(0); // 总数据量
 
   const { show } = useMessageModal();
   const { t } = useLanguage();
@@ -105,6 +137,8 @@ const MyWorkScreen = ({ navigation }: any) => {
       });
 
       const newWorks = transformMyWorks(response.data_list || []);
+      totalDataCount.current = response.total_count || 0; // 总数据量
+      const loadedCount = isLoadMore ? filteredWorks.length + newWorks.length : newWorks.length; // 已加载数据量
 
       if (isLoadMore) {
         // 加载更多时追加数据
@@ -116,7 +150,8 @@ const MyWorkScreen = ({ navigation }: any) => {
 
       // 检查是否还有更多数据
       // setHasMoreData(newWorks.length === pageSize);
-      setHasMoreData(page < response.total_count);
+      setHasMoreData(loadedCount < totalDataCount.current);
+      setCurrentPage(page);
       setIsRequestList(false);
       setShouldFetch(false);
       return newWorks;
@@ -148,9 +183,16 @@ const MyWorkScreen = ({ navigation }: any) => {
 
   // 加载更多数据
   const loadMoreData = async () => {
+    // 新增：若已加载数据量 >= 总数据量，直接退出
+    const totalLoaded = filteredWorks.length;
+    if (totalLoaded >= totalDataCount.current && currentPage !== 0) {
+      setHasMoreData(false);
+      console.log('loadMoreData---已加载全部数据，退出');
+      return;
+    }
+
     if (isLoadingMore || !hasMoreData || isRefreshing || isRequestList || shouldFetch) {
-      console.log('loadMoreData---退出方法, 不执行逻辑');
-      
+      console.log('loadMoreData---判断符合不执行逻辑');
       return;
     }
     console.log('loadMoreData---执行loadMoreData方法逻辑');
@@ -372,6 +414,92 @@ const MyWorkScreen = ({ navigation }: any) => {
   };
 
 
+  const selectFileBtnClick = async() => {
+    
+      // setUploadStatus(UploadStatusEnum.TYPE_SUCCESS)
+      try {
+        const res = await pick({
+          type: fileTypes,
+          allowMultiSelection: false,
+        });
+        console.log('res----', res);
+        if (androidTypes.includes(res[0]?.type ?? '')) {
+          console.log('文件格式正确');
+        } else {
+          show({
+            message: t('translate_screen.document_filetype_error')
+          })
+          return
+        }
+  
+        // let totalSizeBytes = 0;
+  
+        // res.forEach((file) => {
+        //   totalSizeBytes += file.size ?? 0;
+        // });
+  
+        // const totalSizeMB = totalSizeBytes / (1024 * 1024);
+  
+        // if (totalSizeMB  > MAX_FILE_SIZE_MB) {
+        //   console.warn(`${t('translate_screen.document_filesize_max1')} ${MAX_FILE_SIZE_MB}MB, ${t('translate_screen.document_filesize_max2')}`);
+        //   return;
+        // }
+  
+        console.log('选中的文件:', res);
+  
+        // 在这里处理上传等逻辑
+        if (res && res.length > 0) {
+          setLoading(true)
+          const file = res[0];
+          uploadAudioFile({
+              uri: file.uri,
+              name: file.name ?? Date.now() + '',
+              type: file.type || 'application/octet-stream', // 兜底
+            }).then(response => {
+            console.log('上传成功', response?.url_list?.[0]);
+            let urlStr = response?.url_list?.[0]
+            if (urlStr) {
+              let nameStr = ''
+              // 找到最后一个点的位置
+              const lastDotIndex = file?.name?.lastIndexOf('.');
+              // 如果没有点，直接返回原字符串
+              if (lastDotIndex === -1) {
+                nameStr = file?.name || '';
+              } else {
+                nameStr = file?.name?.substring(0, lastDotIndex) || '';
+              }
+              
+
+              saveMusicByLink({
+                title: nameStr || t('music.no_title'),
+                file_url: urlStr
+              }).then(saveRes => {
+                console.log('保存成功', saveRes);
+                show({ message: t('music.upload_success') });
+                setCurrentPage(1);
+                setHasMoreData(true);
+                getMyWorks(1, false);
+              }).catch(err => {
+                console.error('保存失败', err);
+                show({ message: t('music.save_failed') });
+              }).finally(() => {
+                setLoading(false)
+              })
+            }
+            
+          }).catch(err => {
+            setLoading(false)
+            console.error('上传失败', err);
+          });
+        }
+  
+      } catch (err) {
+          console.log('用户取消选择');
+          // console.error('文件选择出错:', err);
+      }
+    }
+
+
 
   // 监听页面焦点变化，当页面重新获得焦点时执行getMyWorks
   useFocusEffect(
@@ -476,7 +604,7 @@ const MyWorkScreen = ({ navigation }: any) => {
           )}
         </View>
         {/* 上传按钮 */}
-        <TouchableOpacity style={styles.uploadBtn} onPress={() => navigation.navigate('CoverUpload' as never)}>
+        <TouchableOpacity style={styles.uploadBtn} onPress={selectFileBtnClick}>
           <Text style={styles.uploadBtnText}>{t('music.upload')}</Text>
         </TouchableOpacity>
       </View>
@@ -560,6 +688,10 @@ const MyWorkScreen = ({ navigation }: any) => {
         refreshing={isRefreshing}
         contentContainerStyle={{ paddingBottom: 24 }}
         showsVerticalScrollIndicator={false}
+      />
+      <FullScreenLoader
+        visible={loading}
+        text={t('translate_screen.loading_text')}
       />
     </View>
   );
