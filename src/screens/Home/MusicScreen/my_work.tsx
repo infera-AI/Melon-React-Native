@@ -464,9 +464,9 @@ const MyWorkScreen = ({ navigation }: any) => {
       } else {
         console.log('页面获得焦点---执行getMyWorks');
 
-        setCurrentPage(1);
-        setHasMoreData(true);
-        getMyWorks(1, false);
+        // setCurrentPage(1);
+        // setHasMoreData(true);
+        // getMyWorks(1, false);
       }
       // setCurrentPage(1);
       // setHasMoreData(true);
@@ -477,7 +477,7 @@ const MyWorkScreen = ({ navigation }: any) => {
         console.log('页面失去焦点，清理音频数据');
         cleanupAudioData();
       };
-    }, [])
+    }, [cleanupAudioData])
   );
 
   const handleToPlayMusic = (music: Music) => {
