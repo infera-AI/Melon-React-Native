@@ -111,15 +111,6 @@ const MyWorkScreen = ({ navigation }: any) => {
       // 重置播放状态
       setIsPlaying(false);
       setIsPlayMusic('');
-
-      // 重置所有作品的播放状态
-      setFilteredWorks(prevWorks =>
-        prevWorks.map((item: Music) => ({
-          ...item,
-          playing: false,
-        }))
-      );
-
       console.log('音频数据清理完成');
     } catch (error) {
       console.error('清理音频数据失败:', error);
@@ -202,7 +193,7 @@ const MyWorkScreen = ({ navigation }: any) => {
 
     try {
       await getMyWorks(nextPage, true);
-    //   setCurrentPage(nextPage);
+      //   setCurrentPage(nextPage);
     } catch (error) {
       console.error('加载更多数据失败:', error);
     } finally {
@@ -280,15 +271,6 @@ const MyWorkScreen = ({ navigation }: any) => {
       }
       setSound(null);
     }
-
-    // 重置所有作品的播放状态
-    setFilteredWorks(prevWorks =>
-      prevWorks.map((item: Music) => ({
-        ...item,
-        playing: false,
-      }))
-    );
-
     // 重置播放状态
     setIsPlaying(false);
     setIsPlayMusic('');
@@ -321,14 +303,6 @@ const MyWorkScreen = ({ navigation }: any) => {
         newSound.release();
         setSound(null);
         setIsPlayMusic('');
-
-        // 重置播放状态
-        setFilteredWorks(prevWorks =>
-          prevWorks.map((item: Music) => ({
-            ...item,
-            playing: false,
-          }))
-        );
       });
       setIsPlayMusic(music.url);
 
@@ -360,14 +334,6 @@ const MyWorkScreen = ({ navigation }: any) => {
         setIsPlaying(false);
         setIsPlayMusic('');
 
-        // 重置所有作品的播放状态
-        setFilteredWorks(prevWorks =>
-          prevWorks.map((item: Music) => ({
-            ...item,
-            playing: false,
-          }))
-        );
-
         // 等待一小段时间确保音频完全停止
         await new Promise(resolve => setTimeout(resolve, 100));
 
@@ -384,26 +350,11 @@ const MyWorkScreen = ({ navigation }: any) => {
       if (isPlaying) {
         sound.pause();
         setIsPlaying(false);
-        setFilteredWorks(prevWorks =>
-          prevWorks.map((item: Music) => {
-            if (item.url === music.url) {
-              console.log(item.url === music.url, 'item.url === music.url', item.url, music.url);
-              return { ...item, playing: false };
-            }
-            return item;
-          })
-        );
+        setIsPlayMusic('');
       } else {
         sound.play();
         setIsPlaying(true);
-        setFilteredWorks(prevWorks =>
-          prevWorks.map((item: Music) => {
-            if (item.url === music.url) {
-              return { ...item, playing: true };
-            }
-            return item;
-          })
-        );
+        setIsPlayMusic(music.url);
       }
     } finally {
       // 延迟重置处理状态，防止快速连续点击
@@ -414,90 +365,90 @@ const MyWorkScreen = ({ navigation }: any) => {
   };
 
 
-  const selectFileBtnClick = async() => {
-    
-      // setUploadStatus(UploadStatusEnum.TYPE_SUCCESS)
-      try {
-        const res = await pick({
-          type: fileTypes,
-          allowMultiSelection: false,
-        });
-        console.log('res----', res);
-        if (androidTypes.includes(res[0]?.type ?? '')) {
-          console.log('文件格式正确');
-        } else {
-          show({
-            message: t('translate_screen.document_filetype_error')
-          })
-          return
-        }
-  
-        // let totalSizeBytes = 0;
-  
-        // res.forEach((file) => {
-        //   totalSizeBytes += file.size ?? 0;
-        // });
-  
-        // const totalSizeMB = totalSizeBytes / (1024 * 1024);
-  
-        // if (totalSizeMB  > MAX_FILE_SIZE_MB) {
-        //   console.warn(`${t('translate_screen.document_filesize_max1')} ${MAX_FILE_SIZE_MB}MB, ${t('translate_screen.document_filesize_max2')}`);
-        //   return;
-        // }
-  
-        console.log('选中的文件:', res);
-  
-        // 在这里处理上传等逻辑
-        if (res && res.length > 0) {
-          setLoading(true)
-          const file = res[0];
-          uploadAudioFile({
-              uri: file.uri,
-              name: file.name ?? Date.now() + '',
-              type: file.type || 'application/octet-stream', // 兜底
-            }).then(response => {
-            console.log('上传成功', response?.url_list?.[0]);
-            let urlStr = response?.url_list?.[0]
-            if (urlStr) {
-              let nameStr = ''
-              // 找到最后一个点的位置
-              const lastDotIndex = file?.name?.lastIndexOf('.');
-              // 如果没有点，直接返回原字符串
-              if (lastDotIndex === -1) {
-                nameStr = file?.name || '';
-              } else {
-                nameStr = file?.name?.substring(0, lastDotIndex) || '';
-              }
-              
+  const selectFileBtnClick = async () => {
 
-              saveMusicByLink({
-                title: nameStr || t('music.no_title'),
-                file_url: urlStr
-              }).then(saveRes => {
-                console.log('保存成功', saveRes);
-                show({ message: t('music.upload_success') });
-                setCurrentPage(1);
-                setHasMoreData(true);
-                getMyWorks(1, false);
-              }).catch(err => {
-                console.error('保存失败', err);
-                show({ message: t('music.save_failed') });
-              }).finally(() => {
-                setLoading(false)
-              })
-            }
-            
-          }).catch(err => {
-            setLoading(false)
-            console.error('上传失败', err);
-          });
-        }
-  
-      } catch (err) {
-          console.log('用户取消选择');
-          // console.error('文件选择出错:', err);
+    // setUploadStatus(UploadStatusEnum.TYPE_SUCCESS)
+    try {
+      const res = await pick({
+        type: fileTypes,
+        allowMultiSelection: false,
+      });
+      console.log('res----', res);
+      if (androidTypes.includes(res[0]?.type ?? '')) {
+        console.log('文件格式正确');
+      } else {
+        show({
+          message: t('translate_screen.document_filetype_error')
+        })
+        return
       }
+
+      // let totalSizeBytes = 0;
+
+      // res.forEach((file) => {
+      //   totalSizeBytes += file.size ?? 0;
+      // });
+
+      // const totalSizeMB = totalSizeBytes / (1024 * 1024);
+
+      // if (totalSizeMB  > MAX_FILE_SIZE_MB) {
+      //   console.warn(`${t('translate_screen.document_filesize_max1')} ${MAX_FILE_SIZE_MB}MB, ${t('translate_screen.document_filesize_max2')}`);
+      //   return;
+      // }
+
+      console.log('选中的文件:', res);
+
+      // 在这里处理上传等逻辑
+      if (res && res.length > 0) {
+        setLoading(true)
+        const file = res[0];
+        uploadAudioFile({
+          uri: file.uri,
+          name: file.name ?? Date.now() + '',
+          type: file.type || 'application/octet-stream', // 兜底
+        }).then(response => {
+          console.log('上传成功', response?.url_list?.[0]);
+          let urlStr = response?.url_list?.[0]
+          if (urlStr) {
+            let nameStr = ''
+            // 找到最后一个点的位置
+            const lastDotIndex = file?.name?.lastIndexOf('.');
+            // 如果没有点，直接返回原字符串
+            if (lastDotIndex === -1) {
+              nameStr = file?.name || '';
+            } else {
+              nameStr = file?.name?.substring(0, lastDotIndex) || '';
+            }
+
+
+            saveMusicByLink({
+              title: nameStr || t('music.no_title'),
+              file_url: urlStr
+            }).then(saveRes => {
+              console.log('保存成功', saveRes);
+              show({ message: t('music.upload_success') });
+              setCurrentPage(1);
+              setHasMoreData(true);
+              getMyWorks(1, false);
+            }).catch(err => {
+              console.error('保存失败', err);
+              show({ message: t('music.save_failed') });
+            }).finally(() => {
+              setLoading(false)
+            })
+          }
+
+        }).catch(err => {
+          setLoading(false)
+          console.error('上传失败', err);
+        });
+      }
+
+    } catch (err) {
+      console.log('用户取消选择');
+      // console.error('文件选择出错:', err);
     }
+  }
 
 
 
@@ -506,13 +457,13 @@ const MyWorkScreen = ({ navigation }: any) => {
     React.useCallback(() => {
       console.log('页面获得焦点');
       console.log('isMounted--', isMounted.current);
-      
+
       // 页面首次渲染完成后标记为已挂载
       if (!isMounted.current) {
         isMounted.current = true;
       } else {
         console.log('页面获得焦点---执行getMyWorks');
-        
+
         setCurrentPage(1);
         setHasMoreData(true);
         getMyWorks(1, false);
@@ -526,34 +477,13 @@ const MyWorkScreen = ({ navigation }: any) => {
         console.log('页面失去焦点，清理音频数据');
         cleanupAudioData();
       };
-    }, [cleanupAudioData])
+    }, [])
   );
 
-  useEffect(() => {
-    console.log('isPlayMusic', isPlayMusic);
-    if (isPlayMusic) {
-      const playWors = filteredWorks.map((item: Music) => {
-        if (item.url === isPlayMusic) {
-          item.playing = true;
-        } else {
-          item.playing = false;
-        }
-        return item;
-      });
-      setFilteredWorks([...playWors]);
-
-      // 同时更新 filteredWorks
-      const filteredPlayWorks = filteredWorks.map((item: Music) => {
-        if (item.url === isPlayMusic) {
-          item.playing = true;
-        } else {
-          item.playing = false;
-        }
-        return item;
-      });
-      setFilteredWorks([...filteredPlayWorks]);
-    }
-  }, [isPlayMusic, sound]);
+  const handleToPlayMusic = (music: Music) => {
+    cleanupAudioData();
+    navigation.navigate('MyWorkMusicPlay', { music: filteredWorks[0], songList: filteredWorks, myWorkIds: filteredWorks.map((item: Music) => item.id) });
+  }
 
   useEffect(() => {
     // 组件初始化时加载第一页数据
@@ -628,14 +558,14 @@ const MyWorkScreen = ({ navigation }: any) => {
         renderItem={({ item }: { item: Music }) => (
           <TouchableOpacity
             style={styles.itemCard}
-            onPress={() => navigation.navigate('MyWorkMusicPlay', { music: item, songList: filteredWorks, myWorkIds: filteredWorks.map((item: Music) => item.id) })}
+            onPress={() => { handleToPlayMusic(item) }}
           >
             <Image source={item.cover ? { uri: item.cover } : require('@/assets/music/music_avatar_icon.png')} style={styles.avatar} />
             <View style={styles.itemInfo}>
               <Text style={styles.itemName}>{item.title || t('music.no_title')}</Text>
               <Text style={styles.itemTags} numberOfLines={1} ellipsizeMode="tail">{item.genres}</Text>
             </View>
-            {item.playing ? (
+            {item.url === isPlayMusic ? (
               <Image
                 source={require('../../../../assets/images/play_wave.png')}
                 style={styles.priceWave}
@@ -647,7 +577,7 @@ const MyWorkScreen = ({ navigation }: any) => {
             <TouchableOpacity style={styles.playBtn} onPress={() => handlePlayPause(item)}>
               <Image
                 source={
-                  item.playing
+                  item.url === isPlayMusic
                     ? require('../../../../assets/images/pause_btn.png')
                     : require('../../../../assets/images/play_btn.png')
                 }
