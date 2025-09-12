@@ -9,10 +9,13 @@ import {
 import Modal from 'react-native-modal';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+type modalTypeData = 'bottom' | 'center'; // modal类型
+
 type Props = {
   visible: boolean;
   backdropOpacity?: number;
   bottomSafeBgColor?: string; // 设置底部安全区域颜色，防止安全区域颜色不一致 注： 不设置，外部调用方兼容
+  modalType?: modalTypeData; // modal类型
   renderContent?: () => JSX.Element;
   onBackdropPress?: (() => void) | null | undefined; // 点击背景关闭回调
 };
@@ -20,6 +23,7 @@ const PublicModal: React.FC<Props> = ({
   visible = false,
   backdropOpacity = 0.4,
   bottomSafeBgColor = 'transparent',
+  modalType = 'bottom',
   renderContent = () => <View/>,
   onBackdropPress = null,
 }) => {
@@ -54,18 +58,18 @@ const PublicModal: React.FC<Props> = ({
     <Modal
       isVisible={visible}
       onBackdropPress={bgClose}  // 点击背景关闭
-      animationIn="slideInUp"
-      animationOut="slideOutDown"
+      animationIn={modalType === 'center' ? 'fadeIn' : 'slideInUp'}
+      animationOut={modalType === 'center' ? 'fadeOut' : 'slideOutDown'}
       backdropOpacity={backdropOpacity}
       backdropTransitionOutTiming={1} // 避免关闭时mask闪
       hideModalContentWhileAnimating={true} // 内容在动画过程中隐藏
       style={{
-        justifyContent: 'flex-end', // 让 modal 停在底部
+        justifyContent: modalType === 'center' ? 'center' : 'flex-end', // 让 modal 停在底部
         margin: 0, // 取消默认 margin，不然内容会上浮
       }}
     >
       <Animated.View style={[{ opacity: opacityAnim }]}>
-        <View>
+        <View style={modalType === 'center' ? {alignItems: 'center'} : {}}>
           {renderContent && renderContent()}
           {/* 底部安全区域 */}
           {/* <View style={{paddingBottom: insets.bottom, backgroundColor: bottomSafeBgColor}}/> */}

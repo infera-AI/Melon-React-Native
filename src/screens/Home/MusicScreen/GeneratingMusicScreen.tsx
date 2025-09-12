@@ -21,6 +21,8 @@ import { useMessageModal } from '@/contexts/MessageModalContext';
 import { useLanguage } from '../../../contexts/LanguageContext';
 import { normalize, normalizeFontSize } from '@/utils/stylesUtil';
 import { usePointsStore } from '@/store/modules/points.store';
+import CustomNavigation from '@/components/CustomNavigation';
+import { useAppStore } from '@/store';
 
 type GeneratingMusicScreenNavigationProp = NativeStackNavigationProp<MusicStackParamList, 'GeneratingMusic'>;
 
@@ -320,6 +322,14 @@ const GeneratingMusicScreen: React.FC = () => {
     return;
   };
 
+  const handleBack = () => {
+    useAppStore.getState().setCoverTaskId(taskIdRef.current)
+    useAppStore.getState().setTaskIdType(generateMusicType)
+    useAppStore.getState().pollingGetStatusBycoverTaskId()
+    
+    navigation.replace('MyWork')
+  }
+
   return (
     <Modal
       visible={true}
@@ -341,15 +351,21 @@ const GeneratingMusicScreen: React.FC = () => {
           />
 
           {/* 顶部导航栏 */}
-          <View style={styles.header}>
-            {/* <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-          <Image 
-            source={require('../../../assets/main/page_return_icon.png')} 
-            style={styles.backIcon}
-          />
-        </TouchableOpacity> */}
+          {/* <View style={styles.header}>
+            <TouchableOpacity style={styles.backButton} onPress={handleBack}>
+              <Image 
+                source={require('../../../assets/main/page_return_icon.png')} 
+                style={styles.backIcon}
+              />
+            </TouchableOpacity>
             <Text style={styles.title}>{t('music.generating_music')}</Text>
-          </View>
+          </View> */}
+          <CustomNavigation
+            text={t('music.generating_music')}
+            backgroundColor="#181819"
+            onBack={handleBack}
+            style={{zIndex: 1000}}
+          />
 
           {/* 动画容器 */}
           <View style={styles.animationContainer}>

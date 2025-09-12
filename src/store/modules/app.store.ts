@@ -6,7 +6,7 @@
  * const x = useStore(state => state.x);
  * 
  * 外部使用示例：
- * import { useUserStore } from '@/store';
+ * import { useAppStore } from '@/store';
  * const token = useUserStore(s => s.token);
  * const userInfo = useUserStore(s => s.userInfo);
  * const setToken = useUserStore(s => s.setToken);
@@ -15,6 +15,9 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { eventBus } from '@/utils/EventBus';
+
+import { getGenerateMusicOSStatus, getCoverMusicStatus, saveCoverMusicOS, saveGenerateMusicOS } from '@/api/music/music';
 
 // Store 类型定义
 export interface APPState {
@@ -24,6 +27,16 @@ export interface APPState {
 
     appSign: string; // 应用标识
     setAppSign: (sign: string) => void;
+
+    // 用来记录音乐生成任务id，方便在作品列表页显示状态
+    coverTaskId: string;
+    setCoverTaskId: (taskId: string) => void;
+
+    taskIdType: string; // generate | cover
+    setTaskIdType: (taskType: string) => void;
+
+    // 轮询查询音乐生成任务的状态
+    pollingGetStatusBycoverTaskId: () => void;
 }
 
 export const useAppStore = create<APPState>()(
@@ -42,6 +55,52 @@ export const useAppStore = create<APPState>()(
             },
             appSign: '',
             setAppSign: (sign) => set({ appSign: sign }),
+
+            coverTaskId: '',
+            setCoverTaskId: (taskId) => set({ coverTaskId: taskId }),
+
+            taskIdType: '',
+            setTaskIdType: (taskType) => set({ taskIdType: taskType }),
+
+            pollingGetStatusBycoverTaskId: () => {
+                const poll = async () => {
+                    if (get().coverTaskId) {
+                        const getStatusRequest = get().taskIdType === 'generate' ? getGenerateMusicOSStatus : getCoverMusicStatus
+                        getStatusRequest({
+                            task_id: get().coverTaskId
+                        }).then((rsp) => {
+                            let isSuccess = false;
+                            if (get().taskIdType === "generate") {
+                                isSuccess = rsp.status === 3;
+                            } else if (get().taskIdType === "cover") {
+                                isSuccess = rsp.status === 2;
+                            }
+
+                            if (isSuccess) { // 任务执行成功
+                                console.log('store中轮询任务成功');
+                                const saveRequest = get().taskIdType === 'generate' ? saveGenerateMusicOS : saveCoverMusicOS
+                                saveRequest({
+                                    task_id: get().coverTaskId
+                                }).then((res) => {
+                                    console.log('store中保存作品成功', res);
+                                    set({ coverTaskId: '', taskIdType: '' })
+                                    eventBus.emit('UPDATE_MY_WORKS', undefined)
+                                }).catch((err) => {
+                                    console.log('store中保存作品失败', err);
+                                    set({ coverTaskId: '', taskIdType: '' })
+                                })
+                                
+                            } else {
+                                console.log('store中轮询翻唱任务状态');
+                                setTimeout(poll, 5000);
+                            }
+                        }).catch((err) => {
+                            setTimeout(poll, 5000);
+                        })
+                    }
+                }
+                poll()
+            }
         }),
         // 持久化配置
         {
@@ -51,6 +110,8 @@ export const useAppStore = create<APPState>()(
             partialize: (state) => ({
                 audioDurationCache: state.audioDurationCache,
                 appSign: state.appSign,
+                coverTaskId: state.coverTaskId,
+                taskIdType: state.taskIdType,
             })
         }
     )

@@ -506,7 +506,11 @@
     "exit": "Exit",
     "save_and_exit": "Save and Exit",
     "no_title_placeholder": "No title",
-    "cover_song": "Cover Song"
+    "cover_song": "Cover Song",
+    "create_task_tip": "New song being generated...",
+    "tip_modal_title": "Tip",
+    "cancel_cover_task": "There is a task in progress, are you sure to cancel it?",
+    "cancel_cover_task2": "There is a task in progress. You can either wait for it to complete before continuing your current operation, or end the ongoing task immediately to proceed. Confirm ending the ongoing task?"
   },
   "profile_screen": "Profile Screen",
   "select_language": "Select Language",

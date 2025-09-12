@@ -9,7 +9,9 @@ import {
   Image,
   Dimensions,
   ActivityIndicator,
-  Platform
+  Platform,
+  Animated,
+  Easing
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import {
@@ -26,6 +28,11 @@ import { normalize, normalizeFontSize } from '@/utils/stylesUtil';
 import theme from '@/utils/theme';
 import { pick } from '@react-native-documents/picker';
 import FullScreenLoader from '@/components/FullScreenLoader';
+import CustomNavigation from '@/components/CustomNavigation';
+import { useAppStore } from '@/store';
+import { eventBus } from '@/utils/EventBus';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import PublicModal from '@/components/PublicModal'
 
 interface Music {
   id: number;
@@ -97,6 +104,37 @@ const MyWorkScreen = ({ navigation }: any) => {
 
   const { show } = useMessageModal();
   const { t } = useLanguage();
+
+  const msgLoadRotateAnim = useRef(new Animated.Value(0)).current;
+  const rotateAnimRef = useRef<Animated.CompositeAnimation | null>(null);
+
+  const coverTaskId = useAppStore(s => s.coverTaskId);
+
+  const [cancelCoverTaskModalShow, setCancelCoverTaskModalShow] = useState(false)
+
+  useEffect(() => {
+    if (coverTaskId) {
+      msgLoadRotateAnim.setValue(0)
+      const loopAnim = Animated.loop(
+        Animated.timing(msgLoadRotateAnim, {
+          toValue: 360,
+          duration: 2000, // 2秒一圈
+          easing: Easing.linear,
+          useNativeDriver: true,
+        })
+      );
+      rotateAnimRef.current = loopAnim
+      loopAnim.start()
+    } else {
+      rotateAnimRef.current?.stop()
+    }
+    
+  }, [msgLoadRotateAnim, coverTaskId]);
+
+  const spin = msgLoadRotateAnim.interpolate({
+    inputRange: [0, 360],
+    outputRange: ['0deg', '360deg'],
+  });
 
   // 清理音频相关数据
   const cleanupAudioData = React.useCallback(() => {
@@ -484,11 +522,20 @@ const MyWorkScreen = ({ navigation }: any) => {
     // setHasMoreData(true);
     // setIsRefreshing(true);
     // getMyWorks(1, false);
+    const updateListBus = eventBus.on('UPDATE_MY_WORKS', () => {
+      console.log('我的作品列表页接收到eventBus---UPDATE_MY_WORKS---');
+      setCancelCoverTaskModalShow(false)
+      handleRefresh();
+    })
+
+    return () => {
+      updateListBus()
+    }
   }, []);
   return (
     <View style={styles.container}>
       {/* Header */}
-      <View style={styles.headerRow}>
+      {/* <View style={styles.headerRow}>
         <TouchableOpacity onPress={() => {
           cleanupAudioData();
           navigation.reset({
@@ -506,7 +553,20 @@ const MyWorkScreen = ({ navigation }: any) => {
         </TouchableOpacity>
         <Text style={styles.headerTitle}>{t('music.my_works')}</Text>
         <View style={{ width: 32 }} />
-      </View>
+      </View> */}
+      <CustomNavigation
+        text={t('music.my_works')}
+        backgroundColor="#111"
+        onBack={() => {
+          cleanupAudioData();
+          navigation.reset({
+            index: 0,
+            routes: [
+              { name: 'MusicMain' }
+            ]
+          });
+        }}
+      />
 
       <View style={styles.searchUploadContainer}>
         {/* Search */}
@@ -531,6 +591,30 @@ const MyWorkScreen = ({ navigation }: any) => {
           <Text style={styles.uploadBtnText}>{t('music.upload')}</Text>
         </TouchableOpacity>
       </View>
+      {
+        useAppStore.getState().coverTaskId &&
+        <View style={{alignItems: 'center', justifyContent: 'center', flexDirection: 'row', marginBottom: normalize(20)}}>
+          <Animated.Image
+            source={require('../../../../assets/images/loading.png')}
+            style={[styles.waitLoadImg, {transform: [{rotate: spin}]}]}
+            resizeMode={'contain'}
+          />
+          <Text style={styles.waitText}>{t('music.create_task_tip')}</Text>
+
+          <TouchableOpacity
+            style={{position: 'absolute', right: normalize(16)}}
+            onPress={() => {
+              setCancelCoverTaskModalShow(true)
+            }}
+          >
+            <Text>
+              <Ionicons name='close-outline' size={normalizeFontSize(26)} color={'#FFF'}/>
+            </Text>
+          </TouchableOpacity>
+          
+        </View>
+      }
+      
 
 
 
@@ -616,6 +700,43 @@ const MyWorkScreen = ({ navigation }: any) => {
         visible={loading}
         text={t('translate_screen.loading_text')}
       />
+      <PublicModal
+        visible={cancelCoverTaskModalShow}
+        modalType="center"
+        // backdropOpacity={0.1}
+        onBackdropPress={() => setCancelCoverTaskModalShow(false)}
+        renderContent={() => {
+          return (
+            <View style={styles.cancelTaskModalContent}>
+              <View style={styles.modalTitleContainer}>
+                <Text style={styles.modalTitleText}>{t('music.tip_modal_title')}</Text>
+              </View>
+              <View style={styles.modalTextContainer}>
+                <Text style={styles.modalText}>{t('music.cancel_cover_task')}</Text>
+              </View>
+              
+              <View style={styles.modalButtonsContainer}>
+                <TouchableOpacity
+                  style={styles.cancelBtn}
+                  onPress={() => setCancelCoverTaskModalShow(false)}
+                >
+                  <Text style={styles.canBtnText}>{t('music.cancel')}</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.confirmBtn}
+                  onPress={() => {
+                    useAppStore.getState().setCoverTaskId('')
+                    useAppStore.getState().setTaskIdType('')
+                    setCancelCoverTaskModalShow(false)
+                  }}
+                >
+                  <Text style={styles.confirmBtnText}>{t('music.confirm')}</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          )
+        }}
+      />
     </View>
   );
 };
@@ -624,7 +745,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#111',
-    paddingTop: normalize(32),
+    // paddingTop: normalize(32),
     paddingHorizontal: 0,
   },
   headerRow: {
@@ -799,6 +920,72 @@ const styles = StyleSheet.create({
     color: '#888',
     fontSize: normalizeFontSize(14),
   },
+  waitLoadImg: {
+    width: normalize(20),
+    height: normalize(20),
+  },
+  waitText: {
+    fontSize: normalizeFontSize(14),
+    color: '#fff',
+    marginLeft: normalize(8),
+  },
+  cancelTaskModalContent: {
+    padding: normalize(20),
+    width: Dimensions.get('window').width - normalize(80),
+    borderRadius: normalize(12),
+    backgroundColor: '#262626',
+  },
+  modalTitleContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: normalize(10),
+  },
+  modalTitleText: {
+    fontSize: normalizeFontSize(18),
+    fontWeight: '600',
+    color: '#fff',
+  },
+  modalTextContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: normalize(100),
+  },
+  modalText: {
+    fontSize: normalizeFontSize(16),
+    color: '#fff',
+  },
+  modalButtonsContainer: {
+    flexDirection: 'row',
+    marginTop: normalize(20),
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: normalize(20),
+  },
+  cancelBtn: {
+    flex: 1,
+    borderWidth: normalize(1),
+    borderColor: '#555',
+    borderRadius: normalize(8),
+    paddingVertical: normalize(10),
+    alignItems: 'center',
+  },
+  canBtnText: {
+    fontSize: normalizeFontSize(16),
+    color: '#aaa',
+  },
+  confirmBtn: {
+    flex: 1,
+    borderWidth: normalize(1),
+    borderColor: theme.primary,
+    borderRadius: normalize(8),
+    backgroundColor: theme.primary,
+    paddingVertical: normalize(10),
+    alignItems: 'center',
+  },
+  confirmBtnText: {
+    fontSize: normalizeFontSize(16),
+    color: theme.background,
+  }
 });
 
 export default MyWorkScreen;

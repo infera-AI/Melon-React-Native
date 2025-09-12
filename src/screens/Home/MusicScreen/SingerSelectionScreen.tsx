@@ -9,6 +9,7 @@ import {
   ScrollView,
   SafeAreaView,
   StatusBar,
+  Dimensions
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -29,6 +30,9 @@ import { FilePathConverter } from '@/utils/filePathConverter';
 import { uploadFiles } from '@/api/file/file';
 import { usePointsStore } from '@/store/modules/points.store';
 import { POINTS_DEDUCTION } from '@/utils/constants';
+import PublicModal from '@/components/PublicModal'
+import { useAppStore } from '@/store';
+import { eventBus } from '@/utils/EventBus';
 
 
 // 歌手数据接口
@@ -116,6 +120,10 @@ const SingerSelectionScreen: React.FC<any> = ({ route }: any) => {
   const { setGenerateMusicType, musicGenerateInfo, coverMusicFile, setIsSelectedVoice } = useMusicStore.getState();
   const isSelectedVoice = useMusicStore.getState().isSelectedVoice;
   const { refreshPointsBalance, pointsBalance } = usePointsStore.getState();
+
+  // 当前有生成中的任务 modal
+  const [haveTaskModal, setHaveTaskModal] = useState(false);
+
   const {
     isPlayIndex,
     togglePlayPause,
@@ -157,6 +165,10 @@ const SingerSelectionScreen: React.FC<any> = ({ route }: any) => {
 
   // 处理跳过选择
   const handleSkipSelection = () => {
+    if (useAppStore.getState().coverTaskId) {
+      setHaveTaskModal(true)
+      return
+    }
     // 跳过选择逻辑
     setIsSelectedVoice(false);
     if (checkPointsBalance(false)) {
@@ -173,7 +185,10 @@ const SingerSelectionScreen: React.FC<any> = ({ route }: any) => {
 
   // 处理下一步
   const handleNextStep = () => {
-
+    if (useAppStore.getState().coverTaskId) {
+      setHaveTaskModal(true)
+      return
+    }
     // if (checkPointsBalance(isSelectedVoice)) {
     setModalVisible(true);
     // } else {
@@ -205,8 +220,14 @@ const SingerSelectionScreen: React.FC<any> = ({ route }: any) => {
   useEffect(() => {
     getPublicVoiceprintsRequest();
     getPersonalVoiceprintsRequest();
+
+    const updateListBus = eventBus.on('UPDATE_MY_WORKS', () => {
+      console.log('接收到eventBus---UPDATE_MY_WORKS---');
+      setHaveTaskModal(false)
+    })
     return () => {
       cleanup();
+      updateListBus()
     }
   }, []);
 
@@ -520,6 +541,43 @@ const SingerSelectionScreen: React.FC<any> = ({ route }: any) => {
       />
       <FullScreenLoader
         visible={isLoading}
+      />
+      <PublicModal
+        visible={haveTaskModal}
+        modalType="center"
+        // backdropOpacity={0.1}
+        onBackdropPress={() => setHaveTaskModal(false)}
+        renderContent={() => {
+          return (
+            <View style={styles.cancelTaskModalContent}>
+              <View style={styles.modalTitleContainer}>
+                <Text style={styles.modalTitleText}>{t('music.tip_modal_title')}</Text>
+              </View>
+              <View style={styles.modalTextContainer}>
+                <Text style={styles.modalText}>{t('music.cancel_cover_task2')}</Text>
+              </View>
+              
+              <View style={styles.modalButtonsContainer}>
+                <TouchableOpacity
+                  style={styles.cancelBtn}
+                  onPress={() => setHaveTaskModal(false)}
+                >
+                  <Text style={styles.canBtnText}>{t('music.cancel')}</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.confirmBtn}
+                  onPress={() => {
+                    useAppStore.getState().setCoverTaskId('')
+                    useAppStore.getState().setTaskIdType('')
+                    setHaveTaskModal(false)
+                  }}
+                >
+                  <Text style={styles.confirmBtnText}>{t('music.confirm')}</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          )
+        }}
       />
     </SafeAreaView>
   );
@@ -844,6 +902,63 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     color: theme.primary,
   },
+  cancelTaskModalContent: {
+    padding: normalize(20),
+    width: Dimensions.get('window').width - normalize(80),
+    borderRadius: normalize(12),
+    backgroundColor: '#262626',
+  },
+  modalTitleContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: normalize(10),
+  },
+  modalTitleText: {
+    fontSize: normalizeFontSize(18),
+    fontWeight: '600',
+    color: '#fff',
+  },
+  modalTextContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: normalize(100),
+  },
+  modalText: {
+    fontSize: normalizeFontSize(16),
+    color: '#fff',
+  },
+  modalButtonsContainer: {
+    flexDirection: 'row',
+    marginTop: normalize(20),
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: normalize(20),
+  },
+  cancelBtn: {
+    flex: 1,
+    borderWidth: normalize(1),
+    borderColor: '#555',
+    borderRadius: normalize(8),
+    paddingVertical: normalize(10),
+    alignItems: 'center',
+  },
+  canBtnText: {
+    fontSize: normalizeFontSize(16),
+    color: '#aaa',
+  },
+  confirmBtn: {
+    flex: 1,
+    borderWidth: normalize(1),
+    borderColor: theme.primary,
+    borderRadius: normalize(8),
+    backgroundColor: theme.primary,
+    paddingVertical: normalize(10),
+    alignItems: 'center',
+  },
+  confirmBtnText: {
+    fontSize: normalizeFontSize(16),
+    color: theme.background,
+  }
 });
 
 export default SingerSelectionScreen;
