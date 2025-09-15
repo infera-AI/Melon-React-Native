@@ -38,6 +38,7 @@ export const API_ENDPOINTS = {
       RENAME_MUSIC: '/opensource/rename_m_os',
       GET_SHARE_LINK: '/opensource/get_share_music_url_os',
       SAVE_MUSIC_FILE: '/opensource/save_upload_music_os',
+      CANCEL_MUSIC_TASK: '/opensource/revoke_task_os',
     },
     TRANSLATE: {
       TRANLATE_DOCUMENT: '/translations/translate/docs',

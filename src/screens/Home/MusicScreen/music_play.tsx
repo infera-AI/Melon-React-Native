@@ -43,7 +43,7 @@ const MusicPlayScreen = ({ navigation, route }: any) => {
   const { show } = useMessageModal();
   const lyricScrollRef = useRef<FlatList<any>>(null);
   const progressInterval = useRef<NodeJS.Timeout | null>(null);
-  const [currentMusic, setCurrentMusic] = useState<any>(type !== 'cover' ? music : { url: music.cover_url });
+  const [currentMusic, setCurrentMusic] = useState<any>(type !== 'cover' ? music : { url: music.cover_url, ...music });
   const { t } = useLanguage();
   const [downloading, setDownloading] = useState(false);
   const [progress, setProgress] = useState(0);

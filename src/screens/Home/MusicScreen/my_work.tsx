@@ -17,7 +17,8 @@ import { useFocusEffect } from '@react-navigation/native';
 import {
   getPersonalWorks,
   uploadAudioFile,
-  saveMusicByLink
+  saveMusicByLink,
+  cancelMusicTask
 } from '@/api/music/music';
 import { AudioPlayer } from '@/utils/audioUtils';
 import Sound from "react-native-sound";
@@ -725,6 +726,7 @@ const MyWorkScreen = ({ navigation }: any) => {
                 <TouchableOpacity
                   style={styles.confirmBtn}
                   onPress={() => {
+                    cancelMusicTask({task_id: useAppStore.getState().coverTaskId})
                     useAppStore.getState().setCoverTaskId('')
                     useAppStore.getState().setTaskIdType('')
                     setCancelCoverTaskModalShow(false)

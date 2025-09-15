@@ -304,7 +304,7 @@ const WelcomeScreen: React.FC = () => {
             </TouchableOpacity> */}
               {/* Melon 标题 - 渐变色文字 */}
              <View style={styles.titleContainer}>
-               <Image source={require('../../../src/assets/login/login_title_icon.png')} resizeMode="contain" style={styles.titleIcon} />
+               <Image source={require('../../../src/assets/login/login_title_icon_melons.png')} resizeMode="contain" style={styles.titleIcon} />
              </View>
             
             {/* 标语 - 渐变色文字 */}

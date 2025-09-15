@@ -115,7 +115,8 @@ const MusicPreviewScreen: React.FC<{ route: RouteProp<MusicStackParamList, 'Musi
 
   // 选中音乐
   const handleSelectMusic = (music: Music) => {
-    console.log(music, 'music')
+    console.log('music----', music)
+    console.log('songs----', songs)
     setSelectedMusic(music);
     // handlePlayAudio(music.url);
     (navigation as any).navigate('MusicPlay', { music: music, songs: songs });
@@ -166,7 +167,13 @@ const MusicPreviewScreen: React.FC<{ route: RouteProp<MusicStackParamList, 'Musi
   }
 
   const handleGoBack = () => {
-    setIsShowModal(true);
+    navigation.reset({
+      index: 0,
+      routes: [
+        { name: 'Music' as any, params: { screen: 'MyWork' } },
+      ]
+    });
+    // setIsShowModal(true);
   }
 
   const modalConfig = {
@@ -253,7 +260,7 @@ const MusicPreviewScreen: React.FC<{ route: RouteProp<MusicStackParamList, 'Musi
         {/* 封面卡片 */}
         <View style={styles.coversRow}>
           {songs.map((c, idx) => (
-            <TouchableOpacity style={[styles.coverCard]} key={c.id} onPress={() => handleSelectMusic(c)}>
+            <TouchableOpacity style={[styles.coverCard]} key={idx} onPress={() => handleSelectMusic(c)}>
               <Image source={{ uri: c.cover }} style={styles.coverBgimg} resizeMode="contain" />
               <Text style={styles.coverTitle} ellipsizeMode='tail' numberOfLines={1}>{c.title}</Text>
               <Image
@@ -282,13 +289,13 @@ const MusicPreviewScreen: React.FC<{ route: RouteProp<MusicStackParamList, 'Musi
         >
           <Text style={styles.homeBtnText}>Back</Text>
         </TouchableOpacity>
-        <TouchableOpacity
+        {/* <TouchableOpacity
           style={styles.okBtn}
           onPress={handleSaveMusic}
           activeOpacity={0.7}
         >
           <Text style={styles.okBtnText}>{t('music.save_all')}</Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </ScrollView>
       <FullScreenLoader visible={isLoading} />
       <CommonModal

@@ -134,14 +134,42 @@ const MyPointsScreen: React.FC = () => {
 
         {/* 积分规则内容 */}
         <View style={styles.rulesContainer}>
-          <Text style={styles.rulesText}>
-            Generate song: 1 time/{POINTS_DEDUCTION.GENERATE_MUSIC} points{'\n'}
-            Generate song (using specified tone): 1 time/{POINTS_DEDUCTION.COVER_MUSIC} points{'\n'}
-            Voiceprint Clone: 1 time/{POINTS_DEDUCTION.CLONE_VOICEPRINT} points{'\n'}
-            Online translation (video/voice): 1 minute/{POINTS_DEDUCTION.TRANSLATE_VIDEO} points{'\n'}
-            Translation of documents/recordings/files images: 1 time/{POINTS_DEDUCTION.TRANSLATE_DOCUMENT} points{'\n'}
-            External speakers/headphones/simultaneous translation: 100 characters/{POINTS_DEDUCTION.TRANSLATE_EXTERNAL_SPEAKER} point
-          </Text>
+          <View style={{flexDirection: 'row'}}>
+            <Text style={styles.rulesText}>1. </Text>
+            <Text style={styles.rulesText}>
+              Generate song: 1 time/{POINTS_DEDUCTION.GENERATE_MUSIC} points
+            </Text>
+          </View>
+          <View style={{flexDirection: 'row'}}>
+            <Text style={styles.rulesText}>2. </Text>
+            <Text style={styles.rulesText}>
+              Generate song (using specified tone): 1 time/{POINTS_DEDUCTION.GENERATE_AND_COVER} points
+            </Text>
+          </View>
+          <View style={{flexDirection: 'row'}}>
+            <Text style={styles.rulesText}>3. </Text>
+            <Text style={styles.rulesText}>
+              Voiceprint Clone: 1 time/{POINTS_DEDUCTION.CLONE_VOICEPRINT} points
+            </Text>
+          </View>
+          <View style={{flexDirection: 'row'}}>
+            <Text style={styles.rulesText}>4. </Text>
+            <Text style={styles.rulesText}>
+              Online translation (video/voice): 1 minute/{POINTS_DEDUCTION.TRANSLATE_VIDEO} points
+            </Text>
+          </View>
+          <View style={{flexDirection: 'row'}}>
+            <Text style={styles.rulesText}>5. </Text>
+            <Text style={styles.rulesText}>
+              Translation of documents/recordings/files/images: 1 time/{POINTS_DEDUCTION.TRANSLATE_DOCUMENT} points
+            </Text>
+          </View>
+          <View style={{flexDirection: 'row'}}>
+            <Text style={styles.rulesText}>6. </Text>
+            <Text style={styles.rulesText}>
+              External speakers/headphones/simultaneous translation: 100 characters/{POINTS_DEDUCTION.TRANSLATE_EXTERNAL_SPEAKER} point
+            </Text>
+          </View>
         </View>
 
         {/* 购买按钮 */}

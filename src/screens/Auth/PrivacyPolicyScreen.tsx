@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   View,
   Text,
@@ -14,6 +14,8 @@ import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { AuthStackParamList } from './AuthNavigator';
 import { normalize, normalizeFontSize } from '../../utils/stylesUtil';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { useAppStore } from '@/store'
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
@@ -22,9 +24,20 @@ type PrivacyPolicyScreenNavigationProp = StackNavigationProp<AuthStackParamList,
 const PrivacyPolicyScreen: React.FC = () => {
   const navigation = useNavigation<PrivacyPolicyScreenNavigationProp>();
 
+  const appSign = useAppStore.getState().appSign
+
+  const [appName, setAppName] = useState('')
+
+  const { t } = useLanguage();
   const handleBack = () => {
     navigation.goBack();
   };
+
+  useEffect(() => {
+    if (appSign === 'melon') {
+      setAppName('Melons')
+    }
+  }, [])
 
   return (
     <View style={styles.container}>
@@ -42,302 +55,302 @@ const PrivacyPolicyScreen: React.FC = () => {
               <Image source={require('../../assets/main/page_return_icon.png')} style={styles.backIcon} />
             </View>
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Privacy Policy</Text>
+          <Text style={styles.headerTitle}>{t('privacy_policy.str_1')}</Text>
           <View style={styles.headerSpacer} />
         </View>
         
         {/* 协议内容 */}
         <ScrollView style={styles.agreementContainer} showsVerticalScrollIndicator={false}>
           <Text style={styles.titleText}>
-            Melon Privacy Policy
+            {appName} {t('privacy_policy.str_1')}
           </Text>
           <Text style={[styles.boldText]}>
-            Effective Date: <Text style={styles.normalText}>September 6, 2025</Text>
+            {t('privacy_policy.str_2')}: <Text style={styles.normalText}>{t('privacy_policy.str_3')}</Text>
           </Text>
           <Text style={[styles.boldText]}>
-            Last Updated: <Text style={styles.normalText}>September 6, 2025</Text>
+            {t('privacy_policy.str_4')}: <Text style={styles.normalText}>{t('privacy_policy.str_5')}</Text>
           </Text>
           <Text style={styles.title2Text}>
-            1. Introduction
+            {t('privacy_policy.str_6')}
           </Text>
           <Text style={styles.normalText}>
-            Welcome to Melon. Infera Inc. (“Melon,” “we,” “us,” or “our”) is committed to protecting your privacy. This Privacy Policy explains how we collect, use, store, share, and protect your personal information when you use our Service, as defined in our Terms of Service.
+            {t('privacy_policy.str_7').replace(/{Melon}/g, appName)}
           </Text>
           <Text style={styles.normalText}>
-            This Policy is designed to be transparent and to help you understand your privacy rights. It applies to all services offered by Melon. The data controller responsible for your information is Infera Inc., with its registered address at 8th Floor, Block A, Huizhi Building, No. 28 Ningshuang Road, Tiexinqiao Street, Yuhua tai District, Nanjing, China.
+            {t('privacy_policy.str_8').replace(/{Melon}/g, appName)}
           </Text>
           <Text style={styles.normalText}>
-            By using our Service, you agree to the collection and use of information in accordance with this Policy.
+            {t('privacy_policy.str_9').replace(/{Melon}/g, appName)}
           </Text>
 
           <Text style={styles.title2Text}>
-            2. The Information We Collect
+            {t('privacy_policy.str_10').replace(/{Melon}/g, appName)}
           </Text>
           <Text style={styles.normalText}>
-            We collect information to provide and improve our Service. The types of information we collect are described below.
+            {t('privacy_policy.str_11').replace(/{Melon}/g, appName)}
           </Text>
           <Text style={styles.title3Text}>
-            2.1 Information You Provide Directly
+            {t('privacy_policy.str_12').replace(/{Melon}/g, appName)}
           </Text>
           <Text style={styles.normalText}>
             <Text style={{fontSize: normalizeFontSize(10)}}>● </Text>
-            <Text style={styles.boldText}>Account Information: </Text>
-            When you create a Melon account, we collect your mobile phone number or email address and your encrypted password.
+            <Text style={styles.boldText}>{t('privacy_policy.str_13')} </Text>
+            {t('privacy_policy.str_14').replace(/{Melon}/g, appName)}
           </Text>
           <Text style={styles.normalText}>
             <Text style={{fontSize: normalizeFontSize(10)}}>● </Text>
-            <Text style={styles.boldText}>User Input: </Text>
-            We collect the content you provide to the Service. This includes text, documents, and images for translation; lyrics for music generation; and, critically, <Text style={styles.boldText}>voice and audio recordings</Text> for features like voice translation, AI covers, and voice cloning.This data is essential for the core functionality of the Service.
+            <Text style={styles.boldText}>{t('privacy_policy.str_15')} </Text>
+            {t('privacy_policy.str_16').replace(/{Melon}/g, appName)}
           </Text>
           <Text style={styles.normalText}>
             <Text style={{fontSize: normalizeFontSize(10)}}>● </Text>
-            <Text style={styles.boldText}>Communications: </Text>
-            If you contact us for customer support or provide feedback, we will collect the information you include in your communications.
+            <Text style={styles.boldText}>{t('privacy_policy.str_17').replace(/{Melon}/g, appName)} </Text>
+            {t('privacy_policy.str_18').replace(/{Melon}/g, appName)}
           </Text>
           <Text style={styles.title3Text}>
-            2.2 Information We Collect Automatically
+            {t('privacy_policy.str_19').replace(/{Melon}/g, appName)}
           </Text>
           <Text style={styles.normalText}>
             <Text style={{fontSize: normalizeFontSize(10)}}>● </Text>
-            <Text style={styles.boldText}>Usage Data: </Text>
-            We automatically collect information about your interactions with the Service, such as the features you use, the actions you take, and the time, frequency, and duration of your activities.
+            <Text style={styles.boldText}>{t('privacy_policy.str_20').replace(/{Melon}/g, appName)} </Text>
+            {t('privacy_policy.str_21').replace(/{Melon}/g, appName)}
           </Text>
           <Text style={styles.normalText}>
             <Text style={{fontSize: normalizeFontSize(10)}}>● </Text>
-            <Text style={styles.boldText}>Device and Log Information: </Text>
-            We collect information from and about the device(s) you use to access our Service. This includes your IP address, device model, operating system version, unique device identifiers, and network information.
+            <Text style={styles.boldText}>{t('privacy_policy.str_22').replace(/{Melon}/g, appName)} </Text>
+            {t('privacy_policy.str_23').replace(/{Melon}/g, appName)}
           </Text>
           <Text style={styles.title3Text}>
-            2.3 Information from Third Parties
+            {t('privacy_policy.str_24').replace(/{Melon}/g, appName)}
           </Text>
           <Text style={styles.normalText}>
-            If you choose to register or log in to our Service using a third-party account (such as Google or Apple), we will receive certain profile information about you from that service, such as your name and email address, as permitted by you and the policies of that third-party service.
+            {t('privacy_policy.str_25').replace(/{Melon}/g, appName)}
           </Text>
           <Text style={styles.title3Text}>
-            2.3.1 Summary of Personal Data Processing Activities
+            {t('privacy_policy.str_26').replace(/{Melon}/g, appName)}
           </Text>
           <Text style={styles.normalText}>
-            To ensure transparency, particularly for our users in the European Economic Area (EEA), The following summarizes our data processing activities.
+            {t('privacy_policy.str_27').replace(/{Melon}/g, appName)}
           </Text>
           <Text style={styles.normalText}>
-            1) Account Credentials (Phone number or email, password): To create, manage, and secure your account; to verify your identity.
+            {t('privacy_policy.str_28').replace(/{Melon}/g, appName)}
           </Text>
           <Text style={styles.normalText}>
-            2) User Input (Text, documents, images, audio/voice recordings): To provide the core AI translation and music generation services you request.
+            {t('privacy_policy.str_29').replace(/{Melon}/g, appName)}
           </Text>
           <Text style={styles.normalText}>
-            3) User Input & Usage Data: To train, develop, and improve our AI models and the overall Service.
+            {t('privacy_policy.str_30').replace(/{Melon}/g, appName)}
           </Text>
           <Text style={styles.normalText}>
-            4) Payment Information (Processed by third parties): To process your purchases of virtual Credits.
+            {t('privacy_policy.str_31').replace(/{Melon}/g, appName)}
           </Text>
           <Text style={styles.normalText}>
-            5) Device & Log Information: To ensure the security and stability of the Service; to prevent fraud and abuse.
+            {t('privacy_policy.str_32').replace(/{Melon}/g, appName)}
           </Text>
           <Text style={styles.normalText}>
-            6) Communications Data: To respond to your support requests and feedback.
+            {t('privacy_policy.str_33').replace(/{Melon}/g, appName)}
           </Text>
 
           <Text style={styles.title2Text}>
-            3. How and Why We Use Your Information (Purposes of Processing)
+            {t('privacy_policy.str_34').replace(/{Melon}/g, appName)}
           </Text>
           <Text style={styles.normalText}>
-            We use the information we collect for the following purposes:
-          </Text>
-          <Text style={styles.normalText}>
-            <Text style={{fontSize: normalizeFontSize(10)}}>● </Text>
-            <Text style={styles.boldText}>To Provide and Maintain the Service: </Text>
-            We use your information to deliver the core functionalities of the Service, such as processing your Input to generate Output, managing your account, and processing payments. The legal basis for this processing is the <Text style={styles.boldText}>performance of our contract</Text> (our Terms of Service) with you.
+            {t('privacy_policy.str_35').replace(/{Melon}/g, appName)}
           </Text>
           <Text style={styles.normalText}>
             <Text style={{fontSize: normalizeFontSize(10)}}>● </Text>
-            <Text style={styles.boldText}>To Improve and Develop the Service: </Text>
-            We use your Input and Usage Data to train our AI models and improve the quality, accuracy, and features of our Service. This processing is based on our <Text style={styles.boldText}>legitimate interest</Text> in developing a state-of-the-art AI service. Providing an easy-to-use opt-out strengthens the justification for this legitimate interest and aligns with principles of user control central to modern privacy laws like GDPR and the California Privacy Rights Act (CPRA).
+            <Text style={styles.boldText}>{t('privacy_policy.str_36').replace(/{Melon}/g, appName)} </Text>
+            {t('privacy_policy.str_37').replace(/{Melon}/g, appName)}
           </Text>
           <Text style={styles.normalText}>
             <Text style={{fontSize: normalizeFontSize(10)}}>● </Text>
-            <Text style={styles.boldText}>You are in control. You can opt out of having your data used for AI model improvement at any time in your account settings. Your choice will not affect your access to the core features of the Service. </Text>
+            <Text style={styles.boldText}>{t('privacy_policy.str_38').replace(/{Melon}/g, appName)} </Text>
+            {t('privacy_policy.str_39').replace(/{Melon}/g, appName)}
           </Text>
           <Text style={styles.normalText}>
             <Text style={{fontSize: normalizeFontSize(10)}}>● </Text>
-            <Text style={styles.boldText}>To Communicate with You: </Text>
-            We use your contact information to send you service-related announcements, security alerts, and support messages. This is based on our <Text style={styles.boldText}>legitimate interest</Text> in keeping you informed about your account and the Service.
+            <Text style={styles.boldText}>{t('privacy_policy.str_40').replace(/{Melon}/g, appName)} </Text>
           </Text>
           <Text style={styles.normalText}>
             <Text style={{fontSize: normalizeFontSize(10)}}>● </Text>
-            <Text style={styles.boldText}>For Safety and Security: </Text>
-            We use devices and log information to protect the security and integrity of our Service, prevent fraud and abuse, and enforce our Terms. This processing is based on our <Text style={styles.boldText}>legitimate interest</Text> and, in some cases, our <Text style={styles.boldText}>legal obligations</Text>.
+            <Text style={styles.boldText}>{t('privacy_policy.str_41').replace(/{Melon}/g, appName)} </Text>
+            {t('privacy_policy.str_42').replace(/{Melon}/g, appName)}
+          </Text>
+          <Text style={styles.normalText}>
+            <Text style={{fontSize: normalizeFontSize(10)}}>● </Text>
+            <Text style={styles.boldText}>{t('privacy_policy.str_43').replace(/{Melon}/g, appName)} </Text>
+            {t('privacy_policy.str_44').replace(/{Melon}/g, appName)}
           </Text>
 
           <Text style={styles.title2Text}>
-            4. How We Share and Disclose Information
+            {t('privacy_policy.str_45').replace(/{Melon}/g, appName)}
           </Text>
           <Text style={styles.normalText}>
-            We do not share your personal information with third parties except in the limited circumstances described below:
-          </Text>
-          <Text style={styles.normalText}>
-            <Text style={{fontSize: normalizeFontSize(10)}}>● </Text>
-            <Text style={styles.boldText}>With Service Providers: </Text>
-            We share information with third-party vendors and partners who work on our behalf, such as cloud hosting providers (e.g., AWS, Google Cloud), payment processors, and analytics services. These providers are contractually obligated to protect your information and are prohibited from using it for any other purpose.
+            {t('privacy_policy.str_46').replace(/{Melon}/g, appName)}
           </Text>
           <Text style={styles.normalText}>
             <Text style={{fontSize: normalizeFontSize(10)}}>● </Text>
-            <Text style={styles.boldText}>For Legal Reasons: </Text>
-            We may disclose your information if we believe it is reasonably necessary to comply with a law, regulation, legal process, or governmental request; to enforce our Terms; to protect the safety of any person; or to address fraud, security, or technical issues.
+            <Text style={styles.boldText}>{t('privacy_policy.str_47').replace(/{Melon}/g, appName)} </Text>
+            {t('privacy_policy.str_48').replace(/{Melon}/g, appName)}
           </Text>
           <Text style={styles.normalText}>
             <Text style={{fontSize: normalizeFontSize(10)}}>● </Text>
-            <Text style={styles.boldText}>In Case of a Business Transfer: </Text>
-            If we are involved in a merger, acquisition, bankruptcy, or sale of all or a portion of our assets, your information may be transferred as part of that transaction. We will notify you of any such change in control or use of your personal information.
+            <Text style={styles.boldText}>{t('privacy_policy.str_49').replace(/{Melon}/g, appName)} </Text>
+            {t('privacy_policy.str_50').replace(/{Melon}/g, appName)}
           </Text>
           <Text style={styles.normalText}>
             <Text style={{fontSize: normalizeFontSize(10)}}>● </Text>
-            <Text style={styles.boldText}>With Your Consent: </Text>
-            We may share your information with third parties when we have your explicit consent to do so.
+            <Text style={styles.boldText}>{t('privacy_policy.str_51').replace(/{Melon}/g, appName)} </Text>
+            {t('privacy_policy.str_52').replace(/{Melon}/g, appName)}
           </Text>
           <Text style={styles.normalText}>
-            <Text style={styles.boldText}>We do not sell your personal information.</Text> This is a key commitment and a requirement for compliance with laws like the CCPA/CPRA.
+            <Text style={{fontSize: normalizeFontSize(10)}}>● </Text>
+            <Text style={styles.boldText}>{t('privacy_policy.str_53').replace(/{Melon}/g, appName)} </Text>
+            {t('privacy_policy.str_54').replace(/{Melon}/g, appName)}
+          </Text>
+          <Text style={styles.normalText}>
+            <Text style={styles.boldText}>{t('privacy_policy.str_55').replace(/{Melon}/g, appName)}</Text> {t('privacy_policy.str_56').replace(/{Melon}/g, appName)}
           </Text>
 
           <Text style={styles.title2Text}>
-            5. International Data Transfers
+            {t('privacy_policy.str_57').replace(/{Melon}/g, appName)}
           </Text>
           <Text style={styles.normalText}>
-            Your personal information may be transferred to, and processed in, countries other than the country in which you are a resident. Our company is based in China, and we may use servers and service providers located in various countries, including the United States.
+            {t('privacy_policy.str_58').replace(/{Melon}/g, appName)}
           </Text>
           <Text style={styles.normalText}>
-            These countries may have data protection laws that are different from the laws of your country. Specifically, for users in the EEA, UK, or Switzerland, when we transfer your personal information to a country that has not been deemed to provide an adequate level of data protection by the European Commission (such as China or the United States prior to the EU-U.S. Data Privacy Framework), we do so on the basis of appropriate safeguards. The primary mechanism we rely on for such transfers is the <Text style={styles.boldText}>Standard Contractual Clauses (SCCs)</Text> approved by the European Commission. This is a legally mandated requirement under GDPR to ensure your data remains protected to EU standards when it leaves the EEA.
+            {t('privacy_policy.str_59').replace(/{Melon}/g, appName)}
           </Text>
 
           <Text style={styles.title2Text}>
-            6. Your Privacy Rights and Choices
+            {t('privacy_policy.str_60').replace(/{Melon}/g, appName)}
           </Text>
           <Text style={styles.normalText}>
-            You have rights and choices regarding your personal information. We have organized these rights by jurisdiction for your convenience.
+            {t('privacy_policy.str_61').replace(/{Melon}/g, appName)}
           </Text>
           <Text style={styles.title3Text}>
-            6.1 Your General Rights
+            {t('privacy_policy.str_62').replace(/{Melon}/g, appName)}
           </Text>
           <Text style={styles.normalText}>
-            Regardless of your location, you have the right to:
-          </Text>
-          <Text style={styles.normalText}>
-            <Text style={{fontSize: normalizeFontSize(10)}}>● </Text>
-            <Text style={styles.boldText}>Access </Text>
-            your personal information.
+            {t('privacy_policy.str_63').replace(/{Melon}/g, appName)}
           </Text>
           <Text style={styles.normalText}>
             <Text style={{fontSize: normalizeFontSize(10)}}>● </Text>
-            <Text style={styles.boldText}>Correct or update </Text>
-            inaccurate personal information.
+            <Text style={styles.boldText}>{t('privacy_policy.str_64').replace(/{Melon}/g, appName)} </Text>
+            {t('privacy_policy.str_65').replace(/{Melon}/g, appName)}
           </Text>
           <Text style={styles.normalText}>
             <Text style={{fontSize: normalizeFontSize(10)}}>● </Text>
-            <Text style={styles.boldText}>Delete </Text>
-            your personal information by deleting your account.
+            <Text style={styles.boldText}>{t('privacy_policy.str_66').replace(/{Melon}/g, appName)} </Text>
+            {t('privacy_policy.str_67').replace(/{Melon}/g, appName)}
           </Text>
           <Text style={styles.normalText}>
             <Text style={{fontSize: normalizeFontSize(10)}}>● </Text>
-            <Text style={styles.boldText}>Control Data Use for AI Improvement: </Text>
-            As stated above, you can opt out of your data being used for model training in your account settings.
+            <Text style={styles.boldText}>{t('privacy_policy.str_68').replace(/{Melon}/g, appName)} </Text>
+            {t('privacy_policy.str_69').replace(/{Melon}/g, appName)}
+          </Text>
+          <Text style={styles.normalText}>
+            <Text style={{fontSize: normalizeFontSize(10)}}>● </Text>
+            <Text style={styles.boldText}>{t('privacy_policy.str_70').replace(/{Melon}/g, appName)} </Text>
+            {t('privacy_policy.str_71').replace(/{Melon}/g, appName)}
           </Text>
           <Text style={styles.title3Text}>
-            6.2 Your Rights as a Resident of the EEA, UK, or Switzerland (GDPR)
+            {t('privacy_policy.str_72').replace(/{Melon}/g, appName)}
           </Text>
           <Text style={styles.normalText}>
-            If you are a resident of the EEA, UK, or Switzerland, you have the following additional rights under the GDPR:
-          </Text>
-          <Text style={styles.normalText}>
-            <Text style={{fontSize: normalizeFontSize(10)}}>● </Text>
-            <Text style={styles.boldText}>Right to Object: </Text>
-            You have the right to object to our processing of your personal data when it is based on our legitimate interests.
+            {t('privacy_policy.str_73').replace(/{Melon}/g, appName)}
           </Text>
           <Text style={styles.normalText}>
             <Text style={{fontSize: normalizeFontSize(10)}}>● </Text>
-            <Text style={styles.boldText}>Right to Restrict Processing: </Text>
-            You can ask us to restrict the processing of your personal data in certain circumstances.
+            <Text style={styles.boldText}>{t('privacy_policy.str_74').replace(/{Melon}/g, appName)} </Text>
+            {t('privacy_policy.str_75').replace(/{Melon}/g, appName)}
           </Text>
           <Text style={styles.normalText}>
             <Text style={{fontSize: normalizeFontSize(10)}}>● </Text>
-            <Text style={styles.boldText}>Right to Data Portability: </Text>
-            You have the right to receive the personal data you have provided to us in a structured, commonly used, and machine-readable format.
+            <Text style={styles.boldText}>{t('privacy_policy.str_76').replace(/{Melon}/g, appName)} </Text>
+            {t('privacy_policy.str_77').replace(/{Melon}/g, appName)}
           </Text>
           <Text style={styles.normalText}>
             <Text style={{fontSize: normalizeFontSize(10)}}>● </Text>
-            <Text style={styles.boldText}>Right to Lodge a Complaint: </Text>
-            You have the right to lodge a complaint with a data protection supervisory authority in your country of residence.
+            <Text style={styles.boldText}>{t('privacy_policy.str_78').replace(/{Melon}/g, appName)} </Text>
+            {t('privacy_policy.str_79').replace(/{Melon}/g, appName)}
+          </Text>
+          <Text style={styles.normalText}>
+            <Text style={{fontSize: normalizeFontSize(10)}}>● </Text>
+            <Text style={styles.boldText}>{t('privacy_policy.str_80').replace(/{Melon}/g, appName)} </Text>
+            {t('privacy_policy.str_81').replace(/{Melon}/g, appName)}
           </Text>
           <Text style={styles.title3Text}>
-            6.3 Your Rights as a Resident of California (CCPA/CPRA)
+            {t('privacy_policy.str_82').replace(/{Melon}/g, appName)}
           </Text>
           <Text style={styles.normalText}>
-            If you are a California resident, you have the following rights under the California Consumer Privacy Act (CCPA), as amended by the California Privacy Rights Act (CPRA):
-          </Text>
-          <Text style={styles.normalText}>
-            <Text style={{fontSize: normalizeFontSize(10)}}>● </Text>
-            <Text style={styles.boldText}>Right to Know: </Text>
-            You have the right to request information about the categories and specific pieces of personal information we have collected about you, the sources of that information, the purposes for which we use it, and the third parties with whom we share it.
+            {t('privacy_policy.str_83').replace(/{Melon}/g, appName)}
           </Text>
           <Text style={styles.normalText}>
             <Text style={{fontSize: normalizeFontSize(10)}}>● </Text>
-            <Text style={styles.boldText}>Right to Delete: </Text>
-            You have the right to request the deletion of your personal information that we have collected, subject to certain exceptions.
+            <Text style={styles.boldText}>{t('privacy_policy.str_84').replace(/{Melon}/g, appName)} </Text>
+            {t('privacy_policy.str_85').replace(/{Melon}/g, appName)}
           </Text>
           <Text style={styles.normalText}>
             <Text style={{fontSize: normalizeFontSize(10)}}>● </Text>
-            <Text style={styles.boldText}>Right to Correct: </Text>
-            You have the right to request the correction of inaccurate personal information we maintain about you.
+            <Text style={styles.boldText}>{t('privacy_policy.str_86').replace(/{Melon}/g, appName)} </Text>
+            {t('privacy_policy.str_87').replace(/{Melon}/g, appName)}
           </Text>
           <Text style={styles.normalText}>
             <Text style={{fontSize: normalizeFontSize(10)}}>● </Text>
-            <Text style={styles.boldText}>Right to Opt-Out of Sale/Sharing: </Text>
-            We do not “sell” or “share” (for cross-context behavioral advertising) your personal information as those terms are defined under the CCPA/CPRA.
+            <Text style={styles.boldText}>{t('privacy_policy.str_88').replace(/{Melon}/g, appName)} </Text>
+            {t('privacy_policy.str_89').replace(/{Melon}/g, appName)}
           </Text>
           <Text style={styles.normalText}>
             <Text style={{fontSize: normalizeFontSize(10)}}>● </Text>
-            <Text style={styles.boldText}>Right to Limit Use and Disclosure of Sensitive Personal Information: </Text>
-            You have the right to limit our use of your sensitive personal information (such as voice recordings) to that which is necessary to perform the services you requested. Our feature allowing you to opt out of AI model training is one way we honor this right.
+            <Text style={styles.boldText}>{t('privacy_policy.str_90').replace(/{Melon}/g, appName)} </Text>
+            {t('privacy_policy.str_91').replace(/{Melon}/g, appName)}
           </Text>
           <Text style={styles.normalText}>
             <Text style={{fontSize: normalizeFontSize(10)}}>● </Text>
-            <Text style={styles.boldText}>Right to Non-Discrimination: </Text>
-            We will not discriminate against you for exercising any of your CCPA/CPRA rights.
+            <Text style={styles.boldText}>{t('privacy_policy.str_92').replace(/{Melon}/g, appName)} </Text>
+            {t('privacy_policy.str_93').replace(/{Melon}/g, appName)}
           </Text>
           <Text style={styles.normalText}>
-            To exercise any of these rights, please contact us using the information provided in Section 9.
+            <Text style={{fontSize: normalizeFontSize(10)}}>● </Text>
+            <Text style={styles.boldText}>{t('privacy_policy.str_94').replace(/{Melon}/g, appName)} </Text>
+            {t('privacy_policy.str_95').replace(/{Melon}/g, appName)}
+          </Text>
+          <Text style={styles.normalText}>
+            {t('privacy_policy.str_96').replace(/{Melon}/g, appName)}
           </Text>
 
           <Text style={styles.title2Text}>
-            7. Data Security and Retention
+            {t('privacy_policy.str_97').replace(/{Melon}/g, appName)}
           </Text>
           <Text style={styles.normalText}>
-            We implement commercially reasonable technical and organizational security measures designed to protect your personal information from unauthorized access, use, alteration, or disclosure. These measures include encryption of data in transit and at rest, and strict access controls.
+            {t('privacy_policy.str_98').replace(/{Melon}/g, appName)}
           </Text>
           <Text style={styles.normalText}>
-            We retain your personal information for as long as your account is active or as needed to provide you with the Service. We may also retain information for a longer period as necessary to comply with our legal obligations, resolve disputes, and enforce our agreements. After this period, we will delete or anonymize your information.
+            {t('privacy_policy.str_99').replace(/{Melon}/g, appName)}
           </Text>
 
           <Text style={styles.title2Text}>
-            8. Children's Privacy
+            {t('privacy_policy.str_100').replace(/{Melon}/g, appName)}
           </Text>
           <Text style={styles.normalText}>
-            Our Service is not directed to individuals under the age of 13 (or 16 in the EEA, where applicable). We do not knowingly collect personal information from children. If we become aware that a child under the relevant age has provided us with personal information, we will take steps to delete such information immediately.If you are a parent or guardian and believe your child has provided us with personal information, please contact us.
+            {t('privacy_policy.str_101').replace(/{Melon}/g, appName)}
           </Text>
 
           <Text style={styles.title2Text}>
-            9. Policy Updates and Contact Information
+            {t('privacy_policy.str_102').replace(/{Melon}/g, appName)}
           </Text>
           <Text style={styles.normalText}>
-            We may update this Privacy Policy from time to time. If we make material changes, we will notify you through the Service or by other means, such as email, to provide you with the opportunity to review the changes before they become effective.
+            {t('privacy_policy.str_103').replace(/{Melon}/g, appName)}
           </Text>
           <Text style={styles.normalText}>
-            If you have any questions, comments, or concerns about this Privacy Policy or our data practices, please contact our data protection team at: 
+            {t('privacy_policy.str_104').replace(/{Melon}/g, appName)}
+          </Text>
+          <Text style={[styles.normalText, {textAlign: 'auto'}]}>
+            <Text style={styles.boldText}>{t('privacy_policy.str_105')} </Text>privacy@infera.im | contact@infera.cn
           </Text>
           <Text style={styles.normalText}>
-            <Text style={styles.boldText}>Email: </Text>privacy@infera.im (or contact@infera.cn) 
-          </Text>
-          <Text style={styles.normalText}>
-            <Text style={styles.boldText}>Address: </Text>Infera Inc., 8th Floor, Block A, Huizhi Building, No. 28 Ningshuang Road, Tiexinqiao Street, Yuhua tai District, Nanjing, China.
+            <Text style={styles.boldText}>{t('privacy_policy.str_106')} </Text>{t('privacy_policy.str_107')}
           </Text>
 
           <View style={styles.marginTop20} />

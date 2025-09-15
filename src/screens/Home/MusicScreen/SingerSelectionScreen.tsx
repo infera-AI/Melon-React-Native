@@ -163,7 +163,7 @@ const SingerSelectionScreen: React.FC<any> = ({ route }: any) => {
     setSelectedId(singer.id);
   };
 
-  // 处理跳过选择
+  // 开始制作按钮点击， 此时不校验选择的声纹
   const handleSkipSelection = () => {
     if (useAppStore.getState().coverTaskId) {
       setHaveTaskModal(true)
@@ -171,7 +171,7 @@ const SingerSelectionScreen: React.FC<any> = ({ route }: any) => {
     }
     // 跳过选择逻辑
     setIsSelectedVoice(false);
-    if (checkPointsBalance(false)) {
+    if (checkPointsBalance()) {
       setModalVisible(true);
     } else {
       setPointsLimitModalVisible(true);
@@ -183,17 +183,18 @@ const SingerSelectionScreen: React.FC<any> = ({ route }: any) => {
     navigation.goBack();
   };
 
-  // 处理下一步
+  // 使用音色按钮点击
   const handleNextStep = () => {
     if (useAppStore.getState().coverTaskId) {
       setHaveTaskModal(true)
       return
     }
-    // if (checkPointsBalance(isSelectedVoice)) {
-    setModalVisible(true);
-    // } else {
-    //   setPointsLimitModalVisible(true);
-    // }
+    setIsSelectedVoice(true);
+    if (checkPointsBalance(false)) {
+      setModalVisible(true);
+    } else {
+      setPointsLimitModalVisible(true);
+    }
     // if (selectedSinger) {
     //   console.log('选择的歌手:', selectedSinger);
     //   console.log('当前Tab:', activeTab);
@@ -269,12 +270,22 @@ const SingerSelectionScreen: React.FC<any> = ({ route }: any) => {
   );
 
   // 判断积分余额是否足够
-  const checkPointsBalance = (selectedVoice: boolean) => {
-    if (selectedVoice) {
-      return pointsBalance >= POINTS_DEDUCTION.COVER_MUSIC;
-    } else {
+  // isUseDefaultVoice 是否是使用默认声纹，不使用用户选择的声纹
+  const checkPointsBalance = (isUseDefaultVoice = true) => {
+    if (isUseDefaultVoice) {
+      console.log('使用默认声纹');
       return pointsBalance >= POINTS_DEDUCTION.GENERATE_MUSIC;
+    } else {
+      console.log('使用用户选择的声纹---', selectedSinger?.id);
+      return pointsBalance >= POINTS_DEDUCTION.GENERATE_AND_COVER;
     }
+    // if (selectedSinger?.id) { // 有选择声纹
+    //   console.log('有选择声纹---', selectedSinger?.id);
+    //   return pointsBalance >= POINTS_DEDUCTION.GENERATE_AND_COVER;
+    // } else { // 没有选择声纹
+    //   console.log('没有选择声纹---', selectedSinger?.id);
+    //   return pointsBalance >= POINTS_DEDUCTION.GENERATE_MUSIC;
+    // }
   }
 
   // 渲染内容区域
@@ -353,13 +364,15 @@ const SingerSelectionScreen: React.FC<any> = ({ route }: any) => {
   };
 
   // 跳转到音乐生成页面 skip跳过声纹
-  const handleToMusicGenerate = (skip: boolean = false) => {
+  const handleToMusicGenerate = () => {
+    console.log('isSelectedVoice----', isSelectedVoice);
     setIsLoading(true);
+    
     generateMusic({
       work_title: musicGenerateInfo.title,
       lyrics: musicGenerateInfo.lyrics,
       genres: musicGenerateInfo.musicStyles,
-      voice_print_id: skip ? 0 : Number(selectedSinger?.id) || 0,
+      voice_print_id: !isSelectedVoice ? 0 : Number(selectedSinger?.id) || 0,
     }).then((rsp) => {
       setIsLoading(false);
       if (!rsp.task_id) {
@@ -411,6 +424,7 @@ const SingerSelectionScreen: React.FC<any> = ({ route }: any) => {
         })
         return
       }
+      
       setGenerateMusicType('cover');
       refreshPointsBalance();
       (navigation as any).navigate('GeneratingMusic', {
@@ -435,11 +449,13 @@ const SingerSelectionScreen: React.FC<any> = ({ route }: any) => {
   }
 
   const handleGenerateMusicAction = () => {
-    if (type === 'generate') {
-      handleToMusicGenerate(!isSelectedVoice);
-    } else if (type === 'cover') {
-      handleCoverSingToMusic();
-    }
+    console.log('111111---', selectedSinger?.id);
+    handleToMusicGenerate();
+    // if (type === 'generate') {
+    //   handleToMusicGenerate(!isSelectedVoice);
+    // } else if (type === 'cover') {
+    //   handleCoverSingToMusic();
+    // }
   }
 
   return (
@@ -475,7 +491,7 @@ const SingerSelectionScreen: React.FC<any> = ({ route }: any) => {
         <TouchableOpacity
           disabled={type !== 'cover' && !selectedSinger}
           style={[styles.button, styles.previousButton, type !== 'cover' && !selectedSinger && { opacity: 0.3 }]}
-          onPress={type === 'cover' ? handlePreviousStep : handleNextStep}
+          onPress={handleNextStep}
         >
           <Text style={[styles.buttonText, text]}>{type === 'cover' ? t('music.cancel') : t('music.use_voice')}</Text>
         </TouchableOpacity>
@@ -485,7 +501,7 @@ const SingerSelectionScreen: React.FC<any> = ({ route }: any) => {
             styles.button,
             styles.nextButton,
           ]}
-          onPress={type === 'cover' ? handleNextStep : handleSkipSelection}
+          onPress={handleSkipSelection}
         >
           <Text style={[styles.buttonText, styles.nextButtonText]}>
             {t('music.start_production')}
@@ -497,7 +513,7 @@ const SingerSelectionScreen: React.FC<any> = ({ route }: any) => {
         onClose={() => setModalVisible(false)}
         onConfirm={handleGenerateMusicAction}
         onCancel={handleGenerateMusicAction}
-        title={t('music.generating_your_song_will_cost').replace('{points}', (isSelectedVoice ? POINTS_DEDUCTION.COVER_MUSIC : POINTS_DEDUCTION.GENERATE_MUSIC).toString())}
+        title={t('music.generating_your_song_will_cost').replace('{points}', (isSelectedVoice ? POINTS_DEDUCTION.GENERATE_AND_COVER : POINTS_DEDUCTION.GENERATE_MUSIC).toString())}
         onDontShowAgain={() => { }}
       />
       <PointsLimitModal

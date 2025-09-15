@@ -14,7 +14,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { MusicStackParamList } from './navigator';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import LottieView from 'lottie-react-native';
-import { generateMusic, getGenerateMusicOSStatus, getCoverMusicStatus, saveCoverMusicOS } from '@/api/music/music';
+import { generateMusic, getGenerateMusicOSStatus, getCoverMusicStatus, saveCoverMusicOS, saveGenerateMusicOS } from '@/api/music/music';
 import { useMusicStore } from '@/store/modules/music.store';
 import { useVoiceStore } from '@/store/modules/voice.store';
 import { useMessageModal } from '@/contexts/MessageModalContext';
@@ -216,11 +216,27 @@ const GeneratingMusicScreen: React.FC = () => {
             if (generateMusicType === 'cover') {
               const resSave = await saveCoverMusicRequest()
               refreshPointsBalance();
-              navigation.replace('MusicPlay', { music: resSave, type: 'cover' });
+              navigation.replace('MusicPlay', {
+                music: {
+                  ...resSave,
+                  title: route.params?.title || ''
+                },
+                type: 'cover'
+              });
             } else {
+              const res = await saveGenerateMusicOS({
+                task_id: taskIdRef.current
+              })
+              console.log('保存音乐成功');
+              
               setTaskId(taskIdRef.current)
               refreshPointsBalance();
-              navigation.replace('MusicPreview', { music: rsp });
+              navigation.replace('MusicPreview', {
+                music: {
+                  ...rsp,
+                  ...res
+                }
+              });
             }
           }, 1000)
 

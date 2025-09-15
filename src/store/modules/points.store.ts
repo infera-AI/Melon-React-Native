@@ -23,6 +23,7 @@ export const usePointsStore = create<PointsState>()(
             refreshPointsBalance: async () => {
                 try {
                     const response = await getPointsBalance();
+                    console.log('刷新用户积分接口响应--', response);
                     set({
                         pointsBalance: response.points,
                     });

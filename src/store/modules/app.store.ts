@@ -16,6 +16,7 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { eventBus } from '@/utils/EventBus';
+import { usePointsStore } from '@/store'
 
 import { getGenerateMusicOSStatus, getCoverMusicStatus, saveCoverMusicOS, saveGenerateMusicOS } from '@/api/music/music';
 
@@ -85,9 +86,11 @@ export const useAppStore = create<APPState>()(
                                     console.log('store中保存作品成功', res);
                                     set({ coverTaskId: '', taskIdType: '' })
                                     eventBus.emit('UPDATE_MY_WORKS', undefined)
+                                    usePointsStore.getState().refreshPointsBalance()
                                 }).catch((err) => {
                                     console.log('store中保存作品失败', err);
                                     set({ coverTaskId: '', taskIdType: '' })
+                                    usePointsStore.getState().refreshPointsBalance()
                                 })
                                 
                             } else {

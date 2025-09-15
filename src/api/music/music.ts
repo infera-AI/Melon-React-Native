@@ -186,3 +186,8 @@ export function uploadAudioFile(audioFile: SingToMusicFileInfo) {
 export function saveMusicByLink(params: { title: string, file_url: string }) {
   return http.post<any>(API_ENDPOINTS.MUSIC.SAVE_MUSIC_FILE, params);
 }
+
+//取消生成任务
+export function cancelMusicTask(params: { task_id: string }) {
+  return http.post<any>(API_ENDPOINTS.MUSIC.CANCEL_MUSIC_TASK, params);
+}

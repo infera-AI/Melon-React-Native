@@ -15,6 +15,8 @@ import { usePointsStore } from '@/store/modules/points.store';
 
 interface PointsConfirmModalProps {
   visible: boolean;
+  leftBtnText?: string;
+  rightBtnText?: string;
   onClose: () => void;
   onConfirm: () => void;
   onCancel: () => void;
@@ -24,6 +26,8 @@ interface PointsConfirmModalProps {
 
 const PointsConfirmModal: React.FC<PointsConfirmModalProps> = ({
   visible,
+  leftBtnText,
+  rightBtnText,
   onClose,
   onConfirm,
   onCancel,
@@ -93,7 +97,7 @@ const PointsConfirmModal: React.FC<PointsConfirmModalProps> = ({
               activeOpacity={0.7}
             >
               <Text style={[styles.cancelButtonText, text]}>
-                {t('music.use_points')}
+                {leftBtnText || t('music.use_points')}
               </Text>
             </TouchableOpacity>
 
@@ -103,7 +107,7 @@ const PointsConfirmModal: React.FC<PointsConfirmModalProps> = ({
               activeOpacity={0.7}
             >
               <Text style={styles.confirmButtonText}>
-                {t('music.free_generation')}
+                {rightBtnText || t('music.free_generation')}
               </Text>
             </TouchableOpacity>
           </View>

@@ -464,9 +464,11 @@ const VoiceprintMaterialCreateScreen: React.FC = () => {
       />
       <PointsConfirmModal
         visible={purchaseModalVisible}
+        leftBtnText={t('music.cancel')}
+        rightBtnText={t('music.use_points')}
         onClose={() => setPurchaseModalVisible(false)}
-        onConfirm={handleSendTraining}
         onCancel={() => setPurchaseModalVisible(false)}
+        onConfirm={handleSendTraining}
         title={<Text>{t('music.we_are_about_to_generate_voiceprints').replace('{points}', POINTS_DEDUCTION.CLONE_VOICEPRINT.toString())}</Text>}
         onDontShowAgain={() => { }}
       />
