@@ -88,7 +88,7 @@ export function polishLyrics(params: PolishLyricsParams) {
 }
 
 // 翻唱歌曲
-export function coverMusic(params: { voice_print_id?: string; music_url?: any }) {
+export function coverMusic(params: { voice_print_id?: string; music_url?: any, title: string} = { title: '' }) {
   return http.post<any>(
     API_ENDPOINTS.MUSIC.COVER_MUSIC,
     params,

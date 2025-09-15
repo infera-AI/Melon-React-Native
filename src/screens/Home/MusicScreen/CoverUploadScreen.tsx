@@ -465,10 +465,21 @@ const SingerSelectionScreen: React.FC<any> = ({ route }: any) => {
       console.log('resFile---', resFile);
       console.log('selectedSinger?.id---', selectedSinger?.id);
 
+      let nameStr = ''
+        // 找到最后一个点的位置
+        const lastDotIndex = selectedFile?.name?.lastIndexOf('.');
+        // 如果没有点，直接返回原字符串
+        if (lastDotIndex === -1) {
+          nameStr = selectedFile?.name || '';
+        } else {
+          nameStr = selectedFile?.name?.substring(0, lastDotIndex) || '';
+        }
+
       if (resFile?.url_list?.length && selectedSinger?.id) {
         const rsp = await coverMusic({
           voice_print_id: String(selectedSinger?.id) || '0',
           music_url: resFile.url_list[0],
+          title: nameStr || ''
         });
         if (!rsp.task_id) {
           show({
@@ -479,15 +490,7 @@ const SingerSelectionScreen: React.FC<any> = ({ route }: any) => {
         setGenerateMusicType('cover');
         refreshPointsBalance();
 
-        let nameStr = ''
-        // 找到最后一个点的位置
-        const lastDotIndex = selectedFile?.name?.lastIndexOf('.');
-        // 如果没有点，直接返回原字符串
-        if (lastDotIndex === -1) {
-          nameStr = selectedFile?.name || '';
-        } else {
-          nameStr = selectedFile?.name?.substring(0, lastDotIndex) || '';
-        }
+        
 
         (navigation as any).navigate('GeneratingMusic', {
           taskId: rsp.task_id,
