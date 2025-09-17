@@ -16,6 +16,9 @@ import { AuthStackParamList } from './AuthNavigator';
 import { normalize, normalizeFontSize } from '../../utils/stylesUtil';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAppStore } from '@/store'
+import WebView from 'react-native-webview';
+import UserPrivacyHTMLZh  from './UserPrivacyZh'
+import UserPrivacyHTMLEn  from './UserPrivacyEn'
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
@@ -28,7 +31,7 @@ const PrivacyPolicyScreen: React.FC = () => {
 
   const [appName, setAppName] = useState('')
 
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const handleBack = () => {
     navigation.goBack();
   };
@@ -59,8 +62,11 @@ const PrivacyPolicyScreen: React.FC = () => {
           <View style={styles.headerSpacer} />
         </View>
         
+        <View style={styles.htmlContainer}>
+          <WebView source={{html: (language === 'zh' ? UserPrivacyHTMLZh : UserPrivacyHTMLEn).replace(/Melon/g, appName)}}/>
+        </View>
         {/* 协议内容 */}
-        <ScrollView style={styles.agreementContainer} showsVerticalScrollIndicator={false}>
+        {/* <ScrollView style={styles.agreementContainer} showsVerticalScrollIndicator={false}>
           <Text style={styles.titleText}>
             {appName} {t('privacy_policy.str_1')}
           </Text>
@@ -354,7 +360,7 @@ const PrivacyPolicyScreen: React.FC = () => {
           </Text>
 
           <View style={styles.marginTop20} />
-        </ScrollView>
+        </ScrollView> */}
       </View>
     </View>
   );
@@ -408,6 +414,13 @@ const styles = StyleSheet.create({
   },
   headerSpacer: {
     width: normalize(40),
+  },
+  htmlContainer: {
+    flex: 1,
+    backgroundColor: '#262626',
+    borderRadius: normalize(12),
+    paddingHorizontal: normalize(16),
+    marginBottom: normalize(20)
   },
   agreementContainer: {
     flex: 1,

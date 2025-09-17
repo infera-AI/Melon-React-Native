@@ -11,6 +11,8 @@ import {
   KeyboardAvoidingView,
   Image,
   ScrollView,
+  TouchableWithoutFeedback,
+  Keyboard
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import theme from '../../utils/theme';
@@ -258,131 +260,138 @@ const LoginPhoneScreen: React.FC = () => {
           </View>
         )}
         {/* 主体内容 */}
-        <KeyboardAvoidingView
-          style={{ flex: 1 }}
-          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        <TouchableWithoutFeedback
+          onPress={Keyboard.dismiss}
+          accessible={false}
         >
-          {/* 顶部返回和标题 */}
-          <View style={styles.header}>
-            <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-              <Image source={require('../../../src/assets/main/page_return_icon.png')} style={styles.backArrow} />
-            </TouchableOpacity>
-            <Text style={styles.headerTitle}>{t('login_phone.title')}</Text>
-            <View style={{ width: normalize(40) }} />
-          </View>
 
-          {/* 标签切换 */}
-          <View style={styles.tabContainer}>
-            <TouchableOpacity
-              style={styles.tabButton}
-              onPress={() => handleTabSwitch('phone')}
-            >
-              <Text style={activeTab === 'phone' ? styles.activeTab : styles.inactiveTab}>
-                {t('login_phone.phone_number')}
-              </Text>
-              {activeTab === 'phone' && <View style={styles.tabIndicator} />}
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.tabButton}
-              onPress={() => handleTabSwitch('email')}
-            >
-              <Text style={activeTab === 'email' ? styles.activeTab : styles.inactiveTab}>
-                {t('login_phone.e_mail')}
-              </Text>
-              {activeTab === 'email' && <View style={styles.tabIndicator} />}
-            </TouchableOpacity>
-          </View>
-
-          {/* 手机号登录 */}
-          {activeTab === 'phone' && (
-            <>
-              {/* 国家选择 */}
-              <TouchableOpacity
-                disabled={useAppStore.getState().appSign === APP_SIGN_ENUM.TYPE_MELON}
-                style={styles.countrySelector}
-                onPress={() => {
-                  console.log('Country selector pressed, setting showCountryModal to true');
-                  setShowCountryModal(true);
-                }}
-              >
-                <Image source={require('../../../src/assets/login/login_area_icon.png')} style={styles.inputIcon} />
-                <Text style={styles.countryName}>{useAppStore.getState().appSign === APP_SIGN_ENUM.TYPE_MELON ? t(`languageNames.${"zh"}`) : t(`languageNames.${selectedCountry.id}`)}</Text>
-                <Text style={styles.countryCode}>{useAppStore.getState().appSign === APP_SIGN_ENUM.TYPE_MELON ? "+86" : selectedCountry.code}</Text>
-                <Image source={require('../../../src/assets/main/dropdown_icon.png')} style={styles.dropdownArrow} />
+          <KeyboardAvoidingView
+            style={{ flex: 1 }}
+            behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          >
+            {/* 顶部返回和标题 */}
+            <View style={styles.header}>
+              <TouchableOpacity style={styles.backButton} onPress={handleBack}>
+                <Image source={require('../../../src/assets/main/page_return_icon.png')} style={styles.backArrow} />
               </TouchableOpacity>
+              <Text style={styles.headerTitle}>{t('login_phone.title')}</Text>
+              <View style={{ width: normalize(40) }} />
+            </View>
 
-              {/* 手机号输入框 */}
+            {/* 标签切换 */}
+            <View style={styles.tabContainer}>
+              <TouchableOpacity
+                style={styles.tabButton}
+                onPress={() => handleTabSwitch('phone')}
+              >
+                <Text style={activeTab === 'phone' ? styles.activeTab : styles.inactiveTab}>
+                  {t('login_phone.phone_number')}
+                </Text>
+                {activeTab === 'phone' && <View style={styles.tabIndicator} />}
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.tabButton}
+                onPress={() => handleTabSwitch('email')}
+              >
+                <Text style={activeTab === 'email' ? styles.activeTab : styles.inactiveTab}>
+                  {t('login_phone.e_mail')}
+                </Text>
+                {activeTab === 'email' && <View style={styles.tabIndicator} />}
+              </TouchableOpacity>
+            </View>
+
+            {/* 手机号登录 */}
+            {activeTab === 'phone' && (
+              <>
+                {/* 国家选择 */}
+                <TouchableOpacity
+                  disabled={useAppStore.getState().appSign === APP_SIGN_ENUM.TYPE_MELON}
+                  style={styles.countrySelector}
+                  onPress={() => {
+                    console.log('Country selector pressed, setting showCountryModal to true');
+                    setShowCountryModal(true);
+                  }}
+                >
+                  <Image source={require('../../../src/assets/login/login_area_icon.png')} style={styles.inputIcon} />
+                  <Text style={styles.countryName}>{useAppStore.getState().appSign === APP_SIGN_ENUM.TYPE_MELON ? t(`languageNames.${"zh"}`) : t(`languageNames.${selectedCountry.id}`)}</Text>
+                  <Text style={styles.countryCode}>{useAppStore.getState().appSign === APP_SIGN_ENUM.TYPE_MELON ? "+86" : selectedCountry.code}</Text>
+                  <Image source={require('../../../src/assets/main/dropdown_icon.png')} style={styles.dropdownArrow} />
+                </TouchableOpacity>
+
+                {/* 手机号输入框 */}
+                <View style={styles.inputBox}>
+                  <Image source={require('../../../src/assets/login/login_phone_icon.png')} style={styles.inputIcon} />
+                  <TextInput
+                    style={styles.input}
+                    placeholder={t('login_phone.phone_placeholder')}
+                    placeholderTextColor={theme.textSecondary}
+                    value={phoneNumber}
+                    onChangeText={setPhoneNumber}
+                    keyboardType="phone-pad"
+                  />
+                </View>
+              </>
+            )}
+
+            {/* 邮箱登录 */}
+            {activeTab === 'email' && (
               <View style={styles.inputBox}>
-                <Image source={require('../../../src/assets/login/login_phone_icon.png')} style={styles.inputIcon} />
+                <Image source={require('../../../src/assets/login/login_email_icon.png')} style={styles.inputIcon} />
                 <TextInput
                   style={styles.input}
-                  placeholder={t('login_phone.phone_placeholder')}
+                  placeholder={t('login_phone.email_placeholder')}
                   placeholderTextColor={theme.textSecondary}
-                  value={phoneNumber}
-                  onChangeText={setPhoneNumber}
-                  keyboardType="phone-pad"
+                  value={email}
+                  onChangeText={setEmail}
+                  keyboardType="email-address"
+                  autoCapitalize="none"
                 />
               </View>
-            </>
-          )}
+            )}
 
-          {/* 邮箱登录 */}
-          {activeTab === 'email' && (
+            {/* 密码输入框 */}
             <View style={styles.inputBox}>
-              <Image source={require('../../../src/assets/login/login_email_icon.png')} style={styles.inputIcon} />
+              <Image source={require('../../../src/assets/login/login_lock_icon.png')} style={styles.inputIcon} />
               <TextInput
                 style={styles.input}
-                placeholder={t('login_phone.email_placeholder')}
+                placeholder={t('login_phone.password_placeholder')}
                 placeholderTextColor={theme.textSecondary}
-                value={email}
-                onChangeText={setEmail}
-                keyboardType="email-address"
-                autoCapitalize="none"
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry
               />
             </View>
-          )}
 
-          {/* 密码输入框 */}
-          <View style={styles.inputBox}>
-            <Image source={require('../../../src/assets/login/login_lock_icon.png')} style={styles.inputIcon} />
-            <TextInput
-              style={styles.input}
-              placeholder={t('login_phone.password_placeholder')}
-              placeholderTextColor={theme.textSecondary}
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry
-            />
-          </View>
-
-          {/* 登录按钮 */}
-          <TouchableOpacity
-            style={[
-              styles.loginButton,
-              ((activeTab === 'phone' && phoneNumber) || (activeTab === 'email' && email)) && password
-                ? styles.loginButtonActive
-                : null
-            ]}
-            onPress={handleLogin}
-            disabled={
-              (activeTab === 'phone' && !phoneNumber) ||
-              (activeTab === 'email' && !email) ||
-              !password ||
-              isSubmitting
-            }
-          >
-            <Text style={[styles.loginButtonText, ((activeTab === 'phone' && phoneNumber) || (activeTab === 'email' && email)) && password
-              ? styles.loginButtonTextActive : null]}>{t('login_phone.log_in')}</Text>
-          </TouchableOpacity>
-
-          {/* 忘记密码链接 */}
-          <View style={styles.forgotPasswordContainer}>
-            <Text style={styles.forgotPasswordText}>{t('login_phone.forgot_password')} </Text>
-            <TouchableOpacity onPress={handleForgotPassword}>
-              <Text style={styles.forgotPasswordLink}>{t('login_phone.forgot_password_link')}</Text>
+            {/* 登录按钮 */}
+            <TouchableOpacity
+              style={[
+                styles.loginButton,
+                ((activeTab === 'phone' && phoneNumber) || (activeTab === 'email' && email)) && password
+                  ? styles.loginButtonActive
+                  : null
+              ]}
+              onPress={handleLogin}
+              disabled={
+                (activeTab === 'phone' && !phoneNumber) ||
+                (activeTab === 'email' && !email) ||
+                !password ||
+                isSubmitting
+              }
+            >
+              <Text style={[styles.loginButtonText, ((activeTab === 'phone' && phoneNumber) || (activeTab === 'email' && email)) && password
+                ? styles.loginButtonTextActive : null]}>{t('login_phone.log_in')}</Text>
             </TouchableOpacity>
-          </View>
-        </KeyboardAvoidingView>
+
+            {/* 忘记密码链接 */}
+            <View style={styles.forgotPasswordContainer}>
+              <Text style={styles.forgotPasswordText}>{t('login_phone.forgot_password')} </Text>
+              <TouchableOpacity onPress={handleForgotPassword}>
+                <Text style={styles.forgotPasswordLink}>{t('login_phone.forgot_password_link')}</Text>
+              </TouchableOpacity>
+            </View>
+          </KeyboardAvoidingView>
+        </TouchableWithoutFeedback>
+        
       </View>
     </SafeAreaView>
   );

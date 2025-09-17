@@ -16,6 +16,9 @@ import { AuthStackParamList } from './AuthNavigator';
 import { normalize, normalizeFontSize } from '../../utils/stylesUtil';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAppStore } from '@/store'
+import WebView from 'react-native-webview';
+import UserServiceHTMLZh  from './UserServiceZh'
+import UserServiceHTMLEn  from './UserServiceEn'
 
 type UserServiceAgreementScreenNavigationProp = StackNavigationProp<AuthStackParamList, 'UserServiceAgreement'>;
 
@@ -25,7 +28,7 @@ const UserServiceAgreementScreen: React.FC = () => {
   const appSign = useAppStore.getState().appSign
   const [appName, setAppName] = useState('')
 
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   const handleBack = () => {
     navigation.goBack();
@@ -57,10 +60,14 @@ const UserServiceAgreementScreen: React.FC = () => {
           <Text style={styles.headerTitle}>{t('terms_service.str_1')}</Text>
           <View style={styles.headerSpacer} />
         </View>
-        
+        <View style={styles.htmlContainer}>
+          <WebView source={{html: (language === 'zh' ? UserServiceHTMLZh : UserServiceHTMLEn).replace(/Melon/g, appName)}}/>
+        </View>
         {/* 协议内容 */}
-        <ScrollView style={styles.agreementContainer} showsVerticalScrollIndicator={false}>
-          <Text style={styles.titleText}>
+        {/* <ScrollView style={styles.agreementContainer} showsVerticalScrollIndicator={false}> */}
+          
+          
+          {/* <Text style={styles.titleText}>
             {t('terms_service.str_2').replace(/{Melon}/g, appName)}
           </Text>
           <Text style={[styles.boldText]}>
@@ -361,10 +368,10 @@ const UserServiceAgreementScreen: React.FC = () => {
           </Text>
           <Text style={styles.normalText}>
             {t('terms_service.str_102').replace(/{Melon}/g, appName)} contact@infera.cn
-          </Text>
+          </Text> */}
 
-          <View style={styles.marginTop20} />
-        </ScrollView>
+          {/* <View style={styles.marginTop20} />
+        </ScrollView> */}
       </View>
     </View>
   );
@@ -419,11 +426,20 @@ const styles = StyleSheet.create({
   headerSpacer: {
     width: normalize(40),
   },
+  htmlContainer: {
+    flex: 1,
+    backgroundColor: '#262626',
+    borderRadius: normalize(12),
+    paddingHorizontal: normalize(16),
+    marginBottom: normalize(20)
+  },
   agreementContainer: {
     flex: 1,
     backgroundColor: '#262626',
     borderRadius: normalize(12),
     paddingHorizontal: normalize(16),
+    display: 'flex',
+    flexDirection: 'column'
     // paddingVertical: normalize(20),
   },
   agreementText: {
