@@ -3,7 +3,6 @@
   "version": "0.0.1",
   "scripts": {
     "start:metro": "npx react-native start",
-
     "android:melon": "cd android && ./gradlew installMelonDebug",
     "buildAndroid:melon": "cd android && ./gradlew assembleMelonRelease",
     "android:melons": "cd android && ./gradlew installMelonsDebug",
@@ -12,12 +11,12 @@
     "buildAndroid:momor": "cd android && ./gradlew assembleMomorRelease",
     "android:momors": "cd android && ./gradlew installMomorsDebug",
     "buildAndroid:momors": "cd android && ./gradlew assembleMomorsRelease",
-
     "ios:melon": "npx react-native run-ios --scheme MelonApp",
     "ios:melons": "npx react-native run-ios --scheme MelonsApp",
     "ios:momor": "npx react-native run-ios --scheme MomorApp"
   },
   "dependencies": {
+    "@invertase/react-native-apple-authentication": "^2.4.1",
     "@react-native-async-storage/async-storage": "^2.2.0",
     "@react-native-clipboard/clipboard": "^1.16.3",
     "@react-native-community/netinfo": "^11.4.1",
@@ -29,10 +28,12 @@
     "@react-navigation/native": "^7.1.14",
     "@react-navigation/native-stack": "^7.3.21",
     "@react-navigation/stack": "^7.4.2",
+    "@types/base-64": "^1.0.2",
     "@types/react-native-vector-icons": "^6.4.18",
     "axios": "^1.10.0",
     "expo-av": "^15.1.7",
     "ffmpeg-kit-react-native": "https://github.com/infera-AI/ffmpeg-kit.git#RN6.0.2",
+    "jwt-decode": "^4.0.0",
     "lottie-react-native": "^7.2.4",
     "react": "19.1.0",
     "react-native": "0.80.1",

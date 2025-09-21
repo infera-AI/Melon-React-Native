@@ -9,6 +9,8 @@ import {
   Platform,
   KeyboardAvoidingView,
   Image,
+  TouchableWithoutFeedback,
+  Keyboard
 } from 'react-native';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
@@ -213,87 +215,92 @@ const VerifyCodeScreen: React.FC = () => {
   };
 
   return (
-    <SafeAreaView style={{flex: 1}} edges={['top','bottom','left','right']}>
-      <View style={styles.container}>
-        <StatusBar barStyle="light-content" backgroundColor={theme.background} />
-        <KeyboardAvoidingView
-          style={{ flex: 1 }}
-          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        >
-          {/* 顶部返回和标题 */}
-          <View style={styles.header}>
-            <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-              <Image source={require('../../../src/assets/main/page_return_icon.png')} style={styles.backArrow} />
+    <TouchableWithoutFeedback
+      onPress={Keyboard.dismiss}
+      accessible={false}
+    >
+      <SafeAreaView style={{flex: 1}} edges={['top','bottom','left','right']}>
+        <View style={styles.container}>
+          <StatusBar barStyle="light-content" backgroundColor={theme.background} />
+          <KeyboardAvoidingView
+            style={{ flex: 1 }}
+            behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          >
+            {/* 顶部返回和标题 */}
+            <View style={styles.header}>
+              <TouchableOpacity style={styles.backButton} onPress={handleBack}>
+                <Image source={require('../../../src/assets/main/page_return_icon.png')} style={styles.backArrow} />
+              </TouchableOpacity>
+              <Text style={styles.headerTitle}>{t('verify_code.title')}</Text>
+              <View style={{ width: normalize(40) }} />
+            </View>
+
+            {/* 副标题 */}
+            <Text style={styles.subtitle}>
+              {type === 'phone' ? t('verify_code.subtitle') : t('verify_code.subtitle_email')}
+            </Text>
+            <Text style={styles.accountText}> {account||'18888888888'} </Text>
+
+            {/* 验证码输入框 */}
+            <View style={styles.codeInputRow}>
+              {Array(CODE_LENGTH)
+                .fill(0)
+                .map((_, idx) => (
+                  <TextInput
+                    key={idx}
+                    ref={(ref: TextInput | null) => { inputRefs.current[idx] = ref; }}
+                    style={[styles.codeInput, code[idx] ? styles.codeInputFilled : null]}
+                    keyboardType="number-pad"
+                    maxLength={1}
+                    value={code[idx]}
+                    onChangeText={text => handleChange(text, idx)}
+                    onKeyPress={e => handleKeyPress(e, idx)}
+                    returnKeyType="next"
+                    selectionColor={theme.primary}
+                    autoFocus={idx === 0}
+                  />
+                ))}
+            </View>
+
+            {/* 确认按钮 */}
+            <TouchableOpacity
+              style={[styles.confirmButton, code.join('').length === CODE_LENGTH ? styles.confirmButtonActive : null]}
+              onPress={handleConfirm}
+              disabled={code.join('').length !== CODE_LENGTH || isConfirming}
+            >
+              <Text style={[styles.confirmButtonText, code.join('').length === CODE_LENGTH ?  null: styles.disableButtonText]}>{t('verify_code.next')}</Text>
             </TouchableOpacity>
-            <Text style={styles.headerTitle}>{t('verify_code.title')}</Text>
-            <View style={{ width: normalize(40) }} />
-          </View>
 
-          {/* 副标题 */}
-          <Text style={styles.subtitle}>
-            {type === 'phone' ? t('verify_code.subtitle') : t('verify_code.subtitle_email')}
-          </Text>
-          <Text style={styles.accountText}> {account||'18888888888'} </Text>
-
-          {/* 验证码输入框 */}
-          <View style={styles.codeInputRow}>
-            {Array(CODE_LENGTH)
-              .fill(0)
-              .map((_, idx) => (
-                <TextInput
-                  key={idx}
-                  ref={(ref: TextInput | null) => { inputRefs.current[idx] = ref; }}
-                  style={[styles.codeInput, code[idx] ? styles.codeInputFilled : null]}
-                  keyboardType="number-pad"
-                  maxLength={1}
-                  value={code[idx]}
-                  onChangeText={text => handleChange(text, idx)}
-                  onKeyPress={e => handleKeyPress(e, idx)}
-                  returnKeyType="next"
-                  selectionColor={theme.primary}
-                  autoFocus={idx === 0}
-                />
-              ))}
-          </View>
-
-          {/* 确认按钮 */}
-          <TouchableOpacity
-            style={[styles.confirmButton, code.join('').length === CODE_LENGTH ? styles.confirmButtonActive : null]}
-            onPress={handleConfirm}
-            disabled={code.join('').length !== CODE_LENGTH || isConfirming}
-          >
-            <Text style={[styles.confirmButtonText, code.join('').length === CODE_LENGTH ?  null: styles.disableButtonText]}>{t('verify_code.next')}</Text>
-          </TouchableOpacity>
-
-          {/* 验证码倒计时与重新获取 */}
-          <TouchableOpacity
-            style={[
-              styles.confirmButton,
-              countdown === 0 ? styles.confirmButtonActive : null,
-              { marginTop: 0, marginBottom: normalize(32) }
-            ]}
-            onPress={handleResend}
-            disabled={countdown > 0 || isResending}
-          >
-            {countdown > 0 ? (
-              <Text style={[styles.confirmButtonText, styles.disableButtonText]}>
-                {t('verify_code.resend')}       {countdown}s
-              </Text>
-            ) : (
-              <Text style={styles.confirmButtonText}>
-                {t('verify_code.resend')}
-              </Text>
-            )}
-          </TouchableOpacity>
-          <FullScreenLoader
-            visible={isConfirming}
-            text={t('verify_code.please_wait')}
-            timeout={5000}
-            onTimeout={() => setIsConfirming(false)}
-          />
-        </KeyboardAvoidingView>
-      </View>
-    </SafeAreaView>
+            {/* 验证码倒计时与重新获取 */}
+            <TouchableOpacity
+              style={[
+                styles.confirmButton,
+                countdown === 0 ? styles.confirmButtonActive : null,
+                { marginTop: 0, marginBottom: normalize(32) }
+              ]}
+              onPress={handleResend}
+              disabled={countdown > 0 || isResending}
+            >
+              {countdown > 0 ? (
+                <Text style={[styles.confirmButtonText, styles.disableButtonText]}>
+                  {t('verify_code.resend')}       {countdown}s
+                </Text>
+              ) : (
+                <Text style={styles.confirmButtonText}>
+                  {t('verify_code.resend')}
+                </Text>
+              )}
+            </TouchableOpacity>
+            <FullScreenLoader
+              visible={isConfirming}
+              text={t('verify_code.please_wait')}
+              timeout={5000}
+              onTimeout={() => setIsConfirming(false)}
+            />
+          </KeyboardAvoidingView>
+        </View>
+      </SafeAreaView>
+    </TouchableWithoutFeedback>
   );
 };
 

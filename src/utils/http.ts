@@ -1,6 +1,6 @@
 import axios, { AxiosInstance, AxiosRequestConfig, Method } from 'axios'
-import { useUserStore } from '../store'
-import { CODE } from './constants'
+import { useUserStore, useAppStore } from '@/store'
+import { APP_SIGN_ENUM, CODE } from './constants'
 import { checkNetwork } from './network'
 import { ToastService } from '@/utils/ToastService';
 import { i18nService } from '@/utils/i18nService';
@@ -273,9 +273,24 @@ class HttpRequest {
         })
     }
 }
+
+const getBaseUrl = () => {
+    let appSign = useAppStore.getState().appSign
+    let url = ''
+    if (__DEV__) {
+        url = 'http://218.244.147.232:80/api' // 平时用的测试url
+        // url = 'http://47.96.234.251/api' // 国内线上url
+    } else if (appSign === APP_SIGN_ENUM.TYPE_MELON) {
+        url = 'http://47.96.234.251/api' // 国内线上url
+    } else if (appSign === APP_SIGN_ENUM.TYPE_MELONS) {
+        url = 'http://47.96.234.251/api' // 海外线上url
+    }
+    return {
+        baseURL: url
+    }
+}
+
 // 创建默认实例
-const http = new HttpRequest({
-  baseURL: 'http://218.244.147.232:80/api',
-})
+const http = new HttpRequest(getBaseUrl())
 
 export default http

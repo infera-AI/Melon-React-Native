@@ -48,6 +48,13 @@
 				<key>NSIncludesSubdomains</key>
 				<true/>
 			</dict>
+            <key>47.96.234.251</key>
+            <dict>
+                <key>NSExceptionAllowsInsecureHTTPLoads</key>
+                <true/>
+                <key>NSIncludesSubdomains</key>
+                <true/>
+            </dict>
 			<key>bytedance.com</key>
 			<dict>
 				<key>NSExceptionAllowsInsecureHTTPLoads</key>

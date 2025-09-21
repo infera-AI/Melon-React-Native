@@ -21,6 +21,7 @@ import { languageToCountryCode, supportedLanguages } from "@/i18n/languages"
 import { scaleSize,scaleFont } from '../../utils/scale';
 import { useBackHandler } from '@/utils/BackHandlerUtil'; // 导入工具类
 import { useAppStore } from '@/store';
+import FullScreenLoader from '@/components/FullScreenLoader';
 
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '@/navigation/AppNavigator'
@@ -29,7 +30,23 @@ import { PangleAdManager, AdEvents, InitAdOptions } from '@/utils/PangleAd';
 import { APP_SIGN_ENUM } from '@/utils';
 import { RewardedAd, RewardedAdEventType, TestIds } from 'react-native-google-mobile-ads';
 
+import AppleSignButton from '@/components/AppleSignButton';
+
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+import { appleLogin } from '@/api/login'
+import { useMessageModal } from '@/contexts/MessageModalContext';
+import { useUserStore } from '@/store';
+import { getUserInfo } from '@/api/profile/profile';
+
 type WelcomeScreenNavigationProp = StackNavigationProp<AuthStackParamList, 'Initial'>;
+
+type AppleUserInfo = {
+  userId: string,
+  email: string,
+  identityToken: string,
+  nonce: string
+}
 
 // 支持的语言列表
 // const languages = [
@@ -43,7 +60,7 @@ type WelcomeScreenNavigationProp = StackNavigationProp<AuthStackParamList, 'Init
 
 const WelcomeScreen: React.FC = () => {
   useBackHandler('再按一次退出')
-  const navigation = useNavigation<WelcomeScreenNavigationProp>();
+  const navigation = useNavigation<any>();
   const navigation2 = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { language, setLanguage } = useLanguage();
   const [showLanguageModal, setShowLanguageModal] = useState(false);
@@ -53,8 +70,13 @@ const WelcomeScreen: React.FC = () => {
   const [rewardName, setRewardName] = useState('积分');   // 奖励名称（可选）
   const [rewardAmount, setRewardAmount] = useState(50);  // 奖励数量（可选）
   const [enableAdvancedReward, setEnableAdvancedReward] = useState(false); // 是否启用进阶奖励（可选）
+  const [loading, setLoading] = useState(false);
+
+  const insets = useSafeAreaInsets(); // 获取安全区域距离
 
   const { t } = useLanguage();
+
+  const { show } = useMessageModal();
 
   // 获取当前选中的语言信息
   const currentLanguage = supportedLanguages.find(lang => lang.code === language) || supportedLanguages[0];
@@ -259,21 +281,63 @@ const WelcomeScreen: React.FC = () => {
     setShowLanguageModal(true);
   };
 
+  const getUserInfoRequest = async () => {
+    const res = await getUserInfo({});
+    console.log('UserInfo--', res);
+    if (res.data) {
+      useUserStore.getState().setUserInfo(res.data);
+    }
+  }
+
+  const loginByApple = (applyUserInfo: AppleUserInfo) => {
+    console.log('苹果登录用户信息--', applyUserInfo);
+    if (applyUserInfo?.userId) {
+      appleLogin({
+        auth_type: 'apple',
+        identifier: applyUserInfo?.userId
+      }).then((rsp) => {
+        console.log('登录成功----', rsp);
+        setLoading(false)
+        if (rsp?.token) {
+          useUserStore.getState().setToken(rsp.token);
+          getUserInfoRequest();
+          // 跳转到首页
+          navigation.reset({ index: 0, routes: [{ name: 'MainApp' }] })
+        } else {
+          setLoading(false)
+          show({
+            message: t('response_error')
+          })
+        }
+      }).catch(() => {
+        setLoading(false)
+        show({
+          message: t('response_error')
+        })
+      })
+    } else {
+      setLoading(false)
+      show({
+        message: t('response_error')
+      })
+    }
+    
+  }
+
   return (
-    <SafeAreaView style={{flex: 1}} edges={['top','bottom','left','right']}>
-      <ScrollView style={styles.container}>
-        <StatusBar barStyle="light-content" backgroundColor={theme.background} />
-        
+    <View style={styles.outView}>
+      <Image
+        source={require('../../../src/assets/main/page_top_bg.png')}
+        style={styles.backgroundCircle1}
+        resizeMode="cover"
+      />
         <Image
-          source={require('../../../src/assets/main/page_top_bg.png')}
-          style={styles.backgroundCircle1}
-          resizeMode="cover"
-        />
-         <Image
-          source={require('../../../src/assets/main/page_bottom_bg.png')}
-          style={styles.backgroundCircle2}
-          resizeMode="cover"
-        />
+        source={require('../../../src/assets/main/page_bottom_bg.png')}
+        style={styles.backgroundCircle2}
+        resizeMode="cover"
+      />
+      <View style={styles.container}>
+        <StatusBar barStyle="light-content" backgroundColor={theme.background} />
         
         {/* 主要内容容器 */}
         <View style={styles.contentContainer}>
@@ -320,33 +384,62 @@ const WelcomeScreen: React.FC = () => {
               </Text>
             </TouchableOpacity>
               {/* 登录链接 */}
-             <View style={styles.loginLink}>
-               <Text style={styles.loginLinkText}>{t('welcome.already_have_account')}</Text>
-               <TouchableOpacity onPress={handleLogin}>
-                 <Text style={styles.loginLinkButton}>{t('welcome.log_in')}</Text>
-               </TouchableOpacity>
-             </View>
-            
-            {/* 语言选择器 */}
-            <TouchableOpacity style={styles.languageSelector} onPress={handleLanguageSelectorPress}>
-              <View style={styles.languageContainer}>
-                <View style={styles.flagContainer}>
-                  {/* <Image
-                    source={}
-                    style={styles.flag}
-                    resizeMode="contain"
-                  /> */}
-                  <View style={styles.flagOutView}>
-                    <CountryFlag isoCode={languageToCountryCode[currentLanguage.code]} size={25} style={styles.flag}/>
+            <View style={styles.loginLink}>
+              <Text style={styles.loginLinkText}>{t('welcome.already_have_account')}</Text>
+              <TouchableOpacity onPress={handleLogin}>
+                <Text style={styles.loginLinkButton}>{t('welcome.log_in')}</Text>
+              </TouchableOpacity>
+            </View>
+
+            {/* 第三方登录 */}
+            <View style={styles.otherLoginView}>
+              {
+                Platform.OS === 'ios' &&
+                  <AppleSignButton
+                    beforeClickCheck={() => {
+                      if (!isAgreementChecked) {
+                        show({
+                          message: t('register.please_agree')
+                        })
+                      }
+                      return isAgreementChecked
+                    }}
+                    onSuccess={(userData) => {
+                      console.log('苹果登录用户信息:', userData);
+                      setLoading(true)
+                      loginByApple(userData)
+                      // 1. 把 userData.identityToken 和 userData.nonce 传给后端校验
+                      // 2. 后端校验通过后，保存用户信息到本地（如 AsyncStorage）
+                    }}
+                    onError={(error) => {
+                      console.error('登录失败:', error);
+                      // 显示错误提示（如 Toast）
+                    }}
+                  />
+              }
+              
+            </View>
+            <View style={[styles.bottomView, {paddingBottom: insets.bottom > 0 ? insets.bottom : scaleSize(20)}]}>
+              {/* 语言选择器 */}
+              <TouchableOpacity style={styles.languageSelector} onPress={handleLanguageSelectorPress}>
+                <View style={styles.languageContainer}>
+                  <View style={styles.flagContainer}>
+                    {/* <Image
+                      source={}
+                      style={styles.flag}
+                      resizeMode="contain"
+                    /> */}
+                    <View style={styles.flagOutView}>
+                      <CountryFlag isoCode={languageToCountryCode[currentLanguage.code]} size={25} style={styles.flag}/>
+                    </View>
+                  </View>
+                  <Text style={styles.languageText}>{currentLanguage.label}</Text>
+                  <View style={styles.dropdownIcon}>
+                    <Image source={require('../../../src/assets/main/dropdown_icon.png')} style={styles.dropdownIcon} />
                   </View>
                 </View>
-                <Text style={styles.languageText}>{currentLanguage.label}</Text>
-                <View style={styles.dropdownIcon}>
-                  <Image source={require('../../../src/assets/main/dropdown_icon.png')} style={styles.dropdownIcon} />
-                </View>
-              </View>
-            </TouchableOpacity>
-            
+              </TouchableOpacity>
+              
               {/* 用户协议 */}
               <View style={styles.agreementContainer}>
                 <TouchableOpacity 
@@ -375,9 +468,11 @@ const WelcomeScreen: React.FC = () => {
                   </Text>
                 </View>
               </View>
+            </View>
+            
           </View>
         </View>
-      </ScrollView>
+      </View>
 
             {/* 语言选择模态框 - 完整版本 */}
       {showLanguageModal && (
@@ -418,14 +513,24 @@ const WelcomeScreen: React.FC = () => {
           </View>
         </View>
       )}
-     </SafeAreaView>
+      <FullScreenLoader
+        visible={loading}
+        text={t('translate_screen.loading_text')}
+        timeout={20000}
+        onTimeout={() => setLoading(false)}
+      />
+     </View>
    );
  };
 
 const styles = StyleSheet.create({
-  container: {
+  outView: {
     flex: 1,
     backgroundColor: theme.background,
+    position: 'relative'
+  },
+  container: {
+    flex: 1,
   },
     backgroundCircle1: {
       position: 'absolute',
@@ -445,15 +550,15 @@ const styles = StyleSheet.create({
       flex: 1,
       paddingHorizontal: scaleSize(24),
       alignItems: 'center',
-      justifyContent: 'center',
     },
     contentWrapper: {
+      flex: 1,
       width: '100%',
       alignItems: 'center',
     },
     logoContainer: {
       alignItems: 'center',
-      marginTop: scaleSize(178),
+      marginTop: scaleSize(168),
       marginBottom: scaleSize(20),
     },
     logoPlaceholder: {
@@ -531,7 +636,7 @@ const styles = StyleSheet.create({
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'center',
-      marginBottom: scaleSize(50),
+      marginBottom: scaleSize(20),
     },
     loginLinkText: {
       fontSize: scaleFont(13),
@@ -546,6 +651,16 @@ const styles = StyleSheet.create({
       color: theme.primary,
       textAlign: 'center',
       letterSpacing: -0.4,
+    },
+    otherLoginView: {
+      alignItems: 'center',
+      justifyContent: 'center'
+    },
+    bottomView: {
+      flex: 1,
+      width: '100%',
+      justifyContent: 'space-between',
+      marginTop: scaleSize(20),
     },
     languageSelector: {
       alignItems: 'center',
@@ -600,7 +715,6 @@ const styles = StyleSheet.create({
       justifyContent: 'center',
       alignItems: 'flex-start',
       paddingHorizontal: scaleSize(20),
-      marginBottom: scaleSize(50)
     },
     checkboxContainer: {
       marginRight: scaleSize(8),

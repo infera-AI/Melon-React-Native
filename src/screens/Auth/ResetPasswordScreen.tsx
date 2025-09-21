@@ -9,6 +9,8 @@ import {
   Platform,
   KeyboardAvoidingView,
   Image,
+  TouchableWithoutFeedback,
+  Keyboard
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import theme from '../../utils/theme';
@@ -71,75 +73,80 @@ const ResetPasswordScreen: React.FC = () => {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1 }} edges={['top', 'bottom', 'left', 'right']}>
-      <View style={styles.container}>
-        <StatusBar barStyle="light-content" backgroundColor={theme.background} />
-        <KeyboardAvoidingView
-          style={{ flex: 1 }}
-          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        >
-          {/* 顶部返回和标题 */}
-          <View style={styles.header}>
-            <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-              <Image source={require('../../../src/assets/main/page_return_icon.png')} style={styles.backArrow} />
-            </TouchableOpacity>
-            <Text style={styles.headerTitle}>{t('reset_password.title')}</Text>
-            <View style={{ width: normalize(40) }} />
-          </View>
-
-          {/* 副标题 */}
-          <Text style={styles.subtitle}>{t('reset_password.subtitle')}</Text>
-
-          {/* 新密码输入框 */}
-          <View style={styles.inputBox}>
-            <TextInput
-              style={styles.input}
-              placeholder={t('reset_password.new_password_placeholder')}
-              placeholderTextColor={theme.textSecondary}
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry={!showPassword}
-            />
-            <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
-              <Image
-                source={showPassword ? require('../../../src/assets/login/login_eyeshow_icon.png') : require('../../../src/assets/login/login_eye_icon.png')}
-                style={styles.inputIcon}
-              />
-            </TouchableOpacity>
-          </View>
-          {/* 密码要求提示 */}
-          <Text style={styles.passwordTip}>{t('reset_password.password_requirements')}</Text>
-          {/* 确认新密码输入框 */}
-          <View style={styles.inputBox}>
-            <TextInput
-              style={styles.input}
-              placeholder={t('reset_password.confirm_password_placeholder')}
-              placeholderTextColor={theme.textSecondary}
-              value={confirmPassword}
-              onChangeText={setConfirmPassword}
-              secureTextEntry={!showConfirmPassword}
-            />
-            <TouchableOpacity onPress={() => setShowConfirmPassword(!showConfirmPassword)}>
-              <Image
-                source={showConfirmPassword ? require('../../../src/assets/login/login_eyeshow_icon.png') : require('../../../src/assets/login/login_eye_icon.png')}
-                style={styles.inputIcon}
-              />
-            </TouchableOpacity>
-          </View>
-          {/* 错误提示 */}
-          {error ? <Text style={styles.errorText}>{error}</Text> : null}
-
-          {/* 确认按钮 */}
-          <TouchableOpacity
-            style={[styles.confirmButton, password.length >= 6 && confirmPassword.length >= 6 ? styles.confirmButtonActive : null]}
-            onPress={handleConfirm}
-            disabled={isSubmitting || password.length < 6 || confirmPassword.length < 6}
+    <TouchableWithoutFeedback
+      onPress={Keyboard.dismiss}
+      accessible={false}
+    >
+      <SafeAreaView style={{ flex: 1 }} edges={['top', 'bottom', 'left', 'right']}>
+        <View style={styles.container}>
+          <StatusBar barStyle="light-content" backgroundColor={theme.background} />
+          <KeyboardAvoidingView
+            style={{ flex: 1 }}
+            behavior={Platform.OS === 'ios' ? 'padding' : undefined}
           >
-            <Text style={[styles.confirmButtonText, password.length >= 6 && confirmPassword.length >= 6 ? styles.confirmButtonTextActive : null]}>{t('reset_password.confirm')}</Text>
-          </TouchableOpacity>
-        </KeyboardAvoidingView>
-      </View>
-    </SafeAreaView>
+            {/* 顶部返回和标题 */}
+            <View style={styles.header}>
+              <TouchableOpacity style={styles.backButton} onPress={handleBack}>
+                <Image source={require('../../../src/assets/main/page_return_icon.png')} style={styles.backArrow} />
+              </TouchableOpacity>
+              <Text style={styles.headerTitle}>{t('reset_password.title')}</Text>
+              <View style={{ width: normalize(40) }} />
+            </View>
+
+            {/* 副标题 */}
+            <Text style={styles.subtitle}>{t('reset_password.subtitle')}</Text>
+
+            {/* 新密码输入框 */}
+            <View style={styles.inputBox}>
+              <TextInput
+                style={styles.input}
+                placeholder={t('reset_password.new_password_placeholder')}
+                placeholderTextColor={theme.textSecondary}
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry={!showPassword}
+              />
+              <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+                <Image
+                  source={showPassword ? require('../../../src/assets/login/login_eyeshow_icon.png') : require('../../../src/assets/login/login_eye_icon.png')}
+                  style={styles.inputIcon}
+                />
+              </TouchableOpacity>
+            </View>
+            {/* 密码要求提示 */}
+            <Text style={styles.passwordTip}>{t('reset_password.password_requirements')}</Text>
+            {/* 确认新密码输入框 */}
+            <View style={styles.inputBox}>
+              <TextInput
+                style={styles.input}
+                placeholder={t('reset_password.confirm_password_placeholder')}
+                placeholderTextColor={theme.textSecondary}
+                value={confirmPassword}
+                onChangeText={setConfirmPassword}
+                secureTextEntry={!showConfirmPassword}
+              />
+              <TouchableOpacity onPress={() => setShowConfirmPassword(!showConfirmPassword)}>
+                <Image
+                  source={showConfirmPassword ? require('../../../src/assets/login/login_eyeshow_icon.png') : require('../../../src/assets/login/login_eye_icon.png')}
+                  style={styles.inputIcon}
+                />
+              </TouchableOpacity>
+            </View>
+            {/* 错误提示 */}
+            {error ? <Text style={styles.errorText}>{error}</Text> : null}
+
+            {/* 确认按钮 */}
+            <TouchableOpacity
+              style={[styles.confirmButton, password.length >= 6 && confirmPassword.length >= 6 ? styles.confirmButtonActive : null]}
+              onPress={handleConfirm}
+              disabled={isSubmitting || password.length < 6 || confirmPassword.length < 6}
+            >
+              <Text style={[styles.confirmButtonText, password.length >= 6 && confirmPassword.length >= 6 ? styles.confirmButtonTextActive : null]}>{t('reset_password.confirm')}</Text>
+            </TouchableOpacity>
+          </KeyboardAvoidingView>
+        </View>
+      </SafeAreaView>
+    </TouchableWithoutFeedback>
   );
 };
 

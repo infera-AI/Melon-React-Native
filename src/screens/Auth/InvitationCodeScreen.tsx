@@ -6,6 +6,8 @@ import {
   TouchableOpacity,
   TextInput,
   Image,
+  TouchableWithoutFeedback,
+  Keyboard
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
@@ -46,50 +48,55 @@ const InvitationCodeScreen: React.FC = () => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      {/* 导航栏 */}
-      <View style={styles.navBar}>
-        <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-          <Image
-            source={require('@/assets/main/page_return_icon.png')}
-            style={styles.backIcon}
+    <TouchableWithoutFeedback
+      onPress={Keyboard.dismiss}
+      accessible={false}
+    >
+      <SafeAreaView style={styles.container}>
+        {/* 导航栏 */}
+        <View style={styles.navBar}>
+          {/* <TouchableOpacity style={styles.backButton} onPress={handleBack}>
+            <Image
+              source={require('@/assets/main/page_return_icon.png')}
+              style={styles.backIcon}
+            />
+          </TouchableOpacity> */}
+          <Text style={styles.titleText}>Fill in invitation code</Text>
+        </View>
+
+        {/* 说明文字 */}
+        <Text style={styles.descriptionText}>
+          Enter your friend's invitation code to earn points rewards for both of you.
+        </Text>
+
+        {/* 输入框 */}
+        <View style={styles.inputContainer}>
+          <TextInput
+            style={styles.input}
+            placeholder="Please enter the invitation code"
+            placeholderTextColor="rgba(176, 176, 176, 1)"
+            value={invitationCode}
+            onChangeText={setInvitationCode}
+            autoCapitalize="characters"
+            autoCorrect={false}
           />
+        </View>
+
+        {/* 确认按钮 */}
+        <TouchableOpacity
+          style={[styles.confirmButton, !invitationCode.trim() && styles.disabledButton]}
+          onPress={handleConfirm}
+          disabled={!invitationCode.trim()}
+        >
+          <Text style={styles.confirmButtonText}>CONFIRM</Text>
         </TouchableOpacity>
-        <Text style={styles.titleText}>Fill in invitation code</Text>
-      </View>
 
-      {/* 说明文字 */}
-      <Text style={styles.descriptionText}>
-        Enter your friend's invitation code to earn points rewards for both of you.
-      </Text>
-
-      {/* 输入框 */}
-      <View style={styles.inputContainer}>
-        <TextInput
-          style={styles.input}
-          placeholder="Please enter the invitation code"
-          placeholderTextColor="rgba(176, 176, 176, 1)"
-          value={invitationCode}
-          onChangeText={setInvitationCode}
-          autoCapitalize="characters"
-          autoCorrect={false}
-        />
-      </View>
-
-      {/* 确认按钮 */}
-      <TouchableOpacity
-        style={[styles.confirmButton, !invitationCode.trim() && styles.disabledButton]}
-        onPress={handleConfirm}
-        disabled={!invitationCode.trim()}
-      >
-        <Text style={styles.confirmButtonText}>CONFIRM</Text>
-      </TouchableOpacity>
-
-      {/* 跳过按钮 */}
-      <TouchableOpacity style={styles.skipButton} onPress={handleSkip}>
-        <Text style={styles.skipButtonText}>SKIP</Text>
-      </TouchableOpacity>
-    </SafeAreaView>
+        {/* 跳过按钮 */}
+        <TouchableOpacity style={styles.skipButton} onPress={handleSkip}>
+          <Text style={styles.skipButtonText}>SKIP</Text>
+        </TouchableOpacity>
+      </SafeAreaView>
+    </TouchableWithoutFeedback>
   );
 };
 

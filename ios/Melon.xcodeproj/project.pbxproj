@@ -240,9 +240,9 @@
 		04F414372E3B1F5E00D77B0A /* AudioSessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04F414362E3B1F5E00D77B0A /* AudioSessionManager.swift */; };
 		04F4143A2E3B206500D77B0A /* AudioSessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 04F414392E3B206500D77B0A /* AudioSessionManager.m */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
-		245B3CD6A52585BA688A3465 /* (null) in Frameworks */ = {isa = PBXBuildFile; };
+		245B3CD6A52585BA688A3465 /* BuildFile in Frameworks */ = {isa = PBXBuildFile; };
 		2F406D6568A8A8A7D21B5898 /* libPods-MomorsApp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E2DFAEB405A08AA71A6D8269 /* libPods-MomorsApp.a */; };
-		55484962E2FFF874F5A9D6A7 /* (null) in Frameworks */ = {isa = PBXBuildFile; };
+		55484962E2FFF874F5A9D6A7 /* BuildFile in Frameworks */ = {isa = PBXBuildFile; };
 		761780ED2CA45674006654EE /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 761780EC2CA45674006654EE /* AppDelegate.swift */; };
 		76D43A07939EB58E07A41C7E /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
@@ -278,6 +278,7 @@
 /* Begin PBXFileReference section */
 		0439C67F2E4512B300353460 /* AudioConcatModule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioConcatModule.swift; sourceTree = "<group>"; };
 		0439C6812E45146200353460 /* AudioConcatBridge.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AudioConcatBridge.m; sourceTree = "<group>"; };
+		0472C9642E7E874B00F180B9 /* MelonsApp.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = MelonsApp.entitlements; sourceTree = "<group>"; };
 		048DA7632E3BFF9E00FA95BE /* HeadsetDetection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeadsetDetection.swift; sourceTree = "<group>"; };
 		048DA7652E3C000000FA95BE /* HeadsetDetectionBridge.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HeadsetDetectionBridge.m; sourceTree = "<group>"; };
 		049C709F2E603F1700DF9483 /* SplashAdView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplashAdView.swift; sourceTree = "<group>"; };
@@ -520,7 +521,7 @@
 				04AC386C2E65CF7500FF2D7E /* libiconv.tbd in Frameworks */,
 				04AC385F2E65CC8600FF2D7E /* CoreImage.framework in Frameworks */,
 				04AC38632E65CD5B00FF2D7E /* CoreMotion.framework in Frameworks */,
-				55484962E2FFF874F5A9D6A7 /* (null) in Frameworks */,
+				55484962E2FFF874F5A9D6A7 /* BuildFile in Frameworks */,
 				04AC38662E65CD9100FF2D7E /* DeviceCheck.framework in Frameworks */,
 				04AC38762E65CFD500FF2D7E /* StoreKit.framework in Frameworks */,
 				04AC38732E65CFBD00FF2D7E /* MobileCoreServices.framework in Frameworks */,
@@ -533,7 +534,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				245B3CD6A52585BA688A3465 /* (null) in Frameworks */,
+				245B3CD6A52585BA688A3465 /* BuildFile in Frameworks */,
 				C7781717C4CF384F678E7934 /* libPods-Melon.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -627,6 +628,7 @@
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
+				0472C9642E7E874B00F180B9 /* MelonsApp.entitlements */,
 				13B07FAE1A68108700A75B9A /* Melon */,
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				83CBBA001A601CBA00E9B192 /* Products */,
@@ -973,13 +975,9 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-MomorsApp/Pods-MomorsApp-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
-			inputPaths = (
-			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-MomorsApp/Pods-MomorsApp-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -994,13 +992,9 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-MelonsApp/Pods-MelonsApp-resources-${CONFIGURATION}-input-files.xcfilelist",
 			);
-			inputPaths = (
-			);
 			name = "[CP] Copy Pods Resources";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-MelonsApp/Pods-MelonsApp-resources-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -1037,13 +1031,9 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-MelonApp/Pods-MelonApp-resources-${CONFIGURATION}-input-files.xcfilelist",
 			);
-			inputPaths = (
-			);
 			name = "[CP] Copy Pods Resources";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-MelonApp/Pods-MelonApp-resources-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -1080,13 +1070,9 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-MomorApp/Pods-MomorApp-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
-			inputPaths = (
-			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-MomorApp/Pods-MomorApp-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -1123,13 +1109,9 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Melon/Pods-Melon-resources-${CONFIGURATION}-input-files.xcfilelist",
 			);
-			inputPaths = (
-			);
 			name = "[CP] Copy Pods Resources";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Melon/Pods-Melon-resources-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -1144,13 +1126,9 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-MelonsApp/Pods-MelonsApp-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
-			inputPaths = (
-			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-MelonsApp/Pods-MelonsApp-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -1187,13 +1165,9 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Melon/Pods-Melon-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
-			inputPaths = (
-			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Melon/Pods-Melon-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -1208,13 +1182,9 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-MelonApp/Pods-MelonApp-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
-			inputPaths = (
-			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-MelonApp/Pods-MelonApp-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -1251,13 +1221,9 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-MomorsApp/Pods-MomorsApp-resources-${CONFIGURATION}-input-files.xcfilelist",
 			);
-			inputPaths = (
-			);
 			name = "[CP] Copy Pods Resources";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-MomorsApp/Pods-MomorsApp-resources-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -1272,13 +1238,9 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-MomorApp/Pods-MomorApp-resources-${CONFIGURATION}-input-files.xcfilelist",
 			);
-			inputPaths = (
-			);
 			name = "[CP] Copy Pods Resources";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-MomorApp/Pods-MomorApp-resources-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -1519,6 +1481,8 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = MelonAppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = MelonApp.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = B426HM8VBZ;
 				ENABLE_BITCODE = NO;
@@ -1539,6 +1503,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.sinobiz.melon;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "Melon-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -1553,6 +1518,8 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = MelonAppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = MelonApp.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = B426HM8VBZ;
@@ -1575,6 +1542,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.sinobiz.melon;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "Melon-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -1587,6 +1555,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = MelonsAppIcon;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = MelonsApp.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = B426HM8VBZ;
 				ENABLE_BITCODE = NO;
@@ -1616,6 +1585,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = MelonsAppIcon;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = MelonsApp.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = B426HM8VBZ;
 				INFOPLIST_FILE = "MelonsApp-Info.plist";

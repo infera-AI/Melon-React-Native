@@ -12,6 +12,7 @@ export const API_ENDPOINTS = {
       LOGOUT: '/auth/logout',
       REFRESH_TOKEN: '/auth/refresh_token',
       SET_PASSWORD: '/accounts/set_password',
+      APPLE_LOGIN: '/auth/login_by_apple',
     },
     MUSIC: {
       GET_MUSIC_WORKS: '/music/works',

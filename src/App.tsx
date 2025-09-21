@@ -28,14 +28,16 @@ const App = () => {
       // zustand 持久化数据已加载完成
 
       // 获取应用标识
-      const appSign = useAppStore.getState().appSign
+      let appSign = useAppStore.getState().appSign
       console.log('RN--AppSign--', appSign);
       
       // 如果没有设置 appSign，则从配置模块获取并设置
       if (!appSign) {
         const config = await ConfigModule.getConfig();
         useAppStore.getState().setAppSign(config.APP_SIGN);
+        appSign = config.APP_SIGN
       }
+      console.log('RN--AppSign2--', appSign);
       if (appSign === APP_SIGN_ENUM.TYPE_MELONS || appSign === APP_SIGN_ENUM.TYPE_MOMORS) {
         mobileAds()
           .initialize()

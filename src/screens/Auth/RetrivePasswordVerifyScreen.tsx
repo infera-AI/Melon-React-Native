@@ -9,6 +9,8 @@ import {
   Platform,
   KeyboardAvoidingView,
   Image,
+  TouchableWithoutFeedback,
+  Keyboard
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -196,99 +198,104 @@ const RetrivePasswordVerifyScreen: React.FC = ({ route }: any) => {
   const isCodeComplete = code.every(char => char !== '');
 
   return (
-    <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
-      <View style={styles.container}>
-        <StatusBar barStyle="light-content" backgroundColor={theme.background} />
+    <TouchableWithoutFeedback
+      onPress={Keyboard.dismiss}
+      accessible={false}
+    >
+      <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
+        <View style={styles.container}>
+          <StatusBar barStyle="light-content" backgroundColor={theme.background} />
 
-        <KeyboardAvoidingView
-          style={{ flex: 1 }}
-          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        >
-          {/* 顶部返回和标题 */}
-          <View style={styles.header}>
-            <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-              <Image
-                source={require('@/assets/main/page_return_icon.png')}
-                style={styles.backArrow}
-              />
-            </TouchableOpacity>
-            <Text style={styles.headerTitle}>Enter confirmation code</Text>
-            <View style={{ width: normalize(40) }} />
-          </View>
-
-          {/* 主要内容区域 */}
-          <View style={styles.content}>
-            {/* 提示文字 */}
-            <Text style={styles.instructionText}>
-              {type === 'phone' ? 'Verification code has been sent to your phone' : 'Verification code has been sent to the email'}
-            </Text>
-
-            {/* 手机号显示 */}
-            <Text style={styles.phoneNumberText}>
-              {type === 'phone' ? fullPhoneNumber : email}
-            </Text>
-
-            {/* 验证码输入框 */}
-            <View style={styles.codeContainer}>
-              {Array(CODE_LENGTH).fill(0).map((_, index) => (
-                <TextInput
-                  key={index}
-                  ref={(ref) => {
-                    inputRefs.current[index] = ref;
-                  }}
-                  style={styles.codeInput}
-                  value={code[index]}
-                  onChangeText={(text) => handleChange(text, index)}
-                  onKeyPress={(e) => handleKeyPress(e, index)}
-                  maxLength={1}
-                  keyboardType="default"
-                  autoCapitalize="characters"
-                  textAlign="center"
-                  selectionColor={theme.primary}
+          <KeyboardAvoidingView
+            style={{ flex: 1 }}
+            behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          >
+            {/* 顶部返回和标题 */}
+            <View style={styles.header}>
+              <TouchableOpacity style={styles.backButton} onPress={handleBack}>
+                <Image
+                  source={require('@/assets/main/page_return_icon.png')}
+                  style={styles.backArrow}
                 />
-              ))}
+              </TouchableOpacity>
+              <Text style={styles.headerTitle}>Enter confirmation code</Text>
+              <View style={{ width: normalize(40) }} />
             </View>
 
-            {/* 提交按钮 */}
-            <TouchableOpacity
-              style={[
-                styles.submitButton,
-                isCodeComplete ? styles.submitButtonActive : null
-              ]}
-              onPress={handleSubmit}
-              disabled={isSubmitting || !isCodeComplete}
-            >
-              <Text style={[
-                styles.submitButtonText,
-                isCodeComplete ? styles.submitButtonTextActive : null
-              ]}>
-                {isSubmitting ? 'Submitting...' : 'Next'}
+            {/* 主要内容区域 */}
+            <View style={styles.content}>
+              {/* 提示文字 */}
+              <Text style={styles.instructionText}>
+                {type === 'phone' ? 'Verification code has been sent to your phone' : 'Verification code has been sent to the email'}
               </Text>
-            </TouchableOpacity>
 
-            {/* 重新发送验证码 */}
-            <View style={styles.resendContainer}>
+              {/* 手机号显示 */}
+              <Text style={styles.phoneNumberText}>
+                {type === 'phone' ? fullPhoneNumber : email}
+              </Text>
+
+              {/* 验证码输入框 */}
+              <View style={styles.codeContainer}>
+                {Array(CODE_LENGTH).fill(0).map((_, index) => (
+                  <TextInput
+                    key={index}
+                    ref={(ref) => {
+                      inputRefs.current[index] = ref;
+                    }}
+                    style={styles.codeInput}
+                    value={code[index]}
+                    onChangeText={(text) => handleChange(text, index)}
+                    onKeyPress={(e) => handleKeyPress(e, index)}
+                    maxLength={1}
+                    keyboardType="default"
+                    autoCapitalize="characters"
+                    textAlign="center"
+                    selectionColor={theme.primary}
+                  />
+                ))}
+              </View>
+
+              {/* 提交按钮 */}
               <TouchableOpacity
-                style={styles.resendButton}
-                onPress={handleResend}
-                disabled={countdown > 0 || isResending}
+                style={[
+                  styles.submitButton,
+                  isCodeComplete ? styles.submitButtonActive : null
+                ]}
+                onPress={handleSubmit}
+                disabled={isSubmitting || !isCodeComplete}
               >
                 <Text style={[
-                  styles.resendButtonText,
-                  (countdown > 0 || isResending) && styles.resendButtonTextDisabled
+                  styles.submitButtonText,
+                  isCodeComplete ? styles.submitButtonTextActive : null
                 ]}>
-                  Get verification code again  {countdown > 0 && (
-                    <Text style={styles.countdownText}>
-                      {countdown}s
-                    </Text>
-                  )}
+                  {isSubmitting ? 'Submitting...' : 'Next'}
                 </Text>
               </TouchableOpacity>
+
+              {/* 重新发送验证码 */}
+              <View style={styles.resendContainer}>
+                <TouchableOpacity
+                  style={styles.resendButton}
+                  onPress={handleResend}
+                  disabled={countdown > 0 || isResending}
+                >
+                  <Text style={[
+                    styles.resendButtonText,
+                    (countdown > 0 || isResending) && styles.resendButtonTextDisabled
+                  ]}>
+                    Get verification code again  {countdown > 0 && (
+                      <Text style={styles.countdownText}>
+                        {countdown}s
+                      </Text>
+                    )}
+                  </Text>
+                </TouchableOpacity>
+              </View>
             </View>
-          </View>
-        </KeyboardAvoidingView>
-      </View>
-    </SafeAreaView>
+          </KeyboardAvoidingView>
+        </View>
+      </SafeAreaView>
+    </TouchableWithoutFeedback>
   );
 };
 

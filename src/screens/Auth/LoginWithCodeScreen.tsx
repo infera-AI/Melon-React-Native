@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -142,13 +142,25 @@ const countries = [
 const LoginWithCodeScreen: React.FC = () => {
   const navigation = useNavigation<LoginWithCodeScreenNavigationProp>();
   const { t } = useLanguage();
-  const [activeTab, setActiveTab] = useState<'phone' | 'email'>('phone');
+  const [activeTab, setActiveTab] = useState<'phone' | 'email' | ''>('');
   const [selectedCountry, setSelectedCountry] = useState(countries[0]);
   const [showCountryModal, setShowCountryModal] = useState(false);
   const [phoneNumber, setPhoneNumber] = useState('');
   const [email, setEmail] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { show } = useMessageModal();
+
+  useEffect(() => {
+    if (
+      useAppStore.getState().appSign === APP_SIGN_ENUM.TYPE_MELONS ||
+      useAppStore.getState().appSign === APP_SIGN_ENUM.TYPE_MOMORS
+    ) {
+      setActiveTab('email')
+    } else {
+      setActiveTab('phone')
+    }
+  }, [])
+
   const handleBack = () => {
     navigation.goBack();
   };
@@ -222,15 +234,27 @@ const LoginWithCodeScreen: React.FC = () => {
             <View style={{ width: normalize(40) }} />
           </View>
           {/* 副标题说明 */}
-          <Text style={styles.subtitle}>
-            {t('login_with_code.subtitle')}
-          </Text>
+          {
+            (
+              useAppStore.getState().appSign === APP_SIGN_ENUM.TYPE_MELON ||
+              useAppStore.getState().appSign === APP_SIGN_ENUM.TYPE_MOMOR
+            ) &&
+            <Text style={styles.subtitle}>
+              {t('login_with_code.subtitle')}
+            </Text>
+          }
           {/* Tab切换 */}
           <View style={styles.tabContainer}>
-            <TouchableOpacity style={styles.tabButton} onPress={() => handleTabSwitch('phone')}>
-              <Text style={activeTab === 'phone' ? styles.activeTab : styles.inactiveTab}>{t('login_with_code.by_phone_number')}</Text>
-              {activeTab === 'phone' && <View style={styles.tabIndicator} />}
-            </TouchableOpacity>
+            {
+              (
+                useAppStore.getState().appSign === APP_SIGN_ENUM.TYPE_MELON ||
+                useAppStore.getState().appSign === APP_SIGN_ENUM.TYPE_MOMOR
+              ) &&
+              <TouchableOpacity style={styles.tabButton} onPress={() => handleTabSwitch('phone')}>
+                <Text style={activeTab === 'phone' ? styles.activeTab : styles.inactiveTab}>{t('login_with_code.by_phone_number')}</Text>
+                {activeTab === 'phone' && <View style={styles.tabIndicator} />}
+              </TouchableOpacity>
+            }
             <TouchableOpacity style={styles.tabButton} onPress={() => handleTabSwitch('email')}>
               <Text style={activeTab === 'email' ? styles.activeTab : styles.inactiveTab}>{t('login_with_code.by_email')}</Text>
               {activeTab === 'email' && <View style={styles.tabIndicator} />}

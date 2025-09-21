@@ -108,3 +108,13 @@ export function logout(params:{device_fingerprint:string}) {
 export function loginByVerificationCode(params: LoginByVerificationCodeRequest) {
   return http.post<LoginByVerificationCodeResult>(API_ENDPOINTS.AUTH.LOGIN_BY_VERIFICATION_CODE, params);
 }
+
+// 苹果登录 auth_type: 'apple', identifier: '苹果登录获取的userId'
+export function appleLogin(
+  params:{
+    auth_type: string,
+    identifier: string
+  }
+) {
+  return http.post<any>(API_ENDPOINTS.AUTH.APPLE_LOGIN, params);
+}

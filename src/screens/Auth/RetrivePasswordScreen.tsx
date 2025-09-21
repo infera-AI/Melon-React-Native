@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -10,6 +10,8 @@ import {
   Dimensions,
   Image,
   ScrollView,
+  TouchableWithoutFeedback,
+  Keyboard
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
@@ -19,6 +21,8 @@ import { useLanguage } from '../../contexts/LanguageContext';
 import { getLoginCodeApi } from '../../api/login/auth';
 import { useMessageModal } from '../../contexts/MessageModalContext';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useAppStore } from '@/store';
+import { APP_SIGN_ENUM } from '@/utils';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 const normalize = (size: number, based: 'width' | 'height' = 'width') => {
@@ -138,13 +142,25 @@ const countries = [
 const RetrivePasswordScreen: React.FC = () => {
   const navigation = useNavigation<RetrivePasswordScreenNavigationProp>();
   const { t } = useLanguage();
-  const [activeTab, setActiveTab] = useState<'phone' | 'email'>('phone');
+  const [activeTab, setActiveTab] = useState<'phone' | 'email' | ''>('');
   const [selectedCountry, setSelectedCountry] = useState(countries[0]);
   const [showCountryModal, setShowCountryModal] = useState(false);
   const [phoneNumber, setPhoneNumber] = useState('');
   const [email, setEmail] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { show } = useMessageModal();
+
+  useEffect(() => {
+    if (
+      useAppStore.getState().appSign === APP_SIGN_ENUM.TYPE_MELONS ||
+      useAppStore.getState().appSign === APP_SIGN_ENUM.TYPE_MOMORS
+    ) {
+      setActiveTab('email')
+    } else {
+      setActiveTab('phone')
+    }
+  }, [])
+
   const handleBack = () => {
     navigation.goBack();
   };
@@ -199,114 +215,125 @@ const RetrivePasswordScreen: React.FC = () => {
   };
 
   return (
-    <SafeAreaView style={{flex: 1}} edges={['top','bottom','left','right']}>
-      <View style={styles.container}>
-        {/* 顶部返回和标题 */}
-        <View style={styles.header}>
-          <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-            <Image source={require('@/assets/main/page_return_icon.png')} style={styles.backArrow} />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>Retrieve Password</Text>
-          <View style={{ width: normalize(40) }} />
-        </View>
-        {/* Tab切换 */}
-        <View style={styles.tabContainer}>
-          <TouchableOpacity style={styles.tabButton} onPress={() => handleTabSwitch('phone')}>
-            <Text style={activeTab === 'phone' ? styles.activeTab : styles.inactiveTab}>{t('login_with_code.by_phone_number')}</Text>
-            {activeTab === 'phone' && <View style={styles.tabIndicator} />}
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.tabButton} onPress={() => handleTabSwitch('email')}>
-            <Text style={activeTab === 'email' ? styles.activeTab : styles.inactiveTab}>{t('login_with_code.by_email')}</Text>
-            {activeTab === 'email' && <View style={styles.tabIndicator} />}
-          </TouchableOpacity>
-        </View>
-        {/* 手机号登录 */}
-        {activeTab === 'phone' && (
-          <>
-            {/* 国家选择 */}
-            {/* <TouchableOpacity style={styles.countrySelector} onPress={() => setShowCountryModal(true)}>
-              <Image source={require('@/assets/login/login_area_icon.png')} style={styles.inputIcon} />
-              <Text style={styles.countryName}>{t(`languageNames.${selectedCountry.id}`)}</Text>
-              <Text style={styles.countryCode}>{selectedCountry.code}</Text>
-              <Image source={require('@/assets/main/dropdown_icon.png')} style={styles.dropdownArrow} />
-            </TouchableOpacity> */}
-            {/* 手机号输入框 */}
+    <TouchableWithoutFeedback
+      onPress={Keyboard.dismiss}
+      accessible={false}
+    >
+      <SafeAreaView style={{flex: 1}} edges={['top','bottom','left','right']}>
+        <View style={styles.container}>
+          {/* 顶部返回和标题 */}
+          <View style={styles.header}>
+            <TouchableOpacity style={styles.backButton} onPress={handleBack}>
+              <Image source={require('@/assets/main/page_return_icon.png')} style={styles.backArrow} />
+            </TouchableOpacity>
+            <Text style={styles.headerTitle}>Retrieve Password</Text>
+            <View style={{ width: normalize(40) }} />
+          </View>
+          {/* Tab切换 */}
+          <View style={styles.tabContainer}>
+            {
+              (
+                useAppStore.getState().appSign === APP_SIGN_ENUM.TYPE_MELON ||
+                useAppStore.getState().appSign === APP_SIGN_ENUM.TYPE_MOMOR
+              ) &&
+              <TouchableOpacity style={styles.tabButton} onPress={() => handleTabSwitch('phone')}>
+                <Text style={activeTab === 'phone' ? styles.activeTab : styles.inactiveTab}>{t('login_with_code.by_phone_number')}</Text>
+                {activeTab === 'phone' && <View style={styles.tabIndicator} />}
+              </TouchableOpacity>
+            }
+            <TouchableOpacity style={styles.tabButton} onPress={() => handleTabSwitch('email')}>
+              <Text style={activeTab === 'email' ? styles.activeTab : styles.inactiveTab}>{t('login_with_code.by_email')}</Text>
+              {activeTab === 'email' && <View style={styles.tabIndicator} />}
+            </TouchableOpacity>
+          </View>
+          {/* 手机号登录 */}
+          {activeTab === 'phone' && (
+            <>
+              {/* 国家选择 */}
+              {/* <TouchableOpacity style={styles.countrySelector} onPress={() => setShowCountryModal(true)}>
+                <Image source={require('@/assets/login/login_area_icon.png')} style={styles.inputIcon} />
+                <Text style={styles.countryName}>{t(`languageNames.${selectedCountry.id}`)}</Text>
+                <Text style={styles.countryCode}>{selectedCountry.code}</Text>
+                <Image source={require('@/assets/main/dropdown_icon.png')} style={styles.dropdownArrow} />
+              </TouchableOpacity> */}
+              {/* 手机号输入框 */}
+              <View style={styles.inputBox}>
+                <Image source={require('@/assets/login/login_phone_icon.png')} style={styles.inputIcon} />
+                <TextInput
+                  style={styles.input}
+                  placeholder={t('login_with_code.phone_number')}
+                  placeholderTextColor={theme.textSecondary}
+                  value={phoneNumber}
+                  onChangeText={setPhoneNumber}
+                  keyboardType="phone-pad"
+                />
+              </View>
+            </>
+          )}
+          {/* 邮箱登录 */}
+          {activeTab === 'email' && (
             <View style={styles.inputBox}>
-              <Image source={require('@/assets/login/login_phone_icon.png')} style={styles.inputIcon} />
+              <Image source={require('@/assets/login/login_email_icon.png')} style={styles.inputIcon} />
               <TextInput
                 style={styles.input}
-                placeholder={t('login_with_code.phone_number')}
+                placeholder={t('login_with_code.email')}
                 placeholderTextColor={theme.textSecondary}
-                value={phoneNumber}
-                onChangeText={setPhoneNumber}
-                keyboardType="phone-pad"
+                value={email}
+                onChangeText={setEmail}
+                keyboardType="email-address"
+                autoCapitalize="none"
               />
             </View>
-          </>
-        )}
-        {/* 邮箱登录 */}
-        {activeTab === 'email' && (
-          <View style={styles.inputBox}>
-            <Image source={require('@/assets/login/login_email_icon.png')} style={styles.inputIcon} />
-            <TextInput
-              style={styles.input}
-              placeholder={t('login_with_code.email')}
-              placeholderTextColor={theme.textSecondary}
-              value={email}
-              onChangeText={setEmail}
-              keyboardType="email-address"
-              autoCapitalize="none"
-            />
-          </View>
-        )}
-        {/* 发送验证码按钮 */}
-        <TouchableOpacity
-          style={[
-            styles.sendButton,
-            ((activeTab === 'phone' && phoneNumber) || (activeTab === 'email' && email)) && !isSubmitting
-              ? styles.sendButtonActive
-              : null,
-          ]}
-          onPress={handleSendCode}
-          disabled={
-            (activeTab === 'phone' && !phoneNumber) ||
-            (activeTab === 'email' && !email) ||
-            isSubmitting
-          }
-        >
-          <Text style={[styles.sendButtonText,((activeTab === 'phone' && phoneNumber) || (activeTab === 'email' && email)) && !isSubmitting
-              ? styles.sendButtonTextActive
-              : null,]}>{t('login_with_code.send_verification_code')}</Text>
-        </TouchableOpacity>
-        <Text style={styles.subtitle}>Tip: Please enter the phone number you used to register your Melon account. We will send a verification code to reset the password.</Text>
-        {/* 国家选择模态框 */}
-        {showCountryModal && (
-          <View style={styles.modalOverlay}>
-            <View style={styles.modalContent}>
-              <View style={styles.modalHeader}>
-                <Text style={styles.modalTitle}>{t('login_with_code.select_country')}</Text>
-                <TouchableOpacity onPress={() => setShowCountryModal(false)}>
-                  <Text style={styles.modalClose}>✕</Text>
-                </TouchableOpacity>
-              </View>
-              <ScrollView style={styles.countryList}>
-                {countries.map((country, index) => (
-                  <TouchableOpacity
-                    key={index}
-                    style={styles.countryItem}
-                    onPress={() => handleCountrySelect(country)}
-                  >
-                    <Text style={styles.countryItemFlag}>{country.flag}</Text>
-                    <Text style={styles.countryItemName}>{t(`languageNames.${country.id}`)}</Text>
-                    <Text style={styles.countryItemCode}>{country.code}</Text>
+          )}
+          {/* 发送验证码按钮 */}
+          <TouchableOpacity
+            style={[
+              styles.sendButton,
+              ((activeTab === 'phone' && phoneNumber) || (activeTab === 'email' && email)) && !isSubmitting
+                ? styles.sendButtonActive
+                : null,
+            ]}
+            onPress={handleSendCode}
+            disabled={
+              (activeTab === 'phone' && !phoneNumber) ||
+              (activeTab === 'email' && !email) ||
+              isSubmitting
+            }
+          >
+            <Text style={[styles.sendButtonText,((activeTab === 'phone' && phoneNumber) || (activeTab === 'email' && email)) && !isSubmitting
+                ? styles.sendButtonTextActive
+                : null,]}>{t('login_with_code.send_verification_code')}</Text>
+          </TouchableOpacity>
+          <Text style={styles.subtitle}>Tip: Please enter the phone number you used to register your Melon account. We will send a verification code to reset the password.</Text>
+          {/* 国家选择模态框 */}
+          {showCountryModal && (
+            <View style={styles.modalOverlay}>
+              <View style={styles.modalContent}>
+                <View style={styles.modalHeader}>
+                  <Text style={styles.modalTitle}>{t('login_with_code.select_country')}</Text>
+                  <TouchableOpacity onPress={() => setShowCountryModal(false)}>
+                    <Text style={styles.modalClose}>✕</Text>
                   </TouchableOpacity>
-                ))}
-              </ScrollView>
+                </View>
+                <ScrollView style={styles.countryList}>
+                  {countries.map((country, index) => (
+                    <TouchableOpacity
+                      key={index}
+                      style={styles.countryItem}
+                      onPress={() => handleCountrySelect(country)}
+                    >
+                      <Text style={styles.countryItemFlag}>{country.flag}</Text>
+                      <Text style={styles.countryItemName}>{t(`languageNames.${country.id}`)}</Text>
+                      <Text style={styles.countryItemCode}>{country.code}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
+              </View>
             </View>
-          </View>
-        )}
-      </View>
-    </SafeAreaView>
+          )}
+        </View>
+      </SafeAreaView>
+    </TouchableWithoutFeedback>
   );
 };
 

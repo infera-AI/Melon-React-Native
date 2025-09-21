@@ -5,6 +5,10 @@ import i18nData from '../i18n';
 import type { Language } from '@/i18n/languages'
 import { supportedLanguages } from '@/i18n/languages';
 import { i18nService } from '@/utils/i18nService'
+import { useAppStore } from '@/store';
+import { APP_SIGN_ENUM } from '@/utils';
+import { NativeModules } from 'react-native';
+const { ConfigModule } = NativeModules;
 
 interface LanguageContextProps {
   language: Language;
@@ -14,7 +18,7 @@ interface LanguageContextProps {
 }
 
 const LanguageContext = createContext<LanguageContextProps>({
-  language: 'en',
+  language: '',
   setLanguage: () => {},
   t: (key: string) => key,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -73,15 +77,39 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
       try {
         const stored = await AsyncStorage.getItem(STORAGE_KEY);
         const languageCodes = supportedLanguages.map(lang => lang.code)
+        console.log('stored---', stored);
+        console.log('languageCodes---', languageCodes);
+        
         if (
           stored && (languageCodes as string[]).includes(stored)
         ) {
           setLanguageState(stored as Language);
         } else {
-          setLanguageState('en');
+          let appSign = useAppStore.getState().appSign
+          if (!appSign) {
+            const config = await ConfigModule.getConfig();
+            appSign = config.APP_SIGN
+          }
+          console.log('languageConx-appSign----', appSign);
+          if (
+            appSign === APP_SIGN_ENUM.TYPE_MELON ||
+            appSign === APP_SIGN_ENUM.TYPE_MOMOR
+          ) {
+            setLanguageState('zh');
+          } else {
+            setLanguageState('en');
+          }
+          
         }
       } catch {
-        setLanguageState('en');
+        if (
+          useAppStore.getState().appSign === APP_SIGN_ENUM.TYPE_MELON ||
+          useAppStore.getState().appSign === APP_SIGN_ENUM.TYPE_MOMOR
+        ) {
+          setLanguageState('zh');
+        } else {
+          setLanguageState('en');
+        }
       }
     })();
     i18nService.register(t)

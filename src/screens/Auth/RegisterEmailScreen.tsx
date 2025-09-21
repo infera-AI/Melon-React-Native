@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -137,11 +137,23 @@ const RegisterEmailScreen: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, _setPassword] = useState('');
   const [phone, setPhone] = useState('');
-  const [activeTab, setActiveTab] = useState<'email' | 'phone'>('phone');
+  const [activeTab, setActiveTab] = useState<'email' | 'phone' | ''>('');
   const [selectedCountry, setSelectedCountry] = useState(countries[0]);
   const [showCountryModal, setShowCountryModal] = useState(false);
   const [agreementChecked, setAgreementChecked] = useState(false);
   const { show } = useMessageModal();
+
+  useEffect(() => {
+    if (
+      useAppStore.getState().appSign === APP_SIGN_ENUM.TYPE_MELONS ||
+      useAppStore.getState().appSign === APP_SIGN_ENUM.TYPE_MOMORS
+    ) {
+      setActiveTab('email')
+    } else {
+      setActiveTab('phone')
+    }
+  }, [])
+
   const handleBack = () => {
     navigation.goBack();
   };
@@ -280,14 +292,20 @@ const RegisterEmailScreen: React.FC = () => {
 
             {/* Tab切换 */}
             <View style={styles.tabRow}>
-              <TouchableOpacity onPress={() => handleTabChange('phone')}>
-                <View style={styles.tabItem}>
-                  <Text style={[styles.tabText, activeTab === 'phone' && styles.tabTextActive]}>
-                    {t('register.phone_number')}
-                  </Text>
-                  {activeTab === 'phone' && <View style={styles.tabDot} />}
-                </View>
-              </TouchableOpacity>
+              {
+                (
+                  useAppStore.getState().appSign === APP_SIGN_ENUM.TYPE_MELON ||
+                  useAppStore.getState().appSign === APP_SIGN_ENUM.TYPE_MOMOR
+                ) &&
+                <TouchableOpacity onPress={() => handleTabChange('phone')}>
+                  <View style={styles.tabItem}>
+                    <Text style={[styles.tabText, activeTab === 'phone' && styles.tabTextActive]}>
+                      {t('register.phone_number')}
+                    </Text>
+                    {activeTab === 'phone' && <View style={styles.tabDot} />}
+                  </View>
+                </TouchableOpacity>
+              }
               <TouchableOpacity onPress={() => handleTabChange('email')}>
                 <View style={styles.tabItem}>
                   <Text style={[styles.tabText, activeTab === 'email' && styles.tabTextActive]}>

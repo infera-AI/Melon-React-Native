@@ -19,12 +19,11 @@ import theme from '../../utils/theme';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { getDeviceInfo } from '../../utils';
 import { loginWithDevice } from '../../api/login';
-import { useUserStore } from '../../store';
+import { useUserStore, useAppStore } from '../../store';
 import { useMessageModal } from '../../contexts/MessageModalContext';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { getUserInfo } from '../../api/profile/profile';
 import { normalize, normalizeFontSize } from '@/utils/stylesUtil';
-import { useAppStore } from '../../store';
 import { APP_SIGN_ENUM } from '../../utils/constants';
 
 
@@ -138,7 +137,7 @@ const countries = [
 const LoginPhoneScreen: React.FC = () => {
   const navigation = useNavigation<any>();
   const { t } = useLanguage();
-  const [activeTab, setActiveTab] = useState<'phone' | 'email'>('phone');
+  const [activeTab, setActiveTab] = useState<'phone' | 'email' | ''>('');
   const [selectedCountry, setSelectedCountry] = useState(countries[0]);
   const [showCountryModal, setShowCountryModal] = useState(false);
   const [phoneNumber, setPhoneNumber] = useState('');
@@ -146,6 +145,18 @@ const LoginPhoneScreen: React.FC = () => {
   const [password, setPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { show } = useMessageModal();
+
+  useEffect(() => {
+    if (
+      useAppStore.getState().appSign === APP_SIGN_ENUM.TYPE_MELONS ||
+      useAppStore.getState().appSign === APP_SIGN_ENUM.TYPE_MOMORS
+    ) {
+      setActiveTab('email')
+    } else {
+      setActiveTab('phone')
+    }
+  }, [])
+
   useEffect(() => {
     console.log('showCountryModal changed:', showCountryModal);
   }, [showCountryModal]);
@@ -280,15 +291,22 @@ const LoginPhoneScreen: React.FC = () => {
 
             {/* 标签切换 */}
             <View style={styles.tabContainer}>
-              <TouchableOpacity
-                style={styles.tabButton}
-                onPress={() => handleTabSwitch('phone')}
-              >
-                <Text style={activeTab === 'phone' ? styles.activeTab : styles.inactiveTab}>
-                  {t('login_phone.phone_number')}
-                </Text>
-                {activeTab === 'phone' && <View style={styles.tabIndicator} />}
-              </TouchableOpacity>
+              {
+                (
+                  useAppStore.getState().appSign === APP_SIGN_ENUM.TYPE_MELON ||
+                  useAppStore.getState().appSign === APP_SIGN_ENUM.TYPE_MOMOR
+                ) &&
+                <TouchableOpacity
+                  style={styles.tabButton}
+                  onPress={() => handleTabSwitch('phone')}
+                >
+                  <Text style={activeTab === 'phone' ? styles.activeTab : styles.inactiveTab}>
+                    {t('login_phone.phone_number')}
+                  </Text>
+                  {activeTab === 'phone' && <View style={styles.tabIndicator} />}
+                </TouchableOpacity>
+              }
+              
               <TouchableOpacity
                 style={styles.tabButton}
                 onPress={() => handleTabSwitch('email')}
