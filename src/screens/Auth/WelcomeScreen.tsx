@@ -399,7 +399,10 @@ const WelcomeScreen: React.FC = () => {
             {/* 第三方登录 */}
             <View style={styles.otherLoginView}>
               {
-                Platform.OS === 'ios' &&
+                (
+                  useAppStore.getState().appSign === APP_SIGN_ENUM.TYPE_MELONS ||
+                  useAppStore.getState().appSign === APP_SIGN_ENUM.TYPE_MOMORS
+                ) &&
                   <AppleSignButton
                     beforeClickCheck={() => {
                       if (!isAgreementChecked) {
