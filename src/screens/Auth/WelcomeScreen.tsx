@@ -32,12 +32,16 @@ import { RewardedAd, RewardedAdEventType, TestIds } from 'react-native-google-mo
 
 import AppleSignButton from '@/components/AppleSignButton';
 
+import GoogleSignButton from '@/components/GoogleSignButton';
+
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { appleLogin } from '@/api/login'
 import { useMessageModal } from '@/contexts/MessageModalContext';
 import { useUserStore } from '@/store';
 import { getUserInfo } from '@/api/profile/profile';
+
+import Ionicons from 'react-native-vector-icons/FontAwesome6';
 
 type WelcomeScreenNavigationProp = StackNavigationProp<AuthStackParamList, 'Initial'>;
 
@@ -289,12 +293,12 @@ const WelcomeScreen: React.FC = () => {
     }
   }
 
-  const loginByApple = (applyUserInfo: AppleUserInfo) => {
-    console.log('苹果登录用户信息--', applyUserInfo);
-    if (applyUserInfo?.userId) {
+  const loginByOtherId = (userId: string) => {
+    console.log('用户信息userId--', userId);
+    if (userId) {
       appleLogin({
         auth_type: 'apple',
-        identifier: applyUserInfo?.userId
+        identifier: userId
       }).then((rsp) => {
         console.log('登录成功----', rsp);
         setLoading(false)
@@ -352,6 +356,11 @@ const WelcomeScreen: React.FC = () => {
                   style={styles.logo}
                   resizeMode="contain"
                 />
+                <Image
+                  source={require('../../../src/assets/login/login_title_icon_melons.png')}
+                  resizeMode="contain"
+                  style={styles.titleIcon}
+                />
             </View>
             {/* <TouchableOpacity
               style={{
@@ -366,15 +375,11 @@ const WelcomeScreen: React.FC = () => {
               onPress={handleInitAd}
             >
             </TouchableOpacity> */}
-              {/* Melon 标题 - 渐变色文字 */}
-             <View style={styles.titleContainer}>
-               <Image source={require('../../../src/assets/login/login_title_icon_melons.png')} resizeMode="contain" style={styles.titleIcon} />
-             </View>
             
             {/* 标语 - 渐变色文字 */}
-            <View style={styles.sloganContainer}>
+            {/* <View style={styles.sloganContainer}>
                 <Text style={styles.sloganText}>{t('welcome.slogan')}</Text>
-            </View>
+            </View> */}
             
             {/* 注册按钮 */}
             <TouchableOpacity style={styles.registerButton} onPress={handleRegister}>
@@ -407,7 +412,7 @@ const WelcomeScreen: React.FC = () => {
                     onSuccess={(userData) => {
                       console.log('苹果登录用户信息:', userData);
                       setLoading(true)
-                      loginByApple(userData)
+                      loginByOtherId(userData?.userId)
                       // 1. 把 userData.identityToken 和 userData.nonce 传给后端校验
                       // 2. 后端校验通过后，保存用户信息到本地（如 AsyncStorage）
                     }}
@@ -416,6 +421,27 @@ const WelcomeScreen: React.FC = () => {
                       // 显示错误提示（如 Toast）
                     }}
                   />
+              }
+              {
+                (
+                  useAppStore.getState().appSign === APP_SIGN_ENUM.TYPE_MELONS ||
+                  useAppStore.getState().appSign === APP_SIGN_ENUM.TYPE_MOMORS
+                ) &&
+                <GoogleSignButton
+                  beforeClickCheck={() => {
+                    if (!isAgreementChecked) {
+                      show({
+                        message: t('register.please_agree')
+                      })
+                    }
+                    return isAgreementChecked
+                  }}
+                  onSuccess={(userId) => {
+                    console.log('谷歌登录用户信息:', userId);
+                    setLoading(true)
+                    loginByOtherId(userId)
+                  }}
+                />
               }
               
             </View>
@@ -451,7 +477,13 @@ const WelcomeScreen: React.FC = () => {
                     isAgreementChecked && styles.checkboxChecked
                   ]}>
                     {isAgreementChecked && (
-                      <Text style={styles.checkboxCheckmark}>✓</Text>
+                      <Text>
+                        <Ionicons
+                          name='check'
+                          color={theme.backgroundTertiary}
+                          size={scaleFont(14)}
+                        />
+                      </Text>
                     )}
                   </View>
                 </TouchableOpacity>
@@ -558,8 +590,8 @@ const styles = StyleSheet.create({
     },
     logoContainer: {
       alignItems: 'center',
-      marginTop: scaleSize(168),
-      marginBottom: scaleSize(20),
+      justifyContent: 'center',
+      flex: 1,
     },
     logoPlaceholder: {
       width: scaleSize(85),
@@ -572,15 +604,12 @@ const styles = StyleSheet.create({
     logo: {
       width: scaleSize(85),
       height: scaleSize(87),
-    },
-    titleContainer: {
-      alignItems: 'center',
-      justifyContent: 'center',
-      marginBottom: scaleSize(14),
+      marginTop: scaleSize(20),
     },
     titleIcon: {
       width: scaleSize(132),
       height: scaleSize(32),
+      marginTop: scaleSize(20),
     },
     title: {
       fontSize: scaleFont(48),
@@ -653,18 +682,20 @@ const styles = StyleSheet.create({
       letterSpacing: -0.4,
     },
     otherLoginView: {
+      flexDirection: 'row',
       alignItems: 'center',
-      justifyContent: 'center'
+      justifyContent: 'center',
+      gap: scaleSize(14),
     },
     bottomView: {
-      flex: 1,
+      
       width: '100%',
       justifyContent: 'space-between',
       marginTop: scaleSize(20),
     },
     languageSelector: {
       alignItems: 'center',
-      marginBottom: scaleSize(30),
+      marginBottom: scaleSize(40),
     },
     languageContainer: {
       flexDirection: 'row',
@@ -714,7 +745,7 @@ const styles = StyleSheet.create({
       flexDirection: 'row',
       justifyContent: 'center',
       alignItems: 'flex-start',
-      paddingHorizontal: scaleSize(20),
+      paddingHorizontal: scaleSize(10),
     },
     checkboxContainer: {
       marginRight: scaleSize(8),
@@ -733,15 +764,10 @@ const styles = StyleSheet.create({
        backgroundColor: theme.primary,
        borderColor: theme.primary,
      },
-     checkboxCheckmark: {
-       color: theme.backgroundTertiary,
-       fontSize: scaleFont(12),
-       fontWeight: 'bold',
-     },
     agreementTextContainer: {
       alignItems: 'center',
       justifyContent: 'center',
-      paddingBottom: scaleSize(10)  
+      paddingBottom: scaleSize(10),
     },
     agreementText: {
       fontSize: scaleFont(12),

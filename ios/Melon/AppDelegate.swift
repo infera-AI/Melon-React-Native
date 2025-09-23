@@ -10,6 +10,9 @@ import BUAdSDK
 import BUAdSDK.BUAdSDKManager
 import BUAdTestMeasurement
 
+// 1. 导入谷歌登录 SDK
+import GoogleSignIn
+
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
   var window: UIWindow?
@@ -59,6 +62,22 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
     return true
+  }
+  
+  // 处理谷歌登录 URL 回调
+  func application(
+      _ app: UIApplication,
+      open url: URL,
+      options: [UIApplication.OpenURLOptionsKey: Any] = [:]
+  ) -> Bool {
+      // 让谷歌 SDK 处理回调，同时保留其他可能的回调处理（如果有的话）
+      let handledByGoogle = GIDSignIn.sharedInstance.handle(url)
+      
+      // 如果有其他需要处理的 URL 回调（如其他第三方登录、支付等），可以在这里添加
+      // 例如：let handledByOther = otherSDK.handle(url)
+      
+      // 返回是否处理成功（谷歌处理成功则返回 true）
+      return handledByGoogle
   }
   
   // 创建全局覆盖按钮（保持不变，仅修改点击事件关联）

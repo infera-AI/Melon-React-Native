@@ -92,6 +92,7 @@ android {
             versionCode 1
             versionName "1.0-melon"
             buildConfigField "String", "APP_SIGN", "\"melon\""
+            manifestPlaceholders = [ appAuthRedirectScheme: "com.melon.melon" ]
         }
         melons { // melon 付费海外版
             dimension "default"
@@ -99,6 +100,7 @@ android {
             versionCode 1
             versionName "1.0-melons"
             buildConfigField "String", "APP_SIGN", "\"melons\""
+            manifestPlaceholders = [ appAuthRedirectScheme: "com.melon.melons" ]
         }
         momor { // 免费国内版
             dimension "default"
@@ -106,6 +108,7 @@ android {
             versionCode 1
             versionName "1.0-momor"
             buildConfigField "String", "APP_SIGN", "\"momor\""
+            manifestPlaceholders = [ appAuthRedirectScheme: "com.melon.momor" ]
         }
         momors { // 免费海外版
             dimension "default"
@@ -113,6 +116,7 @@ android {
             versionCode 1
             versionName "1.0-momors"
             buildConfigField "String", "APP_SIGN", "\"momors\""
+            manifestPlaceholders = [ appAuthRedirectScheme: "com.melon.momors" ]
         }
     }
     signingConfigs {
@@ -179,6 +183,7 @@ dependencies {
     implementation project(':react-native-sound')
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     implementation("com.pangle.cn:ads-sdk-pro:7.1.0.6")
+    implementation("androidx.credentials:credentials-play-services-auth:<latest-version>")
 //    implementation (name: 'open_ad_sdk_7.1.0.5', ext: 'aar')
     implementation (name: 'tools-release', ext: 'aar')
     if (hermesEnabled.toBoolean()) {

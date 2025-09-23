@@ -7,6 +7,26 @@
 		<key>APP_SIGN</key>
 		<string>melons</string>
 	</dict>
+    <!-- 1. 添加 URL Scheme（谷歌登录回调用） -->
+    <key>CFBundleURLTypes</key>
+    <array>
+      <dict>
+        <key>CFBundleURLName</key>
+        <string>com.sinobiz.melons</string> <!-- 替换为你的项目标识（如 Bundle ID） -->
+        <key>CFBundleURLSchemes</key>
+        <array>
+          <!-- 格式：com.googleusercontent.apps.你的iOS Client ID（去掉后面的 .apps.googleusercontent.com） -->
+          <string>com.googleusercontent.apps.549484704507-v1pbobq2bi9i3us0am468ivki12avb5k</string>
+        </array>
+      </dict>
+    </array>
+    <!-- 2. 添加谷歌域名白名单（可选，避免跳转被拦截） -->
+    <key>LSApplicationQueriesSchemes</key>
+    <array>
+      <string>google</string>
+      <string>googlechrome</string>
+      <string>https</string>
+    </array>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
