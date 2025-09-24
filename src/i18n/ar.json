@@ -523,6 +523,8 @@
         "phone_placeholder": "رقم الهاتف",
         "password_placeholder": "كلمة المرور",
         "register_melon_account": "تسجيل حساب Melon",
+        "register_account": "إنشاء حساب",
+        "other_login_tip": "أو تابع باستخدام ما يلي",
         "phone_number": "رقم الهاتف",
         "e_mail": "البريد الإلكتروني",
         "select_country": "اختر الدولة",

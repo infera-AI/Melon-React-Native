@@ -523,6 +523,8 @@
         "phone_placeholder": "전화번호",
         "password_placeholder": "비밀번호",
         "register_melon_account": "Melon 계정 등록",
+        "register_account": "회원가입",
+        "other_login_tip": "또는 다음으로 계속하기",
         "phone_number": "전화번호",
         "e_mail": "이메일",
         "select_country": "국가 선택",

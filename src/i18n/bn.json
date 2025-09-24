@@ -523,6 +523,8 @@
         "phone_placeholder": "ফোন নম্বর",
         "password_placeholder": "পাসওয়ার্ড",
         "register_melon_account": "মেলন অ্যাকাউন্ট রেজিস্টার করুন",
+        "register_account": "নিবন্ধন করুন",
+        "other_login_tip": "অথবা নিচের মাধ্যমে চালিয়ে যান",
         "phone_number": "ফোন নম্বর",
         "e_mail": "ই-মেল",
         "select_country": "দেশ নির্বাচন করুন",

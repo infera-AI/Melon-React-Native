@@ -523,6 +523,8 @@
         "phone_placeholder": "Номер телефону",
         "password_placeholder": "Пароль",
         "register_melon_account": "Зареєструвати обліковий запис Melon",
+        "register_account": "Зареєструватися",
+        "other_login_tip": "Або продовжуйте за допомогою наступного",
         "phone_number": "Номер телефону",
         "e_mail": "Електронна пошта",
         "select_country": "Виберіть країну",

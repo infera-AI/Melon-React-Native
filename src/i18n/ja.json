@@ -523,6 +523,8 @@
     "phone_placeholder": "電話番号",
     "password_placeholder": "パスワード",
     "register_melon_account": "Melonアカウントを登録",
+    "register_account": "新規登録",
+    "other_login_tip": "または以下の方法で続行",
     "phone_number": "電話番号",
     "e_mail": "メールアドレス",
     "select_country": "国を選択",

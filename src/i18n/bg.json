@@ -523,6 +523,8 @@
         "phone_placeholder": "Телефонен номер",
         "password_placeholder": "Парола",
         "register_melon_account": "Регистрация на Melon акаунт",
+        "register_account": "Регистрирай се",
+        "other_login_tip": "Или продължете със следното",
         "phone_number": "Телефонен номер",
         "e_mail": "Имейл",
         "select_country": "Избор на държава",

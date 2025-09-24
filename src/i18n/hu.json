@@ -524,6 +524,8 @@
         "phone_placeholder": "Telefonszám",
         "password_placeholder": "Jelszó",
         "register_melon_account": "Melon fiók regisztrációja",
+        "register_account": "Regisztráció",
+        "other_login_tip": "Vagy folytassa a következőkkel",
         "phone_number": "Telefonszám",
         "e_mail": "E-mail",
         "select_country": "Ország kiválasztása",

@@ -523,6 +523,8 @@
         "phone_placeholder": "หมายเลขโทรศัพท์",
         "password_placeholder": "รหัสผ่าน",
         "register_melon_account": "ลงทะเบียนบัญชี Melon",
+        "register_account": "สมัครสมาชิก",
+        "other_login_tip": "หรือดำเนินการต่อด้วยวิธีต่อไปนี้",
         "phone_number": "หมายเลขโทรศัพท์",
         "e_mail": "อีเมล",
         "select_country": "เลือกประเทศ",

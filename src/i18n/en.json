@@ -523,6 +523,8 @@
     "phone_placeholder": "Phone number",
     "password_placeholder": "Password",
     "register_melon_account": "Register Melon account",
+    "register_account": "Sign Up",
+    "other_login_tip": "Or continue with the following",
     "phone_number": "Phone number",
     "e_mail": "E-mail",
     "select_country": "Select Country",
@@ -569,7 +571,7 @@
   "welcome": {
     "slogan": "MELON SLOGAN",
     "already_have_account": "Already have an account? ",
-    "log_in": "Log in",
+    "log_in": "Sign In",
     "select_language": "Select Language",
     "agreement_text": "By registering or logging in, you have read and agreed to the",
     "user_service_agreement": "User Service Agreement",

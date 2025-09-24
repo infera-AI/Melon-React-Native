@@ -523,6 +523,8 @@
         "phone_placeholder": "Telefonnummer",
         "password_placeholder": "Lösenord",
         "register_melon_account": "Registrera Melon-konto",
+        "register_account": "Registrera konto",
+        "other_login_tip": "Eller fortsätt med följande",
         "phone_number": "Telefonnummer",
         "e_mail": "E-post",
         "select_country": "Välj land",

@@ -526,6 +526,8 @@
     "phone_placeholder": "手机号",
     "password_placeholder": "密码",
     "register_melon_account": "注册Melon账户",
+    "register_account": "创建账号",
+    "other_login_tip": "或用以下继续",
     "phone_number": "手机号",
     "e_mail": "邮箱",
     "select_country": "选择国家",

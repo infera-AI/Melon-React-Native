@@ -523,6 +523,8 @@
         "phone_placeholder": "Telefonní číslo",
         "password_placeholder": "Heslo",
         "register_melon_account": "Zaregistrovat účet Melon",
+        "register_account": "Zaregistrovat se",
+        "other_login_tip": "Nebo pokračujte pomocí následujících možností",
         "phone_number": "Telefonní číslo",
         "e_mail": "E-mail",
         "select_country": "Vybrat zemi",

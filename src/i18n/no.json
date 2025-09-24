@@ -523,6 +523,8 @@
         "phone_placeholder": "Telefonnummer",
         "password_placeholder": "Passord",
         "register_melon_account": "Registrer Melon-konto",
+        "register_account": "Registrer deg",
+        "other_login_tip": "Eller fortsett med følgende",
         "phone_number": "Telefonnummer",
         "e_mail": "E-post",
         "select_country": "Velg land",

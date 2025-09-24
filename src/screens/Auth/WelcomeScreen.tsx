@@ -34,6 +34,8 @@ import AppleSignButton from '@/components/AppleSignButton';
 
 import GoogleSignButton from '@/components/GoogleSignButton';
 
+import TwitterSignButton from '@/components/TwitterSignButton';
+
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { appleLogin } from '@/api/login'
@@ -293,11 +295,11 @@ const WelcomeScreen: React.FC = () => {
     }
   }
 
-  const loginByOtherId = (userId: string) => {
+  const loginByOtherId = (userId: string, loginType: 'apple' | 'google' | 'twitter') => {
     console.log('用户信息userId--', userId);
     if (userId) {
       appleLogin({
-        auth_type: 'apple',
+        auth_type: loginType,
         identifier: userId
       }).then((rsp) => {
         console.log('登录成功----', rsp);
@@ -381,20 +383,43 @@ const WelcomeScreen: React.FC = () => {
                 <Text style={styles.sloganText}>{t('welcome.slogan')}</Text>
             </View> */}
             
-            {/* 注册按钮 */}
-            <TouchableOpacity style={styles.registerButton} onPress={handleRegister}>
-              <Text style={styles.registerButtonText}>
-                {t('register.register_melon_account')}
-                {/* Register a Melon account */}
-              </Text>
-            </TouchableOpacity>
-              {/* 登录链接 */}
-            <View style={styles.loginLink}>
-              <Text style={styles.loginLinkText}>{t('welcome.already_have_account')}</Text>
-              <TouchableOpacity onPress={handleLogin}>
-                <Text style={styles.loginLinkButton}>{t('welcome.log_in')}</Text>
-              </TouchableOpacity>
-            </View>
+            
+            {
+              useAppStore.getState().appSign === APP_SIGN_ENUM.TYPE_MELONS ||
+              useAppStore.getState().appSign === APP_SIGN_ENUM.TYPE_MOMORS ?
+              <>
+                {/* 登录按钮 */}
+                <TouchableOpacity style={styles.registerButton} onPress={handleLogin}>
+                  <Text style={styles.registerButtonText}>
+                    {t('welcome.log_in')}
+                  </Text>
+                </TouchableOpacity>
+                  {/* 注册链接 */}
+                <View style={styles.loginLink}>
+                  <TouchableOpacity onPress={handleRegister}>
+                    <Text style={styles.loginLinkButton}>{t('register.register_account')}</Text>
+                  </TouchableOpacity>
+                  <Text style={[styles.loginLinkText, {marginLeft: scaleSize(8)}]}>{t('register.other_login_tip')}</Text>
+                </View>
+              </>
+              :
+              <>
+                {/* 注册按钮 */}
+                <TouchableOpacity style={styles.registerButton} onPress={handleRegister}>
+                  <Text style={styles.registerButtonText}>
+                    {t('register.register_melon_account')}
+                    {/* Register a Melon account */}
+                  </Text>
+                </TouchableOpacity>
+                  {/* 登录链接 */}
+                <View style={styles.loginLink}>
+                  <Text style={styles.loginLinkText}>{t('welcome.already_have_account')}</Text>
+                  <TouchableOpacity onPress={handleLogin}>
+                    <Text style={styles.loginLinkButton}>{t('welcome.log_in')}</Text>
+                  </TouchableOpacity>
+                </View>
+              </>
+            }
 
             {/* 第三方登录 */}
             <View style={styles.otherLoginView}>
@@ -415,7 +440,7 @@ const WelcomeScreen: React.FC = () => {
                     onSuccess={(userData) => {
                       console.log('苹果登录用户信息:', userData);
                       setLoading(true)
-                      loginByOtherId(userData?.userId)
+                      loginByOtherId(userData?.userId, 'apple')
                       // 1. 把 userData.identityToken 和 userData.nonce 传给后端校验
                       // 2. 后端校验通过后，保存用户信息到本地（如 AsyncStorage）
                     }}
@@ -442,7 +467,33 @@ const WelcomeScreen: React.FC = () => {
                   onSuccess={(userId) => {
                     console.log('谷歌登录用户信息:', userId);
                     setLoading(true)
-                    loginByOtherId(userId)
+                    loginByOtherId(userId, 'google')
+                  }}
+                />
+              }
+              {
+                (
+                  useAppStore.getState().appSign === APP_SIGN_ENUM.TYPE_MELONS ||
+                  useAppStore.getState().appSign === APP_SIGN_ENUM.TYPE_MOMORS
+                ) &&
+                <TwitterSignButton
+                  beforeClickCheck={() => {
+                    if (!isAgreementChecked) {
+                      show({
+                        message: t('register.please_agree')
+                      })
+                    }
+                    return isAgreementChecked
+                  }}
+                  startLoading={() => {
+                    setLoading(true)
+                  }}
+                  onSuccess={(userId) => {
+                    console.log('推特登录用户信息:', userId);
+                    loginByOtherId(userId, 'twitter')
+                  }}
+                  onError={() => {
+                    setLoading(false)
                   }}
                 />
               }

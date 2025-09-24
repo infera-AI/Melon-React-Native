@@ -523,6 +523,8 @@
         "phone_placeholder": "Telefonnummer",
         "password_placeholder": "Adgangskode",
         "register_melon_account": "Registrer Melon-konto",
+        "register_account": "Tilmeld dig",
+        "other_login_tip": "Eller fortsæt med følgende",
         "phone_number": "Telefonnummer",
         "e_mail": "E-mail",
         "select_country": "Vælg land",

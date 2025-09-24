@@ -523,6 +523,8 @@
         "phone_placeholder": "Puhelinnumero",
         "password_placeholder": "Salasana",
         "register_melon_account": "Rekisteröi Melon-tili",
+        "register_account": "Rekisteröidy",
+        "other_login_tip": "Tai jatka seuraavilla",
         "phone_number": "Puhelinnumero",
         "e_mail": "Sähköposti",
         "select_country": "Valitse maa",

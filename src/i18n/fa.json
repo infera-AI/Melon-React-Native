@@ -523,6 +523,8 @@
         "phone_placeholder": "شماره تلفن",
         "password_placeholder": "رمز عبور",
         "register_melon_account": "ثبت نام اکانت Melon",
+        "register_account": "ثبت نام",
+        "other_login_tip": "یا با روش‌های زیر ادامه دهید",
         "phone_number": "شماره تلفن",
         "e_mail": "ایمیل",
         "select_country": "انتخاب کشور",

@@ -14,7 +14,8 @@ import BUAdTestMeasurement
 import GoogleSignIn
 
 @main
-class AppDelegate: UIResponder, UIApplicationDelegate {
+class AppDelegate: UIResponder, UIApplicationDelegate, RNAppAuthAuthorizationFlowManager {
+  public weak var authorizationFlowManagerDelegate: RNAppAuthAuthorizationFlowManagerDelegate?
   var window: UIWindow?
   private var globalOverlayButton: UIButton!
   
@@ -70,14 +71,28 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
       open url: URL,
       options: [UIApplication.OpenURLOptionsKey: Any] = [:]
   ) -> Bool {
-      // 让谷歌 SDK 处理回调，同时保留其他可能的回调处理（如果有的话）
-      let handledByGoogle = GIDSignIn.sharedInstance.handle(url)
-      
-      // 如果有其他需要处理的 URL 回调（如其他第三方登录、支付等），可以在这里添加
-      // 例如：let handledByOther = otherSDK.handle(url)
-      
-      // 返回是否处理成功（谷歌处理成功则返回 true）
-      return handledByGoogle
+//      // 让谷歌 SDK 处理回调，同时保留其他可能的回调处理（如果有的话）
+//      let handledByGoogle = GIDSignIn.sharedInstance.handle(url)
+//      
+//      // 如果有其他需要处理的 URL 回调（如其他第三方登录、支付等），可以在这里添加
+//      // 例如：let handledByOther = otherSDK.handle(url)
+//      
+//      // 返回是否处理成功（谷歌处理成功则返回 true）
+//      return handledByGoogle
+    
+    // 优先让RNAppAuth处理回调，如果处理成功则返回true
+    if let delegate = self.authorizationFlowManagerDelegate,
+       delegate.resumeExternalUserAgentFlow(with: url) {
+        return true
+    }
+    
+    // 然后让谷歌 SDK 处理 URL 回调，如果谷歌 SDK 处理成功也返回true
+    let handledByGoogle = GIDSignIn.sharedInstance.handle(url)
+    if handledByGoogle {
+        return true
+    }
+    
+    return false
   }
   
   // 创建全局覆盖按钮（保持不变，仅修改点击事件关联）

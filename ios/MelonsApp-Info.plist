@@ -7,7 +7,7 @@
 		<key>APP_SIGN</key>
 		<string>melons</string>
 	</dict>
-    <!-- 1. 添加 URL Scheme（谷歌登录回调用） -->
+    <!-- 1. 添加 URL Scheme（谷歌、推特登录回调用） -->
     <key>CFBundleURLTypes</key>
     <array>
       <dict>
