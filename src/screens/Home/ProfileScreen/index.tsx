@@ -26,7 +26,7 @@ type ProfileScreenNavigationProp = NativeStackNavigationProp<ProfileStackParamLi
 
 const ProfileScreen: React.FC = () => {
   useBackHandler('再按一次退出')
-  const navigation = useNavigation<ProfileScreenNavigationProp>();
+  const navigation = useNavigation<any>();
   const userInfo = useUserStore((state) => state.userInfo);
   const token = useUserStore((state) => state.token);
   const { t } = useLanguage();
@@ -40,7 +40,8 @@ const ProfileScreen: React.FC = () => {
       id: 'my_points',
       title: 'My Points',
       icon: require('@/assets/profile/menu_points_icon.png'),
-      hasArrow: true,
+      // hasArrow: true,
+      hasArrow: false,
       hasIcon: true,
     },
     // {
@@ -110,7 +111,7 @@ const ProfileScreen: React.FC = () => {
         navigation.navigate('About');
         break;
       case 'my_points':
-        navigation.navigate('MyPoints');
+        // navigation.navigate('MyPoints');
         break;
       case 'invitation_code':
         setShowInvitationModal(true);
@@ -183,7 +184,7 @@ const ProfileScreen: React.FC = () => {
 
   useEffect(() => {
     if (!token) {
-      navigation.replace('Auth' as any);
+      // navigation.replace('Auth' as any);
     } else {
       getUserInfoRequest();
       getInvitationCodeRequest();
@@ -191,70 +192,103 @@ const ProfileScreen: React.FC = () => {
     }
   }, [token, navigation]);
 
+  const goLogin = () => {
+    navigation.navigate('Auth',
+      {
+        screen: 'Welcome',
+        params: {canBack: true}
+      }
+    )
+  }
+
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor={theme.background} />
 
       {/* 用户信息卡片 */}
-      <View style={styles.userCard}>
+      <TouchableOpacity
+        style={styles.userCard}
+        activeOpacity={token ? 1 : 0.8}
+        onPress={token ? () => {} : goLogin}
+      >
         <View style={styles.userInfo}>
           <Image source={userInfo?.avatar_url ? { uri: userInfo?.avatar_url } : require('../../../assets/profile/profile_default_avatar.png')} style={styles.avatarContainer} />
           <View style={styles.userDetails}>
-            <Text style={styles.userName}>{`Melon(${userInfo?.username || 'name'})`}</Text>
-            <Text style={styles.userId}>{t('profile.melon_id')}: {userInfo?.id || ''}</Text>
+            <Text style={styles.userName}>{token ? `Melon(${userInfo?.username || 'name'})` : t('welcome.log_in')}</Text>
+            {
+              token &&
+              <Text style={[styles.userId, {opacity: userInfo?.id ? 1 : 0}]}>{t('profile.melon_id')}: {userInfo?.id || ''}</Text>
+            }
           </View>
           <TouchableOpacity style={styles.editButton} onPress={handleEditProfile}>
             <Image source={require('../../../assets/main/right_arrow_icon.png')} style={styles.arrowIcon} />
           </TouchableOpacity>
         </View>
-      </View>
-
-      <View style={styles.invitationCodeContainer}>
-        <Text style={styles.invitationCodeText} onPress={() => setShowInvitationModal(true)} ellipsizeMode="middle" numberOfLines={1}>Invitation code: {inviteCode}</Text>
-        <TouchableOpacity style={styles.invitationCodeCopyButton} onPress={handleInvitationCode}>
-          <Image source={require('@/assets/main/copy_icon.png')} style={styles.arrowIcon} />
-        </TouchableOpacity>
-      </View>
+      </TouchableOpacity>
+      {
+        token &&
+        <View style={styles.invitationCodeContainer}>
+          <Text style={styles.invitationCodeText} onPress={() => setShowInvitationModal(true)} ellipsizeMode="middle" numberOfLines={1}>Invitation code: {inviteCode}</Text>
+          <TouchableOpacity style={styles.invitationCodeCopyButton} onPress={handleInvitationCode}>
+            <Image source={require('@/assets/main/copy_icon.png')} style={styles.arrowIcon} />
+          </TouchableOpacity>
+        </View>
+      }
 
       {/* 功能菜单 */}
       <ScrollView style={styles.menuContainer} showsVerticalScrollIndicator={false}>
-        {menuItems.slice(0, 3).map((item, index) => (
-          <TouchableOpacity
-            key={item.id}
-            style={[styles.menuItem, index === 0 && styles.menuItemFirst, index === 2 && styles.menuItemLast]}
-            onPress={() => handleMenuItemPress(item.id)}
-          >
-            <View style={styles.menuItemLeft}>
-              <Image source={item.icon} style={styles.menuIcon} />
-              <Text style={styles.menuTitle}>{item.title}</Text>
-            </View>
-            <Text style={styles.menuItemPoints}>{item.id === 'my_points' ? pointsBalance : ''}</Text>
-            {item.hasArrow && (
-              <View style={styles.arrowContainer}>
-                <Image source={require('../../../assets/main/right_arrow_icon.png')} style={styles.arrowIcon} />
-              </View>
-            )}
-          </TouchableOpacity>
-        ))}
+        {
+          token &&
+          <>
+            {menuItems.slice(0, 3).map((item, index) => (
+              <TouchableOpacity
+                key={item.id}
+                style={[styles.menuItem, index === 0 && styles.menuItemFirst, index === 2 && styles.menuItemLast]}
+                onPress={() => handleMenuItemPress(item.id)}
+              >
+                <View style={styles.menuItemLeft}>
+                  <Image source={item.icon} style={styles.menuIcon} />
+                  <Text style={styles.menuTitle}>{item.title}</Text>
+                </View>
+                <Text style={styles.menuItemPoints}>{item.id === 'my_points' ? pointsBalance : ''}</Text>
+                {item.hasArrow && (
+                  <View style={styles.arrowContainer}>
+                    <Image source={require('../../../assets/main/right_arrow_icon.png')} style={styles.arrowIcon} />
+                  </View>
+                )}
+              </TouchableOpacity>
+            ))}
+          </>
+        }
+        
 
         {/* 其他菜单项 */}
-        {menuItems.slice(3).map((item, index) => (
-          <TouchableOpacity
-            key={item.id}
-            style={[styles.menuItem, index === 0 && styles.menuItemFirst, index === 2 && styles.menuItemLast]}
-            onPress={() => handleMenuItemPress(item.id)}
-          >
-            <View style={styles.menuItemLeft}>
-              <Image source={item.icon} style={styles.menuIcon} />
-              <Text style={styles.menuTitle}>{item.title}</Text>
-            </View>
-            {item.hasArrow && (
-              <View style={styles.arrowContainer}>
-                <Image source={require('../../../assets/main/right_arrow_icon.png')} style={styles.arrowIcon} />
-              </View>
-            )}
-          </TouchableOpacity>
-        ))}
+        {
+          menuItems.slice(3).map((item, index) => {
+            if (item.id === 'account_security' && !token) {
+              return null
+            } else {
+              return (
+                <TouchableOpacity
+                  key={item.id}
+                  style={[styles.menuItem, index === 0 && styles.menuItemFirst, index === 2 && styles.menuItemLast]}
+                  onPress={() => handleMenuItemPress(item.id)}
+                >
+                  <View style={styles.menuItemLeft}>
+                    <Image source={item.icon} style={styles.menuIcon} />
+                    <Text style={styles.menuTitle}>{item.title}</Text>
+                  </View>
+                  {item.hasArrow && (
+                    <View style={styles.arrowContainer}>
+                      <Image source={require('../../../assets/main/right_arrow_icon.png')} style={styles.arrowIcon} />
+                    </View>
+                  )}
+                </TouchableOpacity>
+              )
+            }
+            
+          })
+        }
       </ScrollView>
 
       {/* 邀请码弹窗 */}

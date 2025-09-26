@@ -280,10 +280,18 @@ const getBaseUrl = () => {
     if (__DEV__) {
         url = 'http://218.244.147.232:80/api' // 平时用的测试url
         // url = 'http://47.96.234.251/api' // 国内线上url
-    } else if (appSign === APP_SIGN_ENUM.TYPE_MELON) {
+        // url = 'https://api.sinobiz.biz/api' // 海外线上url
+    } else if (
+        appSign === APP_SIGN_ENUM.TYPE_MELON ||
+        appSign === APP_SIGN_ENUM.TYPE_MOMOR
+    ) {
         url = 'http://47.96.234.251/api' // 国内线上url
-    } else if (appSign === APP_SIGN_ENUM.TYPE_MELONS) {
-        url = 'http://47.96.234.251/api' // 海外线上url
+        
+    } else if (
+        appSign === APP_SIGN_ENUM.TYPE_MELONS ||
+        appSign === APP_SIGN_ENUM.TYPE_MOMORS
+    ) {
+        url = 'https://api.sinobiz.biz/api' // 海外线上url
     }
     return {
         baseURL: url

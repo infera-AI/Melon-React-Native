@@ -97,7 +97,7 @@ android {
         melons { // melon 付费海外版
             dimension "default"
             applicationId "com.melon.melons"
-            versionCode 1
+            versionCode 3
             versionName "1.0-melons"
             buildConfigField "String", "APP_SIGN", "\"melons\""
             manifestPlaceholders = [ appAuthRedirectScheme: "com.melon.melons" ]

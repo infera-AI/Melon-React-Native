@@ -11,7 +11,8 @@ import {
   ActivityIndicator,
   Platform,
   Animated,
-  Easing
+  Easing,
+  DeviceEventEmitter
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import {
@@ -69,6 +70,8 @@ const fileTypes = Platform.select({
   ios: iosTypes,
   android: androidTypes,
 });
+
+let playChangeSubscription:any
 
 
 const MyWorkScreen = ({ navigation }: any) => {
@@ -327,7 +330,7 @@ const MyWorkScreen = ({ navigation }: any) => {
       newSound.getDuration((durationInSeconds: number) => {
         setDuration(durationInSeconds);
       });
-
+      Sound.setCategory('Playback', false);
       // 开始播放
       newSound.play((success: boolean) => {
         if (success) {
@@ -502,12 +505,27 @@ const MyWorkScreen = ({ navigation }: any) => {
         isMounted.current = true;
       } else {
         console.log('页面获得焦点---');
+        playChangeSubscription = DeviceEventEmitter.addListener(
+          'onPlayChange',
+          (event) => {
+            const { isPlaying: eventIsPlaying, playerKey } = event;
 
+            if (!eventIsPlaying) { // 音乐被暂停
+              console.log('my_work---', '音乐被暂停');
+              
+              sound && sound?.pause();
+              setIsPlaying(false);
+              setIsPlayMusic('');
+            }
+            
+          }
+        )
       }
       // 页面失去焦点时的清理函数
       return () => {
         console.log('页面失去焦点，清理音频数据');
         cleanupAudioData();
+        playChangeSubscription && playChangeSubscription?.remove()
       };
     }, [cleanupAudioData])
   );
@@ -529,8 +547,11 @@ const MyWorkScreen = ({ navigation }: any) => {
       handleRefresh();
     })
 
+    
+
     return () => {
       updateListBus()
+      Sound.setCategory('Ambient', true);
     }
   }, []);
   return (

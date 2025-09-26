@@ -56,6 +56,7 @@ const AccountSecurityScreen: React.FC = () => {
   };
 
   const handleLogout = async () => {
+    navigation.goBack()
     const deviceInfo = getDeviceInfo();
     const res = await logout({
       device_fingerprint: deviceInfo.fingerprint,
@@ -153,10 +154,10 @@ const AccountSecurityScreen: React.FC = () => {
       <TouchableOpacity style={styles.logoutCard} onPress={handleLogout}>
         <View style={styles.cardContent}>
           <View style={styles.cardLeft}>
-            <Image
+            {/* <Image
               source={require('../../../assets/main/shutdown_icon.png')}
               style={styles.cardIcon}
-            />
+            /> */}
             <Text style={[styles.cardTitle, styles.logoutCardText]}>{t('account_security.logout')}</Text>
           </View>
           <Image

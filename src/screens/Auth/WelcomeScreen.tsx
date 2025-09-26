@@ -44,6 +44,9 @@ import { useUserStore } from '@/store';
 import { getUserInfo } from '@/api/profile/profile';
 
 import Ionicons from 'react-native-vector-icons/FontAwesome6';
+import Icon from 'react-native-vector-icons/Ionicons';
+
+import { useRoute } from '@react-navigation/native';
 
 type WelcomeScreenNavigationProp = StackNavigationProp<AuthStackParamList, 'Initial'>;
 
@@ -65,7 +68,9 @@ type AppleUserInfo = {
 // ];
 
 const WelcomeScreen: React.FC = () => {
+  const route = useRoute();
   useBackHandler('再按一次退出')
+  
   const navigation = useNavigation<any>();
   const navigation2 = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { language, setLanguage } = useLanguage();
@@ -350,6 +355,24 @@ const WelcomeScreen: React.FC = () => {
           
           {/* 内容包装器 */}
           <View style={styles.contentWrapper}>
+            {
+              route.params?.canBack &&
+              <TouchableOpacity
+                onPress={() => {
+                  navigation.goBack()
+                }}
+                style={[
+                  styles.backButton,
+                  {
+                    top: insets.top + scaleSize(20)
+                  }
+                ]}
+              >
+                <Text>
+                  <Icon name="chevron-back" size={18} color="#fff" />
+                </Text>
+              </TouchableOpacity>
+            }
             {/* Melon Logo */}
             {/* <TouchableOpacity style={styles.logoContainer} onPress={() => navigation2.reset({index: 0, routes: [{name: 'MainApp'}]})}> */}
             <View style={styles.logoContainer}>
@@ -917,6 +940,16 @@ const styles = StyleSheet.create({
       fontSize: scaleFont(16),
       color: theme.primary,
       fontWeight: '600',
+    },
+    backButton: {
+      width: scaleSize(40),
+      height: scaleSize(40),
+      backgroundColor: '#3E3E3E',
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderRadius: scaleSize(12),
+      position: 'absolute',
+      left: 0,
     },
   });
 

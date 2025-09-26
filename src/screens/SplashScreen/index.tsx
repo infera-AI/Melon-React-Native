@@ -47,18 +47,19 @@ const SplashScreen: React.FC = () => {
       appSign === APP_SIGN_ENUM.TYPE_MELONS ||
       appSign === APP_SIGN_ENUM.TYPE_MOMORS
     ) {
-      appOpenAd = AppOpenAd.createForAdRequest(TestIds.APP_OPEN, {});
-      appOpenAd.addAdEventListener(AdEventType.LOADED, () => {
-        console.log('谷歌开屏广告已加载完成');
-        appOpenAd.show()
-      })
-      appOpenAd.addAdEventListener(AdEventType.CLOSED, () => {
-        console.log('谷歌开屏广告已关闭');
-        goPageHandle()
+      // appOpenAd = AppOpenAd.createForAdRequest(TestIds.APP_OPEN, {});
+      // appOpenAd.addAdEventListener(AdEventType.LOADED, () => {
+      //   console.log('谷歌开屏广告已加载完成');
+      //   appOpenAd.show()
+      // })
+      // appOpenAd.addAdEventListener(AdEventType.CLOSED, () => {
+      //   console.log('谷歌开屏广告已关闭');
+      //   goPageHandle()
         
-      })
+      // })
 
-      appOpenAd.load()
+      // appOpenAd.load()
+      goPageHandle()
     }
     
 
@@ -95,19 +96,22 @@ const SplashScreen: React.FC = () => {
   }, [hydrated])
 
   const goPageHandle = () => {
-    // if (!hydrated) return;
-    const token = useUserStore.getState().token;
-    console.log('hydrated token ==>', token);
-    // 根据是否有 token 决定跳转到哪个页面
-    if (token) {
-      // 有 token，跳转到主应用（Translate 页面）
-      // navigation.navigate('MainApp' as any);
-      navigation.reset({index: 0, routes: [{name: 'MainApp'}]})
-    } else {
-      // 没有 token，跳转到欢迎页面
-      // navigation.navigate('Auth' as any);
-      navigation.reset({index: 0, routes: [{name: 'Auth'}]})
-    }
+    // // if (!hydrated) return;
+    // const token = useUserStore.getState().token;
+    // console.log('hydrated token ==>', token);
+    // // 根据是否有 token 决定跳转到哪个页面
+    // if (token) {
+    //   // 有 token，跳转到主应用（Translate 页面）
+    //   // navigation.navigate('MainApp' as any);
+    //   navigation.reset({index: 0, routes: [{name: 'MainApp'}]})
+    // } else {
+    //   // 没有 token，跳转到欢迎页面
+    //   // navigation.navigate('Auth' as any);
+    //   navigation.reset({index: 0, routes: [{name: 'Auth'}]})
+    // }
+
+
+    navigation.reset({index: 0, routes: [{name: 'MainApp'}]})
   }
 
   // return (

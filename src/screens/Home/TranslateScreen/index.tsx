@@ -41,7 +41,7 @@ const itemWidth = (width - pageLRPadding * 2 - gutter) / numColumns;
 const TranslateScreen: React.FC = () => {
   useBackHandler('再按一次退出')
   const { show } = useMessageModal();
-  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const navigation = useNavigation<any>();
   const { t } = useLanguage();
   const [loading, setLoading] = useState(false);
   const [inputValue, setInputValue] = useState(''); // 输入框state
@@ -58,6 +58,9 @@ const TranslateScreen: React.FC = () => {
 
   // 占位点击事件
   const handlePress = (name: string) => async () => {
+    if (!checkLogin()) {
+      return
+    }
     // TODO: 实现具体功能
     // console.log(`${name} pressed`);
     if (name === 'SpeakerMode') {
@@ -128,6 +131,9 @@ const TranslateScreen: React.FC = () => {
 
   // 翻译按钮点击
   const translationBtnClick = () => {
+    if (!checkLogin()) {
+      return
+    }
     if (!inputValue) {
       show({
         message: t('translate_screen.input_no_value')
@@ -162,6 +168,22 @@ const TranslateScreen: React.FC = () => {
       message: t('translate_screen.copy_success')
     })
   }
+
+  const checkLogin = () => {
+    let isGoOn = true
+    if (!useUserStore.getState().token) {
+      textInputRef.current && textInputRef.current?.blur()
+      isGoOn = false
+      navigation.navigate('Auth',
+        {
+          screen: 'Welcome',
+          params: {canBack: true}
+        }
+      )
+    }
+    return isGoOn
+  }
+
 
   useEffect(() => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -301,6 +323,9 @@ const TranslateScreen: React.FC = () => {
             multiline
             underlineColorAndroid="transparent"
             onFocus={() => {
+              if (!checkLogin()) {
+                return
+              }
               scrollRef.current?.scrollToFocusedInput(textInputRef.current!);
             }}
           />

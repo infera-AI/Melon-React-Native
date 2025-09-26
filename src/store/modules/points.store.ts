@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { getPointsBalance } from '@/api/profile/profile';
+import { useUserStore } from '@/store';
 
 
 // 用户信息类型
@@ -21,16 +22,19 @@ export const usePointsStore = create<PointsState>()(
             setPointsBalance: (balance) => set({pointsBalance: balance}),
             // 刷新积分余额
             refreshPointsBalance: async () => {
-                try {
-                    const response = await getPointsBalance();
-                    console.log('刷新用户积分接口响应--', response);
-                    set({
-                        pointsBalance: response.points,
-                    });
-                } catch (error) {
-                    console.error('获取积分余额失败:', error);
-                } finally {
+                if (useUserStore.getState().token) {
+                    try {
+                        const response = await getPointsBalance();
+                        console.log('刷新用户积分接口响应--', response);
+                        set({
+                            pointsBalance: response.points,
+                        });
+                    } catch (error) {
+                        console.error('获取积分余额失败:', error);
+                    } finally {
+                    }
                 }
+                
             }
         })
 );

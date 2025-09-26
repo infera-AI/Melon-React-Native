@@ -14,7 +14,8 @@ import {
   ImageBackground,
   Platform,
   PermissionsAndroid,
-  NativeModules
+  NativeModules,
+  DeviceEventEmitter
 } from "react-native";
 import { useFocusEffect } from '@react-navigation/native';
 import Sound from "react-native-sound";
@@ -56,6 +57,8 @@ const img_music_delete = require("@/assets/music/music_delete_icon.png");
 const img_music_save = require("@/assets/music/music_cover_icon.png");
 
 const { width } = Dimensions.get("window");
+
+let playChangeSubscription:any
 
 const MyWorkMusicPlay = ({ navigation, route }: any) => {
   const { music = {}, songList = [], myWorkIds = [] } = route.params || {};
@@ -224,6 +227,7 @@ const MyWorkMusicPlay = ({ navigation, route }: any) => {
 
   // 播放/暂停
   const handlePlayPause = () => {
+    Sound.setCategory('Playback', false);
     if (!sound) {
       handlePlayAudio();
       return;
@@ -312,10 +316,28 @@ const MyWorkMusicPlay = ({ navigation, route }: any) => {
   useFocusEffect(
     useCallback(() => {
       // 页面获得焦点时的处理（如果需要的话）
+      console.log('music_play_page---', '页面获得焦点');
+      playChangeSubscription = DeviceEventEmitter.addListener(
+        'onPlayChange',
+        (event) => {
+          const { isPlaying: eventIsPlaying, playerKey } = event;
+
+          if (!eventIsPlaying) { // 音乐被暂停
+            console.log('my_work---', '音乐被暂停');
+            sound && sound?.pause();
+            setIsPlaying(false);
+          }
+          
+        }
+      )
+
+
       return () => {
         // 页面失去焦点时清理音频数据
+        console.log('music_play_page---', '页面失去焦点');
         console.log('页面失去焦点，清理音频数据');
         cleanupAudioData();
+        playChangeSubscription && playChangeSubscription?.remove()
       };
     }, [cleanupAudioData])
   );
@@ -627,6 +649,13 @@ const MyWorkMusicPlay = ({ navigation, route }: any) => {
       handleGetShareLink();
     }
   }, [music.id, getMusicWorkInfoRequest]);
+
+  useEffect(() => {
+
+    return () => {
+      Sound.setCategory('Ambient', true); 
+    }
+  }, [])
 
   return (
     <View style={styles.container}>

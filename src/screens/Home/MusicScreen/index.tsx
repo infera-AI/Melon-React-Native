@@ -26,11 +26,12 @@ import { normalize, normalizeFontSize } from '@/utils/stylesUtil';
 import { useBackHandler } from '@/utils/BackHandlerUtil'; // 导入工具类
 import { languageDetection } from '@/api/translate/translate';
 import { usePointsStore } from '@/store/modules/points.store';
+import { useUserStore } from '@/store';
 
 type MusicScreenNavigationProp = NativeStackNavigationProp<MusicStackParamList, 'MusicMain'>;
 
 const MusicScreen: React.FC = () => {
-  const navigation = useNavigation<MusicScreenNavigationProp>();
+  const navigation = useNavigation<any>();
   const [title, setTitle] = useState('');
   const [lyrics, setLyrics] = useState('');
   const [musicStyles, setMusicStyles] = useState<string[]>([]);
@@ -47,10 +48,16 @@ const MusicScreen: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const pageCurrent = useRef(0);
 
+  const input1Ref = useRef(null);
+  const input2Ref = useRef(null);
+
   useBackHandler(t('music.back_handler_message'));
   const refreshPointsBalance = usePointsStore.getState().refreshPointsBalance;
   // 歌词润饰
   const handleAiPolish = async () => {
+    if (!checkLogin()) {
+      return
+    }
     try {
       setIsLoading(true);
       const res = await polishLyrics({
@@ -100,6 +107,9 @@ const MusicScreen: React.FC = () => {
   }
   // 选择曲风
   const handleStyleSelect = (style: string) => {
+    if (!checkLogin()) {
+      return
+    }
     if (musicStylesInput.includes(style)) {
       setMusicStylesInput(removeExtraCommas(musicStylesInput.replace(style, "")));
     } else {
@@ -124,7 +134,9 @@ const MusicScreen: React.FC = () => {
   };
 
   const handleNext = async () => {
-
+    if (!checkLogin()) {
+      return
+    }
     if (lyrics.trim() === "") {
       show({ message: t('music.lyrics_empty') });
       return;
@@ -185,7 +197,9 @@ const MusicScreen: React.FC = () => {
 
   // 翻译歌词
   const handleTranslateLyrics = async () => {
-
+    if (!checkLogin()) {
+      return
+    }
     setIsLoading(true);
     try {
       const res = await translateText({
@@ -222,6 +236,9 @@ const MusicScreen: React.FC = () => {
   }
 
   const handleRefreshRecommendStyles = async () => {
+    if (!checkLogin()) {
+      return
+    }
     setLoading(true);
     await getRecommendStylesRequest();
     setLoading(false);
@@ -229,6 +246,9 @@ const MusicScreen: React.FC = () => {
 
 
   const refreshAIStyles = async () => {
+    if (!checkLogin()) {
+      return
+    }
     setLoading(true);
     const res = await getRecommendStylesRequest();
     const stylesStr = res.join(",");
@@ -254,12 +274,42 @@ const MusicScreen: React.FC = () => {
     getRecommendStylesRequest();
   }, [lyrics]);
 
+  const checkLogin = () => {
+    let isGoOn = true
+    if (!useUserStore.getState().token) {
+      input1Ref.current && input1Ref.current?.blur()
+      input2Ref.current && input2Ref.current?.blur()
+      isGoOn = false
+      navigation.navigate('Auth',
+        {
+          screen: 'Welcome',
+          params: {canBack: true}
+        }
+      )
+    }
+    return isGoOn
+  }
+
+  const myWorkClick = () => {
+    if (!checkLogin()) {
+      return
+    }
+    navigation.navigate('MyWork')
+  }
+
+  const coverUploadClick = () => {
+    if (!checkLogin()) {
+      return
+    }
+    navigation.navigate('CoverUpload' as never)
+  }
+
   return (
     <SafeAreaView edges={['top', 'bottom']} style={styles.container}>
       <ScrollView>
         {/* 顶部卡片区 */}
         <View style={styles.topRow}>
-          <TouchableOpacity style={styles.topCard} onPress={() => navigation.navigate('MyWork')}>
+          <TouchableOpacity style={styles.topCard} onPress={myWorkClick}>
             <Image
               source={require('../../../../assets/images/my_works.png')}
               style={styles.topCardIcon}
@@ -268,7 +318,7 @@ const MusicScreen: React.FC = () => {
             <Text style={styles.topCardText}>{t('music.my_works')}</Text>
             <Image source={require('@/assets/main/right_arrow_icon.png')} style={styles.topCardArrow} />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.topCard} onPress={() => navigation.navigate('CoverUpload' as never)}>
+          <TouchableOpacity style={styles.topCard} onPress={coverUploadClick}>
             <Image
               source={require('../../../../assets/images/humming_music.png')}
               style={styles.topCardIcon}
@@ -310,6 +360,7 @@ const MusicScreen: React.FC = () => {
             </TouchableOpacity>
           </View>
           <TextInput
+            ref={input1Ref}
             style={styles.lyricInput}
             placeholder={t('music.enter_lyrics_placeholder')}
             placeholderTextColor="#666"
@@ -318,8 +369,12 @@ const MusicScreen: React.FC = () => {
             onChangeText={setLyrics}
             numberOfLines={10}
             multiline
+            onFocus={checkLogin}
+            
           />
-          {lyrics.length > 0 && <TouchableOpacity style={styles.clearIconContainerInput} onPress={() => setLyrics("")}>
+          {
+            lyrics.length > 0 &&
+            <TouchableOpacity style={styles.clearIconContainerInput} onPress={() => setLyrics("")}>
             <Image source={require('@/assets/music/music_delete_icon.png')} style={styles.clearIcon} />
           </TouchableOpacity>}
         </View>
@@ -374,6 +429,7 @@ const MusicScreen: React.FC = () => {
               </TouchableOpacity>
             </View>
             <TextInput
+              ref={input2Ref}
               style={styles.lyricInput}
               placeholder={t('music.style_tags_placeholder')}
               placeholderTextColor="#666"
@@ -381,6 +437,7 @@ const MusicScreen: React.FC = () => {
               onChangeText={(text) => text.length <= 200 && setMusicStylesInput(text)}
               numberOfLines={10}
               multiline
+              onFocus={checkLogin}
             />
             <View style={styles.clearDeleteConttainer}> 
               {musicStylesInput.length > 0 && <TouchableOpacity style={[styles.clearIconContainer,{marginBottom:normalize(22)}]} onPress={() => setMusicStylesInput("")}>
