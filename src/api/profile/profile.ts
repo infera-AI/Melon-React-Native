@@ -194,9 +194,25 @@ export function getCommonVoiceprints() {
   return http.get<CommonResult>(API_ENDPOINTS.PROFILE.GET_COMMON_VOICEPRINTS);
 }
 
+// 分页获取全部公共声纹
+export function getCommonVoiceprintsPage(params:{page_num:number,page_size:number}) {
+  return http.get<any>(
+    API_ENDPOINTS.PROFILE.GET_COMMON_VOICEPRINTS,
+    params
+  );
+}
+
 // 获取全部个人声纹
 export function getPersonalVoiceprints() {
   return http.get<CommonResult>(API_ENDPOINTS.PROFILE.GET_PERSONAL_VOICEPRINTS);
+}
+
+// 分页获取全部个人声纹
+export function getPersonalVoiceprintsPage(params:{page_num:number,page_size:number}) {
+  return http.get<any>(
+    API_ENDPOINTS.PROFILE.GET_PERSONAL_VOICEPRINTS,
+    params
+  );
 }
 
 // 重命名声纹

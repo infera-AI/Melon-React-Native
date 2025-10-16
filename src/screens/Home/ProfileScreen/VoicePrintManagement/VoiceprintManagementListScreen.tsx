@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import {
   View,
   Text,
@@ -7,6 +7,7 @@ import {
   Image,
   ScrollView,
   TextInput,
+  FlatList
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -14,7 +15,14 @@ import { ProfileStackParamList } from '../ProfileNavigator';
 import theme from '@/utils/theme';
 import { normalize, normalizeFontSize } from '@/utils/stylesUtil';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { getCommonVoiceprints, getPersonalVoiceprints, renameVoiceprint, deleteVoiceprint } from '@/api/profile/profile';
+import {
+  getCommonVoiceprints,
+  getPersonalVoiceprints,
+  renameVoiceprint,
+  deleteVoiceprint,
+  getCommonVoiceprintsPage,
+  getPersonalVoiceprintsPage
+} from '@/api/profile/profile';
 import { useAudioPlayer } from '@/hooks/useAudioPlayer';
 import CommonModal from '@/components/CommonModal';
 import { useMessageModal } from '@/contexts/MessageModalContext';
@@ -34,6 +42,13 @@ const VoiceprintManagementListScreen: React.FC = () => {
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const { show } = useMessageModal();
+
+  const pageNum = useRef(1);
+  const pageSize = useRef(10);
+  const [listRefreshing, setListRefreshing] = useState(false);
+  const [isLoadMore, setIsLoadMore] = useState(false);
+  const [allPage, setAllPage] = useState(0);
+
   const {
     isPlayIndex,
     togglePlayPause,
@@ -47,7 +62,7 @@ const VoiceprintManagementListScreen: React.FC = () => {
 
   const handleCreate = () => {
     console.log('Create voiceprint');
-    navigation.navigate('VoiceprintMaterialCreate' as any);
+    navigation.replace('VoiceprintMaterialCreate' as any);
   };
 
   const handleRename = async () => {
@@ -80,6 +95,16 @@ const VoiceprintManagementListScreen: React.FC = () => {
 
   const handleTabPress = (tab: 'voiceprint' | 'dataset') => {
     setActiveTab(tab);
+    setIsLoading(true);
+    pageNum.current = 1;
+    setCommonVoiceprints([]);
+    setPersonalVoiceprints([]);
+    setAllPage(0);
+    if (tab === 'dataset') {
+      getCommonMaterialsRequest()
+    } else {
+      getPersonalMaterialsRequest()
+    }
   };
 
   const handleEdit = (id: number) => {
@@ -96,24 +121,83 @@ const VoiceprintManagementListScreen: React.FC = () => {
     });
     show({ message: t('music.delete_voiceprint_successfully') });
     console.log(res, 'res');
+    pageNum.current = 1;
     getPersonalMaterialsRequest();
-    setIsLoading(false);
   };
 
+  const refreshList = async () => {
+    if (listRefreshing || isLoadMore) {
+      return
+    }
+    console.log('下拉刷新');
+    pageNum.current = 1;
+    setListRefreshing(true);
+    if (activeTab === 'dataset') {
+      getCommonMaterialsRequest()
+    } else {
+      getPersonalMaterialsRequest()
+    }
+  }
+
+  const loadMore = () => {
+    if (pageNum.current < allPage) {
+      console.log('加载更多');
+      if (isLoadMore || listRefreshing) {
+        return
+      }
+      setIsLoadMore(true);
+      pageNum.current = pageNum.current + 1;
+      if (activeTab === 'dataset') {
+        getCommonMaterialsRequest()
+      } else {
+        getPersonalMaterialsRequest()
+      }
+    }
+    
+  }
+
   const getCommonMaterialsRequest = async () => {
-    setIsLoading(true);
-    const res = await getCommonVoiceprints();
-    console.log(res, 'res');
-    setCommonVoiceprints(res.data_list || []);
-    setIsLoading(false);
+    return new Promise<void>(async (resolve) => {
+      // const res = await getCommonVoiceprints();
+      const res = await getCommonVoiceprintsPage({
+        page_num: pageNum.current,
+        page_size: pageSize.current
+      });
+      let arr = res.data_list || []
+      if (pageNum.current === 1) {
+        setCommonVoiceprints(arr);
+      } else {
+        setCommonVoiceprints([...commonVoiceprints, ...arr]);
+      }
+      setListRefreshing(false);
+      setIsLoadMore(false);
+      setIsLoading(false);
+      setAllPage(res.pages || 0);
+      console.log('res', res);
+      resolve();
+    })
   };
 
   const getPersonalMaterialsRequest = async () => {
-    setIsLoading(true);
-    const res = await getPersonalVoiceprints();
-    console.log(res, 'res');
-    setPersonalVoiceprints(res.data_list || []);
-    setIsLoading(false);
+    return new Promise<void>(async (resolve) => {
+      // const res = await getPersonalVoiceprints();
+      const res = await getPersonalVoiceprintsPage({
+        page_num: pageNum.current,
+        page_size: pageSize.current
+      });
+      let arr = res.data_list || []
+      if (pageNum.current === 1) {
+        setPersonalVoiceprints(arr);
+      } else {
+        setPersonalVoiceprints([...commonVoiceprints, ...arr]);
+      }
+      console.log('res', res);
+      setListRefreshing(false);
+      setIsLoadMore(false);
+      setIsLoading(false);
+      setAllPage(res.pages || 0);
+      resolve();
+    })
   };
 
   // 播放素材
@@ -130,12 +214,19 @@ const VoiceprintManagementListScreen: React.FC = () => {
 
 
   useEffect(() => {
-    getCommonMaterialsRequest();
-    getPersonalMaterialsRequest();
+    initFun()
+    
     return () => {
       cleanup();
     }
   }, []);
+
+  const initFun = async () => {
+    setIsLoading(true);
+    await getCommonMaterialsRequest();
+    // await getPersonalVoiceprintsRequest();
+    setIsLoading(false);
+  }
 
   // 渲染Tab栏
   const renderTabBar = () => (
@@ -178,17 +269,17 @@ const VoiceprintManagementListScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <View style={{flex: 1}}>
         {/* 页面标题和返回按钮 */}
         <View style={styles.navBar}>
           <View style={styles.titleContainer}>
-            <Text style={styles.titleText}>{t('music.voiceprint_management')}</Text>
             <TouchableOpacity style={styles.backButton} onPress={handleBack}>
               <Image
                 source={require('@/assets/main/page_return_icon.png')}
                 style={styles.backIcon}
               />
             </TouchableOpacity>
+            <Text style={styles.titleText}>{t('music.voiceprint_management')}</Text>
           </View>
         </View>
 
@@ -223,8 +314,8 @@ const VoiceprintManagementListScreen: React.FC = () => {
 
         {/* 声纹列表 */}
         <View style={styles.listContainer}>
-          <ScrollView style={styles.list} showsVerticalScrollIndicator={false}>
-            {(activeTab === 'dataset' ? commonVoiceprints : personalVoiceprints)?.map((voiceprint, _index) => (
+          <View style={styles.list}>
+            {/* {(activeTab === 'dataset' ? commonVoiceprints : personalVoiceprints)?.map((voiceprint, _index) => (
               <View key={voiceprint.id} style={[styles.voiceprintItem, { opacity: voiceprint.status !== 2 ? 0.4 : 1 }]}>
                 <View style={styles.voiceprintContent}>
                   <View style={styles.voiceprintInfo}>
@@ -272,15 +363,76 @@ const VoiceprintManagementListScreen: React.FC = () => {
                   </View>
                 </View>
               </View>
-            ))}
-          </ScrollView>
+            ))} */}
+
+            <FlatList
+              data={activeTab === 'dataset' ? commonVoiceprints : personalVoiceprints}
+              keyExtractor={(item, index) => index + ''}
+              refreshing={listRefreshing}
+              onRefresh={refreshList}
+              onEndReached={loadMore}
+              onEndReachedThreshold={0.5}
+              renderItem={({ item, index }) => {
+                return (
+                  <View style={[styles.voiceprintItem, { opacity: item.status !== 2 ? 0.4 : 1 }]}>
+                    <View style={styles.voiceprintContent}>
+                      <View style={styles.voiceprintInfo}>
+                        <Image
+                          source={require('@/assets/profile/profile_voice_icon.png')}
+                          style={styles.voiceprintIcon}
+                        />
+                        <Text style={styles.voiceprintName} numberOfLines={1} ellipsizeMode="tail">{item.name}</Text>
+                      </View>
+                      <View style={styles.actionButtons}>
+                        {/* {activeTab === 'dataset' && item.status === 2 && <TouchableOpacity
+                          style={styles.languageButton}
+                          onPress={() => {}}
+                        >
+                          <Text style={styles.languageButtonText}>{item.language}</Text>
+                        </TouchableOpacity>} */}
+                        {item.status === 2 && <TouchableOpacity
+                          style={styles.actionButton}
+                          onPress={() => handlePlayMaterial(item)}
+                        >
+                          <Image
+                            source={isPlayingUrl(item.merge_file) ? require('@/assets/music/music_pause_icon.png') : require('@/assets/music/music_play_icon.png')}
+                            style={styles.actionIcon}
+                          />
+                        </TouchableOpacity>}
+                        {activeTab === 'voiceprint' && item.status === 2 && <TouchableOpacity
+                          style={styles.actionButton}
+                          onPress={() => handleEdit(item.id)}
+                        >
+                          <Image
+                            source={require('@/assets/music/music_edit_icon.png')}
+                            style={styles.actionIcon}
+                          />
+                        </TouchableOpacity>}
+                        {activeTab === 'voiceprint' && item.status === 2 && <TouchableOpacity
+                          style={styles.actionButton}
+                          onPress={() => handleDelete(item.id)}
+                        >
+                          <Image
+                            source={require('@/assets/music/music_delete_icon.png')}
+                            style={styles.actionIcon}
+                          />
+                        </TouchableOpacity>}
+                        {(item.status !== 2 && item.status !== -1) && <Text style={styles.trainingText}>{t('music.training')}</Text>}
+                        {item.status === -1 && <Text style={styles.trainingText}>{t('music.training_error')}</Text>}
+                      </View>
+                    </View>
+                  </View>
+                )
+              }}
+            />
+          </View>
         </View>
 
         {/* 创建按钮 */}
         <TouchableOpacity style={styles.createButton} onPress={handleCreate}>
           <Text style={styles.createButtonText}>{t('music.create')}</Text>
         </TouchableOpacity>
-      </ScrollView>
+      </View>
       {/* 重命名 */}
       <CommonModal
         visible={showRenameModal}
@@ -392,7 +544,7 @@ const styles = StyleSheet.create({
   tabBar: {
     flexDirection: 'row',
     marginTop: normalize(8),
-    marginBottom: normalize(24),
+    marginBottom: normalize(16),
   },
   tabItem: {
     flex: 1,
@@ -424,9 +576,9 @@ const styles = StyleSheet.create({
   },
   tabIndicator: {
     position: 'absolute',
-    bottom: -15,
-    left: '50%',
-    marginLeft: normalize(-10),
+    bottom: 0,
+    // left: '50%',
+    // marginLeft: normalize(-10),
     width: normalize(20),
     height: normalize(3),
     backgroundColor: theme.primary,
@@ -436,15 +588,16 @@ const styles = StyleSheet.create({
     backgroundColor: theme.backgroundSecondary,
     borderRadius: normalize(12),
     width: "100%",
-    minHeight: normalize(360),
-    marginTop: normalize(-1),
+    // minHeight: normalize(360),
+    // marginTop: normalize(-1),
+    flex: 1,
   },
   list: {
     flex: 1,
   },
   voiceprintItem: {
     width: "100%",
-    height: normalize(72),
+    // height: normalize(72),
     borderBottomWidth: 1,
   },
   voiceprintContent: {
@@ -452,7 +605,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: normalize(18),
     justifyContent: 'space-between',
-    paddingVertical: normalize(28),
+    paddingVertical: normalize(20),
   },
   voiceprintInfo: {
     flexDirection: 'row',
@@ -515,8 +668,7 @@ const styles = StyleSheet.create({
     width: "100%",
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: normalize(24),
-    marginBottom: normalize(40),
+    marginTop: normalize(16),
   },
   createButtonText: {
     fontSize: normalizeFontSize(16),

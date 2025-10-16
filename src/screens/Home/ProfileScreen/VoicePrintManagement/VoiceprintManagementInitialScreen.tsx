@@ -14,6 +14,7 @@ import { ProfileStackParamList } from '../ProfileNavigator';
 import { normalize, normalizeFontSize } from '@/utils/stylesUtil';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { scaleSize } from '@/utils/scale';
 
 type VoiceprintManagementInitialScreenNavigationProp = NativeStackNavigationProp<ProfileStackParamList, 'VoiceprintManagementInitial'>;
 
@@ -43,33 +44,78 @@ const VoiceprintManagementInitialScreen: React.FC = () => {
       {/* 主要内容 */}
       <ScrollView style={styles.contentWrapper} showsVerticalScrollIndicator={false}>
         <View style={styles.textContent}>
-          <Text style={styles.contentText}>
-            <Text style={styles.paragraph1}>
-              {t('music.voiceprint_recording_rules_intro')}{'\n'}
+          <View>
+            <Text style={styles.ruleTitle}>
+              {t('music.voiceprint_rules_str1')}
             </Text>
-            <Text style={styles.paragraph2}>
-              {'\n'}{t('music.article_1_ownership_of_rights')} {'\n'}
+            <Text style={styles.ruleDesc}>
+              {t('music.voiceprint_rules_str2')}
             </Text>
-            <Text style={styles.paragraph3}>
-              {t('music.agreement_between_you_and_melon')}{'\n'}
-              {'\n'}
+          </View>
+
+          <View style={{marginTop: scaleSize(14)}}>
+            <Text style={styles.ruleTitle}>
+              {t('music.voiceprint_rules_str3')}
             </Text>
-            <Text style={styles.paragraph4}>
-              {t('music.article_2_authorized_use')}{'\n'}
+            <Text style={styles.ruleDesc}>
+              {t('music.voiceprint_rules_str4')}
             </Text>
-            <Text style={styles.paragraph5}>
-              2.1{'\n'}
-              3.1{'\n'}
+          </View>
+
+          <View style={{marginTop: scaleSize(14)}}>
+            <Text style={styles.ruleTitle}>
+              {t('music.voiceprint_rules_str5')}
             </Text>
-            <Text style={styles.paragraph6}>
-              {'\n'}
-              {'\n'}
-              {'\n'}
+            <Text style={styles.ruleDesc}>
+              {t('music.voiceprint_rules_str6')}
             </Text>
-            <Text style={styles.copyrightText}>
-              {t('music.copyright_2025_melon')}
+            <Text style={styles.ruleDesc}>
+              {t('music.voiceprint_rules_str7')}
             </Text>
-          </Text>
+            <Text style={styles.ruleDesc}>
+              {t('music.voiceprint_rules_str8')}
+            </Text>
+          </View>
+
+          <View style={{marginTop: scaleSize(14)}}>
+            <Text style={styles.ruleTitle}>
+              {t('music.voiceprint_rules_str9')}
+            </Text>
+            <Text style={styles.ruleDesc}>
+              {t('music.voiceprint_rules_str10')}
+            </Text>
+            <Text style={styles.ruleDesc}>
+              {t('music.voiceprint_rules_str11')}
+            </Text>
+          </View>
+
+          <View style={{marginTop: scaleSize(14)}}>
+            <Text style={styles.ruleTitle}>
+              {t('music.voiceprint_rules_str12')}
+            </Text>
+            <Text style={styles.ruleDesc}>
+              {t('music.voiceprint_rules_str13')}
+            </Text>
+            <Text style={styles.ruleDesc}>
+              {t('music.voiceprint_rules_str14')}
+            </Text>
+            <Text style={styles.ruleDesc}>
+              {t('music.voiceprint_rules_str15')}
+            </Text>
+          </View>
+
+          <View style={{marginTop: scaleSize(14)}}>
+            <Text style={styles.ruleTitle}>
+              {t('music.voiceprint_rules_str16')}
+            </Text>
+            <Text style={styles.ruleDesc}>
+              {t('music.voiceprint_rules_str17')}
+            </Text>
+            <Text style={styles.ruleDesc}>
+              {t('music.voiceprint_rules_str18')}
+            </Text>
+          </View>
+          
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -160,68 +206,24 @@ const styles = StyleSheet.create({
   contentWrapper: {
     flex: 1,
     marginTop: normalize(28),
-    marginLeft: normalize(40),
-    marginRight: normalize(40),
-    marginBottom: normalize(152),
+    marginHorizontal: normalize(20),
   },
   textContent: {
-    width: normalize(295),
+    // width: normalize(295),
   },
-  contentText: {
-    fontSize: 0,
-    letterSpacing: -0.4,
-    textAlign: 'left',
-    lineHeight: normalize(20),
-  },
-  paragraph1: {
-    fontSize: normalizeFontSize(15),
-    fontWeight: '600',
-    color: 'rgba(255, 255, 255, 1)',
-    letterSpacing: -0.4,
-    lineHeight: normalize(20),
-  },
-  paragraph2: {
+  ruleTitle: {
     fontSize: normalizeFontSize(15),
     fontWeight: '400',
     color: 'rgba(255, 255, 255, 1)',
-    letterSpacing: -0.4,
-    lineHeight: normalize(20),
+    lineHeight: normalize(22),
   },
-  paragraph3: {
+  ruleDesc: {
     fontSize: normalizeFontSize(15),
     fontWeight: '400',
     color: 'rgba(179, 179, 179, 1)',
-    letterSpacing: -0.4,
-    lineHeight: normalize(20),
-  },
-  paragraph4: {
-    fontSize: normalizeFontSize(15),
-    fontWeight: '400',
-    color: 'rgba(255, 255, 255, 1)',
-    letterSpacing: -0.4,
-    lineHeight: normalize(20),
-  },
-  paragraph5: {
-    fontSize: normalizeFontSize(15),
-    fontWeight: '400',
-    color: 'rgba(179, 179, 179, 1)',
-    letterSpacing: -0.4,
-    lineHeight: normalize(20),
-  },
-  paragraph6: {
-    fontSize: normalizeFontSize(15),
-    fontWeight: '400',
-    color: 'rgba(255, 255, 255, 1)',
-    letterSpacing: -0.4,
-    lineHeight: normalize(20),
-  },
-  copyrightText: {
-    fontSize: normalizeFontSize(15),
-    fontWeight: '400',
-    color: 'rgba(179, 179, 179, 1)',
-    letterSpacing: -0.4,
-    lineHeight: normalize(20),
-  },
+    lineHeight: normalize(22),
+    marginTop: scaleSize(6),
+  }
 });
 
 export default VoiceprintManagementInitialScreen;

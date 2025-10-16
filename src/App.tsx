@@ -39,13 +39,40 @@ const App = () => {
       }
       console.log('RN--AppSign2--', appSign);
       if (appSign === APP_SIGN_ENUM.TYPE_MELONS || appSign === APP_SIGN_ENUM.TYPE_MOMORS) {
-        mobileAds()
-          .initialize()
-          .then(adapterStatuses => {
-            // Initialization complete!
-            console.log('谷歌广告SDK初始化完成--', adapterStatuses);
-            setIsInitialized(true);
-          });
+        if (__DEV__) {
+          mobileAds().setRequestConfiguration({
+            testDeviceIdentifiers: [
+              "238ac4067250bee05aadca80bef6b60c", // 你的设备 Test Device ID（从日志复制）
+              "45a46753ed440d173ea44f0e40acc079"
+            ],
+          }).then(() => {
+            console.log('谷歌广告测试设备已设置');
+            
+            mobileAds()
+              .initialize()
+              .then(adapterStatuses => {
+                // Initialization complete!
+                console.log('谷歌广告SDK初始化完成--', adapterStatuses);
+                setIsInitialized(true);
+              });
+          })
+          // mobileAds()
+          //     .initialize()
+          //     .then(adapterStatuses => {
+          //       // Initialization complete!
+          //       console.log('谷歌广告SDK初始化完成--', adapterStatuses);
+          //       setIsInitialized(true);
+          //     });
+        } else {
+          mobileAds()
+            .initialize()
+            .then(adapterStatuses => {
+              // Initialization complete!
+              console.log('谷歌广告SDK初始化完成--', adapterStatuses);
+              setIsInitialized(true);
+            });
+        }
+        
       } else {
         setIsInitialized(true);
       }

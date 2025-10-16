@@ -302,6 +302,10 @@ const VoiceprintMaterialCreateScreen: React.FC = () => {
   }
 
   const handleSendTrainingAction = () => {
+    if (!materials?.length) {
+      show({ message: t('music.no_audio_available') });
+      return
+    }
     setShowAddModal(true);
     setType('send');
     // if (!materialsId) {

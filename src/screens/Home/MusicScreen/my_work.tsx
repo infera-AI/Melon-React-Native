@@ -117,7 +117,7 @@ const MyWorkScreen = ({ navigation }: any) => {
   const [cancelCoverTaskModalShow, setCancelCoverTaskModalShow] = useState(false)
 
   useEffect(() => {
-    if (coverTaskId) {
+    if (coverTaskId && coverTaskId !== '-1') {
       msgLoadRotateAnim.setValue(0)
       const loopAnim = Animated.loop(
         Animated.timing(msgLoadRotateAnim, {
@@ -541,10 +541,12 @@ const MyWorkScreen = ({ navigation }: any) => {
     // setHasMoreData(true);
     // setIsRefreshing(true);
     // getMyWorks(1, false);
-    const updateListBus = eventBus.on('UPDATE_MY_WORKS', () => {
+    const updateListBus = eventBus.on('UPDATE_MY_WORKS', (data) => {
       console.log('我的作品列表页接收到eventBus---UPDATE_MY_WORKS---');
       setCancelCoverTaskModalShow(false)
-      handleRefresh();
+      if (!data?.noRefreshList) {
+        handleRefresh();
+      }
     })
 
     
@@ -616,17 +618,34 @@ const MyWorkScreen = ({ navigation }: any) => {
       {
         useAppStore.getState().coverTaskId &&
         <View style={{alignItems: 'center', justifyContent: 'center', flexDirection: 'row', marginBottom: normalize(20)}}>
-          <Animated.Image
-            source={require('../../../../assets/images/loading.png')}
-            style={[styles.waitLoadImg, {transform: [{rotate: spin}]}]}
-            resizeMode={'contain'}
-          />
-          <Text style={styles.waitText}>{t('music.create_task_tip')}</Text>
+          {
+            useAppStore.getState().coverTaskId === '-1' ?
+            ''
+            :
+            <Animated.Image
+              source={require('../../../../assets/images/loading.png')}
+              style={[styles.waitLoadImg, {transform: [{rotate: spin}]}]}
+              resizeMode={'contain'}
+            />
+          }
+          
+          <Text style={styles.waitText}>
+            {
+              useAppStore.getState().coverTaskId === '-1' ?
+              t('music.generation_failed')
+              :
+              t('music.create_task_tip')
+            }
+          </Text>
 
           <TouchableOpacity
             style={{position: 'absolute', right: normalize(16)}}
             onPress={() => {
-              setCancelCoverTaskModalShow(true)
+              if (useAppStore.getState().coverTaskId === '-1') {
+                useAppStore.getState().setCoverTaskId('')
+              } else {
+                setCancelCoverTaskModalShow(true)
+              }
             }}
           >
             <Text>
@@ -653,7 +672,7 @@ const MyWorkScreen = ({ navigation }: any) => {
       {/* List */}
       <FlatList
         data={filteredWorks}
-        keyExtractor={item => item.url?.toString()}
+        keyExtractor={(item, index) => index + ''}
         renderItem={({ item }: { item: Music }) => (
           <TouchableOpacity
             style={styles.itemCard}
@@ -747,7 +766,10 @@ const MyWorkScreen = ({ navigation }: any) => {
                 <TouchableOpacity
                   style={styles.confirmBtn}
                   onPress={() => {
-                    cancelMusicTask({task_id: useAppStore.getState().coverTaskId})
+                    cancelMusicTask({
+                      task_id: useAppStore.getState().coverTaskId,
+                      task_type: 'cover_music_os'
+                    })
                     useAppStore.getState().setCoverTaskId('')
                     useAppStore.getState().setTaskIdType('')
                     setCancelCoverTaskModalShow(false)

@@ -15,6 +15,8 @@ import { ProfileStackParamList } from './ProfileNavigator';
 import theme from '../../../utils/theme';
 import { useLanguage } from '../../../contexts/LanguageContext';
 import { normalize, normalizeFontSize } from '@/utils/stylesUtil';
+import { useAppStore } from '@/store';
+import { APP_VERSION } from '@/utils';
 
 type AboutScreenNavigationProp = NativeStackNavigationProp<ProfileStackParamList, 'About'>;
 
@@ -73,7 +75,7 @@ const AboutScreen: React.FC = () => {
         </View>
 
         <View style={styles.versionContainer}>
-          <Text style={styles.versionText}>{t('about.version')}</Text>
+          <Text style={styles.versionText}>{t('about.version')}{APP_VERSION[useAppStore.getState().appSign]}</Text>
         </View>
 
         <View style={styles.legalSection}>

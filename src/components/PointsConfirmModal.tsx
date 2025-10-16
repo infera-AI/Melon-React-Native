@@ -12,6 +12,7 @@ import { useGlobalTheme } from '@/hooks/useGlobalTheme';
 import { normalize, normalizeFontSize } from '@/utils/stylesUtil';
 import theme from '@/utils/theme';
 import { usePointsStore } from '@/store/modules/points.store';
+import JiliAdBtn from '@/components/JiliAdBtn';
 
 interface PointsConfirmModalProps {
   visible: boolean;
@@ -101,15 +102,50 @@ const PointsConfirmModal: React.FC<PointsConfirmModalProps> = ({
               </Text>
             </TouchableOpacity>
 
-            <TouchableOpacity
-              style={styles.confirmButton}
-              onPress={handleConfirm}
-              activeOpacity={0.7}
-            >
-              <Text style={styles.confirmButtonText}>
-                {rightBtnText || t('music.free_generation')}
-              </Text>
-            </TouchableOpacity>
+            {
+              rightBtnText == t('music.use_points') ?
+              <TouchableOpacity
+                style={styles.confirmButton}
+                onPress={handleConfirm}
+                activeOpacity={0.7}
+              >
+                <Text style={styles.confirmButtonText}>
+                  {rightBtnText}
+                </Text>
+              </TouchableOpacity>
+              :
+              <JiliAdBtn
+                style={styles.confirmButton}
+                renderContent={() => {
+                  return (
+                    <Text style={styles.confirmButtonText}>
+                      {rightBtnText || t('music.free_generation')}
+                    </Text>
+                  )
+                }}
+                adCloseHandle={(isGetRewarded) => {
+                  setTimeout(() => {
+                    /**
+                     * 是否成功获得奖励
+                     * 成功获得奖励，就继续下面的生成流程
+                     */
+                    if (isGetRewarded) {
+                      onClose() // 利用onClose触发onDestroy 不这样的话， 外面页面里的loading不会显示出来，并且页面被盖住不可点
+                    }
+                    
+                  })
+                  // ;
+                  // handleCancel()
+                }}
+                onDestroy={(isGetRewarded) => {
+
+                  if (isGetRewarded) {
+                    onConfirm();
+                  }
+                }}
+              />
+            }
+            
           </View>
 
           {/* 不再提示选项 */}

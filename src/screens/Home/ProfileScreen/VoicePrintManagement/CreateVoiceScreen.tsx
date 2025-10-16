@@ -327,7 +327,7 @@ const CreateVoiceScreen: React.FC = () => {
               source={require('@/assets/profile/profile_record_icon.png')}
               style={styles.guidanceImage}
             />
-            <Text style={styles.guidanceText}>{t('create_voice.read_text_natural')}</Text>
+            <Text style={styles.guidanceText}>{t('music.create_voice_tip2')}</Text>
           </View>
 
           <View style={styles.guidanceContainer}>

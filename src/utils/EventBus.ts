@@ -2,7 +2,7 @@
 type EventMap = {
 //   CUSTOM_EVENT: { message: string; value: number };
 //   USER_LOGIN: { userId: string; name: string };
-  UPDATE_MY_WORKS: void;
+  UPDATE_MY_WORKS: any;
   // 新增你需要的事件类型...
 };
 

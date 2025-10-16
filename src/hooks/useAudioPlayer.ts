@@ -167,12 +167,13 @@ export const useAudioPlayer = (): AudioPlaybackState & AudioPlayerControls => {
       
       // 创建新的音频实例
       let newSound: Sound;
-      
+      // false 表示不与其他音频混合， 并且Playback也有强制使用扬声器播放的效果
+      Sound.setCategory('Playback', false);
       try {
         // 尝试不同的 Sound 构造函数参数
         if (processedUri.startsWith('file://')) {
           // 对于本地文件，尝试使用不同的参数
-          newSound = new Sound(processedUri, Sound.MAIN_BUNDLE, (error: any) => {
+          newSound = new Sound(processedUri, undefined, (error: any) => {
             handleAudioLoad(error, newSound, music.uri);
           });
         } else {

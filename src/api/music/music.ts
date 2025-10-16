@@ -188,6 +188,6 @@ export function saveMusicByLink(params: { title: string, file_url: string }) {
 }
 
 //取消生成任务
-export function cancelMusicTask(params: { task_id: string }) {
+export function cancelMusicTask(params: { task_id: string, task_type: string }) {
   return http.post<any>(API_ENDPOINTS.MUSIC.CANCEL_MUSIC_TASK, params);
 }

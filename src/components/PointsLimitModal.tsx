@@ -12,6 +12,7 @@ import { normalize, normalizeFontSize } from '@/utils/stylesUtil';
 import theme from '@/utils/theme';
 import { usePointsStore } from '@/store/modules/points.store';
 import { useNavigation } from '@react-navigation/native';
+import JiliAdBtn from '@/components/JiliAdBtn';
 
 interface PointsConfirmModalProps {
   visible: boolean;
@@ -94,7 +95,7 @@ const PointsLimitModal: React.FC<PointsConfirmModalProps> = ({
 
           {/* 按钮组 */}
           <View style={styles.buttonContainer}>
-            <TouchableOpacity
+            {/* <TouchableOpacity
               style={styles.cancelButton}
               onPress={handleCancel}
               activeOpacity={0.7}
@@ -102,7 +103,25 @@ const PointsLimitModal: React.FC<PointsConfirmModalProps> = ({
               <Text style={[styles.cancelButtonText, text]}>
                 {t('music.watch_ads')}
               </Text>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
+            <JiliAdBtn
+              style={styles.cancelButton}
+              renderContent={() => {
+                return (
+                  <Text style={[styles.cancelButtonText, text]}>
+                    {t('music.watch_ads')}
+                  </Text>
+                )
+              }}
+              adCloseHandle={() => {
+                setTimeout(() => {
+                  onClose()
+                })
+                // ;
+                // handleCancel()
+              }}
+            />
+            
 
             <TouchableOpacity
               style={styles.confirmButton}

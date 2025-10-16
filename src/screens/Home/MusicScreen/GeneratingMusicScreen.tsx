@@ -23,6 +23,7 @@ import { normalize, normalizeFontSize } from '@/utils/stylesUtil';
 import { usePointsStore } from '@/store/modules/points.store';
 import CustomNavigation from '@/components/CustomNavigation';
 import { useAppStore } from '@/store';
+import { scaleSize } from '@/utils/scale';
 
 type GeneratingMusicScreenNavigationProp = NativeStackNavigationProp<MusicStackParamList, 'GeneratingMusic'>;
 
@@ -75,15 +76,15 @@ const GeneratingMusicScreen: React.FC = () => {
     startStatusPolling();
 
     // 禁用返回手势，但允许程序化导航
-    const unsubscribe = navigation.addListener('beforeRemove', (e) => {
-      // 检查是否是程序化导航（如replace）
-      if (e.data.action.type === 'REPLACE') {
-        // 允许程序化导航
-        return;
-      }
-      // 阻止用户手动返回
-      e.preventDefault();
-    });
+    // const unsubscribe = navigation.addListener('beforeRemove', (e) => {
+    //   // 检查是否是程序化导航（如replace）
+    //   // if (e.data.action.type === 'REPLACE') {
+    //   //   // 允许程序化导航
+    //   //   return;
+    //   // }
+    //   // 阻止用户手动返回
+    //   // e.preventDefault();
+    // });
 
     // generateMusicRequest();
 
@@ -105,7 +106,7 @@ const GeneratingMusicScreen: React.FC = () => {
       // cleanupPolling();
       // subscription?.remove();
       clearTimeout(getTaskInfoTimer)
-      unsubscribe();
+      // unsubscribe();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -201,46 +202,51 @@ const GeneratingMusicScreen: React.FC = () => {
           isSuccess = rsp.status === 2;
         }
 
+        if (rsp.status === -1) { // 生成失败
+          setProgress(-1)
+        } else {
 
-        if (!isSuccess) { // 说明在生成中
-          startStatusPolling()
-          let percent = toPercent(Math.floor(performance.now()) - createTaskTime)
-          setProgress(percent === 100 ? 99 : percent)
+          if (!isSuccess) { // 说明在生成中
+            startStatusPolling()
+            let percent = toPercent(Math.floor(performance.now()) - createTaskTime)
+            setProgress(percent === 100 ? 99 : percent)
 
-        } else { // 生成成功
-          setProgress(100)
+          } else { // 生成成功
+            setProgress(100)
 
-          setTimeout(async () => {
-            clearTimeout(getTaskInfoTimer)
+            setTimeout(async () => {
+              clearTimeout(getTaskInfoTimer)
 
-            if (generateMusicType === 'cover') {
-              const resSave = await saveCoverMusicRequest()
-              refreshPointsBalance();
-              navigation.replace('MusicPlay', {
-                music: {
-                  ...resSave,
-                  title: route.params?.title || ''
-                },
-                type: 'cover'
-              });
-            } else {
-              const res = await saveGenerateMusicOS({
-                task_id: taskIdRef.current
-              })
-              console.log('保存音乐成功');
-              
-              setTaskId(taskIdRef.current)
-              refreshPointsBalance();
-              navigation.replace('MusicPreview', {
-                music: {
-                  ...rsp,
-                  ...res
-                }
-              });
-            }
-          }, 1000)
+              if (generateMusicType === 'cover') {
+                const resSave = await saveCoverMusicRequest()
+                refreshPointsBalance();
+                navigation.replace('MusicPlay', {
+                  music: {
+                    ...resSave,
+                    title: route.params?.title || ''
+                  },
+                  type: 'cover'
+                });
+              } else {
+                const res = await saveGenerateMusicOS({
+                  task_id: taskIdRef.current
+                })
+                console.log('保存音乐成功');
+                
+                setTaskId(taskIdRef.current)
+                refreshPointsBalance();
+                navigation.replace('MusicPreview', {
+                  music: {
+                    ...rsp,
+                    ...res
+                  }
+                });
+              }
+            }, 1000)
 
+          }
         }
+
       }).catch((err) => {
         console.log(err, 'err')
         generRationFailed()
@@ -339,11 +345,14 @@ const GeneratingMusicScreen: React.FC = () => {
   };
 
   const handleBack = () => {
-    useAppStore.getState().setCoverTaskId(taskIdRef.current)
-    useAppStore.getState().setTaskIdType(generateMusicType)
-    useAppStore.getState().pollingGetStatusBycoverTaskId()
-    
-    navigation.replace('MyWork')
+    if (progress === -1) {
+      navigation.goBack()
+    } else {
+      useAppStore.getState().setCoverTaskId(taskIdRef.current)
+      useAppStore.getState().setTaskIdType(generateMusicType)
+      useAppStore.getState().pollingGetStatusBycoverTaskId()
+      navigation.replace('MyWork')
+    }
   }
 
   return (
@@ -385,36 +394,58 @@ const GeneratingMusicScreen: React.FC = () => {
 
           {/* 动画容器 */}
           <View style={styles.animationContainer}>
-            <LottieView
-              source={require('../../../assets/lottie/generate_voice.json')}
-              style={styles.lottieAnimation}
-              autoPlay
-              loop
-              speed={1}
-            />
+            {
+              progress === -1 ?
+              <Image
+                source={require('@/assets/music/create_error.png')}
+                style={{
+                  width: scaleSize(120),
+                  height: scaleSize(120),
+                  opacity: 0.8
+                }}
+              />
+              :
+              <LottieView
+                source={require('../../../assets/lottie/Loading.json')}
+                style={styles.lottieAnimation}
+                autoPlay
+                loop
+                speed={1}
+              />
+            }
+            
           </View>
 
           {/* 进度百分比 */}
-          <Text style={styles.progressText}>{t('music.estimated_time').replace('{time}', isSelectedVoice ? '2 - 3' : '1').replace('{progress}', Math.round(progress).toString())}</Text>
+          {
+            progress === -1 ?
+            <Text style={styles.progressText}>{t('music.generation_failed')}</Text>
+            :
+            <Text style={styles.progressText}>{t('music.estimated_time').replace('{time}', isSelectedVoice ? '2 - 3' : '1').replace('{progress}', Math.round(progress).toString())}</Text>
+          }
 
           {/* 状态文本根据时间进度切换文字 */}
-          <View style={styles.statusContainer}>
-            {progress >= 0 && progress < 25 && <Text style={styles.statusText}>
-              {t('music.arranging_music')}
-            </Text>}
-            {progress >= 25 && progress < 50 && <Text style={styles.statusText}>
-              {t('music.vocal_singing')}
-            </Text>}
-            {progress >= 50 && progress < 75 && <Text style={styles.statusText}>
-              {t('music.editing_fine_tuning')}
-            </Text>}
-            {progress >= 75 && progress < 100 && <Text style={styles.statusText}>
-              {t('music.reverberating_music')}
-            </Text>}
-            {progress >= 100 && <Text style={styles.statusText}>
-              {t('music.reverberating_music')}
-            </Text>}
-          </View>
+          {
+            progress !== -1 &&
+            <View style={styles.statusContainer}>
+              {progress >= 0 && progress < 25 && <Text style={styles.statusText}>
+                {t('music.arranging_music')}
+              </Text>}
+              {progress >= 25 && progress < 50 && <Text style={styles.statusText}>
+                {t('music.vocal_singing')}
+              </Text>}
+              {progress >= 50 && progress < 75 && <Text style={styles.statusText}>
+                {t('music.editing_fine_tuning')}
+              </Text>}
+              {progress >= 75 && progress < 100 && <Text style={styles.statusText}>
+                {t('music.reverberating_music')}
+              </Text>}
+              {progress >= 100 && <Text style={styles.statusText}>
+                {t('music.reverberating_music')}
+              </Text>}
+            </View>
+          }
+          
         </ScrollView>
       </SafeAreaView>
 
@@ -538,8 +569,8 @@ const styles = StyleSheet.create({
     marginTop: normalize(0),
   },
   lottieAnimation: {
-    width: normalize(517),
-    height: normalize(517),
+    width: normalize(317),
+    height: normalize(317),
   },
   progressText: {
     fontSize: normalizeFontSize(25),

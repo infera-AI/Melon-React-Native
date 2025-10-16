@@ -1,5 +1,5 @@
 // src/screens/SingerSelectionScreen/index.tsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -10,7 +10,8 @@ import {
   SafeAreaView,
   StatusBar,
   Platform,
-  Dimensions
+  Dimensions,
+  FlatList
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -22,7 +23,7 @@ import PointsLimitModal from '@/components/PointsLimitModal';
 import PointsConfirmModal from '@/components/PointsConfirmModal';
 import { pick } from '@react-native-documents/picker';
 import { polishLyrics, recommendGenres, generateMusic, coverMusic } from '@/api/music/music';
-import { getPersonalVoiceprints, getCommonVoiceprints } from '@/api/profile/profile';
+import { getPersonalVoiceprints, getCommonVoiceprints, getCommonVoiceprintsPage, getPersonalVoiceprintsPage } from '@/api/profile/profile';
 import { useMusicStore } from '@/store/modules/music.store';
 import FullScreenLoader from '@/components/FullScreenLoader';
 import { useMessageModal } from '@/contexts/MessageModalContext';
@@ -35,8 +36,6 @@ import { POINTS_DEDUCTION } from '@/utils/constants';
 import PublicModal from '@/components/PublicModal'
 import { useAppStore } from '@/store';
 import { eventBus } from '@/utils/EventBus';
-
-
 
 // 歌手数据接口
 interface Singer {
@@ -114,10 +113,16 @@ const SingerSelectionScreen: React.FC<any> = ({ route }: any) => {
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const { setGenerateMusicType, musicGenerateInfo, coverMusicFile, setIsSelectedVoice } = useMusicStore.getState();
   const isSelectedVoice = useMusicStore.getState().isSelectedVoice;
-  const { refreshPointsBalance, pointsBalance } = usePointsStore.getState();
+  const { refreshPointsBalance } = usePointsStore.getState();
 
   // 当前有生成中的任务 modal
   const [haveTaskModal, setHaveTaskModal] = useState(false);
+
+  const pageNum = useRef(1);
+  const pageSize = useRef(10);
+  const [listRefreshing, setListRefreshing] = useState(false);
+  const [isLoadMore, setIsLoadMore] = useState(false);
+  const [allPage, setAllPage] = useState(0);
 
 
   const {
@@ -130,14 +135,28 @@ const SingerSelectionScreen: React.FC<any> = ({ route }: any) => {
   const handleTabChange = (tab: TabType) => {
     setActiveTab(tab);
     // 切换Tab时清空选择
+    clearSelect()
+    setIsLoading(true);
+    pageNum.current = 1;
+    setCommonVoiceprints([]);
+    setPersonalVoiceprints([]);
+    if (tab === 'public') {
+      getPublicVoiceprintsRequest()
+    } else {
+      getPersonalVoiceprintsRequest()
+    }
+  };
+
+  const clearSelect = () => {
     setSelectedSinger(null);
+    setSelectedId(null);
     setSingersList(prev =>
       prev.map(singer => ({
         ...singer,
         isSelected: false
       }))
     );
-  };
+  }
 
   const MAX_FILE_SIZE_MB = 100; // 文件大小限制（MB）
 
@@ -186,11 +205,11 @@ const SingerSelectionScreen: React.FC<any> = ({ route }: any) => {
       return
     }
 
-    // if (checkPointsBalance(isSelectedVoice)) {
-    setModalVisible(true);
-    // } else {
-    //   setPointsLimitModalVisible(true);
-    // }
+    if (usePointsStore.getState().pointsBalance >= POINTS_DEDUCTION.COVER_MUSIC) {
+      setModalVisible(true);
+    } else {
+      setPointsLimitModalVisible(true);
+    }
     // if (selectedSinger) {
     //   console.log('选择的歌手:', selectedSinger);
     //   console.log('当前Tab:', activeTab);
@@ -201,22 +220,86 @@ const SingerSelectionScreen: React.FC<any> = ({ route }: any) => {
     // }
   };
 
+  const refreshList = async () => {
+    if (listRefreshing || isLoadMore) {
+      return
+    }
+    console.log('下拉刷新');
+    pageNum.current = 1;
+    setListRefreshing(true);
+    // 切换Tab时清空选择
+    clearSelect()
+    if (activeTab === 'public') {
+      getPublicVoiceprintsRequest()
+    } else {
+      getPersonalVoiceprintsRequest()
+    }
+  }
+
+  const loadMore = () => {
+    if (pageNum.current < allPage) {
+      console.log('加载更多');
+      if (isLoadMore || listRefreshing) {
+        return
+      }
+      setIsLoadMore(true);
+      pageNum.current = pageNum.current + 1;
+      if (activeTab === 'public') {
+        getPublicVoiceprintsRequest()
+      } else {
+        getPersonalVoiceprintsRequest()
+      }
+    }
+    
+  }
+
   // 获取公用声纹
   const getPublicVoiceprintsRequest = async () => {
-    const res = await getCommonVoiceprints();
-    setCommonVoiceprints(res.data_list || []);
-    console.log('res', res);
+    return new Promise<void>(async (resolve) => {
+      // const res = await getCommonVoiceprints();
+      const res = await getCommonVoiceprintsPage({
+        page_num: pageNum.current,
+        page_size: pageSize.current
+      });
+      let arr = res.data_list || []
+      if (pageNum.current === 1) {
+        setCommonVoiceprints(arr);
+      } else {
+        setCommonVoiceprints([...commonVoiceprints, ...arr]);
+      }
+      setListRefreshing(false);
+      setIsLoadMore(false);
+      setIsLoading(false);
+      setAllPage(res.pages || 0);
+      console.log('res', res);
+      resolve();
+    })
   }
   // 获取个人声纹
   const getPersonalVoiceprintsRequest = async () => {
-    const res = await getPersonalVoiceprints();
-    setPersonalVoiceprints(res.data_list || []);
-    console.log('res', res);
+    return new Promise<void>(async (resolve) => {
+      // const res = await getPersonalVoiceprints();
+      const res = await getPersonalVoiceprintsPage({
+        page_num: pageNum.current,
+        page_size: pageSize.current
+      });
+      let arr = res.data_list || []
+      if (pageNum.current === 1) {
+        setPersonalVoiceprints(arr);
+      } else {
+        setPersonalVoiceprints([...commonVoiceprints, ...arr]);
+      }
+      console.log('res', res);
+      setListRefreshing(false);
+      setIsLoadMore(false);
+      setIsLoading(false);
+      setAllPage(res.pages || 0);
+      resolve();
+    })
   }
 
   useEffect(() => {
-    getPublicVoiceprintsRequest();
-    getPersonalVoiceprintsRequest();
+    initFun()
 
     const updateListBus = eventBus.on('UPDATE_MY_WORKS', () => {
       console.log('接收到eventBus---UPDATE_MY_WORKS---');
@@ -228,6 +311,13 @@ const SingerSelectionScreen: React.FC<any> = ({ route }: any) => {
       updateListBus()
     }
   }, []);
+
+  const initFun = async () => {
+    setIsLoading(true);
+    await getPublicVoiceprintsRequest();
+    // await getPersonalVoiceprintsRequest();
+    setIsLoading(false);
+  }
 
   // 渲染Tab栏
   const renderTabBar = () => (
@@ -269,9 +359,9 @@ const SingerSelectionScreen: React.FC<any> = ({ route }: any) => {
   // 判断积分余额是否足够
   const checkPointsBalance = (selectedVoice: boolean) => {
     if (selectedVoice) {
-      return pointsBalance >= 110;
+      return usePointsStore.getState().pointsBalance >= 110;
     } else {
-      return pointsBalance >= 50;
+      return usePointsStore.getState().pointsBalance >= 50;
     }
   }
 
@@ -300,7 +390,7 @@ const SingerSelectionScreen: React.FC<any> = ({ route }: any) => {
         </TouchableOpacity>
       </View>}
       {/* 歌手列表 */}
-      <ScrollView style={[styles.singerList, activeTab === 'public' && styles.commonList]} showsVerticalScrollIndicator={false}>
+      <View style={[styles.singerList, activeTab === 'public' && styles.commonList]}>
         {activeTab === 'public' && commonVoiceprints.length < 1 && <View style={styles.CommonvoiceprintContent}>
           <Text style={[styles.voiceprintSubtext, textSecondary]}>
             {t('music.no_content')}
@@ -311,7 +401,7 @@ const SingerSelectionScreen: React.FC<any> = ({ route }: any) => {
             {t('music.no_content')}
           </Text>
         </View>}
-        {(activeTab === 'public' ? commonVoiceprints : personalVoiceprints)?.map((singer, index) => (
+        {/* {(activeTab === 'public' ? commonVoiceprints : personalVoiceprints)?.map((singer, index) => (
           <TouchableOpacity
             key={singer.id}
             disabled={singer.status !== 2}
@@ -345,7 +435,54 @@ const SingerSelectionScreen: React.FC<any> = ({ route }: any) => {
             </TouchableOpacity>}
             {singer.status !== 2 && <Text style={styles.trainingText}>{t('music.training')}</Text>}
           </TouchableOpacity>
-        ))}
+        ))} */}
+
+        <FlatList
+          data={activeTab === 'public' ? commonVoiceprints : personalVoiceprints}
+          keyExtractor={(item, index) => index + ''}
+          refreshing={listRefreshing}
+          onRefresh={refreshList}
+          onEndReached={loadMore}
+          onEndReachedThreshold={0.5}
+          renderItem={({ item, index }) => {
+            return (
+              <TouchableOpacity
+                disabled={item.status !== 2}
+                style={[
+                  styles.singerItem,
+                  index === singersList.length - 1 && styles.lastSingerItem,
+                  selectedId === item.id && styles.selectedSingerItem,
+                  { opacity: item.status === 2 ? 1 : 0.4 }
+                ]}
+                onPress={() => handleSingerSelect(item)}
+              >
+                <View style={styles.singerInfo}>
+                  <Image
+                    source={require('@/assets/profile/profile_voice_icon.png')}
+                    style={styles.singerAvatar}
+                  />
+                  <Text style={[styles.singerName, text]}>
+                    {item.name}
+                  </Text>
+                </View>
+                {/* {activeTab === 'public' && item.status === 2 && <TouchableOpacity
+                  style={styles.languageButton}
+                  onPress={() => { }}
+                >
+                  <Text style={styles.languageButtonText}>{item.language}</Text>
+                </TouchableOpacity>} */}
+                {item.status === 2 && <TouchableOpacity
+                  onPress={() => handlePlayMaterial(item)}
+                >
+                  <Image source={isPlayingUrl(item.merge_file) ? require('@/assets/music/music_pause_icon.png') : require('@/assets/music/music_play_icon.png')} style={styles.playIcon} />
+                </TouchableOpacity>}
+                {(item.status !== 2 && item.status !== -1) && <Text style={styles.trainingText}>{t('music.training')}</Text>}
+                {item.status === -1 && <Text style={styles.trainingText}>{t('music.training_error')}</Text>}
+              </TouchableOpacity>
+            )
+          }}
+        />
+
         <PublicModal
           visible={haveTaskModal}
           modalType="center"
@@ -383,7 +520,7 @@ const SingerSelectionScreen: React.FC<any> = ({ route }: any) => {
             )
           }}
         />
-      </ScrollView>
+      </View>
     </>
   };
 
@@ -429,7 +566,7 @@ const SingerSelectionScreen: React.FC<any> = ({ route }: any) => {
       return res;
     } catch (error) {
       show({ message: t('music.upload_files_failed') });
-      return {};
+      return null;
     }
   };
 
@@ -461,8 +598,8 @@ const SingerSelectionScreen: React.FC<any> = ({ route }: any) => {
   const handleCoverSingToMusic = async () => {
     setIsLoading(true);
     try {
-      const resFile = await handleUploadFile(selectedFile);
-      console.log('resFile---', resFile);
+      // const resFile = await handleUploadFile(selectedFile);
+      // console.log('resFile---', resFile);
       console.log('selectedSinger?.id---', selectedSinger?.id);
 
       let nameStr = ''
@@ -475,10 +612,10 @@ const SingerSelectionScreen: React.FC<any> = ({ route }: any) => {
           nameStr = selectedFile?.name?.substring(0, lastDotIndex) || '';
         }
 
-      if (resFile?.url_list?.length && selectedSinger?.id) {
+      if (selectedFile?.uri && selectedSinger?.id) {
         const rsp = await coverMusic({
           voice_print_id: String(selectedSinger?.id) || '0',
-          music_url: resFile.url_list[0],
+          music_url: selectedFile?.uri,
           title: nameStr || ''
         });
         if (!rsp.task_id) {
@@ -489,7 +626,7 @@ const SingerSelectionScreen: React.FC<any> = ({ route }: any) => {
         }
         setGenerateMusicType('cover');
         refreshPointsBalance();
-
+        setIsLoading(false);
         
 
         (navigation as any).navigate('GeneratingMusic', {
@@ -500,18 +637,16 @@ const SingerSelectionScreen: React.FC<any> = ({ route }: any) => {
       } else {
         setIsLoading(false);
         show({
-          message: `url_list.length--${resFile?.url_list?.length}, voiceId--${selectedSinger?.id}`
+          message: `url_list.length--${selectedFile?.uri}, voiceId--${selectedSinger?.id}`
         })
       }
       
-    } catch (error) {
+    } catch (error: any) {
       console.log(error, 'error')
       setIsLoading(false);
       show({
-        message: t('http_service_error')
+        message: error?.message || t('http_service_error')
       })
-    } finally {
-      setIsLoading(false);
     }
   }
   const handlePointsTopup = () => {
@@ -554,7 +689,17 @@ const SingerSelectionScreen: React.FC<any> = ({ route }: any) => {
       }
 
       console.log('✅ 选中的音频文件:', file);
-      setSelectedFile(file as AudioFile);
+      setIsLoading(true);
+      let resFile: any
+      resFile = await handleUploadFile(file);
+      if (resFile) {
+        file.uri = resFile?.url_list?.[0] || ''
+        setSelectedFile(file as AudioFile);
+      }
+      
+      
+      setIsLoading(false);
+      
 
     } catch (error) {
       console.error('文件选择失败:', error);
@@ -566,8 +711,10 @@ const SingerSelectionScreen: React.FC<any> = ({ route }: any) => {
 
   const handleGenerateMusicAction = () => {
     if (musicInfo !== undefined) {
+      console.log('handleGenerateMusicAction---1111');
       handleCoverMusic();
     } else {
+      console.log('handleGenerateMusicAction---2222');
       handleCoverSingToMusic();
     }
   }

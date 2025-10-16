@@ -30,3 +30,11 @@ export const POINTS_DEDUCTION = {
   TRANSLATE_DOCUMENT: 5,
   TRANSLATE_EXTERNAL_SPEAKER: 1,
 } as const
+
+// 版本号
+export const APP_VERSION = {
+  'melons': '1.1.0', // Melons AI
+  'melon': "1.0.0",
+  'momor': '1.0.0',
+  'momors': '1.0.0'
+}

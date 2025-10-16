@@ -7,8 +7,10 @@ import { RootStackParamList } from '../../navigation/AppNavigator';
 import CSJSplashAd, { CSJSplashAdMethods } from '@/components/CSJSplashAd'; // 导入封装好的开屏广告组件
 import { useBackHandler } from '@/utils/BackHandlerUtil'; // 导入工具类
 import {APP_SIGN_ENUM} from '@/utils/constants'
+import LottieView from 'lottie-react-native';
 
 import { AppOpenAd, InterstitialAd, RewardedAd, BannerAd, TestIds, AdEventType } from 'react-native-google-mobile-ads';
+import { scaleSize } from '@/utils/scale';
 
 const { width, height } = Dimensions.get('window');
 const SplashScreen: React.FC = () => {
@@ -17,6 +19,8 @@ const SplashScreen: React.FC = () => {
   const fadeAnim = useRef(new Animated.Value(1)).current;
 
   const [hydrated, setHydrated] = useState(false);
+
+  const [isShowLoad, setIsShowLoad] = useState(false);
 
   // 1. 创建组件ref，用于调用内部方法
   const splashAdRef = useRef<CSJSplashAdMethods | null>(null);
@@ -47,19 +51,26 @@ const SplashScreen: React.FC = () => {
       appSign === APP_SIGN_ENUM.TYPE_MELONS ||
       appSign === APP_SIGN_ENUM.TYPE_MOMORS
     ) {
-      // appOpenAd = AppOpenAd.createForAdRequest(TestIds.APP_OPEN, {});
-      // appOpenAd.addAdEventListener(AdEventType.LOADED, () => {
-      //   console.log('谷歌开屏广告已加载完成');
-      //   appOpenAd.show()
-      // })
-      // appOpenAd.addAdEventListener(AdEventType.CLOSED, () => {
-      //   console.log('谷歌开屏广告已关闭');
-      //   goPageHandle()
+      setIsShowLoad(true)
+      appOpenAd = AppOpenAd.createForAdRequest('ca-app-pub-2954543818912070/2523289469', {});
+      appOpenAd.addAdEventListener(AdEventType.LOADED, () => {
+        console.log('谷歌开屏广告已加载完成');
+        setIsShowLoad(false)
+        appOpenAd.show()
+      })
+      appOpenAd.addAdEventListener(AdEventType.CLOSED, () => {
+        console.log('谷歌开屏广告已关闭');
+        goPageHandle()
         
-      // })
+      })
+      appOpenAd.addAdEventListener(AdEventType.ERROR, () => {
+        console.log('谷歌开屏广告错误----');
+        setIsShowLoad(false)
+        goPageHandle()
+      })
 
-      // appOpenAd.load()
-      goPageHandle()
+      appOpenAd.load()
+      // goPageHandle()
     }
     
 
@@ -142,6 +153,20 @@ const SplashScreen: React.FC = () => {
             onError={goPageHandle}
             // 其他回调...
           />
+      }
+      {
+        isShowLoad &&
+        <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
+          <LottieView
+            source={require('../../assets/lottie/SplashLoading.json')}
+            style={{
+              width: '100%',
+              height: 220,
+            }}
+            autoPlay
+            loop
+          />
+        </View>
       }
     </View>
   );

@@ -27,6 +27,7 @@ import { useBackHandler } from '@/utils/BackHandlerUtil'; // 导入工具类
 import { languageDetection } from '@/api/translate/translate';
 import { usePointsStore } from '@/store/modules/points.store';
 import { useUserStore } from '@/store';
+import JiliAdBtn from '@/components/JiliAdBtn';
 
 type MusicScreenNavigationProp = NativeStackNavigationProp<MusicStackParamList, 'MusicMain'>;
 
@@ -88,17 +89,34 @@ const MusicScreen: React.FC = () => {
 
   // 获取推荐曲风
   const getRecommendStylesRequest = async () => {
+    return new Promise((resolve) => {
+      setTimeout(async() => {
+        let res:any = null
+        try {
+          res = await getMusicSegmentation();
+        } catch (error1: any) {
+          // show({
+          //   message: t('music.get_recommend_styles_failed') + (error.message || t('common.unknown_error')),
+          // });
 
-    try {
-      const res = await getMusicSegmentation();
-      const genres = randomGenerateMusic(res.genres)
-      setMusicStyles(genres)
-      return genres;
-    } catch (error: any) {
-      show({
-        message: t('music.get_recommend_styles_failed') + (error.message || t('common.unknown_error')),
-      });
-    }
+          try {
+            res = await getMusicSegmentation();
+          } catch (error2:any) {
+            show({
+              message: t('music.get_recommend_styles_failed') + (error2?.message || t('common.unknown_error')),
+            });
+          }
+          
+        }
+
+        let genres:any = []
+        if (res?.genres && res?.genres.length) {
+          genres = randomGenerateMusic(res.genres)
+          setMusicStyles(genres)
+        }
+        resolve(genres)
+      }, 100)
+    })
   };
 
   //去掉连续出现的逗号替换为一个逗号,去掉首尾的逗号
@@ -148,7 +166,15 @@ const MusicScreen: React.FC = () => {
 
     // 判断语言是否符合要求
     const detectedLanguage = await getLanguageDetection();
-    if (supportedLanguageList.findIndex((language: any) => language.code === detectedLanguage) === -1) {
+    let arr = []
+    if (!supportedLanguageList?.length) {
+      const res = await getSupportedLanguages();
+      arr = res.support_language.map((language: any) => ({ code: language }));
+      setSupportedLanguageList(arr);
+    } else {
+      arr = supportedLanguageList;
+    }
+    if (arr.findIndex((language: any) => language.code === detectedLanguage) === -1) {
       show({ message: t('music.lyrics_not_supported') });
       return;
     }
@@ -235,6 +261,7 @@ const MusicScreen: React.FC = () => {
     }
   }
 
+  // 刷新按钮点击
   const handleRefreshRecommendStyles = async () => {
     if (!checkLogin()) {
       return
@@ -244,7 +271,7 @@ const MusicScreen: React.FC = () => {
     setLoading(false);
   }
 
-
+  // 音乐风格-AI润色按钮点击
   const refreshAIStyles = async () => {
     if (!checkLogin()) {
       return
@@ -259,20 +286,29 @@ const MusicScreen: React.FC = () => {
 
   // 获取支持语言
   const getSupportedLanguagesRequest = async () => {
-    const res = await getSupportedLanguages();
-    const formatLanguageList = res.support_language.map((language: any) => ({ code: language }));
-    setSupportedLanguageList(formatLanguageList);
-    console.log(res);
+    return new Promise<void>(async (resolve) => {
+      const res = await getSupportedLanguages();
+      const formatLanguageList = res.support_language.map((language: any) => ({ code: language }));
+      setSupportedLanguageList(formatLanguageList);
+      console.log(res);
+      resolve();
+    })
+    
   }
 
   useEffect(() => {
-    getSupportedLanguagesRequest();
-    refreshPointsBalance();
+    init();
   }, []);
 
-  useEffect(() => {
-    getRecommendStylesRequest();
-  }, [lyrics]);
+  const init = async() => {
+    await getSupportedLanguagesRequest();
+    refreshPointsBalance();
+    getRecommendStylesRequest()
+  }
+
+  // useEffect(() => {
+  //   // getRecommendStylesRequest();
+  // }, [lyrics]);
 
   const checkLogin = () => {
     let isGoOn = true
@@ -306,6 +342,26 @@ const MusicScreen: React.FC = () => {
 
   return (
     <SafeAreaView edges={['top', 'bottom']} style={styles.container}>
+      
+      {/* <View
+        style={{
+          width: 50,
+          height: 50,
+          position: 'absolute',
+          top: 40,
+          left: 20,
+          zIndex: 10,
+          backgroundColor: '#ff00ff'
+        }}
+      >
+        <JiliAdBtn
+          renderContent={() => {
+            return (
+              <View style={{width: 50, height: 50}}></View>
+            )
+          }}
+        />
+      </View> */}
       <ScrollView>
         {/* 顶部卡片区 */}
         <View style={styles.topRow}>

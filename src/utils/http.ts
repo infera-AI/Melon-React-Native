@@ -26,8 +26,12 @@ class HttpRequest {
     constructor(config: HttpRequestConfig = {}) {
         this.config = {
             baseURL: config.baseURL,
-            timeout: config.timeout || 60000,
+            timeout: config.timeout || 180000,
             withCredentials: config.withCredentials || false,
+            proxy: {
+                host: '', // 空主机名，axios 会忽略代理
+                port: 0
+            }
         }
 
         this.instance = axios.create(this.config)
@@ -114,6 +118,8 @@ class HttpRequest {
                 }
             },
             (error: any) => {
+                console.log('http请求失败---', error);
+                
                 if (error.response) {
                     console.error(
                         '❌ ~ 响应错误 ~\n',

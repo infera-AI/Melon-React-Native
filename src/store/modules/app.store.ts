@@ -77,25 +77,32 @@ export const useAppStore = create<APPState>()(
                                 isSuccess = rsp.status === 2;
                             }
 
-                            if (isSuccess) { // 任务执行成功
-                                console.log('store中轮询任务成功');
-                                const saveRequest = get().taskIdType === 'generate' ? saveGenerateMusicOS : saveCoverMusicOS
-                                saveRequest({
-                                    task_id: get().coverTaskId
-                                }).then((res) => {
-                                    console.log('store中保存作品成功', res);
-                                    set({ coverTaskId: '', taskIdType: '' })
-                                    eventBus.emit('UPDATE_MY_WORKS', undefined)
-                                    usePointsStore.getState().refreshPointsBalance()
-                                }).catch((err) => {
-                                    console.log('store中保存作品失败', err);
-                                    set({ coverTaskId: '', taskIdType: '' })
-                                    usePointsStore.getState().refreshPointsBalance()
-                                })
-                                
+                            if (rsp.status === -1) { // 生成失败
+                                console.log('store中轮询任务生成失败');
+                                set({ coverTaskId: '-1', taskIdType: '' })
+                                usePointsStore.getState().refreshPointsBalance()
+                                eventBus.emit('UPDATE_MY_WORKS', {noRefreshList: true})
                             } else {
-                                console.log('store中轮询翻唱任务状态');
-                                setTimeout(poll, 5000);
+                                if (isSuccess) { // 任务执行成功
+                                    console.log('store中轮询任务成功');
+                                    const saveRequest = get().taskIdType === 'generate' ? saveGenerateMusicOS : saveCoverMusicOS
+                                    saveRequest({
+                                        task_id: get().coverTaskId
+                                    }).then((res) => {
+                                        console.log('store中保存作品成功', res);
+                                        set({ coverTaskId: '', taskIdType: '' })
+                                        eventBus.emit('UPDATE_MY_WORKS', undefined)
+                                        usePointsStore.getState().refreshPointsBalance()
+                                    }).catch((err) => {
+                                        console.log('store中保存作品失败', err);
+                                        set({ coverTaskId: '', taskIdType: '' })
+                                        usePointsStore.getState().refreshPointsBalance()
+                                    })
+                                    
+                                } else {
+                                    console.log('store中轮询翻唱任务状态');
+                                    setTimeout(poll, 5000);
+                                }
                             }
                         }).catch((err) => {
                             setTimeout(poll, 5000);

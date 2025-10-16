@@ -3,7 +3,7 @@
   "displayName": "Melon",
   "react-native-google-mobile-ads": {
     "android_app_id": "ca-app-pub-2954543818912070~3998859607",
-    "ios_app_id": "ca-app-pub-2954543818912070~6601241714",
+    "ios_app_id": "ca-app-pub-2954543818912070~8319010817",
     "delay_app_measurement_init": false,
     "user_tracking_usage_description": "This identifier will be used to deliver personalized ads to you.",
     "sk_ad_network_items": [

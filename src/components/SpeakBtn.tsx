@@ -38,7 +38,7 @@ import { useMessageModal } from '@/contexts/MessageModalContext';
 import { WebSocketWrapper, WSStatus } from '@/utils/WebSocketWrapper';
 import AudioRecord from 'react-native-audio-record';
 import { Buffer } from 'buffer';
-import { useUserStore } from '@/store';
+import { useAppStore, useUserStore } from '@/store';
 import { scaleSize } from '@/utils/scale';
 import { Portal } from 'react-native-paper';
 import VoiceWave from '@/components/VoiceWave';
@@ -46,6 +46,7 @@ import { NativeModules } from 'react-native';
 const { AudioSessionManager } = NativeModules;
 import { AudioPlayerController } from '@/utils/AudioPlayerController';
 import { check, request, PERMISSIONS, RESULTS } from 'react-native-permissions';
+import { APP_SIGN_ENUM } from '@/utils';
 
 export type SpeakBtnRef = {
   destroy: () => void;
@@ -144,11 +145,31 @@ const SpeakBtn = forwardRef<SpeakBtnRef, Props>(({
     setVoiceStatus(StatusEnum.TYPE_INIT)
     socketStatusRef.current = WSStatus.INIT
     setSocketStatus(WSStatus.INIT)
+
+    let appSign = useAppStore.getState().appSign
+    let wsHost
+    if (__DEV__) {
+      wsHost = 'ws://218.244.147.232:80'
+      // wsHost = 'wss://api.sinobiz.biz' // 海外线上url
+    } else if (
+        appSign === APP_SIGN_ENUM.TYPE_MELON ||
+        appSign === APP_SIGN_ENUM.TYPE_MOMOR
+    ) {
+        wsHost = 'wss://api.sinobiz.biz' // 国内线上url
+        
+    } else if (
+        appSign === APP_SIGN_ENUM.TYPE_MELONS ||
+        appSign === APP_SIGN_ENUM.TYPE_MOMORS
+    ) {
+        wsHost = 'wss://api.sinobiz.biz' // 海外线上url
+    }
+
+
     let wsUri
     if (onlyRecognition) {
-      wsUri = `ws://218.244.147.232:80/ws/assistant/send_audio_message?token=${token}`
+      wsUri = `${wsHost}/ws/assistant/send_audio_message?token=${token}`
     } else {
-      wsUri = `ws://218.244.147.232:80/ws/conversations/send_audio_message?token=${token}`
+      wsUri = `${wsHost}/ws/conversations/send_audio_message?token=${token}`
     }
     ws && ws.close()
     ws = null

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import {
   View,
   Text,
@@ -7,6 +7,8 @@ import {
   StatusBar,
   ScrollView,
   Image,
+  Animated,
+  Easing
 } from 'react-native';
 import { useUserStore } from '../../../store';
 import theme from '../../../utils/theme';
@@ -21,6 +23,7 @@ import { useBackHandler } from '@/utils/BackHandlerUtil'; // 导入工具类
 import Clipboard from '@react-native-clipboard/clipboard';
 import { useMessageModal } from '@/contexts/MessageModalContext';
 import { usePointsStore } from '@/store/modules/points.store';
+import { scaleSize } from '@/utils/scale';
 
 type ProfileScreenNavigationProp = NativeStackNavigationProp<ProfileStackParamList, 'ProfileMain'>;
 
@@ -35,13 +38,73 @@ const ProfileScreen: React.FC = () => {
   const pointsBalance = usePointsStore((state) => state.pointsBalance);
   const refreshPointsBalance = usePointsStore((state) => state.refreshPointsBalance);
   const [inviteCode, setInViteCode] = useState("")
+
+  // 1. 状态管理：控制动画启动/停止
+  const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
+  // 2. 动画变量：存储旋转角度（初始0°）
+  const rotateAnim = useRef(new Animated.Value(0)).current;
+  // 3. 定义单次旋转动画：1秒内从0°转到360°（线性匀速）
+  const startSingleRotation = () => {
+    return Animated.sequence([ // 用sequence串联“旋转→重置”两步
+      // 第一步：0→1（对应0°→360°，匀速旋转）
+      Animated.timing(rotateAnim, {
+        toValue: 1,
+        duration: 1500,
+        easing: Easing.linear, // 强制匀速（修复“减速停顿”）
+        useNativeDriver: true,
+      }),
+      // 第二步：1→0（对应360°→0°，瞬间完成，无感知）
+      Animated.timing(rotateAnim, {
+        toValue: 0,
+        duration: 0, // 时长设为0，消除360°→0°的跳变间隙
+        useNativeDriver: true,
+      }),
+    ]);
+  };
+  // 4. 监听isRefreshing状态，控制动画启动/停止
+  useEffect(() => {
+    let animation: Animated.CompositeAnimation | null = null;
+
+    if (isRefreshing) {
+      // 启动循环动画：无限重复单次旋转
+      animation = Animated.loop(startSingleRotation());
+      animation.start();
+    } else {
+      // 停止动画并重置角度：0.3秒内从当前角度回到0°（平滑过渡）
+      Animated.timing(rotateAnim, {
+        toValue: 0,
+        duration: 0,
+        useNativeDriver: true,
+      }).start();
+    }
+
+    // 组件卸载时清理动画（防止内存泄漏）
+    return () => {
+      if (animation) animation.stop();
+    };
+  }, [isRefreshing, rotateAnim]);
+
+  // 5. 映射动画值：将0→1的动画值，转换为0°→360°的旋转角度
+  const rotateInterpolate = rotateAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0deg', '360deg'], // 从0度旋转到360度
+  });
+
+  const refreshPoints = async () => {
+    if (isRefreshing) {
+      return
+    }
+    setIsRefreshing(true);
+    await refreshPointsBalance();
+    setIsRefreshing(false);
+  }
+
   const menuItems = [
     {
       id: 'my_points',
       title: 'My Points',
       icon: require('@/assets/profile/menu_points_icon.png'),
-      // hasArrow: true,
-      hasArrow: false,
+      hasArrow: true,
       hasIcon: true,
     },
     // {
@@ -58,13 +121,13 @@ const ProfileScreen: React.FC = () => {
       hasArrow: true,
       hasIcon: true,
     },
-    {
-      id: 'offline_voice_package',
-      title: 'Offline voice package',
-      icon: require('@/assets/profile/menu_offlinelanguage_icon.png'),
-      hasArrow: true,
-      hasIcon: true,
-    },
+    // {
+    //   id: 'offline_voice_package',
+    //   title: 'Offline voice package',
+    //   icon: require('@/assets/profile/menu_offlinelanguage_icon.png'),
+    //   hasArrow: true,
+    //   hasIcon: true,
+    // },
     {
       id: 'account_security',
       title: t('profile.account_and_security'),
@@ -111,7 +174,7 @@ const ProfileScreen: React.FC = () => {
         navigation.navigate('About');
         break;
       case 'my_points':
-        // navigation.navigate('MyPoints');
+        navigation.navigate('MyPoints');
         break;
       case 'invitation_code':
         setShowInvitationModal(true);
@@ -220,7 +283,7 @@ const ProfileScreen: React.FC = () => {
               <Text style={[styles.userId, {opacity: userInfo?.id ? 1 : 0}]}>{t('profile.melon_id')}: {userInfo?.id || ''}</Text>
             }
           </View>
-          <TouchableOpacity style={styles.editButton} onPress={handleEditProfile}>
+          <TouchableOpacity style={styles.editButton} onPress={token ? handleEditProfile : goLogin}>
             <Image source={require('../../../assets/main/right_arrow_icon.png')} style={styles.arrowIcon} />
           </TouchableOpacity>
         </View>
@@ -250,7 +313,22 @@ const ProfileScreen: React.FC = () => {
                   <Image source={item.icon} style={styles.menuIcon} />
                   <Text style={styles.menuTitle}>{item.title}</Text>
                 </View>
-                <Text style={styles.menuItemPoints}>{item.id === 'my_points' ? pointsBalance : ''}</Text>
+                {
+                  item.id === 'my_points' &&
+                  <TouchableOpacity
+                    style={{flexDirection: 'row', alignItems: 'center'}}
+                    onPress={refreshPoints}
+                  >
+                    <Text style={styles.menuItemPoints}>{pointsBalance}</Text>
+                    <Animated.View style={{ transform: [{ rotate: rotateInterpolate }], marginLeft: scaleSize(10), marginRight: scaleSize(5), paddingVertical: scaleSize(6) }}>
+                      <Image
+                        source={require('../../../assets/music/refresh_points.png')}
+                        style={[styles.arrowIcon]}
+                      />
+                    </Animated.View>
+                    
+                  </TouchableOpacity>
+                }
                 {item.hasArrow && (
                   <View style={styles.arrowContainer}>
                     <Image source={require('../../../assets/main/right_arrow_icon.png')} style={styles.arrowIcon} />
@@ -389,6 +467,7 @@ const styles = StyleSheet.create({
     paddingVertical: normalize(16),
     paddingHorizontal: normalize(16),
     backgroundColor: '#262626',
+    height: scaleSize(60),
     // borderRadius: normalize(12),
     // marginBottom: normalize(8),
   },
