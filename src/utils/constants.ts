@@ -9,6 +9,7 @@ export const CODE = {
   SERVER_ERROR: 500,      // 服务器错误
   TOKEN_INVALID: 1001,    // token无效
   NETWORK_ERROR: 1002,    // 网络错误
+  TIMEOUT_ERROR: 1003,    // 超时错误
   UNKNOWN_ERROR: 9999,    // 未知错误
 } as const
 

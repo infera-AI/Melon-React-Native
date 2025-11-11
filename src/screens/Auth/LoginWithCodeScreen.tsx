@@ -151,14 +151,15 @@ const LoginWithCodeScreen: React.FC = () => {
   const { show } = useMessageModal();
 
   useEffect(() => {
-    if (
-      useAppStore.getState().appSign === APP_SIGN_ENUM.TYPE_MELONS ||
-      useAppStore.getState().appSign === APP_SIGN_ENUM.TYPE_MOMORS
-    ) {
-      setActiveTab('email')
-    } else {
-      setActiveTab('phone')
-    }
+    // if (
+    //   useAppStore.getState().appSign === APP_SIGN_ENUM.TYPE_MELONS ||
+    //   useAppStore.getState().appSign === APP_SIGN_ENUM.TYPE_MOMORS
+    // ) {
+    //   setActiveTab('email')
+    // } else {
+    //   setActiveTab('phone')
+    // }
+    setActiveTab('email')
   }, [])
 
   const handleBack = () => {
@@ -234,7 +235,7 @@ const LoginWithCodeScreen: React.FC = () => {
             <View style={{ width: normalize(40) }} />
           </View>
           {/* 副标题说明 */}
-          {
+          {/* {
             (
               useAppStore.getState().appSign === APP_SIGN_ENUM.TYPE_MELON ||
               useAppStore.getState().appSign === APP_SIGN_ENUM.TYPE_MOMOR
@@ -242,10 +243,10 @@ const LoginWithCodeScreen: React.FC = () => {
             <Text style={styles.subtitle}>
               {t('login_with_code.subtitle')}
             </Text>
-          }
+          } */}
           {/* Tab切换 */}
           <View style={styles.tabContainer}>
-            {
+            {/* {
               (
                 useAppStore.getState().appSign === APP_SIGN_ENUM.TYPE_MELON ||
                 useAppStore.getState().appSign === APP_SIGN_ENUM.TYPE_MOMOR
@@ -254,24 +255,24 @@ const LoginWithCodeScreen: React.FC = () => {
                 <Text style={activeTab === 'phone' ? styles.activeTab : styles.inactiveTab}>{t('login_with_code.by_phone_number')}</Text>
                 {activeTab === 'phone' && <View style={styles.tabIndicator} />}
               </TouchableOpacity>
-            }
+            } */}
             <TouchableOpacity style={styles.tabButton} onPress={() => handleTabSwitch('email')}>
               <Text style={activeTab === 'email' ? styles.activeTab : styles.inactiveTab}>{t('login_with_code.by_email')}</Text>
               {activeTab === 'email' && <View style={styles.tabIndicator} />}
             </TouchableOpacity>
           </View>
           {/* 手机号登录 */}
-          {activeTab === 'phone' && (
-            <>
+          {/* {activeTab === 'phone' && (
+            <> */}
               {/* 国家选择 */}
-              <TouchableOpacity style={styles.countrySelector} disabled={useAppStore.getState().appSign === APP_SIGN_ENUM.TYPE_MELON} onPress={() => setShowCountryModal(true)}>
+              {/* <TouchableOpacity style={styles.countrySelector} disabled={useAppStore.getState().appSign === APP_SIGN_ENUM.TYPE_MELON} onPress={() => setShowCountryModal(true)}>
                 <Image source={require('../../../src/assets/login/login_area_icon.png')} style={styles.inputIcon} />
                 <Text style={styles.countryName}>{useAppStore.getState().appSign === APP_SIGN_ENUM.TYPE_MELON ? t(`languageNames.${"zh"}`) : t(`languageNames.${selectedCountry.id}`)}</Text>
                 <Text style={styles.countryCode}>{useAppStore.getState().appSign === APP_SIGN_ENUM.TYPE_MELON ? "+86" : selectedCountry.code}</Text>
                 <Image source={require('../../../src/assets/main/dropdown_icon.png')} style={styles.dropdownArrow} />
-              </TouchableOpacity>
+              </TouchableOpacity> */}
               {/* 手机号输入框 */}
-              <View style={styles.inputBox}>
+              {/* <View style={styles.inputBox}>
                 <Image source={require('../../../src/assets/login/login_phone_icon.png')} style={styles.inputIcon} />
                 <TextInput
                   style={styles.input}
@@ -281,9 +282,9 @@ const LoginWithCodeScreen: React.FC = () => {
                   onChangeText={setPhoneNumber}
                   keyboardType="phone-pad"
                 />
-              </View>
-            </>
-          )}
+              </View> */}
+            {/* </>
+          )} */}
           {/* 邮箱登录 */}
           {activeTab === 'email' && (
             <View style={styles.inputBox}>

@@ -16,7 +16,7 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { eventBus } from '@/utils/EventBus';
-import { usePointsStore } from '@/store'
+import { usePointsStore, useUserStore } from '@/store'
 
 import { getGenerateMusicOSStatus, getCoverMusicStatus, saveCoverMusicOS, saveGenerateMusicOS } from '@/api/music/music';
 
@@ -68,13 +68,14 @@ export const useAppStore = create<APPState>()(
                     if (get().coverTaskId) {
                         const getStatusRequest = get().taskIdType === 'generate' ? getGenerateMusicOSStatus : getCoverMusicStatus
                         getStatusRequest({
-                            task_id: get().coverTaskId
+                            task_id: get().coverTaskId,
+                            user_id: useUserStore.getState().userInfo?.id
                         }).then((rsp) => {
                             let isSuccess = false;
                             if (get().taskIdType === "generate") {
-                                isSuccess = rsp.status === 3;
+                                isSuccess = rsp.status === 3 && rsp?.final;
                             } else if (get().taskIdType === "cover") {
-                                isSuccess = rsp.status === 2;
+                                isSuccess = rsp.status === 2 && rsp?.final;
                             }
 
                             if (rsp.status === -1) { // 生成失败
@@ -85,19 +86,23 @@ export const useAppStore = create<APPState>()(
                             } else {
                                 if (isSuccess) { // 任务执行成功
                                     console.log('store中轮询任务成功');
-                                    const saveRequest = get().taskIdType === 'generate' ? saveGenerateMusicOS : saveCoverMusicOS
-                                    saveRequest({
-                                        task_id: get().coverTaskId
-                                    }).then((res) => {
-                                        console.log('store中保存作品成功', res);
-                                        set({ coverTaskId: '', taskIdType: '' })
-                                        eventBus.emit('UPDATE_MY_WORKS', undefined)
-                                        usePointsStore.getState().refreshPointsBalance()
-                                    }).catch((err) => {
-                                        console.log('store中保存作品失败', err);
-                                        set({ coverTaskId: '', taskIdType: '' })
-                                        usePointsStore.getState().refreshPointsBalance()
-                                    })
+                                    // const saveRequest = get().taskIdType === 'generate' ? saveGenerateMusicOS : saveCoverMusicOS
+                                    // saveRequest({
+                                    //     task_id: get().coverTaskId
+                                    // }).then((res) => {
+                                    //     console.log('store中保存作品成功', res);
+                                    //     set({ coverTaskId: '', taskIdType: '' })
+                                    //     eventBus.emit('UPDATE_MY_WORKS', undefined)
+                                    //     usePointsStore.getState().refreshPointsBalance()
+                                    // }).catch((err) => {
+                                    //     console.log('store中保存作品失败', err);
+                                    //     set({ coverTaskId: '', taskIdType: '' })
+                                    //     usePointsStore.getState().refreshPointsBalance()
+                                    // })
+                                    
+                                    set({ coverTaskId: '', taskIdType: '' })
+                                    eventBus.emit('UPDATE_MY_WORKS', undefined)
+                                    usePointsStore.getState().refreshPointsBalance()
                                     
                                 } else {
                                     console.log('store中轮询翻唱任务状态');
@@ -105,7 +110,13 @@ export const useAppStore = create<APPState>()(
                                 }
                             }
                         }).catch((err) => {
-                            setTimeout(poll, 5000);
+                            console.log('轮询任务走到catch-err---', err);
+                            if (err?.code == '500') { // 任务已失效
+                                set({ coverTaskId: '', taskIdType: '' })
+                                usePointsStore.getState().refreshPointsBalance()
+                            } else {
+                                setTimeout(poll, 5000);
+                            }
                         })
                     }
                 }

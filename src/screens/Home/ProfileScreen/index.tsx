@@ -102,7 +102,7 @@ const ProfileScreen: React.FC = () => {
   const menuItems = [
     {
       id: 'my_points',
-      title: 'My Points',
+      title: t('translate_screen.my_points'),
       icon: require('@/assets/profile/menu_points_icon.png'),
       hasArrow: true,
       hasIcon: true,
@@ -203,18 +203,18 @@ const ProfileScreen: React.FC = () => {
 
   // 邀请码弹窗配置
   const invitationModalConfig = {
-    title: 'Invitation Code',
+    title: t('translate_screen.invitation_code'),
     content: inviteCode,
     buttons: [
       {
-        text: 'Cancle',
+        text: t('music.cancel'),
         onPress: () => {
           console.log('Cancel pressed');
         },
         type: 'secondary' as const,
       },
       {
-        text: 'Copy',
+        text: t('translate_screen.copy'),
         onPress: () => {
           // 这里可以添加复制到剪贴板的功能
           handleInvitationCode();
@@ -240,7 +240,7 @@ const ProfileScreen: React.FC = () => {
   const handleInvitationCode = () => {
     Clipboard.setString(inviteCode || '');
     show({
-      message: "Copy Success!",
+      message: t('music.copy_success'),
     });
     console.log('Copy invitation code');
   }
@@ -291,7 +291,7 @@ const ProfileScreen: React.FC = () => {
       {
         token &&
         <View style={styles.invitationCodeContainer}>
-          <Text style={styles.invitationCodeText} onPress={() => setShowInvitationModal(true)} ellipsizeMode="middle" numberOfLines={1}>Invitation code: {inviteCode}</Text>
+          <Text style={styles.invitationCodeText} onPress={() => setShowInvitationModal(true)} ellipsizeMode="middle" numberOfLines={1}>{t('translate_screen.invitation_code')}: {inviteCode}</Text>
           <TouchableOpacity style={styles.invitationCodeCopyButton} onPress={handleInvitationCode}>
             <Image source={require('@/assets/main/copy_icon.png')} style={styles.arrowIcon} />
           </TouchableOpacity>

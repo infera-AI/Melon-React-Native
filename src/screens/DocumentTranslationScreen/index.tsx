@@ -26,7 +26,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import type { Language } from '@/i18n/languages';
 import { useMessageModal } from '@/contexts/MessageModalContext';
 import { scaleSize, scaleFont } from '@/utils/scale';
-import { pick, isKnownType } from '@react-native-documents/picker';
+import { pick, FileToCopy, keepLocalCopy } from '@react-native-documents/picker';
 import {
   translateDocument,
   getTranslationTask,
@@ -166,7 +166,45 @@ const DocumentTranslationScreen: React.FC = () => {
       // ✅ 在这里你可以处理上传等逻辑
       if (res && res.length > 0) {
         setLoading(true)
+
+        // 定义要保存的文件信息（符合 FileToCopy 类型）
+        const fileToCopy: FileToCopy = {
+          uri: res[0].uri, // 原始临时路径
+          fileName: res[0].name || '', // 原始文件名（带后缀）
+          // 若为 Android 虚拟文件，需添加 convertVirtualFileToType
+          // convertVirtualFileToType: result.convertibleToMimeTypes?.[0],
+        };
+
+        // 调用 keepLocalCopy 保存到 app 私有目录（文档目录或缓存目录）
+        const saveResult = await keepLocalCopy({
+          files: [fileToCopy], // 传入 FileToCopy 数组（非空）
+          destination: 'documentDirectory', // 保存到文档目录（不被系统清理）
+        });
+
+        /**
+         * savedFile数据格式
+         * {
+         * localUri: 'XXXX',
+         * sourceUri: 'xxx',
+         * status: 'success'
+         * 
+         * }
+         */
+        const savedFile = saveResult[0];
+
+        console.log('savedFile---', savedFile);
+
+        if (savedFile.status !== 'success' || !savedFile?.localUri) {
+          console.error('持久化保存文件失败');
+          throw new Error(`持久化保存文件失败`);
+        }
+        res[0].uri = savedFile.localUri
+
         const file = res[0];
+
+        console.log('处理后的文件---', file);
+        
+
         translateDocument({
           source_language: beforeLangSelect,
           target_language: afterLangSelect,
@@ -190,8 +228,12 @@ const DocumentTranslationScreen: React.FC = () => {
       }
 
     } catch (err) {
-        console.log('用户取消选择');
-        // console.error('文件选择出错:', err);
+      setLoading(false)
+      console.log('用户取消选择--', err?.message);
+      // console.error('文件选择出错:', err);
+      show({
+        message: t('music.file_selection_failed')
+      })
     }
   }
 

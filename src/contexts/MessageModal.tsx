@@ -19,6 +19,7 @@ interface MessageModalProps {
   title?: string;
   message: string;
   confirmText?: string;
+  duration?: number,
   onClose?: () => void;
   onConfirm?: () => void;
   showCancel?: boolean;
@@ -31,6 +32,7 @@ const MessageModal: React.FC<MessageModalProps> = ({
   title,
   message,
   confirmText,
+  duration = 2000,
   onClose,
   onConfirm,
   showCancel,
@@ -41,7 +43,7 @@ const MessageModal: React.FC<MessageModalProps> = ({
     if (visible) {
       const timer = setTimeout(() => {
         onClose?.();
-      }, 2000);
+      }, duration);
       return () => clearTimeout(timer);
     }
   }, [visible, onClose]);

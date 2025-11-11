@@ -22,7 +22,7 @@ import { useLanguage } from '../../../contexts/LanguageContext';
 import { normalize, normalizeFontSize } from '@/utils/stylesUtil';
 import { usePointsStore } from '@/store/modules/points.store';
 import CustomNavigation from '@/components/CustomNavigation';
-import { useAppStore } from '@/store';
+import { useAppStore, useUserStore } from '@/store';
 import { scaleSize } from '@/utils/scale';
 
 type GeneratingMusicScreenNavigationProp = NativeStackNavigationProp<MusicStackParamList, 'GeneratingMusic'>;
@@ -125,43 +125,6 @@ const GeneratingMusicScreen: React.FC = () => {
     clearTimeout(getTaskInfoTimer);
   }
 
-  const generateMusicRequest = async () => {
-    console.log(lyrics, musicStyles, title, 'lyrics, musicStyles');
-    try {
-      // setIsGenerating(true);
-      // const res = await generateMusic({ 
-      //   work_title: title,
-      //   work_lyrics: lyrics,
-      //   work_genres: musicStyles,
-      // });
-      // console.log(res, 'res');
-      // if(!res.task_id){
-      //   generRationFailed()
-      //   return
-      // }
-      // taskIdRef.current = res.task_id;
-
-      // 开始轮询查询状态
-      // startStatusPolling(taskIdRef.current);
-
-      // // 开始模拟进度更新
-      // startProgressSimulation();
-
-      // 设置超时，3分钟后自动停止轮询
-      // timeoutRef.current = setTimeout(() => {
-      //   console.log('轮询超时，自动停止');
-      //   cleanupPolling();
-      //   setIsGenerating(false);
-      //   show({message: t('music.generation_timeout')});
-      //   navigation.goBack();
-      // }, 3 * 60 * 1000); // 3分
-
-    } catch (error) {
-      // console.log(error,'error')
-      // generRationFailed()
-    }
-  };
-
   // 保存翻唱歌曲
   const saveCoverMusicRequest = async () => {
     try {
@@ -191,15 +154,16 @@ const GeneratingMusicScreen: React.FC = () => {
 
       getStatusRequest({
         task_id: taskIdRef.current,
+        user_id: useUserStore.getState().userInfo?.id
       }).then((rsp) => {
         console.log('轮询状态------', rsp);
 
         let isSuccess = false;
 
         if (generateMusicType === "generate") {
-          isSuccess = rsp.status === 3;
+          isSuccess = rsp.status === 3 && rsp?.final;
         } else if (generateMusicType === "cover") {
-          isSuccess = rsp.status === 2;
+          isSuccess = rsp.status === 2 && rsp?.final;
         }
 
         if (rsp.status === -1) { // 生成失败
@@ -218,27 +182,26 @@ const GeneratingMusicScreen: React.FC = () => {
               clearTimeout(getTaskInfoTimer)
 
               if (generateMusicType === 'cover') {
-                const resSave = await saveCoverMusicRequest()
+                // const resSave = await saveCoverMusicRequest()
                 refreshPointsBalance();
                 navigation.replace('MusicPlay', {
                   music: {
-                    ...resSave,
-                    title: route.params?.title || ''
+                    ...rsp,
+                    title: route.params?.title ? route.params?.title : rsp?.title ? rsp?.title : ''
                   },
                   type: 'cover'
                 });
               } else {
-                const res = await saveGenerateMusicOS({
-                  task_id: taskIdRef.current
-                })
+                // const res = await saveGenerateMusicOS({
+                //   task_id: taskIdRef.current
+                // })
                 console.log('保存音乐成功');
                 
                 setTaskId(taskIdRef.current)
                 refreshPointsBalance();
                 navigation.replace('MusicPreview', {
                   music: {
-                    ...rsp,
-                    ...res
+                    ...rsp
                   }
                 });
               }
@@ -259,61 +222,6 @@ const GeneratingMusicScreen: React.FC = () => {
     const percent = (num / translationMaxTimeRef.current) * 100;
     return Math.min(Math.round(percent), 100); // 四舍五入并确保最大值为 100
   }
-
-  // 开始模拟进度更新
-  const startProgressSimulation = () => {
-    progressInterval.current = setInterval(() => {
-      setProgress(prev => {
-        const newProgress = prev + 2;
-        if (newProgress >= 100) {
-          return 100;
-        }
-        return newProgress;
-      });
-    }, 2000);
-  };
-
-  // 查询生成状态
-  const getMusicTaskStatusRequest = async (id: string) => {
-    try {
-      const res = await getMusicTaskStatus({
-        task_id: id,
-      });
-      console.log(res, 'status res');
-
-      // 如果res.data不为null，说明生成成功
-      if (res !== null) {
-        // 停止轮询和进度模拟
-        cleanupPolling();
-
-        // 设置进度为100%
-        setProgress(100);
-        setIsGenerating(false);
-        const timer = setTimeout(() => {
-          // 跳转音乐预览页面
-          navigation.replace('MusicPreview', { music: res });
-          clearTimeout(timer);
-        }, 500);
-        // setIsGenerating(false);
-
-
-
-        // 显示完成弹窗
-        // setTimeout(() => {
-        //   if(useVoiceStore.getState().type === VoiceType.CREATE){
-        //     // 跳转专属音色页面
-        //     // navigation.replace('LanguageVoice');
-        //   } else {
-        //     // 跳转专属音色页面
-        //     setShowCompletionModal(true);
-        //   }
-        // }, 1000);
-      }
-    } catch (error: any) {
-      show({ message: t('music.generation_failed') + error.message || '' });
-      console.log('Status check error:', error);
-    }
-  };
 
   const handleReRecording = () => {
     setShowCompletionModal(false);
@@ -406,7 +314,7 @@ const GeneratingMusicScreen: React.FC = () => {
               />
               :
               <LottieView
-                source={require('../../../assets/lottie/Loading.json')}
+                source={require('../../../assets/lottie/Loading2.json')}
                 style={styles.lottieAnimation}
                 autoPlay
                 loop

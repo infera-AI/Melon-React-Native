@@ -136,7 +136,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, RNAppAuthAuthorizationFlo
     guard let window = window, let button = globalOverlayButton else { return }
     
     let horizontalMargin: CGFloat = 20
-    let verticalMargin: CGFloat = 20
+    let verticalMargin: CGFloat = 50
     let bottomSafeMargin = window.safeAreaInsets.bottom > 0 ? window.safeAreaInsets.bottom + verticalMargin : verticalMargin
     
     let buttonX = window.bounds.width - button.bounds.width - horizontalMargin

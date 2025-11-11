@@ -7,6 +7,20 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		040FA41E2EB5F9B600D12FE1 /* PassKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 040FA41D2EB5F9B600D12FE1 /* PassKit.framework */; };
+		040FA41F2EB5F9C300D12FE1 /* PassKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 040FA41D2EB5F9B600D12FE1 /* PassKit.framework */; };
+		040FA4202EB5F9CC00D12FE1 /* PassKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 040FA41D2EB5F9B600D12FE1 /* PassKit.framework */; };
+		040FA4212EB5F9D400D12FE1 /* PassKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 040FA41D2EB5F9B600D12FE1 /* PassKit.framework */; };
+		040FA4232EB5FC0600D12FE1 /* RNApplePay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 040FA4222EB5FC0600D12FE1 /* RNApplePay.swift */; };
+		040FA4242EB5FC0600D12FE1 /* RNApplePay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 040FA4222EB5FC0600D12FE1 /* RNApplePay.swift */; };
+		040FA4252EB5FC0600D12FE1 /* RNApplePay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 040FA4222EB5FC0600D12FE1 /* RNApplePay.swift */; };
+		040FA4262EB5FC0600D12FE1 /* RNApplePay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 040FA4222EB5FC0600D12FE1 /* RNApplePay.swift */; };
+		040FA4272EB5FC0600D12FE1 /* RNApplePay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 040FA4222EB5FC0600D12FE1 /* RNApplePay.swift */; };
+		040FA4292EB600A500D12FE1 /* RNApplePayBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = 040FA4282EB600A500D12FE1 /* RNApplePayBridge.m */; };
+		040FA42A2EB600A500D12FE1 /* RNApplePayBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = 040FA4282EB600A500D12FE1 /* RNApplePayBridge.m */; };
+		040FA42B2EB600A500D12FE1 /* RNApplePayBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = 040FA4282EB600A500D12FE1 /* RNApplePayBridge.m */; };
+		040FA42C2EB600A500D12FE1 /* RNApplePayBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = 040FA4282EB600A500D12FE1 /* RNApplePayBridge.m */; };
+		040FA42D2EB600A500D12FE1 /* RNApplePayBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = 040FA4282EB600A500D12FE1 /* RNApplePayBridge.m */; };
 		0439C6802E4512B300353460 /* AudioConcatModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0439C67F2E4512B300353460 /* AudioConcatModule.swift */; };
 		0439C6822E45146200353460 /* AudioConcatBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = 0439C6812E45146200353460 /* AudioConcatBridge.m */; };
 		048DA7642E3BFF9E00FA95BE /* HeadsetDetection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 048DA7632E3BFF9E00FA95BE /* HeadsetDetection.swift */; };
@@ -240,9 +254,9 @@
 		04F414372E3B1F5E00D77B0A /* AudioSessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04F414362E3B1F5E00D77B0A /* AudioSessionManager.swift */; };
 		04F4143A2E3B206500D77B0A /* AudioSessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 04F414392E3B206500D77B0A /* AudioSessionManager.m */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
-		245B3CD6A52585BA688A3465 /* BuildFile in Frameworks */ = {isa = PBXBuildFile; };
+		245B3CD6A52585BA688A3465 /* (null) in Frameworks */ = {isa = PBXBuildFile; };
 		2F406D6568A8A8A7D21B5898 /* libPods-MomorsApp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E2DFAEB405A08AA71A6D8269 /* libPods-MomorsApp.a */; };
-		55484962E2FFF874F5A9D6A7 /* BuildFile in Frameworks */ = {isa = PBXBuildFile; };
+		55484962E2FFF874F5A9D6A7 /* (null) in Frameworks */ = {isa = PBXBuildFile; };
 		761780ED2CA45674006654EE /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 761780EC2CA45674006654EE /* AppDelegate.swift */; };
 		76D43A07939EB58E07A41C7E /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
@@ -276,6 +290,9 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		040FA41D2EB5F9B600D12FE1 /* PassKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = PassKit.framework; path = System/Library/Frameworks/PassKit.framework; sourceTree = SDKROOT; };
+		040FA4222EB5FC0600D12FE1 /* RNApplePay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RNApplePay.swift; sourceTree = "<group>"; };
+		040FA4282EB600A500D12FE1 /* RNApplePayBridge.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RNApplePayBridge.m; sourceTree = "<group>"; };
 		0439C67F2E4512B300353460 /* AudioConcatModule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioConcatModule.swift; sourceTree = "<group>"; };
 		0439C6812E45146200353460 /* AudioConcatBridge.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AudioConcatBridge.m; sourceTree = "<group>"; };
 		0472C9642E7E874B00F180B9 /* MelonsApp.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = MelonsApp.entitlements; sourceTree = "<group>"; };
@@ -365,6 +382,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				040FA4202EB5F9CC00D12FE1 /* PassKit.framework in Frameworks */,
 				04AC38BF2E68065400FF2D7E /* ImageIO.framework in Frameworks */,
 				04AC38BE2E68064300FF2D7E /* MobileCoreServices.framework in Frameworks */,
 				04AC38BD2E68063900FF2D7E /* StoreKit.framework in Frameworks */,
@@ -407,6 +425,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				040FA4212EB5F9D400D12FE1 /* PassKit.framework in Frameworks */,
 				04AC38FA2E68AE3400FF2D7E /* QuartzCore.framework in Frameworks */,
 				04AC38FB2E68AE3400FF2D7E /* UIKit.framework in Frameworks */,
 				04AC38FC2E68AE3400FF2D7E /* SystemConfiguration.framework in Frameworks */,
@@ -449,6 +468,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				040FA41F2EB5F9C300D12FE1 /* PassKit.framework in Frameworks */,
 				04EEF00A2E6006A700733789 /* libc++abi.tbd in Frameworks */,
 				04EEF0082E60069400733789 /* libz.tbd in Frameworks */,
 				04EEF0062E60068900733789 /* libxml2.tbd in Frameworks */,
@@ -491,6 +511,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				040FA41E2EB5F9B600D12FE1 /* PassKit.framework in Frameworks */,
 				04AC38742E65CFC500FF2D7E /* QuartzCore.framework in Frameworks */,
 				04AC38782E65CFEE00FF2D7E /* UIKit.framework in Frameworks */,
 				04AC38772E65CFDF00FF2D7E /* SystemConfiguration.framework in Frameworks */,
@@ -521,7 +542,7 @@
 				04AC386C2E65CF7500FF2D7E /* libiconv.tbd in Frameworks */,
 				04AC385F2E65CC8600FF2D7E /* CoreImage.framework in Frameworks */,
 				04AC38632E65CD5B00FF2D7E /* CoreMotion.framework in Frameworks */,
-				55484962E2FFF874F5A9D6A7 /* BuildFile in Frameworks */,
+				55484962E2FFF874F5A9D6A7 /* (null) in Frameworks */,
 				04AC38662E65CD9100FF2D7E /* DeviceCheck.framework in Frameworks */,
 				04AC38762E65CFD500FF2D7E /* StoreKit.framework in Frameworks */,
 				04AC38732E65CFBD00FF2D7E /* MobileCoreServices.framework in Frameworks */,
@@ -534,7 +555,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				245B3CD6A52585BA688A3465 /* BuildFile in Frameworks */,
+				245B3CD6A52585BA688A3465 /* (null) in Frameworks */,
 				C7781717C4CF384F678E7934 /* libPods-Melon.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -567,6 +588,8 @@
 				049C70C72E60CB0800DF9483 /* SplashAdViewBridge.m */,
 				049C70B32E60B19100DF9483 /* PangleAd.swift */,
 				049C70BB2E60B72400DF9483 /* PangleAdBridge.m */,
+				040FA4222EB5FC0600D12FE1 /* RNApplePay.swift */,
+				040FA4282EB600A500D12FE1 /* RNApplePayBridge.m */,
 			);
 			name = Melon;
 			sourceTree = "<group>";
@@ -574,6 +597,7 @@
 		2D16E6871FA4F8E400B85C8A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				040FA41D2EB5F9B600D12FE1 /* PassKit.framework */,
 				04EEF0112E60285200733789 /* BUAdSDK.xcframework */,
 				04EEF0092E6006A700733789 /* libc++abi.tbd */,
 				04EEF0072E60069300733789 /* libz.tbd */,
@@ -975,9 +999,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-MomorsApp/Pods-MomorsApp-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-MomorsApp/Pods-MomorsApp-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -992,9 +1020,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-MelonsApp/Pods-MelonsApp-resources-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Copy Pods Resources";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-MelonsApp/Pods-MelonsApp-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -1031,9 +1063,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-MelonApp/Pods-MelonApp-resources-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Copy Pods Resources";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-MelonApp/Pods-MelonApp-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -1070,9 +1106,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-MomorApp/Pods-MomorApp-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-MomorApp/Pods-MomorApp-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -1109,9 +1149,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Melon/Pods-Melon-resources-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Copy Pods Resources";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Melon/Pods-Melon-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -1126,9 +1170,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-MelonsApp/Pods-MelonsApp-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-MelonsApp/Pods-MelonsApp-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -1165,9 +1213,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Melon/Pods-Melon-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Melon/Pods-Melon-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -1182,9 +1234,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-MelonApp/Pods-MelonApp-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-MelonApp/Pods-MelonApp-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -1221,9 +1277,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-MomorsApp/Pods-MomorsApp-resources-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Copy Pods Resources";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-MomorsApp/Pods-MomorsApp-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -1238,9 +1298,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-MomorApp/Pods-MomorApp-resources-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Copy Pods Resources";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-MomorApp/Pods-MomorApp-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -1260,6 +1324,8 @@
 				04AC38802E6801F700FF2D7E /* SplashAdViewBridge.m in Sources */,
 				04AC38812E6801F700FF2D7E /* ConfigModule.swift in Sources */,
 				04AC38822E6801F700FF2D7E /* AudioSessionManager.swift in Sources */,
+				040FA42C2EB600A500D12FE1 /* RNApplePayBridge.m in Sources */,
+				040FA4232EB5FC0600D12FE1 /* RNApplePay.swift in Sources */,
 				04AC38832E6801F700FF2D7E /* AudioConcatModule.swift in Sources */,
 				04AC38842E6801F700FF2D7E /* PangleAd.swift in Sources */,
 				04AC38852E6801F700FF2D7E /* HeadsetDetection.swift in Sources */,
@@ -1281,6 +1347,8 @@
 				04AC38EE2E68AE3400FF2D7E /* SplashAdViewBridge.m in Sources */,
 				04AC38EF2E68AE3400FF2D7E /* ConfigModule.swift in Sources */,
 				04AC38F02E68AE3400FF2D7E /* AudioSessionManager.swift in Sources */,
+				040FA42D2EB600A500D12FE1 /* RNApplePayBridge.m in Sources */,
+				040FA4262EB5FC0600D12FE1 /* RNApplePay.swift in Sources */,
 				04AC38F12E68AE3400FF2D7E /* AudioConcatModule.swift in Sources */,
 				04AC38F22E68AE3400FF2D7E /* PangleAd.swift in Sources */,
 				04AC38F32E68AE3400FF2D7E /* HeadsetDetection.swift in Sources */,
@@ -1302,6 +1370,8 @@
 				049C70CA2E60CB0800DF9483 /* SplashAdViewBridge.m in Sources */,
 				04E7CED52E55B9E30094A637 /* ConfigModule.swift in Sources */,
 				04E7CEA42E55B52D0094A637 /* AudioSessionManager.swift in Sources */,
+				040FA42B2EB600A500D12FE1 /* RNApplePayBridge.m in Sources */,
+				040FA4272EB5FC0600D12FE1 /* RNApplePay.swift in Sources */,
 				04E7CEA52E55B52D0094A637 /* AudioConcatModule.swift in Sources */,
 				049C70B62E60B19100DF9483 /* PangleAd.swift in Sources */,
 				04E7CEA62E55B52D0094A637 /* HeadsetDetection.swift in Sources */,
@@ -1323,6 +1393,8 @@
 				049C70C82E60CB0800DF9483 /* SplashAdViewBridge.m in Sources */,
 				04E7CED32E55B9E30094A637 /* ConfigModule.swift in Sources */,
 				04E7CEBD2E55B6B40094A637 /* AudioSessionManager.swift in Sources */,
+				040FA42A2EB600A500D12FE1 /* RNApplePayBridge.m in Sources */,
+				040FA4252EB5FC0600D12FE1 /* RNApplePay.swift in Sources */,
 				04E7CEBE2E55B6B40094A637 /* AudioConcatModule.swift in Sources */,
 				049C70B42E60B19100DF9483 /* PangleAd.swift in Sources */,
 				04E7CEBF2E55B6B40094A637 /* HeadsetDetection.swift in Sources */,
@@ -1344,6 +1416,8 @@
 				049C70C92E60CB0800DF9483 /* SplashAdViewBridge.m in Sources */,
 				04E7CED42E55B9E30094A637 /* ConfigModule.swift in Sources */,
 				04F414372E3B1F5E00D77B0A /* AudioSessionManager.swift in Sources */,
+				040FA4292EB600A500D12FE1 /* RNApplePayBridge.m in Sources */,
+				040FA4242EB5FC0600D12FE1 /* RNApplePay.swift in Sources */,
 				0439C6802E4512B300353460 /* AudioConcatModule.swift in Sources */,
 				049C70B52E60B19100DF9483 /* PangleAd.swift in Sources */,
 				048DA7642E3BFF9E00FA95BE /* HeadsetDetection.swift in Sources */,
@@ -1565,7 +1639,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.1.0;
+				MARKETING_VERSION = 1.1.1;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"$(MelonApp_OTHER_LDFLAGS)",
@@ -1594,7 +1668,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.1.0;
+				MARKETING_VERSION = 1.1.1;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"$(MelonApp_OTHER_LDFLAGS)",

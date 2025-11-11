@@ -24,6 +24,7 @@ import { getDeviceInfo } from '../../utils/helpers';
 import FullScreenLoader from '../../components/FullScreenLoader';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { normalize, normalizeFontSize } from '../../utils/stylesUtil';
+import { getUserInfo } from '@/api/profile/profile';
 
 type VerifyCodeScreenRouteProp = RouteProp<AuthStackParamList, 'VerifyCode'>;
 type VerifyCodeScreenNavigationProp = StackNavigationProp<AuthStackParamList, 'VerifyCode'>;
@@ -142,6 +143,7 @@ const VerifyCodeScreen: React.FC = () => {
        console.log('注册并登录成功:', loginResult);
       // 保存token到zustand
       useUserStore.getState().setToken(loginResult.token);
+      getUserInfoRequest()
        // 跳转到密码设置页面
        navigation.navigate('ResetPassword');
      } else {
@@ -154,6 +156,14 @@ const VerifyCodeScreen: React.FC = () => {
         message: `${t('verify_code.login_failed')}: ${error.message || t('common.unknown_error')}`,
       });
      }
+  }
+
+  const getUserInfoRequest = async () => {
+    const res = await getUserInfo({});
+    console.log('UserInfo', res);
+    if (res?.id) {
+      useUserStore.getState().setUserInfo(res);
+    }
   }
 
   const register = async () => {

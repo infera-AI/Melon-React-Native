@@ -104,7 +104,7 @@ const img_music_back_btn = require("../../../../assets/images/music_back_btn.png
 
 const SingerSelectionScreen: React.FC<any> = ({ route }: any) => {
   const { type } = route.params || {};
-  const navigation = useNavigation();
+  const navigation = useNavigation<any>();
   const { t } = useLanguage();
   const { show } = useMessageModal()
   const { apply, applyItem, text, textSecondary } = useGlobalTheme();
@@ -586,7 +586,7 @@ const SingerSelectionScreen: React.FC<any> = ({ route }: any) => {
     });
   }
   const handlePointsTopup = () => {
-    // navigation.navigate('PointsTopup');
+    navigation.navigate('AllMyPoints');
   }
 
   const handleWatchAds = () => {
@@ -700,9 +700,13 @@ const SingerSelectionScreen: React.FC<any> = ({ route }: any) => {
           ],
         }}
       />
-      <FullScreenLoader
-        visible={isLoading}
-      />
+      {
+        isLoading &&
+        <FullScreenLoader
+          visible={isLoading}
+        />
+      }
+      
       <PublicModal
         visible={haveTaskModal}
         modalType="center"

@@ -1,310 +1,313 @@
-import axios, { AxiosInstance, AxiosRequestConfig, Method } from 'axios'
 import { useUserStore, useAppStore } from '@/store'
 import { APP_SIGN_ENUM, CODE } from './constants'
 import { checkNetwork } from './network'
 import { ToastService } from '@/utils/ToastService';
 import { i18nService } from '@/utils/i18nService';
-import { useStore } from 'zustand';
 
-interface HttpRequestConfig extends AxiosRequestConfig {
-    baseURL?: string;
-    timeout?: number;
-    withCredentials?: boolean;
+type Method = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH'
+
+interface HttpRequestConfig {
+  baseURL?: string;
+  timeout?: number;
+  withCredentials?: boolean;
 }
 
 interface RequestOptions {
-    headers?: Record<string, string>;
-    extraConfig?: Omit<AxiosRequestConfig, 'url' | 'method' | 'data' | 'params'>;
-    fileType?: string;
-    fileName?: string;
+  headers?: Record<string, string>;
+  extraConfig?: RequestInit;
+  fileType?: string;
+  fileName?: string;
 }
 
 class HttpRequest {
-    private instance: AxiosInstance  // 使用从axios导入的AxiosInstance类型
-    private readonly config: HttpRequestConfig
+  private config: HttpRequestConfig;
+  private abortControllers = new Map<string, AbortController>();
 
-    constructor(config: HttpRequestConfig = {}) {
-        this.config = {
-            baseURL: config.baseURL,
-            timeout: config.timeout || 180000,
-            withCredentials: config.withCredentials || false,
-            proxy: {
-                host: '', // 空主机名，axios 会忽略代理
-                port: 0
-            }
+  constructor(config: HttpRequestConfig = {}) {
+    this.config = {
+      baseURL: config.baseURL,
+      timeout: config.timeout || 180000,
+      withCredentials: true,
+    };
+  }
+
+  private getRequestKey(method: Method, url: string): string {
+    return `${method}-${url}-${Date.now()}`;
+  }
+
+  private getFullUrl(url: string): string {
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+      return url;
+    }
+    return `${this.config.baseURL || ''}${url}`;
+  }
+
+  private handleParams(url: string, params?: Record<string, any>): string {
+    if (!params || Object.keys(params).length === 0) return url;
+    const searchParams = new URLSearchParams();
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) {
+        searchParams.append(key, String(value));
+      }
+    });
+    const queryString = searchParams.toString();
+    return queryString ? `${url}?${queryString}` : url;
+  }
+
+  private async handleHeaders(
+    customHeaders?: Record<string, string>
+  ): Promise<Record<string, string>> {
+    const defaultHeaders: Record<string, string> = {
+      'Accept': 'application/json, text/plain, */*', // 和 axios 一致
+      'Content-Type': 'application/json', // 默认 JSON
+    };
+
+    const token = useUserStore.getState().token || useUserStore.getState().verification_token;
+    if (token) {
+      defaultHeaders['Authorization'] = `Bearer ${token}`;
+    }
+
+    // 合并自定义 headers，但不强制覆盖 Content-Type（后续会根据 data 类型自动调整）
+    return { ...defaultHeaders, ...customHeaders };
+  }
+
+  private async request<T>({
+    method,
+    url,
+    params,
+    data,
+    options = {},
+  }: {
+    method: Method;
+    url: string;
+    params?: Record<string, any>;
+    data?: any;
+    options?: RequestOptions;
+  }): Promise<T> {
+    const isConnected = await checkNetwork();
+    if (!isConnected) {
+      console.log('网络检查失败-------');
+      ToastService.show({
+        message: i18nService.t('network_unavailable')
+      });
+      throw {
+        code: CODE.NETWORK_ERROR,
+        message: i18nService.t('network_unavailable'),
+      };
+    }
+
+    const fullUrl = this.getFullUrl(url);
+    const requestUrl = this.handleParams(fullUrl, params);
+    let headers = await this.handleHeaders(options.headers); // 注意：用 let 声明，后续会修改
+
+    const requestKey = this.getRequestKey(method, requestUrl);
+    const controller = new AbortController();
+    this.abortControllers.set(requestKey, controller);
+    const timeoutId = setTimeout(() => {
+      controller.abort();
+      this.abortControllers.delete(requestKey);
+    }, this.config.timeout);
+
+    const fetchConfig: RequestInit = {
+      method,
+      headers: headers,
+      signal: controller.signal,
+      credentials: this.config.withCredentials ? 'include' : 'omit',
+      ...options.extraConfig,
+    };
+
+    // -------------------------- 核心逻辑：复刻 axios 的 Content-Type 自动匹配 --------------------------
+    if (data) {
+      if (data instanceof FormData) {
+        // 1. 若 data 是 FormData，自动设置正确的 multipart/form-data（带边界符）
+        fetchConfig.body = data;
+        delete headers['Content-Type']; // 让浏览器自动添加 `multipart/form-data; boundary=xxx`
+      } else {
+        // 2. 若 data 是普通对象，强制用 JSON 格式，且 Content-Type 设为 application/json
+        fetchConfig.body = JSON.stringify(data);
+        headers['Content-Type'] = 'application/json'; // 覆盖自定义的 multipart/form-data
+      }
+    }
+    // 更新 headers（因为可能修改了 Content-Type）
+    fetchConfig.headers = headers;
+    // -----------------------------------------------------------------------------------
+
+    console.log(
+      '🚀 ~ 发起请求 ~\n',
+      `URL: ${method} ${requestUrl}\n`,
+      `Headers: ${JSON.stringify(headers, null, 2)}\n`,
+      `${params ? `Params: ${JSON.stringify(params, null, 2)}\n` : ''}`,
+      `${data ? `Data: ${data instanceof FormData ? 'FormData' : JSON.stringify(data, null, 2)}` : ''}`
+    );
+
+    try {
+      const response = await fetch(requestUrl, fetchConfig);
+      clearTimeout(timeoutId);
+      this.abortControllers.delete(requestKey);
+
+      let responseData;
+      try {
+        responseData = await response.json();
+      } catch {
+        responseData = await response.text();
+      }
+
+      console.log(
+        '✅ ~ 收到响应 ~\n',
+        `URL: ${method} ${requestUrl}\n`,
+        `Status: ${response.status}\n`,
+        `Data: ${JSON.stringify(responseData, null, 2)}`
+      );
+
+      if (!response.ok) {
+        if (response.status === CODE.FORBIDDEN) {
+          useUserStore.getState().clearLoginInfo();
+          throw {
+            code: CODE.FORBIDDEN,
+            message: i18nService.t('http_forbidden'),
+            data: responseData,
+          };
         }
 
-        this.instance = axios.create(this.config)
-        this.setupInterceptors()
-    }
-
-    private setupInterceptors() {
-        // 请求拦截器
-        this.instance.interceptors.request.use(
-            async (config: any) => {
-                // 检查网络连接
-                const isConnected = await checkNetwork()
-                if (!isConnected) {
-                    ToastService.show({
-                        message: i18nService.t('network_unavailable')
-                    });
-                    throw {
-                        code: CODE.NETWORK_ERROR,
-                        message: i18nService.t('network_unavailable'),
-                    }
-                }
-
-                // 从store获取token
-                const token = useUserStore.getState().token||useUserStore.getState().verification_token;
-                if (token) {
-                    config.headers = {
-                        ...config.headers,
-                        Authorization: `Bearer ${token}`,
-                    }
-                }
-
-                console.log(
-                    '🚀 ~ 发起请求 ~\n',
-                    `URL: ${config.method?.toUpperCase()} ${config.baseURL}${config.url}\n`,
-                    `Headers: ${JSON.stringify(config.headers, null, 2)}\n`,
-                    `Params: ${JSON.stringify(config.params, null, 2)}\n`,
-                    `Data: ${JSON.stringify(config.data, null, 2)}`
-                );
-
-                return config
-            },
-            (error: any) => {
-                console.error('❌ 请求错误:', error);
-                return Promise.reject(error)
-            }
-        )
-
-        // 响应拦截器
-        this.instance.interceptors.response.use(
-            (response: any) => {
-                console.log(
-                    '✅ ~ 收到响应 ~\n',
-                    // `response: ${JSON.stringify(response)}`,
-                    `URL: ${response.config.method?.toUpperCase()} ${response.config.baseURL}${response.config.url}\n`,
-                    `Status: ${response.status}\n`,
-                    `Data: ${JSON.stringify(response.data, null, 2)}`
-                );
-                
-                const { code, message, data } = response.data
-
-                if (code === CODE.SUCCESS) {
-                    return data
-                }
-                ToastService.show({
-                    message: message || i18nService.t('http_service_error')
-                });
-
-                if (code === CODE.TOKEN_INVALID) { // token无效
-                    const clearLoginInfo = useUserStore(s => s.clearLoginInfo);
-                    clearLoginInfo()
-                    throw {
-                        code,
-                        message: i18nService.t('token_expiration'),
-                        data,
-                    }
-                }
-
-             
-
-                throw {
-                    code,
-                    message,
-                    data,
-                }
-            },
-            (error: any) => {
-                console.log('http请求失败---', error);
-                
-                if (error.response) {
-                    console.error(
-                        '❌ ~ 响应错误 ~\n',
-                        `URL: ${error.config.method?.toUpperCase()} ${error.config.url}\n`,
-                        `Status: ${error.response.status}\n`,
-                        `Data: ${JSON.stringify(error.response.data, null, 2)}`
-                    );
-                    
-                } else {
-                    console.error('❌ 网络或请求未送达:', error.message);
-                }
-                if (error.response.status === CODE.FORBIDDEN) {
-                    useUserStore.getState().clearLoginInfo()
-                    console.log('Forbidden',useUserStore.getState().token);
-                    throw {
-                     code: CODE.FORBIDDEN,
-                     message: i18nService.t('http_forbidden'),
-                     data: error.response.data,
-                    }
-                 }
-                ToastService.show({
-                    message: error?.response?.data?.error || i18nService.t('response_error')
-                });
-                console.error(
-                    '❌ 完整错误信息:',
-                    'error.code--',
-                    `[${error.code}]`,      // 错误代码（如 ECONNREFUSED）
-                    '  error.message---',
-                    `[${error.message}]`,   // 错误描述
-                    '  error.config?.url---',
-                    `[${error.config?.url}]`, // 请求 URL
-                    '  error.request---',
-                    `[${JSON.stringify(error.request)}]`    // 原始请求对象
-                );
-                // 处理axios错误
-                if (error.response) {
-                    const status = error.response.status
-                    switch (status) {
-                        case CODE.UNAUTHORIZED:
-                            // store.dispatch({ type: 'user/logout' })
-                            ToastService.show({
-                                message: i18nService.t('http_unauthorized')
-                            });
-                            throw {
-                                code: CODE.UNAUTHORIZED,
-                                message: i18nService.t('http_unauthorized'),
-                            }
-                            // 其他错误处理...
-                    }
-                }
-                throw error
-            }
-        )
-    }
-
-    
-
-    /**
-     * 核心请求方法
-     * @param method 请求方法
-     * @param url 请求地址
-     * @param data 请求数据 (POST/PUT/PATCH)
-     * @param params 查询参数 (GET/DELETE)
-     * @param options 请求选项
-     */
-
-    private async request<T>({
-        method,
-        url,
-        data,
-        params,
-        options = {},
-    }: {
-        method: Method
-        url: string
-        data?: any
-        params?: any
-        options?: RequestOptions
-    }): Promise<T> {
-        const config: AxiosRequestConfig = {
-        method,
-        url,
-        params,
-        data,
-        headers: options.headers,
-        ...options.extraConfig,
-        }
-        return this.instance.request(config);
-    }
-
-
-    public get<T>(url: string, params?: any, options?: RequestOptions): Promise<T> {
-        return this.request({
-            method: 'GET',
-            url,
-            params,
-            options,
-        })
-    }
-
-    public post<T>(url: string, data?: any, options?: RequestOptions): Promise<T> {
-        return this.request({
-            method: 'POST',
-            url,
-            data,
-            options,
-        })
-    }
-
-    public put<T>(url: string, data?: any, options?: RequestOptions): Promise<T> {
-        return this.request({
-            method: 'PUT',
-            url,
-            data,
-            options,
-        })
-    }
-
-    public delete<T>(url: string, params?: any, options?: RequestOptions): Promise<T> {
-        return this.request({
-            method: 'DELETE',
-            url,
-            params,
-            options,
-        })
-    }
-
-    public patch<T>(url: string, data?: any, options?: RequestOptions): Promise<T> {
-        return this.request({
-            method: 'PATCH',
-            url,
-            data,
-            options,
-        })
-    }
-
-    public upload<T>(url: string, fileUri: string, formData?: any, options?: RequestOptions): Promise<T> {
-        const data = new FormData()
-        data.append('file', {
-            uri: fileUri,
-            type: options?.fileType || 'multipart/form-data',
-            name: options?.fileName || fileUri.split('/').pop(),
-        })
-        
-        if (formData) {
-            Object.keys(formData).forEach(key => {
-                data.append(key, formData[key])
-            })
+        if (response.status === CODE.UNAUTHORIZED) {
+          ToastService.show({
+            message: i18nService.t('http_unauthorized')
+          });
+          throw {
+            code: CODE.UNAUTHORIZED,
+            message: i18nService.t('http_unauthorized'),
+          };
         }
 
-        return this.post(url, data, {
-            ...options,
-            headers: {
-                ...options?.headers,
-                'Content-Type': 'multipart/form-data',
-            },
-        })
+        throw {
+          code: response.status,
+          message: responseData?.message || i18nService.t('response_error'),
+          data: responseData,
+        };
+      }
+
+      const { code: bizCode, message: bizMsg, data: bizData } = responseData;
+      if (bizCode !== undefined && bizCode !== CODE.SUCCESS) {
+        ToastService.show({
+          message: bizMsg || i18nService.t('http_service_error')
+        });
+
+        if (bizCode === CODE.TOKEN_INVALID) {
+          useUserStore.getState().clearLoginInfo();
+          throw {
+            code: bizCode,
+            message: i18nService.t('token_expiration'),
+            data: bizData,
+          };
+        }
+
+        throw {
+          code: bizCode,
+          message: bizMsg,
+          data: bizData,
+        };
+      }
+
+      return (bizData ?? responseData) as T;
+
+    } catch (error: any) {
+      clearTimeout(timeoutId);
+      this.abortControllers.delete(requestKey);
+
+      if (error.name === 'AbortError') {
+        console.error('❌ 请求超时或被取消:', requestUrl);
+        ToastService.show({
+          message: i18nService.t('request_timeout')
+        });
+        throw {
+          code: CODE.TIMEOUT_ERROR,
+          message: i18nService.t('request_timeout'),
+        };
+      }
+
+      console.error(
+        '❌ 完整错误信息:',
+        `URL: ${method} ${requestUrl}`,
+        'error:',
+        JSON.stringify(error, null, 2)
+      );
+
+      if (!error.code) {
+        ToastService.show({
+          message: i18nService.t('response_error')
+        });
+      }
+
+      throw error;
     }
+  }
+
+  public get<T>(url: string, params?: any, options?: RequestOptions): Promise<T> {
+    return this.request({ method: 'GET', url, params, options });
+  }
+
+  public post<T>(url: string, data?: any, options?: RequestOptions): Promise<T> {
+    return this.request({ method: 'POST', url, data, options });
+  }
+
+  public put<T>(url: string, data?: any, options?: RequestOptions): Promise<T> {
+    return this.request({ method: 'PUT', url, data, options });
+  }
+
+  public delete<T>(url: string, params?: any, options?: RequestOptions): Promise<T> {
+    return this.request({ method: 'DELETE', url, params, options });
+  }
+
+  public patch<T>(url: string, data?: any, options?: RequestOptions): Promise<T> {
+    return this.request({ method: 'PATCH', url, data, options });
+  }
+
+  public upload<T>(
+    url: string,
+    fileUri: string,
+    formData?: any,
+    options?: RequestOptions
+  ): Promise<T> {
+    const data = new FormData();
+    data.append('file', {
+      uri: fileUri,
+      type: options?.fileType || 'application/octet-stream',
+      name: options?.fileName || fileUri.split('/').pop() || 'file',
+    } as any);
+
+    if (formData) {
+      Object.entries(formData).forEach(([key, value]) => {
+        data.append(key, value);
+      });
+    }
+
+    return this.post(url, data, {
+      ...options,
+      headers: { ...options?.headers, 'Content-Type': 'multipart/form-data' },
+    });
+  }
 }
 
 const getBaseUrl = () => {
-    let appSign = useAppStore.getState().appSign
-    let url = ''
-    if (__DEV__) {
-        url = 'http://218.244.147.232:80/api' // 平时用的测试url
-        // url = 'http://47.96.234.251/api' // 国内线上url
-        // url = 'https://api.sinobiz.biz/api' // 海外线上url
-    } else if (
-        appSign === APP_SIGN_ENUM.TYPE_MELON ||
-        appSign === APP_SIGN_ENUM.TYPE_MOMOR
-    ) {
-        url = 'http://47.96.234.251/api' // 国内线上url
-        
-    } else if (
-        appSign === APP_SIGN_ENUM.TYPE_MELONS ||
-        appSign === APP_SIGN_ENUM.TYPE_MOMORS
-    ) {
-        url = 'https://api.sinobiz.biz/api' // 海外线上url
-    }
-    return {
-        baseURL: url
-    }
-}
+  let appSign = useAppStore.getState().appSign;
+  let url = '';
+  if (__DEV__) {
+    // url = 'http://218.244.147.232:80/api' // 平时用的测试url
+    // url = 'http://47.96.234.251/api' // 国内线上url
+    url = 'https://api.sinobiz.biz/api';
+  } else if (
+    appSign === APP_SIGN_ENUM.TYPE_MELON ||
+    appSign === APP_SIGN_ENUM.TYPE_MOMOR
+  ) {
+    url = 'http://47.96.234.251/api'; // 国内线上url
+  } else if (
+    appSign === APP_SIGN_ENUM.TYPE_MELONS ||
+    appSign === APP_SIGN_ENUM.TYPE_MOMORS
+  ) {
+    url = 'https://api.sinobiz.biz/api'; // 海外线上url
+  }
+  return { baseURL: url };
+};
 
-// 创建默认实例
-const http = new HttpRequest(getBaseUrl())
-
-export default http
+const http = new HttpRequest(getBaseUrl());
+export default http;

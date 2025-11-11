@@ -27,6 +27,7 @@ import { scaleSize, scaleFont } from '@/utils/scale';
 import DeviceInfo from 'react-native-device-info';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { useBackHandler } from '@/utils/BackHandlerUtil'; // 导入工具类
+import LottieView from 'lottie-react-native';
 
 import { translateText } from '@/api/translate'
 
@@ -102,9 +103,7 @@ const TranslateScreen: React.FC = () => {
     } else if (name === 'OralPractice') {
       navigation.navigate('OralPractice')
     } else if (name === 'OnlineCall') {
-      show({
-        message: t('translate_screen.coming_soon')
-      })
+      navigation.navigate('OnlineCall')
     }
     // setLoading(true)
 
@@ -205,7 +204,8 @@ const TranslateScreen: React.FC = () => {
       >
         {/* 头部卡片，优化渐变色 */}
         <TouchableOpacity
-           onPress={handlePress('OralPractice')}
+          //  onPress={handlePress('OralPractice')}
+           onPress={handlePress('OnlineCall')}
            activeOpacity={0.85}
         >
           <View style={styles.headerCard}>
@@ -218,18 +218,34 @@ const TranslateScreen: React.FC = () => {
             <View style={styles.headerCardContent}>
               {/* 头像 */}
               <View style={styles.avatarPlaceholder}>
-                <Image
+                {/* <Image
                   source={require('../../../../assets/images/Home_card_head.png')}
                   style={styles.headImg}
                   resizeMode='cover'
+                /> */}
+                <LottieView
+                  source={require('../../../assets/lottie/video_call.json')}
+                  style={{
+                    width: scaleSize(130),
+                    height: scaleSize(130),
+                    position: 'absolute',
+                  }}
+                  autoPlay
+                  loop
+                  
                 />
               </View>
+              
+
               <View style={styles.headerTextContainer}>
-                <Text style={styles.headerTitle}>Melon</Text>
-                <Text style={styles.headerDesc}>{t('translate_screen.card_desc')}</Text>
+                {/* <Text style={styles.headerTitle}>Melon</Text> */}
+                <Text style={styles.headerTitle}>
+                  {t('translate_screen.online_call')}
+                </Text>
+                <Text style={styles.headerDesc}>{t('translate_screen.card_desc1')}</Text>
               </View>
               {/* 聊天图标*/}
-              <View
+              {/* <View
                 style={{
                   position: 'absolute',
                   right: scaleSize(16),
@@ -237,7 +253,7 @@ const TranslateScreen: React.FC = () => {
                 }}
               >
                 <Image source={require('../../../../assets/images/Home_Translate_Msg.png')} style={styles.chatBubbleIcon}/>
-              </View>
+              </View> */}
             </View>
           </View>
         </TouchableOpacity>
@@ -387,19 +403,18 @@ const styles = StyleSheet.create({
   },
   headerCardContent: {
     flex: 1,
-    padding: 14,
-    paddingRight: 0,
+    paddingRight: scaleSize(14),
+    height: scaleSize(110),
     flexDirection: 'row',
     alignItems: 'center',
     position: 'relative',
+    overflow: 'hidden',
   },
   avatarPlaceholder: {
-    width: 84,
-    height: 84,
-    borderRadius: '50%',
-    backgroundColor: '#C1E3D6',
+    width: scaleSize(80),
+    height: scaleSize(80),
     marginRight: 8,
-    overflow: 'hidden',
+    overflow: 'visible',
     alignItems: 'center',
     justifyContent: 'center',
     position: 'relative',

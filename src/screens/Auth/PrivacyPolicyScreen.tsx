@@ -39,6 +39,8 @@ const PrivacyPolicyScreen: React.FC = () => {
   useEffect(() => {
     if (appSign === 'melon') {
       setAppName('Melons')
+    } else if (appSign === 'melons') {
+      setAppName('Melons AI')
     }
   }, [])
 
@@ -62,8 +64,8 @@ const PrivacyPolicyScreen: React.FC = () => {
           <View style={styles.headerSpacer} />
         </View>
         
-        <View style={styles.htmlContainer}>
-          <WebView source={{html: (language === 'zh' ? UserPrivacyHTMLZh : UserPrivacyHTMLEn).replace(/Melon/g, appName)}}/>
+        <View style={styles.htmlContainer}> 
+          <WebView source={{html: (appSign === 'melon' || appSign === 'momor' ? UserPrivacyHTMLZh : UserPrivacyHTMLEn).replace(/Melon/g, appName)}}/>
         </View>
         {/* 协议内容 */}
         {/* <ScrollView style={styles.agreementContainer} showsVerticalScrollIndicator={false}>

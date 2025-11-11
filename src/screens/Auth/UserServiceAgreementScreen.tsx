@@ -37,6 +37,8 @@ const UserServiceAgreementScreen: React.FC = () => {
   useEffect(() => {
     if (appSign === 'melon') {
       setAppName('Melons')
+    } else if (appSign === 'melons') {
+      setAppName('Melons AI')
     }
   }, [])
 
@@ -61,7 +63,7 @@ const UserServiceAgreementScreen: React.FC = () => {
           <View style={styles.headerSpacer} />
         </View>
         <View style={styles.htmlContainer}>
-          <WebView source={{html: (language === 'zh' ? UserServiceHTMLZh : UserServiceHTMLEn).replace(/Melon/g, appName)}}/>
+          <WebView source={{html: (appSign === 'melon' || appSign === 'momor' ? UserServiceHTMLZh : UserServiceHTMLEn).replace(/Melon/g, appName)}}/>
         </View>
         {/* 协议内容 */}
         {/* <ScrollView style={styles.agreementContainer} showsVerticalScrollIndicator={false}> */}

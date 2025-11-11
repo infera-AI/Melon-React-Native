@@ -13,6 +13,8 @@ import theme from '@/utils/theme';
 import { usePointsStore } from '@/store/modules/points.store';
 import { useNavigation } from '@react-navigation/native';
 import JiliAdBtn from '@/components/JiliAdBtn';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { scaleSize } from '@/utils/scale';
 
 interface PointsConfirmModalProps {
   visible: boolean;
@@ -31,6 +33,7 @@ const PointsLimitModal: React.FC<PointsConfirmModalProps> = ({
 }) => {
   const navigation = useNavigation();
   const { t } = useLanguage();
+  const insets = useSafeAreaInsets(); // 获取安全区域距离
   const { text } = useGlobalTheme();
   const [dontShowAgain, setDontShowAgain] = useState(false);
   const { pointsBalance } = usePointsStore.getState();
@@ -42,9 +45,9 @@ const PointsLimitModal: React.FC<PointsConfirmModalProps> = ({
 
   const handleConfirm = () => {
     onConfirm();
-    (navigation as any).navigate('Profile', {
-      screen: 'Purchase'
-    });
+    // (navigation as any).navigate('Profile', {
+    //   screen: 'Purchase'
+    // });
     onClose();
   };
 
@@ -66,7 +69,7 @@ const PointsLimitModal: React.FC<PointsConfirmModalProps> = ({
           activeOpacity={1}
           onPress={onClose}
         />
-        <View style={styles.modalContainer}>
+        <View style={[styles.modalContainer, {paddingBottom: insets.bottom ? insets.bottom - scaleSize(8) : scaleSize(0)}]}>
           {/* 拖拽指示器 */}
           <View style={styles.dragIndicator} />
 
@@ -153,7 +156,7 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: normalize(16),
     borderTopRightRadius: normalize(16),
     width: '100%',
-    height: normalize(243),
+    // height: normalize(243),
     alignItems: 'center',
     paddingHorizontal: normalize(24),
   },

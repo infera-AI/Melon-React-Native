@@ -5,6 +5,7 @@ export type ModalOptions = {
   title?: string;
   message: string;
   confirmText?: string;
+  duration?: number;
   onConfirm?: () => void;
   showCancel?: boolean;
   cancelText?: string;
@@ -41,6 +42,7 @@ export const MessageModalProvider: React.FC<{ children: ReactNode }> = ({ childr
         title={options.title}
         message={options.message}
         confirmText={options.confirmText}
+        duration={options.duration}
         onClose={hide}
         onConfirm={() => {
           options.onConfirm?.();

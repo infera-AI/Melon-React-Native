@@ -292,6 +292,14 @@ const MusicEditHummingScreen: React.FC<{ route: any }> = ({ route }) => {
     setLoading(false);
   }
 
+  const reverseLang = () => {
+    let beforeLanguageTemp = leftLanguage
+    let afterLanguageTemp = rightLanguage
+    setLeftLanguage(afterLanguageTemp)
+    setRightLanguage(beforeLanguageTemp)
+
+  }
+
 
 
   // 监听页面焦点变化，当页面重新获得焦点时执行getMyWorks
@@ -395,7 +403,9 @@ const MusicEditHummingScreen: React.FC<{ route: any }> = ({ route }) => {
                 <TouchableOpacity style={styles.langBtn} onPress={() => handleLanguageSwitch("left")}>
                   <Text style={styles.langText}>{t(`languageNames.${leftLanguage}`)}</Text>
                 </TouchableOpacity>
-                <Image source={require('@/assets/main/language_exchange.png')} style={styles.langSwitch} />
+                <TouchableOpacity onPress={reverseLang}>
+                  <Image source={require('@/assets/main/language_exchange.png')} style={styles.langSwitch} />
+                </TouchableOpacity>
                 <TouchableOpacity style={styles.langBtn} onPress={() => handleLanguageSwitch("right")}>
                   <Text style={styles.langText}>{t(`languageNames.${rightLanguage}`)}</Text>
                 </TouchableOpacity>

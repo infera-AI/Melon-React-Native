@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { LanguageProvider } from './contexts/LanguageContext';
 import AppNavigator from './navigation/AppNavigator';
 import EStyleSheet from 'react-native-extended-stylesheet';
-import { StatusBar } from 'react-native';
+import { StatusBar, AppState, Linking } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { MessageModalProvider } from './contexts/MessageModalContext';
 import { useAppStore, useUserStore } from '@/store';
@@ -13,6 +13,7 @@ const { ConfigModule } = NativeModules;
 import { ThemeProvider } from './contexts/ThemeContext';
 import mobileAds from 'react-native-google-mobile-ads';
 import { APP_SIGN_ENUM } from './utils';
+import { usePointsStore } from '@/store/modules/points.store';
 
 const App = () => {
   const [isInitialized, setIsInitialized] = useState(false);
@@ -83,8 +84,59 @@ const App = () => {
     // 使Zustand主动同步AsyncStorage中的数据，Zustand主动会同步持久化数据，所以不写也可
     // useAppStore.persist.rehydrate()
     // useUserStore.persist.rehydrate()
+
+    const appStateSubscription = AppState.addEventListener('change', handleAppStateChange);
    
+    return () => {
+      appStateSubscription.remove()
+    }
   }, [])
+
+  const handleAppStateChange = (nextAppState: any) => {
+    if (nextAppState === 'active') {
+      console.log('111111111');
+      
+      // App 切回前台时，再次检查是否有新的 URL 唤醒事件
+      Linking.getInitialURL().then((url) => {
+        console.log('2222222222222');
+        usePointsStore.getState().refreshPointsBalance()
+        if (url) { // 拿不到url
+          // handleOpenURL({ url });
+        }
+      });
+    }
+  };
+
+  // 处理唤醒事件的回调
+  const handleOpenURL = (event: any) => {
+    const url = event.url; // 完整的唤醒 URL，如 "com.melon.melons://?intent_id=12345&type=payment"
+    console.log('被 Scheme 唤醒，URL：', url);
+
+    // 解析参数
+    const params = parseUrlParams(url);
+    console.log('获取到的参数：', params); // { intent_id: '12345', type: 'payment' }
+
+    
+  };
+
+  // 解析 URL 参数的工具函数
+  const parseUrlParams = (url: any) => {
+    const params: any = {};
+    if (!url) return params;
+
+    // 提取 ? 后的参数部分
+    const queryString = url.split('?')[1];
+    if (!queryString) return params;
+
+    // 分割多个参数并解析
+    queryString.split('&').forEach((item:any) => {
+      const [key, value] = item?.split('=');
+      if (key) {
+        params[key] = decodeURIComponent(value || ''); // 解码特殊字符
+      }
+    });
+    return params;
+  };
 
   EStyleSheet.build({
     $spacing: 32,

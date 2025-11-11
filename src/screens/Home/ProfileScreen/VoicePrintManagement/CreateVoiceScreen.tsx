@@ -20,7 +20,7 @@ import { useVoiceStore } from '@/store';
 import { VoiceType } from '@/store/modules/voice.store';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { normalize, normalizeFontSize } from '@/utils/stylesUtil';
-import { pick } from '@react-native-documents/picker';
+import { pick, FileToCopy, keepLocalCopy } from '@react-native-documents/picker';
 import { useMessageModal } from '@/contexts/MessageModalContext';
 import { getSupportedLanguages } from '@/api/music';
 
@@ -47,37 +47,51 @@ interface AudioFile {
 
 const MAX_FILE_SIZE_MB = 100; // 文件大小限制（MB）
 
-// 支持的文件类型
-const audioFileTypes = [
-  'audio/mpeg',           // .mp3
-  'audio/wav',            // .wav
-  'audio/mp4',            // .m4a
-  'audio/aac',            // .aac
-  'audio/ogg',            // .ogg
-  'audio/flac',           // .flac
-  'audio/x-m4a',          // .m4a (alternative MIME type)
-];
 // Android 支持的文件类型
 const androidAudioTypes = [
-  'audio/mpeg',
-  'audio/wav',
-  'audio/mp4',
-  'audio/aac',
-  'audio/ogg',
-  'audio/flac',
-  'audio/x-m4a',
+  'audio/mpeg',       // MP3
+  'audio/x-wav',      // WAV（Android 标准 MIME 类型）
+  'audio/wav',     // wav
+  'audio/mp4',        // MP4
+  'audio/aac',        // AAC
+  'audio/ogg',        // OGG
+  'audio/flac',       // FLAC
+  'audio/x-m4a',      // M4A
 ];
 
 // iOS 支持的文件类型
 const iosAudioTypes = [
-  'public.audio',
-  'public.mp3',
+  'public.audio',     // 通用音频类型（兜底）
+  'audio/*',          // 通用音频 MIME 类型（兜底未匹配到的类型）
+
+  'public.mp3',       // MP3
+  'audio/mpeg',       // MP3 MIME 类型（实际返回的类型）
+
+  'audio/vnd.wave',   // WAV（iOS 标准 MIME 类型，也支持 UTType：com.microsoft.waveform-audio）
+  'com.microsoft.waveform-audio', // WAV UTType（替代旧的 public.wav）
   'public.wav',
-  'public.m4a',
-  'public.aac',
-  'public.ogg',
-  'public.flac',
+
+  // 4. 其他格式（同上，MIME + UTType）
+  'audio/mp4',        // MP4 MIME 类型
+  'public.mpeg-4-audio', // MP4 UTType
+
+  'public.m4a-audio', // M4A（iOS 标准 UTType，替代旧的 public.m4a）
+  'audio/x-m4a',      // M4A MIME 类型
+
+  'public.aac-audio', // AAC（iOS 标准 UTType，替代旧的 public.aac）
+  'audio/aac',        // AAC MIME 类型
+
+  'public.ogg-audio', // OGG（iOS 标准 UTType，替代旧的 public.ogg）
+  'audio/ogg',        // OGG MIME 类型
+
+  'public.flac-audio',// FLAC（iOS 标准 UTType，替代旧的 public.flac）
+  'audio/flac',       // FLAC MIME 类型
 ];
+
+const audioFileTypes = Platform.select({
+  ios: iosAudioTypes,
+  android: androidAudioTypes
+}) ?? []
 
 const CreateVoiceScreen: React.FC = () => {
   const navigation = useNavigation<CreateVoiceScreenNavigationProp>();
@@ -172,7 +186,7 @@ const CreateVoiceScreen: React.FC = () => {
   const handleUploadRecording = async () => {
     try {
       const res = await pick({
-        type: Platform.OS === 'ios' ? iosAudioTypes : audioFileTypes,
+        type: audioFileTypes,
         allowMultiSelection: false,
       });
 
@@ -181,10 +195,43 @@ const CreateVoiceScreen: React.FC = () => {
         return;
       }
 
+      // 定义要保存的文件信息（符合 FileToCopy 类型）
+      const fileToCopy: FileToCopy = {
+        uri: res[0].uri, // 原始临时路径
+        fileName: res[0].name || '', // 原始文件名（带后缀）
+        // 若为 Android 虚拟文件，需添加 convertVirtualFileToType
+        // convertVirtualFileToType: result.convertibleToMimeTypes?.[0],
+      };
+
+      // 调用 keepLocalCopy 保存到 app 私有目录（文档目录或缓存目录）
+      const saveResult = await keepLocalCopy({
+        files: [fileToCopy], // 传入 FileToCopy 数组（非空）
+        destination: 'documentDirectory', // 保存到文档目录（不被系统清理）
+      });
+
+      /**
+       * savedFile数据格式
+       * {
+       * localUri: 'XXXX',
+       * sourceUri: 'xxx',
+       * status: 'success'
+       * 
+       * }
+       */
+      const savedFile = saveResult[0];
+
+      console.log('savedFile---', savedFile);
+
+      if (savedFile.status !== 'success' || !savedFile?.localUri) {
+        console.error('持久化保存文件失败');
+        throw new Error(`持久化保存文件失败`);
+      }
+      res[0].uri = savedFile.localUri
+
       const file = res[0];
 
       // 验证文件类型
-      if (!androidAudioTypes.includes(file.type ?? '')) {
+      if (!audioFileTypes.includes(file.type ?? '')) {
         show({
           message: t('music.unsupported_file_format')
         });

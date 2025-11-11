@@ -7,6 +7,17 @@
 		<key>APP_SIGN</key>
 		<string>momors</string>
 	</dict>
+    <key>CFBundleURLTypes</key>
+    <array>
+        <dict>
+            <key>CFBundleURLName</key>
+            <string>com.sinobiz.momors</string>
+            <key>CFBundleURLSchemes</key>
+            <array>
+                <string>commelonmomors</string>
+            </array>
+        </dict>
+    </array>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>

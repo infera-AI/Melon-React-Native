@@ -147,14 +147,15 @@ const LoginPhoneScreen: React.FC = () => {
   const { show } = useMessageModal();
 
   useEffect(() => {
-    if (
-      useAppStore.getState().appSign === APP_SIGN_ENUM.TYPE_MELONS ||
-      useAppStore.getState().appSign === APP_SIGN_ENUM.TYPE_MOMORS
-    ) {
-      setActiveTab('email')
-    } else {
-      setActiveTab('phone')
-    }
+    // if (
+    //   useAppStore.getState().appSign === APP_SIGN_ENUM.TYPE_MELONS ||
+    //   useAppStore.getState().appSign === APP_SIGN_ENUM.TYPE_MOMORS
+    // ) {
+    //   setActiveTab('email')
+    // } else {
+    //   setActiveTab('phone')
+    // }
+    setActiveTab('email')
   }, [])
 
   useEffect(() => {
@@ -181,8 +182,8 @@ const LoginPhoneScreen: React.FC = () => {
   const getUserInfoRequest = async () => {
     const res = await getUserInfo({});
     console.log('UserInfo', res);
-    if (res.data) {
-      useUserStore.getState().setUserInfo(res.data);
+    if (res?.id) {
+      useUserStore.getState().setUserInfo(res);
     }
   }
 
@@ -291,7 +292,7 @@ const LoginPhoneScreen: React.FC = () => {
 
             {/* 标签切换 */}
             <View style={styles.tabContainer}>
-              {
+              {/* {
                 (
                   useAppStore.getState().appSign === APP_SIGN_ENUM.TYPE_MELON ||
                   useAppStore.getState().appSign === APP_SIGN_ENUM.TYPE_MOMOR
@@ -305,7 +306,7 @@ const LoginPhoneScreen: React.FC = () => {
                   </Text>
                   {activeTab === 'phone' && <View style={styles.tabIndicator} />}
                 </TouchableOpacity>
-              }
+              } */}
               
               <TouchableOpacity
                 style={styles.tabButton}
@@ -319,10 +320,11 @@ const LoginPhoneScreen: React.FC = () => {
             </View>
 
             {/* 手机号登录 */}
-            {activeTab === 'phone' && (
-              <>
+            
+            {/* {activeTab === 'phone' && (
+              <> */}
                 {/* 国家选择 */}
-                <TouchableOpacity
+                {/* <TouchableOpacity
                   disabled={useAppStore.getState().appSign === APP_SIGN_ENUM.TYPE_MELON}
                   style={styles.countrySelector}
                   onPress={() => {
@@ -334,10 +336,10 @@ const LoginPhoneScreen: React.FC = () => {
                   <Text style={styles.countryName}>{useAppStore.getState().appSign === APP_SIGN_ENUM.TYPE_MELON ? t(`languageNames.${"zh"}`) : t(`languageNames.${selectedCountry.id}`)}</Text>
                   <Text style={styles.countryCode}>{useAppStore.getState().appSign === APP_SIGN_ENUM.TYPE_MELON ? "+86" : selectedCountry.code}</Text>
                   <Image source={require('../../../src/assets/main/dropdown_icon.png')} style={styles.dropdownArrow} />
-                </TouchableOpacity>
+                </TouchableOpacity> */}
 
                 {/* 手机号输入框 */}
-                <View style={styles.inputBox}>
+                {/* <View style={styles.inputBox}>
                   <Image source={require('../../../src/assets/login/login_phone_icon.png')} style={styles.inputIcon} />
                   <TextInput
                     style={styles.input}
@@ -347,9 +349,9 @@ const LoginPhoneScreen: React.FC = () => {
                     onChangeText={setPhoneNumber}
                     keyboardType="phone-pad"
                   />
-                </View>
-              </>
-            )}
+                </View> */}
+              {/* </>
+            )} */}
 
             {/* 邮箱登录 */}
             {activeTab === 'email' && (

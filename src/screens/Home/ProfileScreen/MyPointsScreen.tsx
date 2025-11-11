@@ -6,6 +6,8 @@ import {
   TouchableOpacity,
   ScrollView,
   Image,
+  Platform,
+  Linking
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
@@ -14,40 +16,51 @@ import { normalize, normalizeFontSize } from '@/utils/stylesUtil';
 import theme from '@/utils/theme';
 import { usePointsStore } from '@/store/modules/points.store';
 import { POINTS_DEDUCTION } from '@/utils/constants';
+import { useMessageModal } from '@/contexts/MessageModalContext';
+import FullScreenLoader from '@/components/FullScreenLoader';
+import {
+  airwallexCreateIntent,
+  applepayResultVerify
+} from '@/api/profile'
+import { useAppStore } from '@/store';
+import ApplePayButton from '@/components/ApplePayButton';
 
 const MyPointsScreen: React.FC = () => {
   const navigation = useNavigation();
   const { t } = useLanguage();
-  const [selectedPackage, setSelectedPackage] = useState<string>('');
-  const { pointsBalance } = usePointsStore.getState();
+  const [selectedPackage, setSelectedPackage] = useState<any>({});
+  const pointsBalance = usePointsStore((state) => state.pointsBalance);
+  const { show } = useMessageModal();
+  const [loading, setLoading] = useState(false);
+
   // 积分套餐数据
   const packageList = [
     {
-      id: 'basic',
-      title: 'Basic Pack',
+      id: '001', // 该id和苹果后台配置的商品id对应
+      title: t('translate_screen.goods_basic'),
       points: '300',
-      price: '$ 0.99',
+      price: 0.99,
       isHighlighted: true,
     },
     {
-      id: 'create',
-      title: 'Create pack',
+      id: '002',
+      title: t('translate_screen.goods_create'),
       points: '700+50',
-      price: '$ 1.99',
+      price: 1.99,
       isHighlighted: false,
     },
     {
-      id: 'producer',
-      title: 'Producer Pack',
+      id: '003',
+      title: t('translate_screen.goods_producer'),
       points: '2000+250',
-      price: '$ 4.99',
+      price: 4.99,
       isHighlighted: false,
     },
     {
-      id: 'studio',
-      title: 'Studio Pack',
+      id: '004',
+      title: t('translate_screen.goods_studio'),
       points: '5000+1000',
-      price: '$ 9.99',
+      price: 9.99,
       isHighlighted: false,
     },
   ];
@@ -56,25 +69,103 @@ const MyPointsScreen: React.FC = () => {
     navigation.goBack();
   };
 
-  const handleBuy = () => {
-    navigation.navigate('Purchase', { points: selectedPackage });
+  // 购买按钮点击
+  const handleBuy = async() => {
+    console.log('selectedPackage---', selectedPackage);
+   
+    if (Platform.OS === 'android') {
+      setLoading(true)
+      if (selectedPackage?.id) {
+        try {
+          const rsp = await airwallexCreateIntent({
+            amount: selectedPackage?.price
+          })
+          setLoading(false)
+          if (rsp?.id) {
+            // 创建支付意图成功
+            let url = `https://sinobiz.biz/airwallex?ap_type=${useAppStore.getState().appSign}&intent_id=${rsp?.id}&client_secret=${rsp?.client_secret}`
+            Linking.openURL(url);
+          } else {
+            show({
+              message: t('response_error')
+            })
+          }
+        } catch (error) {
+          setLoading(false)
+          show({
+            message: t('http_service_error')
+          })
+        }
+      } else {
+        setLoading(false)
+        show({
+          message: t('translate_screen.select_goods')
+        })
+      }
+    }
+    
+    
+    // navigation.navigate('Purchase', { points: selectedPackage });
   };
 
   const handleDetails = () => {
     navigation.navigate('PointsDetail' as never);
   };
 
-  const handlePackageSelect = (packageId: string) => {
-    console.log('Selected package:', packageId);
-    setSelectedPackage(packageId);
+  const handlePackageSelect = (selectPackage: any) => {
+    console.log('Selected package:', selectPackage);
+    setSelectedPackage(selectPackage);
   };
+
+  // 支付成功后的处理（关键：必须调用后端验证）
+  const handleApplePaymentSuccess = async (applePayResult: any) => {
+    console.log('苹果支付凭证applePayResult---', applePayResult);
+    if (!applePayResult?.receipt) {
+      setLoading(false)
+      setTimeout(() => {
+        show({
+          message: t('translate_screen.failed_again')
+        })
+      }, 50)
+      return
+    }
+
+    try {
+      // 1. 将苹果返回的支付凭证发送给后端验证  只要接口200成功调用就是成功
+      await applepayResultVerify({
+        receipt: applePayResult?.receipt
+      });
+      setLoading(false)
+      usePointsStore.getState().refreshPointsBalance()
+    } catch (error) {
+      setLoading(false)
+      setTimeout(() => {
+        show({
+          message: t('translate_screen.apple_pay_verification_error')
+        })
+      }, 50)
+    }
+  }
+
+  // 支付失败处理（用户取消、设备不支持等）
+  const handleApplePaymentFail = (error: any) => {
+    // 忽略用户主动取消的情况（可选）
+    // if (error.message !== '用户取消支付') {
+    //   console.log('支付失败', error.message);
+      
+    // }
+    setLoading(false)
+    // 用户取消购买，弹窗关闭时，也会触发
+    console.log('支付失败', error.message);
+
+  }
 
   return (
     <SafeAreaView edges={['top']} style={styles.container}>
 
       {/* 顶部导航栏 */}
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>My points</Text>
+        <Text style={styles.headerTitle}>{t('translate_screen.my_points')}</Text>
         <TouchableOpacity style={styles.backButton} onPress={handleBack}>
           <Image
             source={require('@/assets/main/page_return_icon.png')}
@@ -90,16 +181,16 @@ const MyPointsScreen: React.FC = () => {
           <View style={styles.remainingPointsContent}>
             <View style={styles.pointsInfo}>
               <Text style={styles.remainingPointsText}>{pointsBalance}</Text>
-              <Text style={styles.remainingPointsLabel}>Remaining points</Text>
+              <Text style={styles.remainingPointsLabel}>{t('translate_screen.have_points')}</Text>
             </View>
             <TouchableOpacity style={styles.detailsButton} onPress={handleDetails}>
-              <Text style={styles.detailsButtonText}>Details</Text>
+              <Text style={styles.detailsButtonText}>{t('translate_screen.points_detail')}</Text>
             </TouchableOpacity>
           </View>
         </View>
 
         {/* 积分套餐标题 */}
-        <Text style={styles.sectionTitle}>Points package</Text>
+        <Text style={styles.sectionTitle}>{t('translate_screen.points_pack')}</Text>
 
         {/* 积分套餐卡片 */}
         <View style={styles.packageCardContainer}>
@@ -109,9 +200,9 @@ const MyPointsScreen: React.FC = () => {
               style={[
                 styles.packageCard,
                 styles.packageCardMargin,
-                selectedPackage === pkg.points && styles.basicPackCard,
+                selectedPackage?.id === pkg.id && styles.basicPackCard,
               ]}
-              onPress={() => handlePackageSelect(pkg.points)}
+              onPress={() => handlePackageSelect(pkg)}
               activeOpacity={0.7}
             >
               <View style={styles.packageContent}>
@@ -123,62 +214,87 @@ const MyPointsScreen: React.FC = () => {
                   />
                   <Text style={styles.pointsText}>{pkg.points}</Text>
                 </View>
-                <Text style={styles.priceText}>{pkg.price}</Text>
+                <Text style={styles.priceText}>{`$ ${pkg.price}`}</Text>
               </View>
             </TouchableOpacity>
           ))}
         </View>
 
         {/* 积分规则标题 */}
-        <Text style={styles.sectionTitle}>Points rules</Text>
+        <Text style={styles.sectionTitle}>{t('translate_screen.points_rules')}</Text>
 
         {/* 积分规则内容 */}
         <View style={styles.rulesContainer}>
           <View style={{flexDirection: 'row'}}>
             <Text style={styles.rulesText}>1. </Text>
             <Text style={styles.rulesText}>
-              Generate song: 1 time/{POINTS_DEDUCTION.GENERATE_MUSIC} points
+              {t('translate_screen.generate_song')}: 1 {t('translate_screen.time')}/{POINTS_DEDUCTION.GENERATE_MUSIC} {t('translate_screen.points')}
             </Text>
           </View>
           <View style={{flexDirection: 'row'}}>
             <Text style={styles.rulesText}>2. </Text>
             <Text style={styles.rulesText}>
-              Generate song (using specified tone): 1 time/{POINTS_DEDUCTION.GENERATE_AND_COVER} points
+              {t('translate_screen.generate_song')} ({t('translate_screen.use_voice')}): 1 {t('translate_screen.time')}/{POINTS_DEDUCTION.GENERATE_AND_COVER} {t('translate_screen.points')}
             </Text>
           </View>
           <View style={{flexDirection: 'row'}}>
             <Text style={styles.rulesText}>3. </Text>
             <Text style={styles.rulesText}>
-              Voiceprint Clone: 1 time/{POINTS_DEDUCTION.CLONE_VOICEPRINT} points
+              {t('translate_screen.voice_clone')}: 1 {t('translate_screen.time')}/{POINTS_DEDUCTION.CLONE_VOICEPRINT} {t('translate_screen.points')}
             </Text>
           </View>
           <View style={{flexDirection: 'row'}}>
             <Text style={styles.rulesText}>4. </Text>
             <Text style={styles.rulesText}>
-              Online translation (video/voice): 1 minute/{POINTS_DEDUCTION.TRANSLATE_VIDEO} points
+              {t('translate_screen.online_trans')} ({t('translate_screen.video')}/{t('translate_screen.voice')}): 1 {t('translate_screen.minute')}/{POINTS_DEDUCTION.TRANSLATE_VIDEO} {t('translate_screen.points')}
             </Text>
           </View>
           <View style={{flexDirection: 'row'}}>
             <Text style={styles.rulesText}>5. </Text>
             <Text style={styles.rulesText}>
-              Translation of documents/recordings/files/images: 1 time/{POINTS_DEDUCTION.TRANSLATE_DOCUMENT} points
+              {t('translate_screen.document_trans')}/{t('translate_screen.recordings')}/{t('translate_screen.files')}/{t('translate_screen.images')}: 1 {t('translate_screen.time')}/{POINTS_DEDUCTION.TRANSLATE_DOCUMENT} {t('translate_screen.points')}
             </Text>
           </View>
           <View style={{flexDirection: 'row'}}>
             <Text style={styles.rulesText}>6. </Text>
             <Text style={styles.rulesText}>
-              External speakers/headphones/simultaneous translation: 100 characters/{POINTS_DEDUCTION.TRANSLATE_EXTERNAL_SPEAKER} point
+              {t('translate_screen.external_speakers')}/{t('translate_screen.simultaneous_translation')}: 100 {t('translate_screen.characters')}/{POINTS_DEDUCTION.TRANSLATE_EXTERNAL_SPEAKER} {t('translate_screen.points')}
             </Text>
           </View>
         </View>
 
         {/* 购买按钮 */}
-        <TouchableOpacity style={styles.buyButton} onPress={handleBuy}>
-          <Text style={styles.buyButtonText}>Buy</Text>
-        </TouchableOpacity>
+        {
+          Platform.OS === 'android' &&
+          <TouchableOpacity style={styles.buyButton} onPress={handleBuy}>
+            <Text style={styles.buyButtonText}>{t('translate_screen.buy')}</Text>
+          </TouchableOpacity>
+        }
+        {
+          Platform.OS === 'ios' &&
+          <ApplePayButton
+            productId={selectedPackage?.id || ''}
+            beforePayCheck={() => {
+              if (!selectedPackage?.id) {
+                show({
+                  message: t('translate_screen.select_goods')
+                })
+                return false
+              }
+              setLoading(true)
+              return true
+            }}
+            onSuccess={handleApplePaymentSuccess}
+            onFail={handleApplePaymentFail}
+          />
+        }
 
 
       </ScrollView>
+      <FullScreenLoader
+        visible={loading}
+        text={t('translate_screen.loading_text')}
+      />
     </SafeAreaView>
   );
 };

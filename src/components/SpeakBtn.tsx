@@ -39,7 +39,7 @@ import { WebSocketWrapper, WSStatus } from '@/utils/WebSocketWrapper';
 import AudioRecord from 'react-native-audio-record';
 import { Buffer } from 'buffer';
 import { useAppStore, useUserStore } from '@/store';
-import { scaleSize } from '@/utils/scale';
+import { scaleFont, scaleSize } from '@/utils/scale';
 import { Portal } from 'react-native-paper';
 import VoiceWave from '@/components/VoiceWave';
 import { NativeModules } from 'react-native';
@@ -47,6 +47,7 @@ const { AudioSessionManager } = NativeModules;
 import { AudioPlayerController } from '@/utils/AudioPlayerController';
 import { check, request, PERMISSIONS, RESULTS } from 'react-native-permissions';
 import { APP_SIGN_ENUM } from '@/utils';
+import LottieView from 'lottie-react-native';
 
 export type SpeakBtnRef = {
   destroy: () => void;
@@ -149,8 +150,8 @@ const SpeakBtn = forwardRef<SpeakBtnRef, Props>(({
     let appSign = useAppStore.getState().appSign
     let wsHost
     if (__DEV__) {
-      wsHost = 'ws://218.244.147.232:80'
-      // wsHost = 'wss://api.sinobiz.biz' // 海外线上url
+      // wsHost = 'ws://218.244.147.232:80'
+      wsHost = 'wss://api.sinobiz.biz' // 海外线上url
     } else if (
         appSign === APP_SIGN_ENUM.TYPE_MELON ||
         appSign === APP_SIGN_ENUM.TYPE_MOMOR
@@ -173,6 +174,8 @@ const SpeakBtn = forwardRef<SpeakBtnRef, Props>(({
     }
     ws && ws.close()
     ws = null
+    console.log('ws地址---', wsUri);
+    
     ws = new WebSocketWrapper({
       url: wsUri,
       // 连接成功回调
@@ -474,6 +477,23 @@ const SpeakBtn = forwardRef<SpeakBtnRef, Props>(({
         {renderContent && renderContent()}
       </TouchableOpacity>
       {
+        (socketStatus === WSStatus.INIT || socketStatus === WSStatus.CONNECTING) && isDown &&
+        <Portal>
+          <View style={styles.waitInit}>
+            <LottieView
+              source={require('../assets/lottie/normal_loading.json')}
+              style={{
+                width: scaleSize(36),
+                height: scaleSize(36),
+              }}
+              autoPlay
+              loop
+            />
+            <Text style={styles.waitText}>{t('translate_screen.loading_text')}</Text>
+          </View>
+        </Portal>
+      }
+      {
         socketStatus === WSStatus.OPEN && isDown &&
         <Portal>
           <View style={[styles.voiceView, {backgroundColor: voiceWaveBgColor}]}>
@@ -505,6 +525,27 @@ const styles = StyleSheet.create({
   //   backgroundColor: 'blue',
   //   pointerEvents: 'none'
   // },
+  waitInit: {
+    position: 'absolute',
+    width: scaleSize(140),
+    height: scaleSize(140),
+    borderRadius: scaleSize(10),
+    flexDirection: 'column',
+    backgroundColor: '#171717ff',
+    alignItems: 'center',
+    justifyContent: 'center',
+    top: '50%',
+    left: '50%',
+    transform: [
+      { translateX: '-50%' }, // 宽度的一半
+      { translateY: '-50%' }, // 高度的一半
+    ],
+  },
+  waitText: {
+    color: '#fff',
+    fontSize: scaleFont(14),
+    marginTop: scaleSize(16)
+  },
   voiceView: {
     position: 'absolute',
     width: scaleSize(160),

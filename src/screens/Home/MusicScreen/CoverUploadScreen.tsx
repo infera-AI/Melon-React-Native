@@ -21,7 +21,7 @@ import { normalize, normalizeFontSize } from '@/utils/stylesUtil';
 import theme from '@/utils/theme';
 import PointsLimitModal from '@/components/PointsLimitModal';
 import PointsConfirmModal from '@/components/PointsConfirmModal';
-import { pick } from '@react-native-documents/picker';
+import { pick, FileToCopy, keepLocalCopy } from '@react-native-documents/picker';
 import { polishLyrics, recommendGenres, generateMusic, coverMusic } from '@/api/music/music';
 import { getPersonalVoiceprints, getCommonVoiceprints, getCommonVoiceprintsPage, getPersonalVoiceprintsPage } from '@/api/profile/profile';
 import { useMusicStore } from '@/store/modules/music.store';
@@ -36,6 +36,8 @@ import { POINTS_DEDUCTION } from '@/utils/constants';
 import PublicModal from '@/components/PublicModal'
 import { useAppStore } from '@/store';
 import { eventBus } from '@/utils/EventBus';
+import { scaleSize } from '@/utils/scale';
+import { useSafeAreaInsets } from 'react-native-safe-area-context'; // 安全区
 
 // 歌手数据接口
 interface Singer {
@@ -58,45 +60,69 @@ interface AudioFile {
 
 
 // 支持的文件类型
-const audioFileTypes = [
-  'audio/mpeg',           // .mp3
-  'audio/wav',            // .wav
-  'audio/mp4',            // .m4a
-  'audio/aac',            // .aac
-  'audio/ogg',            // .ogg
-  'audio/flac',           // .flac
-  'audio/x-m4a',          // .m4a (alternative MIME type)
-];
+// const audioFileTypes = [
+//   'audio/mpeg',           // .mp3
+//   'audio/wav',            // .wav
+//   'audio/mp4',            // .m4a
+//   'audio/aac',            // .aac
+//   'audio/ogg',            // .ogg
+//   'audio/flac',           // .flac
+//   'audio/x-m4a',          // .m4a (alternative MIME type)
+// ];
 
 
 // Android 支持的文件类型
 const androidAudioTypes = [
-  'audio/mpeg',
-  'audio/wav',
-  'audio/mp4',
-  'audio/aac',
-  'audio/ogg',
-  'audio/flac',
-  'audio/x-m4a',
+  'audio/mpeg',       // MP3
+  'audio/x-wav',      // WAV（Android 标准 MIME 类型）
+  'audio/wav',     // wav
+  'audio/mp4',        // MP4
+  'audio/aac',        // AAC
+  'audio/ogg',        // OGG
+  'audio/flac',       // FLAC
+  'audio/x-m4a',      // M4A
 ];
 
 // iOS 支持的文件类型
 const iosAudioTypes = [
-  'public.audio',
-  'public.mp3',
+  'public.audio',     // 通用音频类型（兜底）
+  'audio/*',          // 通用音频 MIME 类型（兜底未匹配到的类型）
+
+  'public.mp3',       // MP3
+  'audio/mpeg',       // MP3 MIME 类型（实际返回的类型）
+
+  'audio/vnd.wave',   // WAV（iOS 标准 MIME 类型，也支持 UTType：com.microsoft.waveform-audio）
+  'com.microsoft.waveform-audio', // WAV UTType（替代旧的 public.wav）
   'public.wav',
-  'public.m4a',
-  'public.aac',
-  'public.ogg',
-  'public.flac',
+
+  // 4. 其他格式（同上，MIME + UTType）
+  'audio/mp4',        // MP4 MIME 类型
+  'public.mpeg-4-audio', // MP4 UTType
+
+  'public.m4a-audio', // M4A（iOS 标准 UTType，替代旧的 public.m4a）
+  'audio/x-m4a',      // M4A MIME 类型
+
+  'public.aac-audio', // AAC（iOS 标准 UTType，替代旧的 public.aac）
+  'audio/aac',        // AAC MIME 类型
+
+  'public.ogg-audio', // OGG（iOS 标准 UTType，替代旧的 public.ogg）
+  'audio/ogg',        // OGG MIME 类型
+
+  'public.flac-audio',// FLAC（iOS 标准 UTType，替代旧的 public.flac）
+  'audio/flac',       // FLAC MIME 类型
 ];
+
+const audioFileTypes = Platform.select({
+  ios: iosAudioTypes,
+  android: androidAudioTypes
+}) ?? []
 
 const img_music_back_btn = require("../../../../assets/images/music_back_btn.png");
 
 
 const SingerSelectionScreen: React.FC<any> = ({ route }: any) => {
   const { musicInfo } = route.params || {};
-  const navigation = useNavigation();
+  const navigation = useNavigation<any>();
   const { t } = useLanguage();
   const { show } = useMessageModal()
   const { apply, applyItem, text, textSecondary } = useGlobalTheme();
@@ -114,6 +140,8 @@ const SingerSelectionScreen: React.FC<any> = ({ route }: any) => {
   const { setGenerateMusicType, musicGenerateInfo, coverMusicFile, setIsSelectedVoice } = useMusicStore.getState();
   const isSelectedVoice = useMusicStore.getState().isSelectedVoice;
   const { refreshPointsBalance } = usePointsStore.getState();
+
+  const insets = useSafeAreaInsets(); // 获取安全区高度
 
   // 当前有生成中的任务 modal
   const [haveTaskModal, setHaveTaskModal] = useState(false);
@@ -210,14 +238,6 @@ const SingerSelectionScreen: React.FC<any> = ({ route }: any) => {
     } else {
       setPointsLimitModalVisible(true);
     }
-    // if (selectedSinger) {
-    //   console.log('选择的歌手:', selectedSinger);
-    //   console.log('当前Tab:', activeTab);
-    //   // navigation.navigate('NextScreen', { selectedSinger, tab: activeTab });
-    // } else {
-    //   // 提示用户选择歌手
-    //   console.log('请选择歌手');
-    // }
   };
 
   const refreshList = async () => {
@@ -573,9 +593,11 @@ const SingerSelectionScreen: React.FC<any> = ({ route }: any) => {
   // 翻唱歌曲
   const handleCoverMusic = async () => {
     setIsLoading(true);
+    
     const rsp = await coverMusic({
       voice_print_id: String(selectedSinger?.id) || '0',
       music_url: musicInfo.music_url,
+      title: musicInfo?.title || performance.now() + ''
     });
     if (!rsp.task_id) {
       show({
@@ -598,19 +620,28 @@ const SingerSelectionScreen: React.FC<any> = ({ route }: any) => {
   const handleCoverSingToMusic = async () => {
     setIsLoading(true);
     try {
-      // const resFile = await handleUploadFile(selectedFile);
-      // console.log('resFile---', resFile);
+      const resFile = await handleUploadFile(selectedFile);
+      console.log('resFile---', resFile);
+      const url = resFile?.url_list?.[0] || ''
       console.log('selectedSinger?.id---', selectedSinger?.id);
 
+      if (selectedFile) {
+        selectedFile.uri = url
+      }
+
+      console.log('selectedFile---', selectedFile);
+      
+      
+
       let nameStr = ''
-        // 找到最后一个点的位置
-        const lastDotIndex = selectedFile?.name?.lastIndexOf('.');
-        // 如果没有点，直接返回原字符串
-        if (lastDotIndex === -1) {
-          nameStr = selectedFile?.name || '';
-        } else {
-          nameStr = selectedFile?.name?.substring(0, lastDotIndex) || '';
-        }
+      // 找到最后一个点的位置
+      const lastDotIndex = selectedFile?.name?.lastIndexOf('.');
+      // 如果没有点，直接返回原字符串
+      if (lastDotIndex === -1) {
+        nameStr = selectedFile?.name || '';
+      } else {
+        nameStr = selectedFile?.name?.substring(0, lastDotIndex) || '';
+      }
 
       if (selectedFile?.uri && selectedSinger?.id) {
         const rsp = await coverMusic({
@@ -650,7 +681,7 @@ const SingerSelectionScreen: React.FC<any> = ({ route }: any) => {
     }
   }
   const handlePointsTopup = () => {
-    // navigation.navigate('PointsTopup');
+    navigation.navigate('AllMyPoints');
   }
 
   const handleWatchAds = () => {
@@ -660,7 +691,7 @@ const SingerSelectionScreen: React.FC<any> = ({ route }: any) => {
   const handleFileSelect = async () => {
     try {
       const res = await pick({
-        type: Platform.OS === 'ios' ? iosAudioTypes : audioFileTypes,
+        type: audioFileTypes,
         allowMultiSelection: false,
       });
 
@@ -669,10 +700,8 @@ const SingerSelectionScreen: React.FC<any> = ({ route }: any) => {
         return;
       }
 
-      const file = res[0];
-
       // 验证文件类型
-      if (!androidAudioTypes.includes(file.type ?? '')) {
+      if (!audioFileTypes.includes(res[0].type ?? '')) {
         show({
           message: t('music.unsupported_file_format')
         });
@@ -680,7 +709,7 @@ const SingerSelectionScreen: React.FC<any> = ({ route }: any) => {
       }
 
       // 验证文件大小
-      const fileSizeMB = (file.size ?? 0) / (1024 * 1024);
+      const fileSizeMB = (res[0].size ?? 0) / (1024 * 1024);
       if (fileSizeMB > MAX_FILE_SIZE_MB) {
         show({
           message: t('music.file_size_exceeded').replace('{maxSize}', MAX_FILE_SIZE_MB.toString())
@@ -688,17 +717,63 @@ const SingerSelectionScreen: React.FC<any> = ({ route }: any) => {
         return;
       }
 
-      console.log('✅ 选中的音频文件:', file);
-      setIsLoading(true);
-      let resFile: any
-      resFile = await handleUploadFile(file);
-      if (resFile) {
-        file.uri = resFile?.url_list?.[0] || ''
+      console.log('✅ 选中的音频文件:', res);
+
+      if (res && res.length > 0) {
+        setIsLoading(true);
+
+        // 定义要保存的文件信息（符合 FileToCopy 类型）
+        const fileToCopy: FileToCopy = {
+          uri: res[0].uri, // 原始临时路径
+          fileName: res[0].name || '', // 原始文件名（带后缀）
+          // 若为 Android 虚拟文件，需添加 convertVirtualFileToType
+          // convertVirtualFileToType: result.convertibleToMimeTypes?.[0],
+        };
+
+        // 调用 keepLocalCopy 保存到 app 私有目录（文档目录或缓存目录）
+        const saveResult = await keepLocalCopy({
+          files: [fileToCopy], // 传入 FileToCopy 数组（非空）
+          destination: 'documentDirectory', // 保存到文档目录（不被系统清理）
+        });
+
+        /**
+         * savedFile数据格式
+         * {
+         * localUri: 'XXXX',
+         * sourceUri: 'xxx',
+         * status: 'success'
+         * 
+         * }
+         */
+        const savedFile = saveResult[0];
+
+        console.log('savedFile---', savedFile);
+
+        if (savedFile.status !== 'success' || !savedFile?.localUri) {
+          console.error('持久化保存文件失败');
+          throw new Error(`持久化保存文件失败`);
+        }
+
+        res[0].uri = savedFile.localUri
+
+        const file = res[0];
+
+        console.log('处理后的文件---', file);
+
         setSelectedFile(file as AudioFile);
+
+
+        // let resFile: any
+        // resFile = await handleUploadFile(file);
+        // if (resFile) {
+        //   file.uri = resFile?.url_list?.[0] || ''
+        //   setSelectedFile(file as AudioFile);
+        // }
+        
+        
+        setIsLoading(false);
       }
       
-      
-      setIsLoading(false);
       
 
     } catch (error) {
@@ -720,7 +795,8 @@ const SingerSelectionScreen: React.FC<any> = ({ route }: any) => {
   }
 
   return (
-    <SafeAreaView style={apply(styles.container)}>
+    <View style={apply(styles.container)}>
+      <View style={{ height: insets.top }} />
       <View style={styles.headerRow}>
         {musicInfo !== undefined && <Text style={styles.titleText} >{t('music.cover_song')}</Text>}
 
@@ -816,20 +892,21 @@ const SingerSelectionScreen: React.FC<any> = ({ route }: any) => {
       <FullScreenLoader
         visible={isLoading}
       />
-    </SafeAreaView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: normalize(30),
+    // paddingTop: normalize(30),
   },
   headerRow: {
     flexDirection: "row",
     alignItems: "center",
     paddingHorizontal: normalize(16),
     marginBottom: normalize(8),
+    marginTop: scaleSize(16),
   },
   backBtn: {
     width: normalize(36),
@@ -1153,6 +1230,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: normalize(12),
     paddingVertical: normalize(6),
     backgroundColor: theme.primary,
+    // marginTop: scaleSize(10),
   },
   uploadButtonText: {
     fontSize: normalizeFontSize(16),

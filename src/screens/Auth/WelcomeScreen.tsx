@@ -295,8 +295,8 @@ const WelcomeScreen: React.FC = () => {
   const getUserInfoRequest = async () => {
     const res = await getUserInfo({});
     console.log('UserInfo--', res);
-    if (res.data) {
-      useUserStore.getState().setUserInfo(res.data);
+    if (res?.id) {
+      useUserStore.getState().setUserInfo(res);
     }
   }
 
@@ -407,73 +407,86 @@ const WelcomeScreen: React.FC = () => {
             </View> */}
             
             
-            {
+            {/* {
               useAppStore.getState().appSign === APP_SIGN_ENUM.TYPE_MELONS ||
               useAppStore.getState().appSign === APP_SIGN_ENUM.TYPE_MOMORS ?
-              <>
+              <> */}
                 {/* 登录按钮 */}
-                <TouchableOpacity style={styles.registerButton} onPress={handleLogin}>
+                {/* <TouchableOpacity style={styles.registerButton} onPress={handleLogin}>
                   <Text style={styles.registerButtonText}>
                     {t('welcome.log_in')}
                   </Text>
-                </TouchableOpacity>
+                </TouchableOpacity> */}
                   {/* 注册链接 */}
-                <View style={styles.loginLink}>
+                {/* <View style={styles.loginLink}>
                   <TouchableOpacity onPress={handleRegister}>
                     <Text style={styles.loginLinkButton}>{t('register.register_account')}</Text>
                   </TouchableOpacity>
                   <Text style={[styles.loginLinkText, {marginLeft: scaleSize(8)}]}>{t('register.other_login_tip')}</Text>
-                </View>
-              </>
+                </View> */}
+              {/* </>
               :
-              <>
+              <> */}
                 {/* 注册按钮 */}
-                <TouchableOpacity style={styles.registerButton} onPress={handleRegister}>
+                {/* <TouchableOpacity style={styles.registerButton} onPress={handleRegister}>
                   <Text style={styles.registerButtonText}>
                     {t('register.register_melon_account')}
-                    {/* Register a Melon account */}
                   </Text>
-                </TouchableOpacity>
+                </TouchableOpacity> */}
                   {/* 登录链接 */}
-                <View style={styles.loginLink}>
+                {/* <View style={styles.loginLink}>
                   <Text style={styles.loginLinkText}>{t('welcome.already_have_account')}</Text>
                   <TouchableOpacity onPress={handleLogin}>
                     <Text style={styles.loginLinkButton}>{t('welcome.log_in')}</Text>
                   </TouchableOpacity>
-                </View>
-              </>
-            }
+                </View> */}
+              {/* </>
+            } */}
+            {/* 登录按钮 */}
+            <TouchableOpacity style={styles.registerButton} onPress={handleLogin}>
+              <Text style={styles.registerButtonText}>
+                {t('welcome.log_in')}
+              </Text>
+            </TouchableOpacity>
+              {/* 注册链接 */}
+            <View style={styles.loginLink}>
+              <TouchableOpacity onPress={handleRegister}>
+                <Text style={styles.loginLinkButton}>{t('register.register_account')}</Text>
+              </TouchableOpacity>
+              <Text style={[styles.loginLinkText, {marginLeft: scaleSize(8)}]}>{t('register.other_login_tip')}</Text>
+            </View>
 
             {/* 第三方登录 */}
             <View style={styles.otherLoginView}>
-              {
+              {/* {
                 (
                   useAppStore.getState().appSign === APP_SIGN_ENUM.TYPE_MELONS ||
                   useAppStore.getState().appSign === APP_SIGN_ENUM.TYPE_MOMORS
                 ) &&
-                  <AppleSignButton
-                    beforeClickCheck={() => {
-                      if (!isAgreementChecked) {
-                        show({
-                          message: t('register.please_agree')
-                        })
-                      }
-                      return isAgreementChecked
-                    }}
-                    onSuccess={(userData) => {
-                      console.log('苹果登录用户信息:', userData);
-                      setLoading(true)
-                      loginByOtherId(userData?.userId, 'apple')
-                      // 1. 把 userData.identityToken 和 userData.nonce 传给后端校验
-                      // 2. 后端校验通过后，保存用户信息到本地（如 AsyncStorage）
-                    }}
-                    onError={(error) => {
-                      console.error('登录失败:', error);
-                      // 显示错误提示（如 Toast）
-                    }}
-                  />
-              }
-              {
+                  
+              } */}
+              <AppleSignButton
+                beforeClickCheck={() => {
+                  if (!isAgreementChecked) {
+                    show({
+                      message: t('register.please_agree')
+                    })
+                  }
+                  return isAgreementChecked
+                }}
+                onSuccess={(userData) => {
+                  console.log('苹果登录用户信息:', userData);
+                  setLoading(true)
+                  loginByOtherId(userData?.userId, 'apple')
+                  // 1. 把 userData.identityToken 和 userData.nonce 传给后端校验
+                  // 2. 后端校验通过后，保存用户信息到本地（如 AsyncStorage）
+                }}
+                onError={(error) => {
+                  console.error('登录失败:', error);
+                  // 显示错误提示（如 Toast）
+                }}
+              />
+              {/* {
                 (
                   useAppStore.getState().appSign === APP_SIGN_ENUM.TYPE_MELONS ||
                   useAppStore.getState().appSign === APP_SIGN_ENUM.TYPE_MOMORS
@@ -493,8 +506,23 @@ const WelcomeScreen: React.FC = () => {
                     loginByOtherId(userId, 'google')
                   }}
                 />
-              }
-              {
+              } */}
+              <GoogleSignButton
+                beforeClickCheck={() => {
+                  if (!isAgreementChecked) {
+                    show({
+                      message: t('register.please_agree')
+                    })
+                  }
+                  return isAgreementChecked
+                }}
+                onSuccess={(userId) => {
+                  console.log('谷歌登录用户信息:', userId);
+                  setLoading(true)
+                  loginByOtherId(userId, 'google')
+                }}
+              />
+              {/* {
                 (
                   useAppStore.getState().appSign === APP_SIGN_ENUM.TYPE_MELONS ||
                   useAppStore.getState().appSign === APP_SIGN_ENUM.TYPE_MOMORS
@@ -519,7 +547,27 @@ const WelcomeScreen: React.FC = () => {
                     setLoading(false)
                   }}
                 />
-              }
+              } */}
+              <TwitterSignButton
+                beforeClickCheck={() => {
+                  if (!isAgreementChecked) {
+                    show({
+                      message: t('register.please_agree')
+                    })
+                  }
+                  return isAgreementChecked
+                }}
+                startLoading={() => {
+                  setLoading(true)
+                }}
+                onSuccess={(userId) => {
+                  console.log('推特登录用户信息:', userId);
+                  loginByOtherId(userId, 'twitter')
+                }}
+                onError={() => {
+                  setLoading(false)
+                }}
+              />
               
             </View>
             <View style={[styles.bottomView, {paddingBottom: insets.bottom > 0 ? insets.bottom : scaleSize(20)}]}>

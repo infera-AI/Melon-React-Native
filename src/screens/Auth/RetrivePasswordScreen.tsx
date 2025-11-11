@@ -151,14 +151,15 @@ const RetrivePasswordScreen: React.FC = () => {
   const { show } = useMessageModal();
 
   useEffect(() => {
-    if (
-      useAppStore.getState().appSign === APP_SIGN_ENUM.TYPE_MELONS ||
-      useAppStore.getState().appSign === APP_SIGN_ENUM.TYPE_MOMORS
-    ) {
-      setActiveTab('email')
-    } else {
-      setActiveTab('phone')
-    }
+    // if (
+    //   useAppStore.getState().appSign === APP_SIGN_ENUM.TYPE_MELONS ||
+    //   useAppStore.getState().appSign === APP_SIGN_ENUM.TYPE_MOMORS
+    // ) {
+    //   setActiveTab('email')
+    // } else {
+    //   setActiveTab('phone')
+    // }
+    setActiveTab('email')
   }, [])
 
   const handleBack = () => {
@@ -231,7 +232,7 @@ const RetrivePasswordScreen: React.FC = () => {
           </View>
           {/* Tab切换 */}
           <View style={styles.tabContainer}>
-            {
+            {/* {
               (
                 useAppStore.getState().appSign === APP_SIGN_ENUM.TYPE_MELON ||
                 useAppStore.getState().appSign === APP_SIGN_ENUM.TYPE_MOMOR
@@ -240,7 +241,7 @@ const RetrivePasswordScreen: React.FC = () => {
                 <Text style={activeTab === 'phone' ? styles.activeTab : styles.inactiveTab}>{t('login_with_code.by_phone_number')}</Text>
                 {activeTab === 'phone' && <View style={styles.tabIndicator} />}
               </TouchableOpacity>
-            }
+            } */}
             <TouchableOpacity style={styles.tabButton} onPress={() => handleTabSwitch('email')}>
               <Text style={activeTab === 'email' ? styles.activeTab : styles.inactiveTab}>{t('login_with_code.by_email')}</Text>
               {activeTab === 'email' && <View style={styles.tabIndicator} />}

@@ -144,14 +144,15 @@ const RegisterEmailScreen: React.FC = () => {
   const { show } = useMessageModal();
 
   useEffect(() => {
-    if (
-      useAppStore.getState().appSign === APP_SIGN_ENUM.TYPE_MELONS ||
-      useAppStore.getState().appSign === APP_SIGN_ENUM.TYPE_MOMORS
-    ) {
-      setActiveTab('email')
-    } else {
-      setActiveTab('phone')
-    }
+    // if (
+    //   useAppStore.getState().appSign === APP_SIGN_ENUM.TYPE_MELONS ||
+    //   useAppStore.getState().appSign === APP_SIGN_ENUM.TYPE_MOMORS
+    // ) {
+    //   setActiveTab('email')
+    // } else {
+    //   setActiveTab('phone')
+    // }
+    setActiveTab('email')
   }, [])
 
   const handleBack = () => {
@@ -292,7 +293,7 @@ const RegisterEmailScreen: React.FC = () => {
 
             {/* Tab切换 */}
             <View style={styles.tabRow}>
-              {
+              {/* {
                 (
                   useAppStore.getState().appSign === APP_SIGN_ENUM.TYPE_MELON ||
                   useAppStore.getState().appSign === APP_SIGN_ENUM.TYPE_MOMOR
@@ -305,7 +306,7 @@ const RegisterEmailScreen: React.FC = () => {
                     {activeTab === 'phone' && <View style={styles.tabDot} />}
                   </View>
                 </TouchableOpacity>
-              }
+              } */}
               <TouchableOpacity onPress={() => handleTabChange('email')}>
                 <View style={styles.tabItem}>
                   <Text style={[styles.tabText, activeTab === 'email' && styles.tabTextActive]}>
@@ -337,7 +338,7 @@ const RegisterEmailScreen: React.FC = () => {
               ) : (
                 <>
                   {/* 国家选择框 */}
-                  <View style={styles.inputBox}>
+                  {/* <View style={styles.inputBox}>
                     <TouchableOpacity style={styles.countrySelector} disabled={useAppStore.getState().appSign === APP_SIGN_ENUM.TYPE_MELON} onPress={handleCountrySelect}>
                       <View style={styles.locationIcon}>
                         <Image source={require('../../../src/assets/login/login_area_icon.png')} style={styles.locationIcon} />
@@ -346,9 +347,9 @@ const RegisterEmailScreen: React.FC = () => {
                         {useAppStore.getState().appSign === APP_SIGN_ENUM.TYPE_MELON ? t(`languageNames.${"zh"}`) : t(`languageNames.${selectedCountry.id}`)} ({useAppStore.getState().appSign === APP_SIGN_ENUM.TYPE_MELON ? "+86" : selectedCountry.code})
                       </Text>
                     </TouchableOpacity>
-                  </View>
+                  </View> */}
                   {/* 手机号输入框 */}
-                  <View style={styles.inputBox}>
+                  {/* <View style={styles.inputBox}>
                     <Image source={require('../../../src/assets/login/login_phone_icon.png')} style={styles.inputIcon} />
                     <TextInput
                       style={styles.input}
@@ -358,7 +359,7 @@ const RegisterEmailScreen: React.FC = () => {
                       onChangeText={setPhone}
                       keyboardType="phone-pad"
                     />
-                  </View>
+                  </View> */}
                 </>
               )}
             </View>

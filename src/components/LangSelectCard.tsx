@@ -10,7 +10,9 @@ import {
   StyleSheet,
   Image,
   Dimensions,
-  ScrollView
+  ScrollView,
+  StyleProp,
+  ViewStyle
 } from 'react-native';
 import PublicModal from '@/components/PublicModal'
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -28,7 +30,10 @@ type Props = {
   textSize?: number,
   heightOffset?: number,
   marginRight?: number,
+  singleSelect?: boolean, // 是否是单一选择语言模式,默认false
+  singleSelectLabel?: string,
   disabled?: boolean,
+  style?: StyleProp<ViewStyle>,
   // backgroundColor?: string;
   // spinnerSize?: 'small' | 'large';
   // customIndicator?: React.ReactNode;
@@ -51,6 +56,9 @@ const LangSelectCard: React.FC<Props> = ({
   heightOffset = 0,
   marginRight = 20,
   disabled = false,
+  singleSelect = false,
+  singleSelectLabel = '',
+  style = {},
   beforeSelectBack = null,
   afterSelectBack = null
 }) => {
@@ -81,42 +89,72 @@ const LangSelectCard: React.FC<Props> = ({
     
   }
 
+  // 交换语言
+  const reverseLang = () => {
+    let beforeLanguageTemp = beforeLanguage
+    let afterLanguageTemp = afterLanguage
+    beforeSelectBack && beforeSelectBack(afterLanguageTemp as Language)
+    afterSelectBack && afterSelectBack(beforeLanguageTemp as Language)
+
+  }
+
   useEffect(() => {
     
   }, []);
 
   return (
     <>
-      <View
-        style={[
-          styles.langSelectCard,
-          disabled && styles.disabledDom,
-          {
-            marginRight: scaleSize(marginRight),
-            height: scaleSize(52 + heightOffset)
-          }
-        ]}
-      >
-        <TouchableOpacity style={styles.langSelectItem} onPress={() => openSelectLang('before')}>
-          <View style={styles.langSelectTextView}>
-            <Text style={[styles.langSelectText, {fontSize: scaleFont(textSize)}]} numberOfLines={1} ellipsizeMode={'tail'}>
-              {beforeLanguage ? t(`languageNames.${beforeLanguage}`) : ''}
-            </Text>
-            <Image source={require('../../assets/images/Home_Translate_arrow.png')} style={styles.langSelectArrow}/>
-          </View>
-        </TouchableOpacity>
-        <View style={styles.langSwitchIconBox}>
-          <Image source={require('../../assets/images/Home_Translate_switch.png')} style={styles.langSwitchArrow} resizeMode='contain'/>
+      {
+        !singleSelect ?
+        <View
+          style={[
+            styles.langSelectCard,
+            disabled && styles.disabledDom,
+            {
+              marginRight: scaleSize(marginRight),
+              height: scaleSize(52 + heightOffset)
+            },
+            style
+          ]}
+        >
+          <TouchableOpacity style={styles.langSelectItem} onPress={() => openSelectLang('before')}>
+            <View style={styles.langSelectTextView}>
+              <Text style={[styles.langSelectText, {fontSize: scaleFont(textSize)}]} numberOfLines={1} ellipsizeMode={'tail'}>
+                {beforeLanguage ? t(`languageNames.${beforeLanguage}`) : ''}
+              </Text>
+              <Image source={require('../../assets/images/Home_Translate_arrow.png')} style={styles.langSelectArrow}/>
+            </View>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.langSwitchIconBox} onPress={reverseLang}>
+            <Image source={require('../../assets/images/Home_Translate_switch.png')} style={styles.langSwitchArrow} resizeMode='contain'/>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.langSelectItem} onPress={() => openSelectLang('after')}>
+            <View style={styles.langSelectTextView}>
+              <Text style={[styles.langSelectText, {fontSize: scaleFont(textSize)}]} numberOfLines={1} ellipsizeMode={'tail'}>
+                {afterLanguage ? t(`languageNames.${afterLanguage}`) : ''}
+              </Text>
+              <Image source={require('../../assets/images/Home_Translate_arrow.png')} style={styles.langSelectArrow}/>
+            </View>
+          </TouchableOpacity>
         </View>
-        <TouchableOpacity style={styles.langSelectItem} onPress={() => openSelectLang('after')}>
-          <View style={styles.langSelectTextView}>
-            <Text style={[styles.langSelectText, {fontSize: scaleFont(textSize)}]} numberOfLines={1} ellipsizeMode={'tail'}>
-              {afterLanguage ? t(`languageNames.${afterLanguage}`) : ''}
-            </Text>
-            <Image source={require('../../assets/images/Home_Translate_arrow.png')} style={styles.langSelectArrow}/>
+        :
+        // 单选模式
+        <TouchableOpacity style={[styles.singleSelectContentView, style]} onPress={() => openSelectLang('before')}>
+          <Text style={styles.singleSelectLabelText}>
+            {singleSelectLabel}
+          </Text>
+          <View style={styles.singleSelectRightView}>
+            <View style={styles.langSelectItem}>
+              <View style={[styles.langSelectTextView, styles.singleSelectLangSelectTextView]}>
+                <Text style={[styles.langSelectText, {fontSize: scaleFont(textSize)}]} numberOfLines={1} ellipsizeMode={'tail'}>
+                  {beforeLanguage ? t(`languageNames.${beforeLanguage}`) : ''}
+                </Text>
+                <Image source={require('../../assets/images/Home_Translate_arrow.png')} style={styles.langSelectArrow}/>
+              </View>
+            </View>
           </View>
         </TouchableOpacity>
-      </View>
+      }
       {/* 语言选择弹窗：底部弹出，高度400，方便后续自定义 */}
       <PublicModal
         visible={langModalVisible}
@@ -312,6 +350,33 @@ const styles = StyleSheet.create({
     color: '#ffffff',
     marginLeft: scaleSize(10),
   },
+
+  singleSelectContentView: {
+    width: '100%',
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    paddingHorizontal: scaleSize(16),
+    paddingVertical: scaleSize(16),
+    borderRadius: scaleSize(10),
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  singleSelectLabelText: {
+    fontSize: scaleFont(15),
+    color: 'rgba(255, 255, 255, 0.5)',
+  },
+  singleSelectRightView: {
+    flex: 1,
+    position: 'relative',
+    overflow: 'hidden',
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-end'
+  },
+  singleSelectLangSelectTextView: {
+    justifyContent: 'flex-end'
+  }
 });
 
 export default LangSelectCard;

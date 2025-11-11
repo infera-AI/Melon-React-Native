@@ -35,6 +35,7 @@ export const API_ENDPOINTS = {
       GET_PERSONAL_WORKS: '/opensource/list_music_os',
       GET_SUPPORTED_LANGUAGES: '/opensource/get_support_language_os',
       GET_MUSIC_SEGMENTATION: '/opensource/get_music_genres_os',
+      AI_CREATE_STYLE: '/opensource/recommend_genres_os',
       DELETE_MUSIC: '/opensource/delete_generate_music_os',
       RENAME_MUSIC: '/opensource/rename_m_os',
       GET_SHARE_LINK: '/opensource/get_share_music_url_os',
@@ -53,6 +54,7 @@ export const API_ENDPOINTS = {
       SEND_MSG_TO_AI: '/assistant/send_voice_message',
       TRANSLATION_TEXT: '/conversations/send_text_message',
       LANGUAGE_DETECTION: '/translations/get_detect_language',
+      CREATE_ARTC_CHANNEL: '/opensource/create_artc_channel',
     },
     PROFILE: {
           GET_USER_INFO: '/accounts/profile',
@@ -84,6 +86,8 @@ export const API_ENDPOINTS = {
           GET_INTEGRAL_RECORD: '/points/log',
           GET_INVITATION_CODE: '/accounts/generate_invitation_code',
           VERIFY_INVITATION_CODE: '/accounts/verify_invitation_code',
+          AIRWALLEX_CREATE_INTENT: '/opensource/airwallex_pay_intent',
+          APPLEPAY_RESULT_VERIFY: '/opensource/apple_pay_verify'
         },
         FILE: {
           UPLOAD_FILE: '/opensource/upload_file_os',

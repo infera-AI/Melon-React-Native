@@ -8,6 +8,7 @@ import CSJSplashAd, { CSJSplashAdMethods } from '@/components/CSJSplashAd'; // �
 import { useBackHandler } from '@/utils/BackHandlerUtil'; // 导入工具类
 import {APP_SIGN_ENUM} from '@/utils/constants'
 import LottieView from 'lottie-react-native';
+import { getUserInfo } from '@/api/profile/profile';
 
 import { AppOpenAd, InterstitialAd, RewardedAd, BannerAd, TestIds, AdEventType } from 'react-native-google-mobile-ads';
 import { scaleSize } from '@/utils/scale';
@@ -48,8 +49,8 @@ const SplashScreen: React.FC = () => {
     const appSign = useAppStore.getState().appSign
     let appOpenAd:any
     if ( // 国外版需要谷歌广告
-      appSign === APP_SIGN_ENUM.TYPE_MELONS ||
-      appSign === APP_SIGN_ENUM.TYPE_MOMORS
+      (appSign === APP_SIGN_ENUM.TYPE_MELONS ||
+      appSign === APP_SIGN_ENUM.TYPE_MOMORS) && Platform.OS === 'ios'
     ) {
       setIsShowLoad(true)
       appOpenAd = AppOpenAd.createForAdRequest('ca-app-pub-2954543818912070/2523289469', {});
@@ -72,6 +73,10 @@ const SplashScreen: React.FC = () => {
       appOpenAd.load()
       // goPageHandle()
     }
+
+    if (Platform.OS === 'android') {
+      goPageHandle()
+    }
     
 
     return () => {
@@ -84,6 +89,11 @@ const SplashScreen: React.FC = () => {
   useEffect(() => {
     if (!hydrated) return;
     const token = useUserStore.getState().token;
+    if (token) {
+      if (!useUserStore.getState().userInfo?.id) {
+        getUserInfoRequest();
+      }
+    }
     console.log('hydrated token ==>', token);
     // setTimeout(() => {
     //   Animated.timing(fadeAnim, {
@@ -105,6 +115,14 @@ const SplashScreen: React.FC = () => {
     
    
   }, [hydrated])
+
+  const getUserInfoRequest = async () => {
+    const res = await getUserInfo({});
+    console.log('UserInfo----', res);
+    if (res?.id) {
+      useUserStore.getState().setUserInfo(res);
+    }
+  }
 
   const goPageHandle = () => {
     // // if (!hydrated) return;

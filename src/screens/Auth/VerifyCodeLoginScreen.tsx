@@ -22,6 +22,7 @@ import FullScreenLoader from '../../components/FullScreenLoader';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { getDeviceInfo } from '@/utils/helpers';
 import { normalize, normalizeFontSize } from '../../utils/stylesUtil';
+import { getUserInfo } from '@/api/profile/profile';
 
 type VerifyCodeScreenRouteProp = RouteProp<AuthStackParamList, 'VerifyCode'>;
 // type VerifyCodeScreenNavigationProp = StackNavigationProp<AuthStackParamList, 'VerifyCode'>;
@@ -136,6 +137,7 @@ const VerifyCodeLoginScreen: React.FC = () => {
           console.log('验证码校验API', responseData);
           //存储action_token
           useUserStore.getState().setToken(responseData.token);
+          getUserInfoRequest();
           navigation.reset({index: 0, routes: [{name: 'MainApp'}]})
         }else{
           console.log('验证码校验失败', responseData);
@@ -152,6 +154,14 @@ const VerifyCodeLoginScreen: React.FC = () => {
       }
     }
   };
+
+  const getUserInfoRequest = async () => {
+    const res = await getUserInfo({});
+    console.log('UserInfo', res);
+    if (res?.id) {
+      useUserStore.getState().setUserInfo(res);
+    }
+  }
 
   const handleBack = () => {
     navigation.goBack();

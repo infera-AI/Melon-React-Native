@@ -96,7 +96,7 @@ export function coverMusic(params: { voice_print_id?: string; music_url?: any, t
 }
 
 // 获取翻唱歌曲状态
-export function getCoverMusicStatus(params?: { task_id?: string }) {
+export function getCoverMusicStatus(params?: { task_id?: string, user_id?: any }) {
   return http.get<any>(API_ENDPOINTS.MUSIC.GET_COVER_MUSIC_STATUS, params);
 }
 
@@ -127,7 +127,7 @@ export function saveCoverMusicOS(params: { task_id: string }) {
 }
 
 // 获取生成歌曲状态
-export function getGenerateMusicOSStatus(params?: { task_id?: string }) {
+export function getGenerateMusicOSStatus(params?: { task_id?: string, user_id?: any }) {
   return http.get<any>(API_ENDPOINTS.MUSIC.GET_GENERATE_MUSIC_OS_STATUS, params);
 }
 
@@ -151,6 +151,10 @@ export function getMusicSegmentation() {
   return http.get<any>(API_ENDPOINTS.MUSIC.GET_MUSIC_SEGMENTATION);
 }
 
+// 风格AI润色
+export function aiCreateStyle(params: any) {
+  return http.post<any>(API_ENDPOINTS.MUSIC.AI_CREATE_STYLE, params);
+}
 // 删除音乐
 export function deleteMusic(params: { id_list: Array<number> }) {
   return http.post<any>(API_ENDPOINTS.MUSIC.DELETE_MUSIC, params);

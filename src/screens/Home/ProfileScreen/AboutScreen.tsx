@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -23,6 +23,17 @@ type AboutScreenNavigationProp = NativeStackNavigationProp<ProfileStackParamList
 const AboutScreen: React.FC = () => {
   const navigation = useNavigation<AboutScreenNavigationProp>();
   const { t } = useLanguage();
+
+  const appSign = useAppStore.getState().appSign
+  const [appName, setAppName] = useState('')
+
+  useEffect(() => {
+    if (appSign === 'melon') {
+      setAppName('Melons')
+    } else if (appSign === 'melons') {
+      setAppName('Melons AI')
+    }
+  }, []);
 
   const handleBack = () => {
     navigation.goBack();
@@ -59,7 +70,7 @@ const AboutScreen: React.FC = () => {
               style={styles.backIcon}
             />
           </TouchableOpacity>
-          <Text style={styles.title}>{t('about.about_melon')}</Text>
+          <Text style={styles.title}>{t('about.about_melon').replace('Melon', appName)}</Text>
           <View style={styles.headerSpacer} />
         </View>
 
@@ -71,7 +82,8 @@ const AboutScreen: React.FC = () => {
         </View>
 
         <View style={styles.appNameContainer}>
-          <Text style={styles.appName}>{t('about.melon_ai')}</Text>
+          {/* <Text style={styles.appName}>{t('about.melon_ai')}</Text> */}
+          <Text style={styles.appName}>{appName}</Text>
         </View>
 
         <View style={styles.versionContainer}>

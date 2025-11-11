@@ -240,6 +240,15 @@ const JiliAdBtn = forwardRef<SpeakBtnRef, Props>(({
         console.log('用户未登录，无法观看广告');
         return
       }
+      if (Platform.OS === 'android') {
+        setTimeout(async() => {
+          isGetRewarded.current = true
+          refreshPointsBalance()
+          setLoading(false)
+          adCloseHandle && adCloseHandle(isGetRewarded.current)
+        })
+        return
+      }
       console.log('国外版使用谷歌');
       setLoading(true)
       googleRewarded = RewardedAd.createForAdRequest('ca-app-pub-2954543818912070/6675121612', {

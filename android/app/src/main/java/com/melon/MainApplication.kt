@@ -14,6 +14,7 @@ import com.zmxv.RNSound.SoundPackage
 import com.melon.modules.FileSaverPackage
 import com.melon.ConfigPackage
 import com.melon.PangleAdPackage
+import com.melon.RNApplePayPackage
 
 // === 新增 START ===
 import com.bytedance.sdk.openadsdk.TTAdSdk
@@ -45,6 +46,7 @@ class MainApplication : Application(), ReactApplication {
               add(ConfigPackage())
               add(PangleAdPackage())
               add(NativeKillBackgroundPackage())
+              add(RNApplePayPackage())
               add(object : ReactPackage {
                 override fun createNativeModules(reactContext: ReactApplicationContext): List<com.facebook.react.bridge.NativeModule> {
                   return Collections.emptyList()  // 不注册NativeModule，返回空列表

@@ -180,3 +180,10 @@ export function languageDetection(params: {source_text: string}){
       params
     );
 }
+
+// 创建阿里视频通话ARTC channel_id频道id
+export function createArtcChannel(){
+    return http.post<any>(
+      API_ENDPOINTS.TRANSLATE.CREATE_ARTC_CHANNEL,
+    );
+}

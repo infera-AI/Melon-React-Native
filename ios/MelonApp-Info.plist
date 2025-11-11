@@ -7,6 +7,17 @@
 		<key>APP_SIGN</key>
 		<string>melon</string>
 	</dict>
+    <key>CFBundleURLTypes</key>
+    <array>
+        <dict>
+            <key>CFBundleURLName</key>
+            <string>com.sinobiz.melon</string>
+            <key>CFBundleURLSchemes</key>
+            <array>
+                <string>commelonmelon</string>
+            </array>
+        </dict>
+    </array>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>

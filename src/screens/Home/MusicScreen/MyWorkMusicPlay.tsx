@@ -636,11 +636,15 @@ const MyWorkMusicPlay = ({ navigation, route }: any) => {
     });
     console.log(musicInfo, 'musicInfo.type');
     // 类型：0生成，1翻唱，2生成+翻唱，3手动上传
-    if (musicInfo.type === 0 || musicInfo.type === 2) {
-      navigation.navigate('SingerSelection', { type: 'generate' });
-    } else {
-      navigation.navigate('CoverUpload', { musicInfo });
-    }
+    // if (musicInfo.type === 0 || musicInfo.type === 2) {
+    //   console.log('1111111111');
+      
+    //   navigation.navigate('SingerSelection', { type: 'generate' });
+    // } else {
+    //   console.log('222222222222');
+    //   navigation.navigate('CoverUpload', { musicInfo });
+    // }
+    navigation.navigate('CoverUpload', { musicInfo });
   }
 
   useEffect(() => {

@@ -18,6 +18,8 @@ import DocumentTranslationScreen from '@/screens/DocumentTranslationScreen'
 import AudioTranslationScreen from '@/screens/AudioTranslationScreen'
 import ImageTranslationScreen from '@/screens/ImageTranslationScreen'
 import OralPracticeScreen from '@/screens/OralPracticeScreen'
+import OnlineCallScreen from '@/screens/OnlineCall'
+import MyPointsScreen from '@/screens/Home/ProfileScreen/MyPointsScreen';
 
 export type RootStackParamList = {
   Splash: undefined;
@@ -31,6 +33,8 @@ export type RootStackParamList = {
   AudioTranslation: undefined;
   ImageTranslation: undefined;
   OralPractice: undefined;
+  OnlineCall: undefined;
+  AllMyPoints: undefined;
 };
 
 // const Stack = createStackNavigator<RootStackParamList>();
@@ -70,6 +74,8 @@ const AppNavigator = () => {
         <Stack.Screen name="AudioTranslation" component={AudioTranslationScreen} />
         <Stack.Screen name="ImageTranslation" component={ImageTranslationScreen} />
         <Stack.Screen name="OralPractice" component={OralPracticeScreen} />
+        <Stack.Screen name="OnlineCall" component={OnlineCallScreen} />
+        <Stack.Screen name="AllMyPoints" component={MyPointsScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

@@ -13,7 +13,14 @@ import {
   Modal,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { polishLyrics, recommendGenres, generateMusic, getSupportedLanguages, getMusicSegmentation } from '@/api/music/music';
+import {
+  polishLyrics,
+  recommendGenres,
+  generateMusic,
+  getSupportedLanguages,
+  getMusicSegmentation,
+  aiCreateStyle
+} from '@/api/music/music';
 import { useMessageModal } from '@/contexts/MessageModalContext';
 import FullScreenLoader from '@/components/FullScreenLoader';
 import { MusicStackParamList } from './navigator';
@@ -28,6 +35,7 @@ import { languageDetection } from '@/api/translate/translate';
 import { usePointsStore } from '@/store/modules/points.store';
 import { useUserStore } from '@/store';
 import JiliAdBtn from '@/components/JiliAdBtn';
+import { scaleFont, scaleSize } from '@/utils/scale';
 
 type MusicScreenNavigationProp = NativeStackNavigationProp<MusicStackParamList, 'MusicMain'>;
 
@@ -52,6 +60,11 @@ const MusicScreen: React.FC = () => {
   const input1Ref = useRef(null);
   const input2Ref = useRef(null);
 
+  // 歌词是否经过AI生成
+  const [isAIPolishLyrics, setIsAIPolishLyrics] = useState(false)
+  // 风格是否经过AI生成
+  const [isRefreshAIStyles, setIsRefreshAIStyles] = useState(false)
+
   useBackHandler(t('music.back_handler_message'));
   const refreshPointsBalance = usePointsStore.getState().refreshPointsBalance;
   // 歌词润饰
@@ -65,6 +78,7 @@ const MusicScreen: React.FC = () => {
         lyrics: lyrics,
       });
       setLyrics(res.lyrics)
+      setIsAIPolishLyrics(true)
     } catch (error: any) {
       console.log(error);
       show({
@@ -276,12 +290,41 @@ const MusicScreen: React.FC = () => {
     if (!checkLogin()) {
       return
     }
+    if (!lyrics) {
+      show({
+        message: t('music.enter_lyrics_placeholder')
+      })
+      return
+    }
     setLoading(true);
-    const res = await getRecommendStylesRequest();
-    const stylesStr = res.join(",");
-    setMusicStylesInput(stylesStr);
-    console.log(musicStyles, '----')
-    setLoading(false);
+    try {
+      const res = await aiCreateStyle({lyrics: lyrics});
+      setLoading(false);
+      if (res?.genres) {
+        setTimeout(() => {
+          show({
+            message: t('music.polish_success')
+          })
+        }, 50)
+        setMusicStylesInput(res.genres);
+        // // console.log(musicStyles, '----')
+        setIsRefreshAIStyles(true)
+      } else {
+        setTimeout(() => {
+          show({
+            message: t('translate_screen.failed_again')
+          })
+        }, 50)
+      }
+      
+    } catch (error) {
+      setLoading(false);
+      setTimeout(() => {
+        show({
+          message: t('translate_screen.failed_again')
+        })
+      }, 50)
+    }
   }
 
   // 获取支持语言
@@ -340,6 +383,15 @@ const MusicScreen: React.FC = () => {
     navigation.navigate('CoverUpload' as never)
   }
 
+  // 交换语言
+  const reverseLang = () => {
+    let beforeLanguageTemp = leftLanguage
+    let afterLanguageTemp = rightLanguage
+    setLeftLanguage(afterLanguageTemp)
+    setRightLanguage(beforeLanguageTemp)
+
+  }
+
   return (
     <SafeAreaView edges={['top', 'bottom']} style={styles.container}>
       
@@ -392,6 +444,12 @@ const MusicScreen: React.FC = () => {
         <View style={styles.lyricCard}>
           <View style={styles.lyricCardHeader}>
             <Text style={styles.lyricCardTitle}>{t('music.write_lyrics')}</Text>
+            {
+              isAIPolishLyrics &&
+              <Text style={styles.aiCreateTip}>
+                {t('translate_screen.ai_create_tip')}
+              </Text>
+            }
             <TouchableOpacity style={styles.aiPolish} onPress={handleAiPolish}>
               <Image
                 source={require('../../../../assets/images/ai_polishing_star.png')}
@@ -443,7 +501,9 @@ const MusicScreen: React.FC = () => {
               <TouchableOpacity style={styles.langBtn} onPress={() => handleLanguageSwitch("left")}>
                 <Text style={styles.langText}>{t(`languageNames.${leftLanguage}`)}</Text>
               </TouchableOpacity>
-              <Image source={require('@/assets/main/language_exchange.png')} style={styles.langSwitch} />
+              <TouchableOpacity onPress={reverseLang}>
+                <Image source={require('@/assets/main/language_exchange.png')} style={styles.langSwitch} />
+              </TouchableOpacity>
               <TouchableOpacity style={styles.langBtn} onPress={() => handleLanguageSwitch("right")}>
                 <Text style={styles.langText}>{t(`languageNames.${rightLanguage}`)}</Text>
               </TouchableOpacity>
@@ -461,6 +521,12 @@ const MusicScreen: React.FC = () => {
           <View style={styles.musicStyleCard}>
             <View style={styles.musicStyleHeader}>
               <Text style={styles.musicStyleTitle}>{t('music.select_music_style')}</Text>
+              {
+                isRefreshAIStyles &&
+                <Text style={styles.aiCreateTip}>
+                  {t('translate_screen.ai_create_tip')}
+                </Text>
+              }
               <TouchableOpacity style={styles.aiPolish} onPress={refreshAIStyles}>
                 <Image
                   source={require('../../../../assets/images/ai_polishing_star.png')}
@@ -665,6 +731,13 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: normalizeFontSize(16),
     fontWeight: '600',
+  },
+  aiCreateTip: {
+    flex: 1,
+    color: '#c3c3c3ff',
+    fontSize: scaleFont(12),
+    textAlign: 'right',
+    paddingRight: scaleSize(10),
   },
   aiPolish: {
     flexDirection: 'row',

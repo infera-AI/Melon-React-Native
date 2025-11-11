@@ -22,6 +22,7 @@ import { normalize, normalizeFontSize } from '@/utils/stylesUtil';
 import { MusicDownloader } from '@/utils/MusicDownloader';
 import FullScreenLoading from "@/components/FullScreenLoader";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { scaleFont, scaleSize } from "@/utils/scale";
 
 // 控制按钮图片资源
 const img_last_song = require("../../../../assets/images/last_song.png");
@@ -478,6 +479,8 @@ const MusicPlayScreen = ({ navigation, route }: any) => {
         />
       </View>
 
+
+      <Text style={styles.aiCreateTip}>{t('translate_screen.ai_create_tip')}</Text>
       {/* 播放进度条 */}
       <View style={styles.progressRow}>
         <Slider
@@ -918,6 +921,12 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     textAlign: "center",
   },
+  aiCreateTip: {
+    color: '#c3c3c3ff',
+    fontSize: scaleFont(12),
+    paddingVertical: scaleSize(10),
+    textAlign: 'center',
+  }
 });
 
 export default MusicPlayScreen;

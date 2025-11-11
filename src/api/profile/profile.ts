@@ -291,6 +291,16 @@ export function getVoiceprintEnrollmentConfig(params:{language:string}) {
   return http.get<VoiceprintEnrollmentConfigResult>(API_ENDPOINTS.PROFILE.GET_VOICEPRINT_ENROLLMENT_CONFIG, params);
 }
 
+// Airwallex支付-创建支付意图
+export function airwallexCreateIntent(params: any) {
+  return http.post<any>(API_ENDPOINTS.PROFILE.AIRWALLEX_CREATE_INTENT, params);
+}
+
+// ApplePay支付-付款成功后后端校验, 接口只要200 调成功就是成功
+export function applepayResultVerify(params: {receipt: string}) {
+  return http.post<any>(API_ENDPOINTS.PROFILE.APPLEPAY_RESULT_VERIFY, params);
+}
+
 
 
 
