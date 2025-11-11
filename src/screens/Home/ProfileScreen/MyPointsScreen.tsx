@@ -24,6 +24,7 @@ import {
 } from '@/api/profile'
 import { useAppStore } from '@/store';
 import ApplePayButton from '@/components/ApplePayButton';
+import { scaleFont, scaleSize } from '@/utils/scale';
 
 const MyPointsScreen: React.FC = () => {
   const navigation = useNavigation();
@@ -388,7 +389,7 @@ const styles = StyleSheet.create({
   },
   packageContent: {
     flex: 1,
-    padding: normalize(16),
+    paddingVertical: scaleSize(16),
     justifyContent: 'space-between',
   },
   packageTitle: {
@@ -410,7 +411,7 @@ const styles = StyleSheet.create({
     marginRight: normalize(8),
   },
   pointsText: {
-    fontSize: normalizeFontSize(20),
+    fontSize: scaleFont(18),
     fontWeight: '500',
     color: '#F7F7F7',
     fontFamily: 'DIN-Medium',
