@@ -1,9 +1,82 @@
 {
-  "translate_screen": "Translate Screen",
+  "languageNames": {
+    "de": "German",
+    "en": "English",
+    "es": "Spanish",
+    "fr": "French",
+    "ja": "Japanese",
+    "zh": "Chinese"
+  },
+  "http_service_error": "Server error, please try again",
+  "network_unavailable": "The network is unavailable, please check the network connection",
+  "token_expiration": "Login has expired, please log in again",
+  "response_error": "Response error, please try again",
+  "http_unauthorized": "Unauthorized, please log in again",
+  "translate_screen": {
+    "card_desc": "Supports multilingual AI conversations\nOral Practice & Knowledge Q&A",
+    "four_menu_title": "Conversation Translation Modes",
+    "speaker_mode": "Speaker Mode",
+    "headPhone_mode": "Headphone Mode",
+    "listening_mode": "Listening Mode",
+    "online_call": "Online Call",
+    "translation_tools": "Translation Tools",
+    "document_translation": "Document\nTranslation",
+    "audio_translation": "Audio\nTranslation",
+    "image_translation": "Image\nTranslation",
+    "quice_translation_placeholder": "Press and hold the voice button to speak, release to send.",
+    "loading_text": "Please wait a moment ...",
+    "input_no_value": "Please enter the content",
+    "quick_translation_success": "Translation successful"
+  },
   "auth_screen": "Auth Screen",
   "music_screen": "Music Screen",
   "profile_screen": "Profile Screen",
   "select_language": "Select Language",
   "next": "Next",
-  "subtitle2_translation": "Glad that I can communicate with you in your voice"
+  "subtitle2_translation": "Glad that I can communicate with you in your voice",
+  "register": {
+    "agreement_text": "By registering or logging in, you have read and agreed to the",
+    "user_service_agreement": "User Service Agreement",
+    "and": "and",
+    "privacy_policy": "Privacy Policy",
+    "please_agree": "Please agree to the terms and conditions",
+    "send_verification_code": "Send verification code",
+    "email_placeholder": "Email",
+    "phone_placeholder": "Phone number",
+    "password_placeholder": "Password",
+    "register_melon_account": "Register Melon account",
+    "phone_number": "Phone number",
+    "e_mail": "E-mail",
+    "select_country": "Select Country"
+  },
+  "verify_code": {
+    "title": "Enter confirmation code",
+    "subtitle": "Verification code has been sent to your phone",
+    "input_placeholder": "Enter verification code",
+    "resend": "Get verification code again",
+    "countdown": "s",
+    "confirm": "Confirm",
+    "not_received": "Didn't receive the code?",
+    "change_account": "Change account"
+  },
+  "reset_password": {
+    "title": "Recover your password",
+    "subtitle": "Please set a secure login password for your Melon account.",
+    "new_password_placeholder": "Please enter your password",
+    "confirm_password_placeholder": "Re-enter new password",
+    "password_requirements": "6-20 characters, including letters and numbers",
+    "confirm": "Complete the modification",
+    "password_mismatch": "Passwords do not match"
+  },
+  "login_phone": {
+    "title": "Login Melon account",
+    "phone_number": "Phone number",
+    "e_mail": "E-mail",
+    "phone_placeholder": "Phone number",
+    "email_placeholder": "Email",
+    "password_placeholder": "Password",
+    "log_in": "Log in",
+    "forgot_password": "Forgot your password? Log in with verification code",
+    "select_country": "Select Country"
+  }
 }

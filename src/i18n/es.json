@@ -1,9 +1,62 @@
 {
+  "languageNames": {
+    "de": "Alemán",
+    "en": "Inglés",
+    "es": "Español",
+    "fr": "Francés",
+    "ja": "Japonés",
+    "zh": "Chino"
+  },
   "translate_screen": "Página de traducción",
   "auth_screen": "Página de autenticación",
   "music_screen": "Página de música",
   "profile_screen": "Página de perfil",
   "select_language": "Seleccionar idioma",
   "next": "Siguiente",
-  "subtitle2_translation": "Me alegra poder comunicarme contigo en tu voz"
+  "subtitle2_translation": "Me alegra poder comunicarme contigo en tu voz",
+  "register": {
+    "agreement_text": "Al registrarte o iniciar sesión, has leído y aceptado",
+    "user_service_agreement": "Acuerdo de Servicio de Usuario",
+    "and": "y",
+    "privacy_policy": "Política de Privacidad",
+    "please_agree": "Por favor acepta los términos y condiciones",
+    "send_verification_code": "Enviar código de verificación",
+    "email_placeholder": "Correo electrónico",
+    "phone_placeholder": "Número de teléfono",
+    "password_placeholder": "Contraseña",
+    "register_melon_account": "Registrar cuenta Melon",
+    "phone_number": "Número de teléfono",
+    "e_mail": "Correo electrónico",
+    "select_country": "Seleccionar país"
+  },
+  "verify_code": {
+    "title": "Verificar código",
+    "subtitle": "Se ha enviado un código de verificación a",
+    "input_placeholder": "Ingrese el código de verificación",
+    "resend": "Reenviar",
+    "countdown": "s",
+    "confirm": "Confirmar",
+    "not_received": "¿No recibiste el código?",
+    "change_account": "Cambiar cuenta"
+  },
+  "reset_password": {
+    "title": "Recuperar tu contraseña",
+    "subtitle": "Por favor establece una contraseña de inicio de sesión segura para tu cuenta Melon.",
+    "new_password_placeholder": "Por favor ingresa tu contraseña",
+    "confirm_password_placeholder": "Re-ingresa nueva contraseña",
+    "password_requirements": "6-20 caracteres, incluyendo letras y números",
+    "confirm": "Completar la modificación",
+    "password_mismatch": "Las contraseñas no coinciden"
+  },
+  "login_phone": {
+    "title": "Iniciar sesión en cuenta Melon",
+    "phone_number": "Número de teléfono",
+    "e_mail": "Correo electrónico",
+    "phone_placeholder": "Número de teléfono",
+    "email_placeholder": "Correo electrónico",
+    "password_placeholder": "Contraseña",
+    "log_in": "Iniciar sesión",
+    "forgot_password": "¿Olvidaste tu contraseña? Inicia sesión con código de verificación",
+    "select_country": "Seleccionar país"
+  }
 }

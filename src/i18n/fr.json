@@ -1,9 +1,62 @@
 {
+  "languageNames": {
+    "de": "Allemand",
+    "en": "Anglais",
+    "es": "Espagnol",
+    "fr": "Français",
+    "ja": "Japonais",
+    "zh": "Chinois"
+  },
   "translate_screen": "Page de traduction",
   "auth_screen": "Page de connexion",
   "music_screen": "Page de musique",
   "profile_screen": "Page de profil",
   "select_language": "Choisir la langue",
   "next": "Suivant",
-  "subtitle2_translation": "Heureux de pouvoir communiquer avec toi avec ta voix"
+  "subtitle2_translation": "Heureux de pouvoir communiquer avec toi avec ta voix",
+  "register": {
+    "agreement_text": "En vous inscrivant ou en vous connectant, vous avez lu et accepté",
+    "user_service_agreement": "Accord de Service Utilisateur",
+    "and": "et",
+    "privacy_policy": "Politique de Confidentialité",
+    "please_agree": "Veuillez accepter les termes et conditions",
+    "send_verification_code": "Envoyer le code de vérification",
+    "email_placeholder": "E-mail",
+    "phone_placeholder": "Numéro de téléphone",
+    "password_placeholder": "Mot de passe",
+    "register_melon_account": "Créer un compte Melon",
+    "phone_number": "Numéro de téléphone",
+    "e_mail": "E-mail",
+    "select_country": "Sélectionner le pays"
+  },
+  "verify_code": {
+    "title": "Vérifier le code",
+    "subtitle": "Un code de vérification a été envoyé à",
+    "input_placeholder": "Entrez le code de vérification",
+    "resend": "Renvoyer",
+    "countdown": "s",
+    "confirm": "Confirmer",
+    "not_received": "Vous n'avez pas reçu le code ?",
+    "change_account": "Changer de compte"
+  },
+  "reset_password": {
+    "title": "Récupérer votre mot de passe",
+    "subtitle": "Veuillez définir un mot de passe de connexion sécurisé pour votre compte Melon.",
+    "new_password_placeholder": "Veuillez saisir votre mot de passe",
+    "confirm_password_placeholder": "Saisir à nouveau le nouveau mot de passe",
+    "password_requirements": "6-20 caractères, incluant des lettres et des chiffres",
+    "confirm": "Terminer la modification",
+    "password_mismatch": "Les mots de passe ne correspondent pas"
+  },
+  "login_phone": {
+    "title": "Se connecter au compte Melon",
+    "phone_number": "Numéro de téléphone",
+    "e_mail": "E-mail",
+    "phone_placeholder": "Numéro de téléphone",
+    "email_placeholder": "E-mail",
+    "password_placeholder": "Mot de passe",
+    "log_in": "Se connecter",
+    "forgot_password": "Mot de passe oublié ? Se connecter avec un code de vérification",
+    "select_country": "Sélectionner le pays"
+  }
 }

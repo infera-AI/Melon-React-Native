@@ -1,9 +1,62 @@
 {
+  "languageNames": {
+    "de": "Deutsch",
+    "en": "Englisch",
+    "es": "Spanisch",
+    "fr": "Französisch",
+    "ja": "Japanisch",
+    "zh": "Chinesisch"
+  },
   "translate_screen": "Übersetzungsseite",
   "auth_screen": "Anmeldeseite",
   "music_screen": "Musikseite",
   "profile_screen": "Profilseite",
   "select_language": "Sprache auswählen",
   "next": "Weiter",
-  "subtitle2_translation": "Ich freue mich, mit dir in deiner Stimme zu kommunizieren"
+  "subtitle2_translation": "Ich freue mich, mit dir in deiner Stimme zu kommunizieren",
+  "register": {
+    "agreement_text": "Durch die Registrierung oder Anmeldung haben Sie gelesen und zugestimmt",
+    "user_service_agreement": "Nutzungsbedingungen",
+    "and": "und",
+    "privacy_policy": "Datenschutzrichtlinie",
+    "please_agree": "Bitte stimmen Sie den Bedingungen zu",
+    "send_verification_code": "Verifizierungscode senden",
+    "email_placeholder": "E-Mail",
+    "phone_placeholder": "Telefonnummer",
+    "password_placeholder": "Passwort",
+    "register_melon_account": "Melon-Konto registrieren",
+    "phone_number": "Telefonnummer",
+    "e_mail": "E-Mail",
+    "select_country": "Land auswählen"
+  },
+  "verify_code": {
+    "title": "Code bestätigen",
+    "subtitle": "Ein Bestätigungscode wurde gesendet an",
+    "input_placeholder": "Bestätigungscode eingeben",
+    "resend": "Erneut senden",
+    "countdown": "s",
+    "confirm": "Bestätigen",
+    "not_received": "Code nicht erhalten?",
+    "change_account": "Konto wechseln"
+  },
+  "reset_password": {
+    "title": "Passwort wiederherstellen",
+    "subtitle": "Bitte legen Sie ein sicheres Anmeldepasswort für Ihr Melon-Konto fest.",
+    "new_password_placeholder": "Bitte geben Sie Ihr Passwort ein",
+    "confirm_password_placeholder": "Neues Passwort erneut eingeben",
+    "password_requirements": "6-20 Zeichen, einschließlich Buchstaben und Zahlen",
+    "confirm": "Änderung abschließen",
+    "password_mismatch": "Passwörter stimmen nicht überein"
+  },
+  "login_phone": {
+    "title": "Melon-Konto anmelden",
+    "phone_number": "Telefonnummer",
+    "e_mail": "E-Mail",
+    "phone_placeholder": "Telefonnummer",
+    "email_placeholder": "E-Mail",
+    "password_placeholder": "Passwort",
+    "log_in": "Anmelden",
+    "forgot_password": "Passwort vergessen? Mit Bestätigungscode anmelden",
+    "select_country": "Land auswählen"
+  }
 }
